@@ -233,6 +233,24 @@
     <button class="primary" style="margin-top:16px" onclick="dismissWelcome()">Get started</button>
   </div>
 </div>
+<div id="bootGate" class="gatewrap hidden">
+  <div class="gatecard">
+    <div class="logo"><svg class="mark" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M8 15l-3 8 4-2 3 2.4 3-2.4 4 2-3-8z" fill="currentColor" opacity=".72"/><circle cx="12" cy="9" r="7" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M12 5l1.2 2.5 2.7.4-2 1.9.5 2.8-2.4-1.3-2.4 1.3.5-2.8-2-1.9 2.7-.4z" fill="currentColor"/></svg><span>Dougoun Kids</span></div>
+    <p class="sub" style="margin-top:12px">Loading your family…</p>
+  </div>
+</div>
+<div id="errorGate" class="gatewrap hidden">
+  <div class="gatecard">
+    <div class="logo"><svg class="mark" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M8 15l-3 8 4-2 3 2.4 3-2.4 4 2-3-8z" fill="currentColor" opacity=".72"/><circle cx="12" cy="9" r="7" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M12 5l1.2 2.5 2.7.4-2 1.9.5 2.8-2.4-1.3-2.4 1.3.5-2.8-2-1.9 2.7-.4z" fill="currentColor"/></svg><span>Dougoun Kids</span></div>
+    <h1 style="font-size:20px;margin:12px 0 4px">Couldn't load your family</h1>
+    <p class="sub" id="errorText"></p>
+    <p class="small" id="errorDetail" style="color:#a63e3e;word-break:break-word"></p>
+    <div style="display:grid;gap:8px;margin-top:16px">
+      <button class="primary" onclick="location.reload()">Try again</button>
+      <button class="light" onclick="signOutDevice()">Sign in as someone else</button>
+    </div>
+  </div>
+</div>
 <div id="noFamilyGate" class="gatewrap hidden">
   <div class="gatecard">
     <div class="logo"><svg class="mark" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M8 15l-3 8 4-2 3 2.4 3-2.4 4 2-3-8z" fill="currentColor" opacity=".72"/><circle cx="12" cy="9" r="7" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M12 5l1.2 2.5 2.7.4-2 1.9.5 2.8-2.4-1.3-2.4 1.3.5-2.8-2-1.9 2.7-.4z" fill="currentColor"/></svg><span>Dougoun Kids</span></div>
@@ -871,29 +889,63 @@ function availableFor(child){
   return Math.max(0, (child.balance || 0) - pendingSpendFor(child.id));
 }
 
+/* Exactly one of these screens is visible at any moment. Start-up used to be
+   able to fall through every branch and leave a blank page, which hides the
+   real error instead of reporting it. */
+function showGate(which){
+  ["bootGate","errorGate","noFamilyGate","authGate","welcomeScreen","mainApp"].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el) el.classList.toggle("hidden", id!==which);
+  });
+}
+function showLoadError(message, err){
+  console.error("Start-up failed:", err);
+  document.getElementById("errorText").textContent = message;
+  document.getElementById("errorDetail").textContent =
+    err ? (err.code ? err.code + " — " : "") + (err.message || String(err)) : "";
+  showGate("errorGate");
+}
 async function loadApp(){
   const uid = window.fpc.uid();
   if(!uid) return;
+  showGate("bootGate");
   setSyncStatus("☁️ Connecting…");
   try{
     familyId = await window.fpc.familyIdFor(uid);
   }catch(e){
-    console.error("Could not read family pointer:", e);
-    setSyncStatus("⚠️ Couldn't reach the cloud");
+    // permission-denied here almost always means the security rules haven't
+    // been deployed yet, so the account can't even read its own family pointer.
+    showLoadError(
+      e && e.code === "permission-denied"
+        ? "This account isn't allowed to read its family yet. If you've just set the app up, the Firestore security rules still need deploying — run: firebase deploy --only firestore:rules"
+        : "Couldn't reach the database. Check your connection and try again.",
+      e);
     return;
   }
   if(!familyId){
-    document.getElementById("loadingMsg").classList.add("hidden");
-    document.getElementById("noFamilyNotice").classList.remove("hidden");
+    showGate("noFamilyGate");
     return;
   }
   sessionMemberId = uid;
+  let settled=false;
+  // If nothing arrives, say so rather than sitting on a loading screen forever.
+  const timer=setTimeout(()=>{
+    if(!settled) showLoadError("The family data didn't arrive. This usually means the security rules are blocking it, or the connection dropped.", null);
+  }, 12000);
   window.fpc.listen(familyId, (raw) => {
+    settled=true; clearTimeout(timer);
     projectApp(raw);
+    if(!raw.family){
+      showLoadError("Your account points at a family that no longer exists. Ask a parent to add you again.", null);
+      return;
+    }
+    if(!sessionMember()){
+      showLoadError("Your account isn't listed as a member of this family yet. If a parent has just added you, ask them to finish it, then try again.", null);
+      return;
+    }
     if(!ready){
       ready = true;
-      document.getElementById("loadingMsg").classList.add("hidden");
-      document.getElementById("mainApp").classList.remove("hidden");
+      showGate("mainApp");
     }
     setSyncStatus("☁️ Synced across devices");
     renderAccounts();
@@ -1123,7 +1175,7 @@ async function removeMember(id){
   catch(e){ console.error(e); alert("That couldn't be saved."); }
 }
 function showMainApp(){
-  document.getElementById("mainApp").classList.remove("hidden");
+  showGate("mainApp");
   renderAccounts(); render();
 }
 async function logout(){
@@ -2103,20 +2155,13 @@ window.onAuthChanged = async function(user){
   const authGate=document.getElementById("authGate");
   const noFamily=document.getElementById("noFamilyGate");
   if(user){
-    authGate.classList.add("hidden");
-    noFamily.classList.add("hidden");
     if(window.__creatingFamily) return;      // createFamily() drives its own flow
-    document.getElementById("loadingMsg").classList.remove("hidden");
     await loadApp();
   }else{
     stopEverything();
-    document.getElementById("loadingMsg").classList.add("hidden");
-    document.getElementById("mainApp").classList.add("hidden");
-    document.getElementById("welcomeScreen").classList.add("hidden");
-    noFamily.classList.add("hidden");
     document.getElementById("signUpForm").classList.add("hidden");
     document.getElementById("signInForm").classList.remove("hidden");
-    authGate.classList.remove("hidden");
+    showGate("authGate");
   }
 };
 function stopEverything(){
@@ -2189,9 +2234,8 @@ async function submitSignUp(){
       games: STARTER_GAMES
     });
     window.__creatingFamily=false;
-    document.getElementById("authGate").classList.add("hidden");
-    document.getElementById("welcomeScreen").classList.remove("hidden");
     await loadApp();
+    showGate("welcomeScreen");
   }catch(e){
     window.__creatingFamily=false;
     console.error("Sign-up failed:", e);
@@ -2201,8 +2245,8 @@ async function submitSignUp(){
   }
 }
 function dismissWelcome(){
-  document.getElementById("welcomeScreen").classList.add("hidden");
-  showMainApp();
+  showGate("mainApp");
+  renderAccounts(); render();
 }
 async function signOutDevice(){
   if(!confirm("Sign out on this device? You'll need your own email and password to sign back in.")) return;
