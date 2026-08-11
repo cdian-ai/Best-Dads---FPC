@@ -90,6 +90,39 @@
   .gateprofile:hover{background:#eef0ff}
   #gateNoFamily{margin-top:16px;display:grid;gap:8px;text-align:left}
 
+  /* ---------- Onboarding ---------- */
+  .onbcard{max-width:520px;width:100%;background:var(--card);border-radius:24px;padding:28px;box-shadow:var(--shadow);text-align:left}
+  .onbdots{display:flex;gap:6px;justify-content:center;margin:0 0 18px}
+  .onbdot{width:8px;height:8px;border-radius:50%;background:#dfe1f0}
+  .onbdot.on{background:var(--accent);width:22px;border-radius:99px}
+  .onbcard h1{font-size:22px;margin:0 0 6px}
+  .onbcard .lede{color:var(--muted);font-size:14px;margin:0 0 16px;line-height:1.5}
+  .onbpoint{display:flex;gap:11px;align-items:flex-start;background:#f7f8fc;border-radius:14px;padding:12px 13px;margin-bottom:9px}
+  .onbpoint .em{font-size:20px;line-height:1.2;flex-shrink:0}
+  .onbpoint strong{display:block;font-size:14px}
+  .onbpoint span{font-size:13px;color:var(--muted);line-height:1.45}
+  .onbnav{display:flex;gap:8px;margin-top:18px}
+  .onbnav button{flex:1}
+  .addedrow{display:flex;align-items:center;gap:9px;background:#eefaf4;border:1px solid #cbeedd;border-radius:12px;padding:9px 11px;margin-bottom:7px;font-size:13px}
+  .addedrow .who{flex:1;min-width:0}
+  .addedrow code{font-size:11px;color:#19744a;word-break:break-all}
+
+  /* ---------- Parenting tips ---------- */
+  .tips{background:#fff;border-radius:22px;padding:18px;box-shadow:var(--shadow);margin-bottom:16px;border-top:6px solid #7c83ef}
+  .tipshead{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px}
+  .tipshead h2{margin:0;font-size:18px}
+  .tipcats{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+  .tipcats button{width:auto;background:#f2f3fb;color:#4a5170;font-size:12px;padding:6px 11px;border-radius:99px;font-weight:600}
+  .tipcats button.on{background:var(--accent);color:#fff}
+  .tipbody{background:#f8f8ff;border:1px solid #e7e8f7;border-radius:16px;padding:15px}
+  .tipkind{font-size:10px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#6b63c9}
+  .tipbody h3{margin:5px 0 6px;font-size:17px}
+  .tipbody p{margin:0;font-size:14px;line-height:1.55;color:#3f4560}
+  .trythis{margin-top:12px;background:#fff;border-left:3px solid var(--good);border-radius:0 10px 10px 0;padding:10px 13px}
+  .trythis strong{display:block;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:#19744a;margin-bottom:3px}
+  .trythis span{font-size:14px;line-height:1.5}
+  .tipnote{font-size:12px;color:var(--muted);margin:10px 0 0}
+
   /* ---------- Parent eyebrow reminders ---------- */
   .eyebrow{display:flex;align-items:flex-start;gap:9px;background:#fffaf0;border:1px solid #f0dcb2;
            border-radius:14px;padding:9px 13px;margin:0 0 12px;font-size:12.5px;color:#7a6636;line-height:1.45}
@@ -111,6 +144,7 @@
   .mood-green{background:#e4f7ed;color:#19744a}
   .mood-amber{background:#fff2e0;color:#9a5b12}
   .mood-red{background:#ffeced;color:#a63e3e}
+  .mood-new{background:#f0eeff;color:#4b43a8}
   .graphcard svg{width:100%;height:auto;display:block;margin-top:6px}
   .graphnote{font-size:12px;color:var(--muted);margin:8px 0 0}
 
@@ -203,7 +237,10 @@
       <p class="small" id="authError" style="color:#a63e3e"></p>
       <p class="small" id="authResetMsg" style="color:var(--good)"></p>
       <p class="small"><a href="#" onclick="submitForgotPassword();return false;">Forgot password?</a></p>
-      <p class="small">New here? <a href="#" onclick="switchToSignUp();return false;">Create an account</a></p>
+      <p class="small" style="background:#f7f7ff;border:1px solid #e1e3f4;border-radius:12px;padding:9px 11px;margin:2px 0">
+        <strong>Children:</strong> sign in with the email and password a parent gave you when they added you. It looks like <em>yourname.ab12@…</em>
+      </p>
+      <p class="small">Starting a brand new family? <a href="#" onclick="switchToSignUp();return false;">Create an account</a></p>
     </div>
 
     <div id="signUpForm" class="hidden" style="text-align:left;display:grid;gap:8px;margin-top:16px">
@@ -251,15 +288,90 @@
     </div>
   </div>
 </div>
+<div id="onboarding" class="gatewrap hidden">
+  <div class="onbcard">
+    <div style="text-align:center"><div class="logo"><svg class="mark" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M8 15l-3 8 4-2 3 2.4 3-2.4 4 2-3-8z" fill="currentColor" opacity=".72"/><circle cx="12" cy="9" r="7" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M12 5l1.2 2.5 2.7.4-2 1.9.5 2.8-2.4-1.3-2.4 1.3.5-2.8-2-1.9 2.7-.4z" fill="currentColor"/></svg><span>Dougoun Kids</span></div></div>
+    <div class="onbdots" id="onbDots"></div>
+
+    <div class="onbstep" id="onbStep1">
+      <h1>Welcome, <span id="onbName">there</span> 👋</h1>
+      <p class="lede">Your family is set up. Three things worth knowing before you start — it takes a minute.</p>
+      <div class="onbpoint"><span class="em">⭐</span><div><strong>You notice, you award</strong><span>Only Mum and Dad accounts can give points. Children can see what they've earned, but never award any — to themselves or each other.</span></div></div>
+      <div class="onbpoint"><span class="em">🎁</span><div><strong>They ask, you decide</strong><span>Children choose a reward or an activity and it comes to you as a request. Points are only spent when you approve it.</span></div></div>
+      <div class="onbpoint"><span class="em">📈</span><div><strong>You'll see the pattern</strong><span>Each child gets a behaviour trend that runs green when points are coming in regularly and fades as things go quiet.</span></div></div>
+      <div class="onbnav"><button class="primary" onclick="onbGo(2)">Next</button></div>
+    </div>
+
+    <div class="onbstep hidden" id="onbStep2">
+      <h1>Add your children</h1>
+      <p class="lede">Each child gets their own login, so the app knows who is who. Add them now — you can always add more later.</p>
+      <div id="onbAdded"></div>
+      <div style="display:grid;gap:8px;margin-top:4px">
+        <input id="onbChildName" type="text" placeholder="Their name (e.g. Aisha)">
+        <input id="onbChildAge" type="text" placeholder="Age — optional (e.g. 7)">
+        <input id="onbChildPassword" type="text" placeholder="A password for them (6+ characters)">
+        <button class="light" onclick="onbAddChild()" id="onbAddBtn">＋ Add this child</button>
+        <p class="small" id="onbAddError" style="color:#a63e3e;margin:0"></p>
+      </div>
+      <p class="small" style="margin:12px 0 0">On each child's own device, sign in with the email and password shown above. There's no code to enter and nothing to approve.</p>
+      <div class="onbnav">
+        <button class="light" onclick="onbGo(1)">Back</button>
+        <button class="primary" onclick="onbGo(3)" id="onbStep2Next">Next</button>
+      </div>
+    </div>
+
+    <div class="onbstep hidden" id="onbStep3">
+      <h1>Set up their rewards</h1>
+      <p class="lede">There's a starter list of rewards and activities ready to go — snacks, outings, screen time, games. They're yours to change.</p>
+      <div class="onbpoint"><span class="em">🍫</span><div><strong>Keep a few cheap ones</strong><span>Something reachable in a day or two matters as much as the big saver-goal, especially for younger children.</span></div></div>
+      <div class="onbpoint"><span class="em">🎲</span><div><strong>Price the activities</strong><span>Children pick which activity they'd like — or save their points for something the family agrees on together.</span></div></div>
+      <div class="onbpoint"><span class="em">💛</span><div><strong>Points aren't the point</strong><span>The app will nudge you now and then with ideas for connecting with your children — that's what makes the rest of it work.</span></div></div>
+      <div class="onbnav">
+        <button class="light" onclick="onbGo(2)">Back</button>
+        <button class="primary" onclick="finishOnboarding()">Start using the app</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div id="noFamilyGate" class="gatewrap hidden">
   <div class="gatecard">
     <div class="logo"><svg class="mark" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M8 15l-3 8 4-2 3 2.4 3-2.4 4 2-3-8z" fill="currentColor" opacity=".72"/><circle cx="12" cy="9" r="7" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M12 5l1.2 2.5 2.7.4-2 1.9.5 2.8-2.4-1.3-2.4 1.3.5-2.8-2-1.9 2.7-.4z" fill="currentColor"/></svg><span>Dougoun Kids</span></div>
-    <h1 style="font-size:22px;margin:0 0 4px">Almost there</h1>
-    <p class="sub" id="noFamilyNotice">This login isn't linked to a family yet. If a parent set it up for you, ask them to finish adding you under "Family &amp; Children". Otherwise you can start a new family.</p>
-    <div style="display:grid;gap:8px;margin-top:16px">
-      <button class="light" onclick="signOutDevice()">Sign in as someone else</button>
+    <h1 style="font-size:20px;margin:12px 0 4px">This login isn't part of a family</h1>
+    <p class="sub">You're signed in as <strong id="noFamilyEmail">—</strong>, but this account isn't in any family yet.</p>
+
+    <div style="text-align:left;background:#f7f7ff;border:1px solid #e1e3f4;border-radius:16px;padding:14px;margin-top:16px">
+      <p class="small" style="margin:0 0 6px"><strong>Are you a child, or joining someone else's family?</strong></p>
+      <p class="small" style="margin:0">You don't join from here — there's no code or invitation. A parent adds you on their own device, which creates your login for you. Ask them for the email address and password it showed them, then sign in with those below. Nothing else is needed.</p>
+    </div>
+
+    <div style="display:grid;gap:8px;margin-top:14px">
+      <button class="primary" onclick="signOutDevice()">Sign in with a family login</button>
+      <button class="light" onclick="toggleStartFamily()" id="startFamilyBtn">Or start a new family with this login</button>
+    </div>
+
+    <div id="startFamilyForm" class="hidden" style="text-align:left;display:grid;gap:8px;margin-top:14px">
+      <p class="small" style="margin:0">This makes you the first parent of a brand new family. Your children get their logins afterwards, from inside the app.</p>
+      <input id="nfFamilyName" type="text" placeholder="Family name (e.g. The Ahmeds)">
+      <input id="nfPersonName" type="text" placeholder="Your name (e.g. Sarah)">
+      <div>
+        <p class="small" style="margin:0 0 6px">You are...</p>
+        <div style="display:flex;gap:8px">
+          <button type="button" id="nfRoleMum" class="light" style="width:auto;flex:1" onclick="selectNoFamilyRole('Mum')">Mum</button>
+          <button type="button" id="nfRoleDad" class="light selected" style="width:auto;flex:1" onclick="selectNoFamilyRole('Dad')">Dad</button>
+        </div>
+      </div>
+      <button class="primary" onclick="startFamilyHere()">Create the family</button>
+      <p class="small" id="nfError" style="color:#a63e3e"></p>
     </div>
   </div>
+</div>
+<div id="crashBar" class="hidden" style="position:sticky;top:0;z-index:60;padding:11px 18px;background:#ffecec;border-bottom:2px solid #e08585;color:#8c2b2b;font-size:13px;line-height:1.45">
+  <strong>Something went wrong.</strong> <span id="crashText"></span>
+  <button class="light" style="width:auto;padding:4px 10px;font-size:12px;margin-left:8px" onclick="document.getElementById('crashBar').classList.add('hidden')">Dismiss</button>
+</div>
+<div id="fileWarning" class="hidden" style="position:sticky;top:0;z-index:50;padding:11px 18px;background:#fff2d6;border-bottom:2px solid #e8b84b;color:#6d4f10;font-size:13px;text-align:center;line-height:1.45">
+  ⚠️ <strong>This is a local copy.</strong> Accounts can't be created or signed into from a file on your computer — open the app from its web address (github.io) instead. Everything else here is just a preview.
 </div>
 <div id="mainApp" class="wrap hidden">
 <header>
@@ -278,12 +390,12 @@
     <div class="accountbuttons">
       <button class="light" id="btnFamily" onclick="showAccountPanel()">👨‍👩‍👧 Family &amp; Children</button>
       <button class="light" id="btnOverview" onclick="showOverviewPanel()">📊 Overview</button>
-      <button class="light" id="btnActivity" onclick="showActivityPanel()">📋 Activity</button>
+      <button class="light" id="btnActivity" onclick="showActivityPanel()">📋 History</button>
       <button class="light" id="btnRequests" onclick="showRequestsPanel()">🔔 Requests</button>
       <button class="light" onclick="toggleEditMode()" id="editModeBtn">✏️ Edit Categories</button>
       <button class="primary" id="btnGivePoints" onclick="addPointPrompt()">＋ Give points</button>
       <button class="light" id="btnResetDay" onclick="resetDay()">↻ Reset today</button>
-      <button class="light" onclick="logout()">🔒 Switch profile</button>
+      <button class="light" id="btnSignOut" onclick="signOutDevice()">🔒 Sign out</button>
     </div>
   </div>
 
@@ -293,7 +405,21 @@
         <h2>👨‍👩‍👧 Family members</h2>
         <p class="small">Everyone signed in to this family, and who's currently selected.</p>
         <div id="childrenList"></div>
-        <div class="catedit" style="margin-top:14px">
+        <div id="justAdded" class="hidden" style="margin-top:14px;background:#eefaf4;border:1px solid #cbeedd;border-radius:16px;padding:14px">
+          <p style="margin:0 0 4px;font-weight:700" id="justAddedTitle">Added</p>
+          <p class="small" style="margin:0 0 8px">On their own device, open the app and sign in with:</p>
+          <div style="background:#fff;border:1px solid #cbeedd;border-radius:12px;padding:10px 12px;font-size:13px;word-break:break-all">
+            <div>Email: <strong id="justAddedEmail"></strong></div>
+            <div>Password: <strong id="justAddedPass"></strong></div>
+          </div>
+          <p class="small" style="margin:8px 0 10px">Write this down. There's no code to enter and nothing to approve — that's the whole process.</p>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <button class="primary" style="width:auto" onclick="addAnotherMember()">＋ Add another family member</button>
+            <button class="light" style="width:auto" onclick="doneAddingMembers()">Done for now</button>
+          </div>
+        </div>
+
+        <div class="catedit" id="addMemberBox" style="margin-top:14px">
           <p class="small" style="margin:0 0 8px"><strong>Add someone new</strong></p>
           <p class="small" style="margin:0 0 10px">Adding someone here creates their own login, so the app knows who is who. Choose <strong>Child</strong> for anyone who should earn points, and <strong>Parent</strong> for another adult who can award them.</p>
           <input id="newChildName" placeholder="Name (e.g. Emma, Grandma)">
@@ -309,7 +435,8 @@
             <button type="button" class="photobtn" onclick="document.getElementById('newMemberPhotoInput').click()">Add photo (optional)</button>
             <input type="file" id="newMemberPhotoInput" accept="image/*" class="hidden" onchange="handleNewMemberPhoto(this.files[0])">
           </div>
-          <button class="primary" style="margin-top:8px" onclick="addChild()">＋ Add family member</button>
+          <button class="primary" style="margin-top:8px" id="addMemberBtn" onclick="addChild()">＋ Add family member</button>
+          <p class="small" id="addMemberError" style="color:#a63e3e;margin:8px 0 0"></p>
         </div>
         <input type="file" id="avatarFileInput" accept="image/*" class="hidden" onchange="handleAvatarUpload(this.files[0])">
       </section>
@@ -319,18 +446,9 @@
           <input type="checkbox" id="championToggle" onchange="toggleChampionBanner(this.checked)" style="width:auto">
           <span class="small">🏆 Show weekly champion banner</span>
         </label>
-        <div id="createFamilySection" style="margin-top:14px;padding-top:14px;border-top:1px solid #e6e8f0">
-          <p class="small" style="margin:0 0 8px"><strong>Create family account</strong></p>
-          <p class="small">Synced to the cloud — signed-in family devices see the same data.</p>
-          <input id="familyName" placeholder="Family name">
-          <input id="parentName" placeholder="Parent / carer name" style="margin-top:8px">
-          <button class="primary" style="margin-top:8px" onclick="createFamily()">Create family</button>
-        </div>
-        <div style="margin-top:14px;padding-top:14px;border-top:1px solid #e6e8f0">
-          <p class="small" style="margin:0 0 8px"><strong>🔒 This device</strong></p>
-          <button class="danger" onclick="signOutDevice()">Sign out this device</button>
-          <p class="small" style="margin-top:6px">You'll need the family email and password to sign back in.</p>
-        </div>
+        <p class="small" style="margin-top:14px;padding-top:14px;border-top:1px solid #e6e8f0">
+          Everyone signs in with their own email and password. Use <strong>Sign out</strong> at the top to hand this device to someone else.
+        </p>
       </section>
     </div>
   </div>
@@ -343,12 +461,12 @@
 
   <div id="requestsPanel" class="panel hidden">
     <h2>🔔 Requests from the children</h2>
-    <p class="small">When a child spends points on a reward or a Game Night Activity, it shows up here for you to approve.</p>
+    <p class="small">When a child asks for a reward or an activity, it shows up here for you to approve.</p>
     <div id="requestsPanelList" style="display:grid;gap:8px;margin-top:10px"></div>
   </div>
 
   <div id="activityPanel" class="panel hidden">
-    <h2>📋 Recent Activity</h2>
+    <h2>📋 Points history</h2>
     <p class="small">The last actions logged for <span id="activityChildName">—</span>. Tap Undo to reverse a mistake.</p>
     <div id="activityList" style="display:grid;gap:8px;margin-top:10px"></div>
   </div>
@@ -370,6 +488,7 @@
 
 <p id="editModeNote" class="small hidden" style="background:#eef0ff;border-radius:12px;padding:10px 14px;margin:0 0 12px">✏️ Edit mode is on — change names, points, add or remove actions and categories below. Turn it off with the "Edit Categories" button when you're done.</p>
 
+<section id="tipsCard" class="tips hidden"></section>
 <div id="requestsBanner" class="requestcard hidden"></div>
 <div id="behaviourWrap" class="graphcard hidden"></div>
 
@@ -412,8 +531,8 @@
     <h2>🎁 Spend my points</h2>
     <p class="lede">Tap a reward to ask Mum or Dad for it. Nothing is taken from your points until they say yes.</p>
     <div id="kidRewardChips" class="chiprow"></div>
-    <h2 style="margin-top:18px">🎲 Game Night Activity</h2>
-    <p class="lede">Pick the activity you'd like for game night — or save your points for something the family agrees on together.</p>
+    <h2 style="margin-top:18px">🎲 Activities</h2>
+    <p class="lede">Pick an activity you'd like to do — or save your points for something the family agrees on together.</p>
     <div id="kidGameChips" class="chiprow"></div>
     <div class="savebox">
       <p>💡 <strong>Or save up.</strong> You don't have to spend anything today. Keeping your points builds towards a bigger family activity you all choose together.</p>
@@ -423,45 +542,54 @@
 
   <div class="ticker"><div class="tickertrack" id="kidTicker"></div></div>
   <p class="kidfooter">Only Mum and Dad can give points — keep doing kind things and they'll notice! 💛</p>
+  <div style="text-align:center;margin:0 0 24px">
+    <button class="light" style="width:auto" onclick="signOutDevice()">🔒 Sign out — hand the device back</button>
+  </div>
 </div>
 
 <section id="rewardSection" class="reward hidden">
   <div class="eyebrow" id="rewardEyebrow"></div>
   <h2>🏆 Family rewards <span class="small" style="font-weight:400">— parents only</span></h2>
-  <p>Set the rewards your children can spend points on. Choose things that are meaningful but don't need to be expensive — the aim is to celebrate effort and positive choices. Children can see and buy these from their own screen, but can't add, edit or remove them.</p>
-  <div id="rewardButtons" class="rewardrow"></div>
+  <p>These are what your children can buy with their points. They can see and choose them, but can't add, edit or remove any.</p>
+
+  <p class="small" style="margin:14px 0 6px"><strong>Available to buy right now</strong> — <span id="rewardCount">0</span> on the list</p>
+  <div id="rewardManageList" style="display:grid;gap:7px"></div>
   <p id="pacingNote" class="small hidden" style="margin-top:10px"></p>
+
   <div class="catedit" style="margin-top:16px">
-    <p class="small" style="margin:0 0 8px"><strong>Add or remove rewards</strong></p>
+    <p class="small" style="margin:0 0 8px"><strong>Add a reward</strong></p>
     <p class="small" style="margin:0 0 2px">🍫 Snacks &amp; foodie treats — tap to add, then change the points to suit:</p>
     <div id="snackQuickAdd" class="quickchips"></div>
-    <div id="rewardManageList" style="display:grid;gap:6px;margin:10px 0"></div>
-    <div style="display:grid;gap:8px">
-      <input id="newRewardName" placeholder="Reward name — e.g. Choose the dessert">
+    <div style="display:grid;gap:8px;margin-top:10px">
       <div class="editrow">
-        <input id="newRewardKind" placeholder="Kind of reward — e.g. Treat, Outing, Screen time, Event">
+        <input id="newRewardName" placeholder="Name — e.g. Choose the dessert (required)">
         <input id="newRewardPoints" class="ptsinput" type="number" min="1" placeholder="pts">
-        <button class="primary" style="width:auto" onclick="addReward()">＋ Add</button>
       </div>
+      <input id="newRewardKind" placeholder="Short description — optional (e.g. Treat, Outing, Screen time)">
+      <button class="primary" onclick="addReward()" style="align-self:flex-start;width:auto">＋ Add reward</button>
     </div>
   </div>
 </section>
 
 <section id="gameNightSection" class="reward hidden" style="background:#eef0ff;border-color:#c9cdf5">
   <div class="eyebrow cool" id="gameEyebrow"></div>
-  <h2>🎲 Game Night Activity <span class="small" style="font-weight:400">— parents only</span></h2>
-  <p>Set the Game Night Activities and what each one costs. Children choose which activity they'd like to buy with their points — or save their points instead for a family-agreed activity. You'll get a request to approve whenever they pick one.</p>
-  <div class="rewardrow" style="margin-top:12px;flex-direction:column;align-items:stretch;gap:8px">
-    <input id="newGameName" placeholder="Activity name — e.g. Uno, Charades, Treasure hunt">
-    <div class="editrow">
-      <input id="newGameKind" placeholder="Kind of game — e.g. Card game, Board game, Active, Quiz">
-      <input id="newGamePoints" class="ptsinput" type="number" min="1" placeholder="pts">
+  <h2>🎲 Activities <span class="small" style="font-weight:400">— parents only</span></h2>
+  <p>These are what your children can choose from and buy with their points. Give each one a name, what it costs, and a short description so they know what they're picking.</p>
+
+  <p class="small" style="margin:14px 0 6px"><strong>Available to buy right now</strong> — <span id="gameCount">0</span> on the list</p>
+  <div id="gameNightList" style="display:grid;gap:7px"></div>
+
+  <div class="catedit" style="margin-top:16px">
+    <p class="small" style="margin:0 0 8px"><strong>Add an activity</strong></p>
+    <div style="display:grid;gap:8px">
+      <div class="editrow">
+        <input id="newGameName" placeholder="Name — e.g. Uno, Treasure hunt (required)">
+        <input id="newGamePoints" class="ptsinput" type="number" min="1" placeholder="pts">
+      </div>
+      <input id="newGameDesc" placeholder="Short description — what happens, in a line (optional)">
+      <button class="primary" onclick="addGameNightActivity()" style="align-self:flex-start;width:auto">＋ Add activity</button>
     </div>
-    <input id="newGameBuy" placeholder="What to buy (optional) — e.g. A deck of Uno cards">
-    <input id="newGameHowTo" placeholder="How to play (optional) — a short summary">
-    <button class="primary" onclick="addGameNightActivity()" style="align-self:flex-start;width:auto">＋ Add activity</button>
   </div>
-  <div id="gameNightList" style="display:grid;gap:7px;margin-top:12px"></div>
 </section>
 
 <p class="footer">Tip: Praise the action, not just the points — "MashaAllah, you shared your toy without being asked. That's a really kind choice!"</p>
@@ -532,9 +660,7 @@
     },
 
     /* Creating a family: the founder becomes its first and only parent. */
-    async createFamily({ familyName, personName, role, email, password, categories, rewards, games }){
-      const cred = await createUserWithEmailAndPassword(auth, email, password);
-      const uid = cred.user.uid;
+    async _writeFamily(uid, { familyName, personName, role, categories, rewards, games }){
       const fid = "fam_" + uid.slice(0, 8) + Date.now().toString(36);
       await setDoc(famRef(fid), { name: familyName, ownerUid: uid, createdAt: serverTimestamp() });
       await setDoc(memberRef(fid, uid), { name: personName, role: "parent", age: role, photo: null });
@@ -544,6 +670,16 @@
       await setDoc(configRef(fid, "games"),      { payload: JSON.stringify(games) });
       await setDoc(configRef(fid, "settings"),   { payload: JSON.stringify({ showChampion: true }) });
       return { fid, uid };
+    },
+    async createFamily(opts){
+      const cred = await createUserWithEmailAndPassword(auth, opts.email, opts.password);
+      return await this._writeFamily(cred.user.uid, opts);
+    },
+    /* For an account that already exists but has no family — e.g. one left over
+       from an older version. Reuses the current login rather than making a second. */
+    async createFamilyForCurrentUser(opts){
+      if(!auth.currentUser) throw new Error("Not signed in");
+      return await this._writeFamily(auth.currentUser.uid, opts);
     },
 
     /* A parent creating a login for someone else. Done on a SECOND Firebase app
@@ -705,16 +841,87 @@ const SNACK_EXAMPLES = [
 ];
 
 const STARTER_GAMES = [
-  {name:"Charades", points:20, kind:"Acting game", buy:"Nothing needed — paper and a pen if you want to write prompts", howToPlay:"Write acting prompts on slips of paper. One person picks a slip and acts it out silently while everyone else guesses. No talking or pointing at objects."},
-  {name:"20 Questions", points:15, kind:"Guessing game", buy:"Nothing needed", howToPlay:"One person thinks of a person, place or thing. Everyone else takes turns asking yes/no questions to work it out, with a maximum of 20 questions before guessing."},
-  {name:"Story chain", points:15, kind:"Storytelling", buy:"Nothing needed", howToPlay:"One person starts a story with one sentence. Each person adds the next sentence in turn, building the story together."},
-  {name:"Musical statues", points:20, kind:"Active game", buy:"A phone or speaker to play music", howToPlay:"Play music while everyone dances. When the music stops, freeze completely — anyone who moves is out. Keep going until one person is left."},
-  {name:"Draw and guess", points:25, kind:"Drawing game", buy:"Paper and pens", howToPlay:"One person draws a word or phrase without speaking or writing letters. Everyone else guesses. Whoever guesses correctly draws next."},
-  {name:"Uno", points:30, kind:"Card game", buy:"A deck of Uno cards", howToPlay:"Deal 7 cards each. Match the top card by colour or number, or play an action card. First to empty their hand wins the round."},
-  {name:"Connect 4", points:30, kind:"Board game", buy:"A Connect 4 grid and coloured discs", howToPlay:"Take turns dropping a coloured disc into the grid. First to line up 4 of your own colour — across, down or diagonally — wins."},
-  {name:"Snakes and Ladders", points:30, kind:"Board game", buy:"A Snakes and Ladders board and a die", howToPlay:"Take turns rolling the die and moving. Land on a ladder base and climb up; land on a snake's head and slide down. First to the final square wins."},
-  {name:"Family quiz night", points:35, kind:"Quiz", buy:"Nothing needed — one person writes the questions", howToPlay:"One person prepares general knowledge questions. Ask them round by round and keep score."},
-  {name:"Treasure hunt", points:50, kind:"Active game", buy:"Small prizes or treats to hide, and paper for clues", howToPlay:"Hide a small prize and write a trail of clues, each pointing to the next hiding spot. Give the first clue and follow the trail together."}
+  {name:"20 Questions", points:15, desc:"One person thinks of something; everyone else asks yes/no questions to work out what it is."},
+  {name:"Story chain", points:15, desc:"Each person adds one sentence in turn until the story finds an ending."},
+  {name:"Charades", points:20, desc:"Act out a word or phrase without speaking while everyone else guesses."},
+  {name:"Musical statues", points:20, desc:"Dance while the music plays, freeze when it stops. Anyone who moves is out."},
+  {name:"Draw and guess", points:25, desc:"Draw a word without letters or speaking. Whoever guesses right draws next."},
+  {name:"Uno", points:30, desc:"Match the top card by colour or number. First to empty their hand wins."},
+  {name:"Connect 4", points:30, desc:"Take turns dropping discs. First to line up four in a row wins."},
+  {name:"Snakes and Ladders", points:30, desc:"Roll, climb the ladders, slide down the snakes, race to the last square."},
+  {name:"Family quiz night", points:35, desc:"One person sets the questions, everyone else plays for points."},
+  {name:"Treasure hunt", points:50, desc:"A trail of written clues around the house leading to something hidden."}
+];
+
+/* Ideas for parents, grouped so the card can lean towards connection when
+   things have gone quiet. Each one is a short idea plus something concrete to
+   actually do — a tip with no action attached gets read once and forgotten. */
+const PARENTING_TIPS = [
+  // ----- time together -----
+  {cat:"time", title:"Ten minutes that are entirely theirs",
+   body:"Short, undivided attention does more for a child than a long stretch where you're half-present. What they register is not the hours but whether they had you completely.",
+   try:"Set a timer for ten minutes, leave your phone in another room, and let them choose what you do."},
+  {cat:"time", title:"Let them lead the play",
+   body:"When a child directs the game and you follow, they practise being listened to. Children who feel heard in play tend to be easier to reach when something matters.",
+   try:"For one session, don't direct, correct or quiz — just describe what they're doing and join in."},
+  {cat:"time", title:"The ordinary moments carry the most",
+   body:"Car journeys, washing up, the walk to school. Children rarely open up on demand, but they talk while doing something side by side, when nobody is looking at them.",
+   try:"Pick one routine this week and quietly make it your talking time. Don't announce it."},
+  {cat:"time", title:"One-to-one, not only all together",
+   body:"In a group, a quieter child learns that being easy means being overlooked. A little solo time changes what they think they have to do to be noticed.",
+   try:"Take one child on an ordinary errand this week — just them, no occasion needed."},
+  {cat:"time", title:"Say yes to the small ask",
+   body:"\u201cWatch this!\u201d is a bid for connection, and it comes dozens of times a day. Turning towards those small bids matters more than any grand gesture.",
+   try:"Next time they ask you to look, stop what you're doing and look properly. Say what you saw."},
+  {cat:"time", title:"Bedtime is the honest hour",
+   body:"Children will say things in the dark they'd never say at the kitchen table — worries, questions, things that happened at school. It needs unhurried silence to surface.",
+   try:"Start bedtime five minutes earlier and stay quiet a little longer than feels natural."},
+
+  // ----- encouragement -----
+  {cat:"praise", title:"Praise the effort, not the child",
+   body:"\u201cYou kept going when it got hard\u201d builds something \u201cyou're so clever\u201d doesn't. Praise aimed at ability makes children avoid anything they might fail at.",
+   try:"Next time you're impressed, describe what they did rather than what they are."},
+  {cat:"praise", title:"Be specific or it doesn't teach",
+   body:"\u201cGood boy\u201d tells a child you're pleased but not what to repeat. Naming the action and its effect turns a nice moment into something they can do again.",
+   try:"Name the thing and who it helped: \u201cyou let your sister go first, and it stopped a row.\u201d"},
+  {cat:"praise", title:"Catch them being good",
+   body:"Most attention goes to what's going wrong, so children learn that trouble is the reliable way to be noticed. Ordinary cooperation usually passes in silence.",
+   try:"Find one small thing today that went right and mention it, however unremarkable."},
+  {cat:"praise", title:"Let them overhear it",
+   body:"Praise a child hears you give to someone else lands differently — it can't be politeness, so they believe it.",
+   try:"Tell the other parent something they did well, within earshot, and don't make eye contact."},
+  {cat:"praise", title:"Keep the warmth off the scoreboard",
+   body:"Points recognise effort; affection shouldn't have to be earned. If closeness only follows good behaviour, a bad week starts to feel like a withdrawal of love.",
+   try:"Give some affection today at a moment that has nothing to do with points at all."},
+  {cat:"praise", title:"Tell them why it mattered",
+   body:"Behaviour sticks when a child understands the reason, not just the reward. The explanation is what they take with them when nobody is watching.",
+   try:"Add the why: \u201cthat was kind, because he'd had a hard morning and you noticed.\u201d"},
+
+  // ----- guiding behaviour -----
+  {cat:"behaviour", title:"Describe, don't accuse",
+   body:"\u201cThe shoes are in the doorway\u201d gets a child moving. \u201cYou never tidy up\u201d gets you an argument about whether that's true.",
+   try:"Say what you see and stop talking. Give them the chance to work out the rest."},
+  {cat:"behaviour", title:"Connect before you correct",
+   body:"A child who feels told off stops listening and starts defending. A few seconds of contact first means the correction actually gets heard.",
+   try:"Get down to their eye level and say their name before you say anything about the behaviour."},
+  {cat:"behaviour", title:"Offer the choice, not the order",
+   body:"Much of what looks like defiance is a child with no say in anything. Two options you're happy with gives them control without giving up the outcome.",
+   try:"\u201cCoat on now, or coat on at the door?\u201d Both answers are ones you can live with."},
+  {cat:"behaviour", title:"Repair afterwards",
+   body:"Every parent loses their temper. What children learn from is not whether it happened but whether anyone came back and put it right.",
+   try:"Own your part without excusing theirs: \u201cI shouted, and I'm sorry. Let's start again.\u201d"},
+  {cat:"behaviour", title:"Let routines do the arguing",
+   body:"When the order of the evening is fixed and predictable, it stops being your decision to resist. The routine becomes the thing saying no, not you.",
+   try:"Pick the worst flashpoint of your day and make its sequence identical for a week."},
+  {cat:"behaviour", title:"Name the feeling, then hold the line",
+   body:"Acknowledging how a child feels isn't the same as giving in. Children accept a boundary far more easily once they believe you understood why they didn't want it.",
+   try:"\u201cYou're furious it's finished. It's still finished.\u201d Say both parts, in that order."}
+];
+const TIP_CATS = [
+  {key:"all", label:"All"},
+  {key:"time", label:"Time together"},
+  {key:"praise", label:"Encouraging"},
+  {key:"behaviour", label:"Behaviour"}
 ];
 
 const today = new Date().toISOString().slice(0,10);
@@ -868,7 +1075,12 @@ function normaliseCatalogues(){
   app.gameNightActivities.forEach(g => {
     if(!g.id) g.id = "g" + Math.abs(hashString(g.name)).toString(16);
     if(typeof g.points !== "number" || g.points < 1) g.points = 30;
-    if(typeof g.kind !== "string" || !g.kind) g.kind = "Family game";
+    // Activities used to carry "what to buy" and "kind of game". Anything set
+    // there is folded into the description rather than thrown away.
+    if(typeof g.desc !== "string" || !g.desc){
+      g.desc = [g.howToPlay, g.buy ? "You'll need: " + g.buy : ""].filter(Boolean).join(" ");
+    }
+    delete g.buy; delete g.howToPlay; delete g.kind;
   });
 }
 function hashString(str){
@@ -893,7 +1105,7 @@ function availableFor(child){
    able to fall through every branch and leave a blank page, which hides the
    real error instead of reporting it. */
 function showGate(which){
-  ["bootGate","errorGate","noFamilyGate","authGate","welcomeScreen","mainApp"].forEach(id=>{
+  ["bootGate","errorGate","noFamilyGate","authGate","welcomeScreen","onboarding","mainApp"].forEach(id=>{
     const el=document.getElementById(id);
     if(el) el.classList.toggle("hidden", id!==which);
   });
@@ -923,6 +1135,8 @@ async function loadApp(){
     return;
   }
   if(!familyId){
+    const emailEl=document.getElementById("noFamilyEmail");
+    if(emailEl) emailEl.textContent = window.fpc.email() || "this account";
     showGate("noFamilyGate");
     return;
   }
@@ -1081,6 +1295,31 @@ function showAccountPanel(){ openPanel("accountPanel"); renderAccounts(); }
 function showOverviewPanel(){ openPanel("overviewPanel"); renderOverview(); }
 function showActivityPanel(){ openPanel("activityPanel"); renderActivityLog(); }
 function showRequestsPanel(){ openPanel("requestsPanel"); renderRequests(); }
+/* Firebase's failure modes are indistinguishable to a user unless you name
+   them. "Check your connection" was hiding a configuration problem. */
+function authErrorMessage(e){
+  const code = (e && e.code) || "";
+  if(code === "auth/weak-password") return "That password is too short — use at least 6 characters.";
+  if(code === "auth/email-already-in-use") return "That name produced a login that already exists. Try a slightly different name.";
+  if(code === "auth/invalid-email") return "That name couldn't be turned into a valid login. Try letters and numbers only.";
+  if(code === "auth/operation-not-allowed")
+    return "Email sign-in isn't switched on for this project yet. In the Firebase console, go to Authentication → Sign-in method and enable Email/Password.";
+  if(code === "auth/unauthorized-domain" || code === "auth/requests-from-referer-are-blocked")
+    return "This address isn't allowed to use the account system. In the Firebase console, go to Authentication → Settings → Authorized domains and add the site you're opening this from.";
+  if(code === "auth/network-request-failed"){
+    return location.protocol === "file:"
+      ? "Accounts can't be created when the file is opened directly from your computer. Open the app from its web address instead."
+      : "Couldn't reach the account system — check your connection and try again.";
+  }
+  if(code === "permission-denied")
+    return "The database refused that. The security rules may not be deployed yet.";
+  // Use the timeout's own wording only when it actually says something useful.
+  if(code === "timeout")
+    return (e.message && e.message.length > 15)
+      ? e.message
+      : "That took too long to respond. Check your connection and try again.";
+  return "That didn't work" + (code ? " (" + code + ")" : "") + ". If it keeps happening, the details are in the browser console.";
+}
 function memberEmail(fid, name){
   const slug=String(name).toLowerCase().replace(/[^a-z0-9]+/g,"").slice(0,20) || "member";
   return slug + "." + Math.random().toString(36).slice(2,6) + "@" + fid.toLowerCase() + ".fpc.app";
@@ -1090,39 +1329,99 @@ function selectNewMemberRole(role){
   document.getElementById("newRoleChild").classList.toggle("selected", role==="child");
   document.getElementById("newRoleParent").classList.toggle("selected", role==="parent");
 }
+/* A request that never settles is indistinguishable from a dead button, so
+   every account operation gets a deadline. */
+function withTimeout(promise, ms, what){
+  return Promise.race([
+    promise,
+    new Promise((_, reject)=>setTimeout(
+      ()=>reject(Object.assign(new Error(what + " didn't respond within " + Math.round(ms/1000) + " seconds. Check your connection, then try again."), {code:"timeout"})),
+      ms))
+  ]);
+}
+function localFileBlock(){
+  return location.protocol === "file:"
+    ? "This is a local copy of the app, opened straight from your computer. Logins can't be created from here — open the app from its web address and try again."
+    : null;
+}
 async function addChild(){
   if(!requireParent()) return;
-  if(!familyId){alert("No family loaded.");return;}
+  const errEarly=document.getElementById("addMemberError");
+  if(!window.fpc){
+    if(errEarly) errEarly.textContent="The app couldn't load its connection to the database, so nothing can be saved. Reload the page; if it keeps happening, open the app from its web address rather than a local file.";
+    return;
+  }
+  if(!familyId){ if(errEarly) errEarly.textContent="No family is loaded on this device. Try reloading."; return; }
+  const blocked=localFileBlock();
+  if(blocked){
+    const e=document.getElementById("addMemberError");
+    if(e) e.textContent=blocked; else alert(blocked);
+    return;
+  }
+  const errEl=document.getElementById("addMemberError");
+  if(errEl) errEl.textContent="";
   const name=document.getElementById("newChildName").value.trim();
   const age=document.getElementById("newChildAge").value.trim();
   const password=document.getElementById("newChildPassword").value;
   const role=window.__newMemberRole||"child";
-  if(!name){alert("Please enter their name.");return;}
-  if(!password || password.length<6){alert("Please set a password of at least 6 characters for their login.");return;}
+  if(!name){ errEl.textContent="Please enter their name."; return; }
+  if(!password || password.length<6){ errEl.textContent="Please set a password of at least 6 characters for their login."; return; }
   const email=memberEmail(familyId, name);
-  const btnLabel="Adding "+name+"…";
-  setSyncStatus("☁️ "+btnLabel);
+  const btn=document.getElementById("addMemberBtn");
+  if(btn){ btn.disabled=true; btn.textContent="Adding "+name+" …"; }
+  setSyncStatus("☁️ Adding "+name+" …");
   try{
     // Their login is created first, because the member document is keyed by the
     // account id — that key is what the security rules look up to find a role.
-    const uid=await window.fpc.provisionMember(familyId, {email, password});
-    await window.fpc.saveMember(familyId, uid, {
+    const uid=await withTimeout(window.fpc.provisionMember(familyId, {email, password}), 20000, "Creating the login");
+    await withTimeout(window.fpc.saveMember(familyId, uid, {
       name, role, age, photo: pendingNewMemberPhoto || null, email
-    });
+    }), 20000, "Saving their details");
   }catch(e){
     console.error("Could not add member:", e);
-    alert("That didn't work: " + (e && e.code==="auth/weak-password"
-      ? "the password is too weak — try a longer one."
-      : "please check your connection and try again."));
+    errEl.textContent = authErrorMessage(e);
     setSyncStatus("☁️ Synced across devices");
+    if(btn){ btn.disabled=false; btn.textContent="＋ Add family member"; }
     return;
   }
+  if(btn){ btn.disabled=false; btn.textContent="＋ Add family member"; }
   document.getElementById("newChildName").value="";
   document.getElementById("newChildAge").value="";
   document.getElementById("newChildPassword").value="";
   pendingNewMemberPhoto=null;
   document.getElementById("newMemberPreview").innerHTML='<div class="avatar-placeholder">📷</div>';
-  alert(name+" has been added.\n\nTheir login is:\n"+email+"\n\nPassword: the one you just set.\n\nWrite this down — sign in with it on their device.");
+  // One at a time: confirm this one, then ask whether there's another.
+  document.getElementById("justAddedTitle").textContent = "✅ " + name + " has been added";
+  document.getElementById("justAddedEmail").textContent = email;
+  document.getElementById("justAddedPass").textContent = password;
+  document.getElementById("justAdded").classList.remove("hidden");
+  document.getElementById("addMemberBox").classList.add("hidden");
+}
+/* The one thing a parent has to hand over. Shown on adding a member and
+   available again later, because this is the only step a child needs. */
+function showLoginDetails(name, email, password){
+  const msg = name+" is all set — their account is already part of the family.\n\n"
+    + "On "+name+"'s own device, open the app and sign in with:\n\n"
+    + "Email:    "+email+"\n"
+    + (password ? "Password: "+password+"\n" : "Password: the one you set\n")
+    + "\nThat's the whole process — there's no code to enter and nothing for you to approve.";
+  alert(msg);
+}
+async function showMemberLogin(id){
+  if(!requireParent()) return;
+  const m=memberById(id); if(!m) return;
+  if(!m.email){ alert(m.name+" was added before logins existed. Remove and re-add them to create one."); return; }
+  showLoginDetails(m.name, m.email, null);
+}
+function addAnotherMember(){
+  document.getElementById("justAdded").classList.add("hidden");
+  document.getElementById("addMemberBox").classList.remove("hidden");
+  const el=document.getElementById("newChildName");
+  if(el && el.focus) el.focus();
+}
+function doneAddingMembers(){
+  document.getElementById("justAdded").classList.add("hidden");
+  document.getElementById("addMemberBox").classList.remove("hidden");
 }
 async function selectChild(id){
   if(!isParentSession()) return;          // children can only ever see their own card
@@ -1183,6 +1482,10 @@ async function logout(){
 }
 function renderAccounts(){
   const f=currentFamily();
+  // Keep the settings checkbox honest — it used to render unchecked while the
+  // banner it controls was on screen.
+  const champ=document.getElementById("championToggle");
+  if(champ) champ.checked = !!(app.settings && app.settings.showChampion);
   document.getElementById("familyDisplay").textContent=f?("👨‍👩‍👧 "+f.name):"No family account";
   const c=currentChild();
   const me=sessionMember();
@@ -1212,6 +1515,7 @@ function renderAccounts(){
     const mk=(cls,txt,title,fn)=>{const b=document.createElement("button");b.className=cls;b.textContent=txt;b.title=title;b.onclick=fn;return b;};
     btns.appendChild(mk("photobtn","✎","Edit name or caption",()=>editChildDetails(ch.id)));
     btns.appendChild(mk("photobtn","📷","Add or change photo",()=>triggerAvatarUpload(ch.id)));
+    if(ch.email) btns.appendChild(mk("photobtn","🔑","Show their sign-in details",()=>showMemberLogin(ch.id)));
     btns.appendChild(mk("photobtn",isParentRole(ch)?"↓ Child":"↑ Parent","Change what they're allowed to do",()=>changeMemberRole(ch.id)));
     if(ch.id!==sessionMemberId) btns.appendChild(mk("xbtn","✕","Remove from the family",()=>removeMember(ch.id)));
     if(!isParentRole(ch)) btns.appendChild(mk("light", ch.id===currentChildId()?"Selected":"Open", "Open their card", ()=>selectChild(ch.id)));
@@ -1288,12 +1592,10 @@ function getPoints(){
 async function addGameNightActivity(){
   if(!requireParent()) return;
   const nameInput=document.getElementById("newGameName");
-  const buyInput=document.getElementById("newGameBuy");
-  const howToInput=document.getElementById("newGameHowTo");
-  const kindInput=document.getElementById("newGameKind");
+  const descInput=document.getElementById("newGameDesc");
   const ptsInput=document.getElementById("newGamePoints");
   const name=nameInput.value.trim();
-  if(!name)return;
+  if(!name){ alert("Please give the activity a name."); return; }
   const pts=parseInt(ptsInput.value);
   if(Number.isNaN(pts) || pts<1){ alert("Please set how many points this activity costs."); return; }
   if(app.gameNightActivities.some(g=>g.name.toLowerCase()===name.toLowerCase())){
@@ -1301,12 +1603,11 @@ async function addGameNightActivity(){
   }
   app.gameNightActivities.push({
     id:"g"+Date.now()+Math.random().toString(16).slice(2),
-    name, points:pts, kind:kindInput.value.trim()||"Family game",
-    buy:buyInput.value.trim(), howToPlay:howToInput.value.trim()
+    name, points:pts, desc:descInput.value.trim()
   });
   app.gameNightActivities.sort((a,b)=>a.points-b.points);
   await saveApp();
-  nameInput.value=""; buyInput.value=""; howToInput.value=""; kindInput.value=""; ptsInput.value="";
+  nameInput.value=""; descInput.value=""; ptsInput.value="";
   renderGameNight();
 }
 async function removeGameNightActivity(name){
@@ -1318,60 +1619,186 @@ async function removeGameNightActivity(name){
 function renderGameNight(){
   const list=document.getElementById("gameNightList");
   if(!list) return;
+  const count=document.getElementById("gameCount");
+  if(count) count.textContent=app.gameNightActivities.length;
   list.innerHTML="";
   if(app.gameNightActivities.length===0){
-    list.innerHTML='<p class="small">No activities added yet — add a few above so the children have something to choose from.</p>';
+    list.innerHTML='<p class="small">Nothing on the list yet — add one below so the children have something to choose from.</p>';
     return;
   }
-  app.gameNightActivities.forEach(g=>{
+  app.gameNightActivities.slice().sort((a,b)=>a.points-b.points).forEach(g=>{
     const row=document.createElement("div"); row.className="childrow";
-    row.style.flexDirection="column"; row.style.alignItems="stretch"; row.style.gap="4px";
-    const details=[];
-    if(g.buy) details.push(`<div class="small">🛒 <strong>Buy:</strong> ${g.buy}</div>`);
-    if(g.howToPlay) details.push(`<div class="small">▶️ <strong>How to play:</strong> ${g.howToPlay}</div>`);
-    const header=document.createElement("div");
-    header.style.display="flex"; header.style.justifyContent="space-between"; header.style.alignItems="center";
-    header.innerHTML=`<span>🎲 <strong>${escapeHtml(g.name)}</strong> <span class="points" style="font-size:12px">${g.points} pts</span>${g.kind?` <span class="small">· ${escapeHtml(g.kind)}</span>`:""}</span>`;
+    row.innerHTML=`<div style="flex:1;min-width:0">
+        <div><strong>${escapeHtml(g.name)}</strong> <span class="points" style="font-size:12px">${g.points} pts</span></div>
+        ${g.desc?`<div class="small" style="margin-top:2px">${escapeHtml(g.desc)}</div>`:""}
+      </div>`;
     const btn=document.createElement("button");
-    btn.className="danger"; btn.textContent="Remove";
+    btn.className="xbtn"; btn.textContent="✕ Remove";
+    btn.title="Take this off the list";
     btn.onclick=()=>removeGameNightActivity(g.name);
-    header.appendChild(btn);
-    row.appendChild(header);
-    details.forEach(d=>{ row.insertAdjacentHTML("beforeend", d); });
+    row.appendChild(btn);
     list.appendChild(row);
   });
 }
 
 /* ---------- Rewards (data-driven, editable) ---------- */
-function renderRewardButtons(){
-  const wrap=document.getElementById("rewardButtons");
-  wrap.innerHTML="";
-  app.rewards.forEach(r=>{
-    const btn=document.createElement("button");
-    btn.dataset.pts=r.points;
-    btn.textContent = r.points+" pts · "+r.name;
-    btn.title="This is how the reward appears to the children — they buy it from their own screen.";
-    btn.onclick=()=>alert("This is a preview of what the children see.\n\n\u201c"+r.name+"\u201d costs "+r.points+" points. They buy it from their own screen and you'll get a request to approve.");
-    wrap.appendChild(btn);
-  });
-}
 function renderRewardManageList(){
   const wrap=document.getElementById("rewardManageList");
   if(!wrap) return;
+  const count=document.getElementById("rewardCount");
+  if(count) count.textContent=app.rewards.length;
   wrap.innerHTML="";
-  app.rewards.forEach((r,i)=>{
-    const row=document.createElement("div"); row.className="editrow";
-    row.innerHTML=`<span class="small" style="flex:1"><strong>${r.points} pts</strong> · ${escapeHtml(r.name)}${r.kind?` <em style="color:#8a90a6">(${escapeHtml(r.kind)})</em>`:""}</span>`;
+  if(app.rewards.length===0){
+    wrap.innerHTML='<p class="small">No rewards yet — add a couple below so the points lead somewhere.</p>';
+    renderSnackQuickAdd(); renderEyebrows();
+    return;
+  }
+  app.rewards.slice().sort((a,b)=>a.points-b.points).forEach(r=>{
+    const row=document.createElement("div"); row.className="childrow";
+    row.dataset.pts=r.points;
+    row.innerHTML=`<div style="flex:1;min-width:0">
+        <div><strong>${escapeHtml(r.name)}</strong> <span class="points" style="font-size:12px">${r.points} pts</span></div>
+        ${r.kind?`<div class="small" style="margin-top:2px">${escapeHtml(r.kind)}</div>`:""}
+      </div>`;
     const btn=document.createElement("button");
     btn.className="xbtn"; btn.textContent="✕ Remove";
-    btn.onclick=()=>removeReward(i);
+    btn.title="Take this off the list";
+    btn.onclick=()=>removeRewardById(r.id);
     row.appendChild(btn);
     wrap.appendChild(row);
   });
   renderSnackQuickAdd();
   renderEyebrows();
-  renderRewardButtons();
 }
+async function removeRewardById(id){
+  if(!requireParent()) return;
+  const i=app.rewards.findIndex(r=>r.id===id);
+  if(i<0) return;
+  await removeReward(i);
+}
+/* ---------- Parenting tips ----------
+   One idea at a time, chosen by the date so it stays steady through the day
+   rather than reshuffling on every render. If a child has gone quiet, the card
+   leans towards connection rather than behaviour management. */
+let tipCat = "all";
+let tipOffset = 0;
+function tipPool(){
+  return tipCat === "all" ? PARENTING_TIPS : PARENTING_TIPS.filter(t => t.cat === tipCat);
+}
+function anyChildStruggling(){
+  const f = currentFamily();
+  if(!f) return false;
+  return f.children.filter(c => !isParentRole(c)).some(c => bandForChild(c).key === "red");
+}
+function currentTip(){
+  const pool = tipPool();
+  if(!pool.length) return null;
+  const dayIndex = Math.floor(Date.now() / 86400000);
+  return pool[(dayIndex + tipOffset) % pool.length];
+}
+function setTipCat(cat){ tipCat = cat; tipOffset = 0; renderTips(); }
+function nextTip(){ tipOffset++; renderTips(); }
+function renderTips(){
+  const card = document.getElementById("tipsCard");
+  if(!card) return;
+  const onDashboard = isParentSession() && !viewChildId && !editMode;
+  if(!onDashboard){ card.classList.add("hidden"); return; }
+  const tip = currentTip();
+  if(!tip){ card.classList.add("hidden"); return; }
+  card.classList.remove("hidden");
+  const kindLabel = (TIP_CATS.find(c => c.key === tip.cat) || {}).label || "Idea";
+  const nudge = (tipCat === "all" && anyChildStruggling())
+    ? '<p class="tipnote">A quiet stretch on the graph is often about connection before it\u2019s about behaviour \u2014 the time-together ideas are worth trying first.</p>'
+    : "";
+  card.innerHTML = `
+    <div class="tipshead">
+      <h2>\ud83d\udc9b Being with them</h2>
+      <button class="light" style="width:auto;font-size:13px" onclick="nextTip()">Another idea</button>
+    </div>
+    <div class="tipcats">
+      ${TIP_CATS.map(c => `<button class="${c.key===tipCat?"on":""}" onclick="setTipCat('${c.key}')">${c.label}</button>`).join("")}
+    </div>
+    <div class="tipbody">
+      <div class="tipkind">${escapeHtml(kindLabel)}</div>
+      <h3>${escapeHtml(tip.title)}</h3>
+      <p>${escapeHtml(tip.body)}</p>
+      <div class="trythis"><strong>Try this</strong><span>${escapeHtml(tip.try)}</span></div>
+    </div>
+    ${nudge}`;
+}
+
+/* ---------- Onboarding ----------
+   Step two actually creates the children rather than telling the parent where
+   to find the button later. */
+let onbStep = 1;
+let onbAddedMembers = [];
+function onbGo(step){
+  onbStep = step;
+  [1,2,3].forEach(i => {
+    const el = document.getElementById("onbStep"+i);
+    if(el) el.classList.toggle("hidden", i !== step);
+  });
+  document.getElementById("onbDots").innerHTML =
+    [1,2,3].map(i => `<span class="onbdot ${i===step?"on":""}"></span>`).join("");
+  const me = sessionMember();
+  const nameEl = document.getElementById("onbName");
+  if(nameEl && me) nameEl.textContent = me.name;
+  if(step === 2) renderOnbAdded();
+}
+function renderOnbAdded(){
+  const wrap = document.getElementById("onbAdded");
+  if(!wrap) return;
+  wrap.innerHTML = onbAddedMembers.map(m => `
+    <div class="addedrow">
+      <span>\u2705</span>
+      <div class="who"><strong>${escapeHtml(m.name)}</strong><br><code>${escapeHtml(m.email)}</code></div>
+    </div>`).join("");
+  const next = document.getElementById("onbStep2Next");
+  if(next) next.textContent = onbAddedMembers.length ? "Next" : "Skip for now";
+}
+async function onbAddChild(){
+  const nameEl = document.getElementById("onbChildName");
+  const ageEl = document.getElementById("onbChildAge");
+  const passEl = document.getElementById("onbChildPassword");
+  const errEl = document.getElementById("onbAddError");
+  const btn = document.getElementById("onbAddBtn");
+  errEl.textContent = "";
+  const name = nameEl.value.trim();
+  const password = passEl.value;
+  if(!name){ errEl.textContent = "Please enter their name."; return; }
+  if(!password || password.length < 6){ errEl.textContent = "Please set a password of at least 6 characters."; return; }
+  const blocked=localFileBlock();
+  if(blocked){ errEl.textContent=blocked; return; }
+  btn.disabled = true; btn.textContent = "Adding \u2026";
+  const email = memberEmail(familyId, name);
+  try{
+    const uid = await withTimeout(window.fpc.provisionMember(familyId, {email, password}), 20000, "Creating the login");
+    await withTimeout(window.fpc.saveMember(familyId, uid, {name, role:"child", age: ageEl.value.trim(), photo:null, email}), 20000, "Saving their details");
+    onbAddedMembers.push({name, email});
+    nameEl.value = ""; ageEl.value = ""; passEl.value = "";
+    renderOnbAdded();
+  }catch(e){
+    console.error("Could not add child during setup:", e);
+    errEl.textContent = authErrorMessage(e);
+  }
+  btn.disabled = false; btn.textContent = "\uff0b Add this child";
+}
+function startOnboarding(){
+  onbStep = 1; onbAddedMembers = [];
+  showGate("onboarding");
+  onbGo(1);
+}
+function finishOnboarding(){
+  const added = onbAddedMembers.slice();
+  onbAddedMembers = [];
+  showGate("mainApp");
+  renderAccounts(); render();
+  if(added.length){
+    alert("All set.\n\n" + added.map(m => m.name + "  \u2014  " + m.email).join("\n")
+      + "\n\nOn each child's own device, sign in with their email and the password you set. You can see these again any time under \u201cFamily & Children\u201d.");
+  }
+}
+
 /* ---------- Parent eyebrow reminders ----------
    Small nudges above the two lists a parent maintains. The reminder is chosen
    from what the data actually shows (no food rewards, prices drifting high,
@@ -1412,10 +1839,10 @@ function gameEyebrowText(){
   if(games.every(g=>g.points===games[0].points))
     return "Every activity costs the same. Varying the prices lets a child choose between something now and saving for a bigger one.";
   if(lastBuy!==null && lastBuy>=21)
-    return "No game night activity has been chosen for "+lastBuy+" days \u2014 worth adding something new, or dropping the prices a little.";
+    return "No activity has been chosen for "+lastBuy+" days \u2014 worth adding something new, or dropping the prices a little.";
   const general=[
     "Change these around now and then. Add one the children suggest \u2014 they\u2019re far more likely to pick it.",
-    "Fill in \u201cWhat to buy\u201d and \u201cHow to play\u201d so game night doesn\u2019t stall while someone works out the rules.",
+    "Give each one a line of description \u2014 a child choosing between bare names is guessing.",
     "Keep a couple of no-equipment activities on the list for the weeks when nothing has been bought.",
     "Prices here are yours to set \u2014 if a child saves rather than spends, that\u2019s the system working, not failing."
   ];
@@ -1553,9 +1980,10 @@ function applyRoleChrome(){
   // Parent-only controls and sections
   ["btnFamily","btnOverview","btnActivity","btnRequests","editModeBtn","btnGivePoints","btnResetDay"]
     .forEach(id=>set(id, !kid));
+  set("btnSignOut", true);   // anyone signed in can hand the device on
   if(kid){
     ["accountPanel","overviewPanel","activityPanel","requestsPanel","addCategoryWrap",
-     "rewardSection","gameNightSection","requestsBanner","behaviourWrap","editModeNote"]
+     "rewardSection","gameNightSection","requestsBanner","behaviourWrap","editModeNote","tipsCard"]
       .forEach(id=>set(id, false));
   }
 }
@@ -1565,6 +1993,7 @@ function render(){
   applyRoleChrome();
   renderRequests();
   renderEyebrows();
+  renderTips();
   const me=sessionMember();
   if(me && !isParentRole(me)){
     renderKidView(me);
@@ -1663,7 +2092,7 @@ function render(){
   updateRewardPacing(child && !isParentRole(child) ? child : null);
   renderChampionBanner();
   renderAccounts();
-  renderRewardButtons();
+  renderRewardManageList();
   const overviewPanel=document.getElementById("overviewPanel");
   if(overviewPanel && !overviewPanel.classList.contains("hidden")) renderOverview();
   const activityPanel=document.getElementById("activityPanel");
@@ -1672,7 +2101,7 @@ function render(){
 function renderParentAdminView(parent){
   const cards=document.getElementById("cards");
   document.getElementById("behaviourWrap").classList.add("hidden");
-  // Rewards and Game Night Activity are managed from the parent dashboard.
+  // Rewards and Activities are managed from the parent dashboard.
   document.getElementById("rewardSection").classList.remove("hidden");
   document.getElementById("gameNightSection").classList.remove("hidden");
   const f=currentFamily();
@@ -1680,8 +2109,7 @@ function renderParentAdminView(parent){
   const pend=pendingRequests();
   const kidsHtml = kids.length
     ? kids.map(k=>{
-        const series=behaviourSeries(k);
-        const band=bandFor(series[series.length-1].score);
+        const band=bandForChild(k);
         const waiting=pend.filter(r=>r.childId===k.id).length;
         return `<div class="overviewrow" onclick="selectChild('${k.id}')">
           <div class="memberhead">
@@ -1716,7 +2144,7 @@ function renderParentAdminView(parent){
   if(activityPanel && !activityPanel.classList.contains("hidden")) renderActivityLog();
 }
 function updateRewardPacing(child){
-  const buttons=document.querySelectorAll('#rewardSection .rewardrow button[data-pts]');
+  const buttons=document.querySelectorAll('#rewardManageList [data-pts]');
   const note=document.getElementById("pacingNote");
   if(!child){
     buttons.forEach(b=>b.classList.remove("recommended","muted"));
@@ -1808,7 +2236,7 @@ async function kidBuy(type, id){
       : "Not quite yet! You need "+(price-spendable)+" more point"+((price-spendable)===1?"":"s")+" for \u201c"+item.name+"\u201d. Keep going \u2014 you\u2019re getting closer! \u2b50");
     return;
   }
-  const label = type==="reward" ? "reward" : "game night activity";
+  const label = type==="reward" ? "reward" : "activity";
   if(!confirm("Ask for this "+label+"?\n\n"+item.name+"\n\nIt costs "+price+" points. Nothing is taken until Mum or Dad says yes.")) return;
   try{
     await window.fpc.createRequest(familyId, {
@@ -1821,10 +2249,7 @@ async function kidBuy(type, id){
     return;
   }
   let msg="\ud83c\udf89 Asked! You chose: "+item.name+"\n\nMum or Dad will see it and decide. Your points stay yours until then.";
-  if(type==="game"){
-    if(item.buy) msg+="\n\n\ud83d\uded2 You\u2019ll need: "+item.buy;
-    if(item.howToPlay) msg+="\n\u25b6\ufe0f How to play: "+item.howToPlay;
-  }
+  if(item.desc) msg+="\n\n"+item.desc;
   alert(msg);
 }
 function pendingRequests(){
@@ -1843,7 +2268,7 @@ async function approveRequest(id){
     // Approval is the moment the points are spent: status and deduction commit together.
     await window.fpc.approveRequest(familyId, id, {
       childId: r.childId, points: -r.points, type: "purchase",
-      label: (r.type==="game" ? "Game night: " : "Reward: ") + r.itemName,
+      label: (r.type==="game" ? "Activity: " : "Reward: ") + r.itemName,
       byUid: window.fpc.uid(), byName: me?me.name:"", byRole: me?(roleLabel(me)||""):""
     }, me?me.name:"");
   }catch(e){
@@ -1865,7 +2290,7 @@ async function declineRequest(id){
 }
 function requestRowHTML(r){
   const when=new Date(r.ts).toLocaleString([], {weekday:"short", hour:"2-digit", minute:"2-digit"});
-  const what = r.type==="game" ? "\ud83c\udfb2 Game Night Activity" : "\ud83c\udf81 Family reward";
+  const what = r.type==="game" ? "\ud83c\udfb2 Activity" : "\ud83c\udf81 Family reward";
   return `<div class="requestrow">
     <div style="flex:1;min-width:180px">
       <div><strong>${escapeHtml(r.childName)}</strong> would like <strong>${escapeHtml(r.itemName)}</strong></div>
@@ -1923,26 +2348,45 @@ function escapeHtml(str){
    red below 36 \u2014 so a good week looks green and a quiet stretch fades. */
 const BEHAVIOUR_DAYS=14, BEHAVIOUR_START=58, BEHAVIOUR_DECAY=9;
 function dateStr(d){ return d.toISOString().slice(0,10); }
+function firstActiveDate(child){
+  const days=Object.keys(child.pointsByDate||{}).filter(ds=>{
+    const v=child.pointsByDate[ds];
+    return v && Object.values(v).some(n=>n>0);
+  });
+  return days.length ? days.sort()[0] : null;
+}
 function behaviourSeries(child){
   const series=[]; let score=BEHAVIOUR_START;
+  // Days before a child's very first points aren't a decline — they're just
+  // absence of history. Decaying through them would show a brand new child as
+  // red on their first day, which is both wrong and discouraging.
+  const first=firstActiveDate(child);
+  const noHistory = first===null;
   for(let i=BEHAVIOUR_DAYS-1;i>=0;i--){
     const d=new Date(); d.setHours(12,0,0,0); d.setDate(d.getDate()-i);
     const ds=dateStr(d);
     const day=child.pointsByDate && child.pointsByDate[ds];
     const pts=day?Object.values(day).reduce((a,b)=>a+b,0):0;
+    const started = first!==null && ds>=first;
     // Gains taper as the score climbs, so a good run keeps its shape instead of
     // flatlining at the top; quiet days pull it back down at a steady rate.
     if(pts>0) score += Math.min(24, 5 + pts*2.2) * (1 - score/118);
-    else score -= BEHAVIOUR_DECAY;
+    else if(started) score -= BEHAVIOUR_DECAY;
     score=Math.max(5,Math.min(100,score));
-    series.push({ds, pts, score:Math.round(score), d});
+    series.push({ds, pts, score:Math.round(score), d, started, noHistory});
   }
   return series;
 }
-function bandFor(score){
+function bandFor(score, noHistory){
+  if(noHistory) return {key:"new", colour:"#7c83ef", cls:"mood-new", label:"Just getting started"};
   if(score>=66) return {key:"green", colour:"#2e9b68", cls:"mood-green", label:"Going great"};
   if(score>=36) return {key:"amber", colour:"#e08b28", cls:"mood-amber", label:"Doing okay"};
   return {key:"red", colour:"#d85b5b", cls:"mood-red", label:"Needs a boost"};
+}
+function bandForChild(child){
+  const s=behaviourSeries(child);
+  const last=s[s.length-1];
+  return bandFor(last.score, last.noHistory);
 }
 function behaviourChartSVG(series, uid){
   const W=600,H=180,L=10,R=10,T=12,B=26;
@@ -1985,13 +2429,22 @@ function behaviourChartSVG(series, uid){
 function behaviourCardHTML(child, forChild){
   const series=behaviourSeries(child);
   const latest=series[series.length-1];
-  const band=bandFor(latest.score);
+  const band=bandFor(latest.score, latest.noHistory);
   const prev=series[series.length-4] || series[0];
   const trend = latest.score>prev.score+4 ? "climbing \u2b06\ufe0f"
               : latest.score<prev.score-4 ? "slipping \u2b07\ufe0f" : "steady \u27a1\ufe0f";
   const quietDays=series.slice(-5).filter(p=>p.pts===0).length;
   const heading = forChild ? "\ud83d\udcc8 How my two weeks are going" : "\ud83d\udcc8 "+escapeHtml(child.name)+"\u2019s behaviour trend";
   let note;
+  if(latest.noHistory){
+    return `<div class="graphhead">
+        <h2>${heading}</h2>
+        <span class="moodpill ${band.cls}">${band.label}</span>
+      </div>
+      <p class="graphnote">${forChild
+        ? "Your line starts here. As soon as you earn some points it begins to climb \u2014 green means you\u2019ve been doing well."
+        : "No points have been logged for "+escapeHtml(child.name)+" yet, so there\u2019s nothing to chart. The trend starts as soon as you award the first points."}</p>`;
+  }
   if(forChild){
     note = band.key==="green"
       ? "Brilliant \u2014 your line is green because you\u2019ve been earning points regularly. Keep it up!"
@@ -2032,7 +2485,7 @@ function kidTips(child){
   const next=app.rewards.filter(r=>r.points>balance).sort((a,b)=>a.points-b.points)[0];
   if(next) tips.push("\ud83c\udfaf Only "+(next.points-balance)+" more points until \u201c"+next.name+"\u201d");
   const nextGame=app.gameNightActivities.filter(g=>g.points>balance).sort((a,b)=>a.points-b.points)[0];
-  if(nextGame) tips.push("\ud83c\udfb2 "+(nextGame.points-balance)+" points to go for "+nextGame.name+" on game night");
+  if(nextGame) tips.push("\ud83c\udfb2 "+(nextGame.points-balance)+" points to go for "+nextGame.name);
   // Categories with nothing earned this week = areas to work on
   const catTotals=categories.map(cat=>{
     let sum=0;
@@ -2112,15 +2565,16 @@ function renderKidView(child){
     }).join("");
   }
 
-  // Reward + game night tabs
+  // Reward + activity chips
   const bal=availableFor(child);
   const chip=(item,type)=>{
     const can=bal>=item.points;
+    const blurb = item.desc || item.kind || "";
     return `<button class="chip ${can?"afford":""}" ${can?"":"disabled"} onclick="kidBuy('${type}','${item.id}')">
       ${can?"":'<span class="lock">\ud83d\udd12</span>'}
       ${escapeHtml(item.name)}
       <span class="cprice">${item.points} points</span>
-      ${item.kind?`<span class="ckind">${escapeHtml(item.kind)}</span>`:""}
+      ${blurb?`<span class="ckind">${escapeHtml(blurb)}</span>`:""}
     </button>`;
   };
   const rewardWrap=document.getElementById("kidRewardChips");
@@ -2130,7 +2584,7 @@ function renderKidView(child){
   const gameWrap=document.getElementById("kidGameChips");
   gameWrap.innerHTML = app.gameNightActivities.length
     ? app.gameNightActivities.slice().sort((a,b)=>a.points-b.points).map(g=>chip(g,"game")).join("")
-    : '<p class="small">No game night activities added yet.</p>';
+    : '<p class="small">No activities added yet.</p>';
 
   // Their own requests
   const mine=(app.requests||[]).filter(r=>r.childId===child.id).slice(0,4);
@@ -2151,6 +2605,27 @@ function renderKidView(child){
 }
 
 /* ---------- Auth entry points ---------- */
+/* Anything that escapes a try/catch used to vanish into the console, which
+   looks exactly like "I clicked the button and nothing happened". */
+function showCrash(msg){
+  const bar=document.getElementById("crashBar");
+  const txt=document.getElementById("crashText");
+  if(!bar||!txt) return;
+  txt.textContent = String(msg || "Unknown error");
+  bar.classList.remove("hidden");
+}
+window.addEventListener("error", (e)=>{
+  showCrash((e.message||"Script error") + (e.filename ? " (line " + e.lineno + ")" : ""));
+});
+window.addEventListener("unhandledrejection", (e)=>{
+  const r = e.reason || {};
+  showCrash((r.code ? r.code + " — " : "") + (r.message || String(r)));
+});
+
+if(location.protocol === "file:"){
+  const w=document.getElementById("fileWarning");
+  if(w) w.classList.remove("hidden");
+}
 window.onAuthChanged = async function(user){
   const authGate=document.getElementById("authGate");
   const noFamily=document.getElementById("noFamilyGate");
@@ -2235,7 +2710,7 @@ async function submitSignUp(){
     });
     window.__creatingFamily=false;
     await loadApp();
-    showGate("welcomeScreen");
+    startOnboarding();
   }catch(e){
     window.__creatingFamily=false;
     console.error("Sign-up failed:", e);
@@ -2248,9 +2723,45 @@ function dismissWelcome(){
   showGate("mainApp");
   renderAccounts(); render();
 }
+function selectNoFamilyRole(role){
+  window.__nfRole=role;
+  document.getElementById("nfRoleMum").classList.toggle("selected", role==="Mum");
+  document.getElementById("nfRoleDad").classList.toggle("selected", role==="Dad");
+}
+function toggleStartFamily(){
+  const form=document.getElementById("startFamilyForm");
+  const open=form.classList.contains("hidden");
+  form.classList.toggle("hidden", !open);
+  document.getElementById("startFamilyBtn").textContent =
+    open ? "Cancel" : "Or start a new family with this login";
+}
+async function startFamilyHere(){
+  const familyName=document.getElementById("nfFamilyName").value.trim();
+  const personName=document.getElementById("nfPersonName").value.trim();
+  const role=window.__nfRole||"Dad";
+  const errEl=document.getElementById("nfError");
+  errEl.textContent="";
+  if(!familyName||!personName){ errEl.textContent="Please fill in both the family name and your name."; return; }
+  try{
+    await window.fpc.createFamilyForCurrentUser({
+      familyName, personName, role,
+      categories: DEFAULT_CATEGORIES, rewards: DEFAULT_REWARDS, games: STARTER_GAMES
+    });
+    await loadApp();
+    startOnboarding();
+  }catch(e){
+    console.error("Could not create the family:", e);
+    errEl.textContent = e && e.code==="permission-denied"
+      ? "The database refused that. The security rules may not be deployed yet."
+      : "That didn't work — check your connection and try again.";
+  }
+}
 async function signOutDevice(){
-  if(!confirm("Sign out on this device? You'll need your own email and password to sign back in.")) return;
-  await window.fpc.signOut();
+  const me=sessionMember();
+  const who = me ? me.name : "this account";
+  if(!confirm("Sign out "+who+" on this device?\n\nWhoever uses it next signs in with their own email and password.")) return;
+  try{ await window.fpc.signOut(); }catch(e){ console.error("Sign out failed:", e); }
+  // Full reload so no projected family data survives into the next person's session.
   location.reload();
 }
 </script>
