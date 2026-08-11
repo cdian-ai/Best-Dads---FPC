@@ -34,12 +34,33 @@
   .card{background:white;border-radius:22px;padding:18px;box-shadow:var(--shadow);border-top:6px solid var(--accent2)}
   .cardhead{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}
   .icon{font-size:30px}.card h2{font-size:19px;margin:3px 0}.card p{margin:0;color:var(--muted);font-size:13px}
-  .points{font-weight:800;background:#f0f1ff;color:#4149ad;padding:8px 10px;border-radius:12px;white-space:nowrap}
+  .points{font-weight:800;background:#f0f1ff;color:#4149ad;padding:8px 10px;border-radius:12px;white-space:nowrap;transition:background .2s,color .2s}
+  .points.earned{background:#e4f7ed;color:#19744a}
   .actions{margin-top:14px;display:grid;gap:8px}
-  .action{display:flex;align-items:center;justify-content:space-between;border:1px solid #e6e8f0;border-radius:14px;padding:10px 12px;background:#fbfbfd}
+  .action{display:flex;align-items:center;justify-content:space-between;border:1px solid #e6e8f0;border-radius:14px;
+          padding:10px 12px;background:#fbfbfd;transition:background .12s,border-color .12s,transform .12s}
+  .action:hover{background:#f2f3ff;border-color:#c9cdf5;transform:translateX(2px)}
   .action.done{background:#eefaf4;border-color:#cbeedd}
+  .action.done:hover{background:#e4f7ed;border-color:#a9e2c8}
+  /* A moment of confirmation, so a tap is visibly a tap. */
+  .action.just{animation:awarded .9s ease-out}
+  @keyframes awarded{
+    0%{background:#2e9b68;border-color:#2e9b68;transform:scale(1.015)}
+    35%{background:#d9f5e7;border-color:#8fddb9}
+    100%{background:#eefaf4;border-color:#cbeedd;transform:scale(1)}
+  }
+  .action.just .actionname{animation:awardedtext .9s ease-out}
+  @keyframes awardedtext{0%{color:#fff}100%{color:inherit}}
+  @media(prefers-reduced-motion:reduce){
+    .action,.action.just,.action.just .actionname{animation:none;transition:none}
+    .action:hover{transform:none}
+  }
   .actionname{font-size:14px}.actionpts{font-size:12px;color:var(--muted)}
-  .controls{display:flex;gap:5px}.controls button{padding:6px 9px;border-radius:9px}
+  .controls{display:flex;gap:6px}
+  .controls button{padding:8px 12px;border-radius:10px;min-width:40px;transition:transform .1s,filter .12s}
+  .controls button:hover:not(:disabled){filter:brightness(.94);transform:translateY(-1px)}
+  .controls button:active:not(:disabled){transform:translateY(0) scale(.94)}
+  .controls button:disabled{opacity:.35}
   .plus{background:#e4f7ed;color:#19744a}.minus{background:#fff0f0;color:#a63e3e}
   .progress{height:8px;background:#eceef5;border-radius:99px;overflow:hidden;margin-top:12px}
   .bar{height:100%;width:0;background:linear-gradient(90deg,var(--accent),var(--accent2));transition:.25s}
@@ -1042,13 +1063,22 @@ const TIP_CATS = [
   {key:"behaviour", label:"Behaviour"}
 ];
 
-const APP_VERSION = "v35";
+const APP_VERSION = "v36";
 const today = new Date().toISOString().slice(0,10);
 let app = {families:[],currentFamily:null,currentChild:null};
 let categories = [];
 let ready = false;
 let editMode = false;
 let categoriesSeeded = false;   // stable ids still need writing down
+let seedSavedFor = null;        // which family's ids have already been written
+let flashKey = null;            // the row that was just awarded, for a moment
+let flashTimer = null;
+function flashAction(k){
+  flashKey = k;
+  if(flashTimer) clearTimeout(flashTimer);
+  flashTimer = setTimeout(()=>{ flashKey = null; render(); }, 900);
+  render();
+}
 let lastDeleted = null;      // the one thing an undo can put back
 let pendingNewMemberPhoto = null;
 let pendingAvatarChildId = null;
@@ -1199,7 +1229,10 @@ function projectApp(raw){
   // The ids have to be written down, or legacyIndex would be recalculated on a
   // later load from a position that may since have changed. Only a parent can
   // write, and once saved the ids come back with the data, so this runs once.
-  if(categoriesSeeded && familyId && isParentSession()){
+  // Once per family. A snapshot can arrive between the six config writes, and
+  // re-entering here would start another save — an endless loop of writes.
+  if(categoriesSeeded && familyId && isParentSession() && seedSavedFor !== familyId){
+    seedSavedFor = familyId;
     categoriesSeeded = false;
     saveApp();
   }
@@ -2482,7 +2515,8 @@ async function add(c,a,p){
   const child=currentChild(); if(!child){alert("Open someone's card first.");return;}
   if(child.id===sessionMemberId){ alert("You can't award points to yourself."); return; }
   const cat=activeCats()[c]; if(!cat) return;
-  await writeLedger({childId:child.id, points:p, label:a, type:"award", catKey:catKeyFor(cat,a), actionName:a});
+  const ok=await writeLedger({childId:child.id, points:p, label:a, type:"award", catKey:catKeyFor(cat,a), actionName:a});
+  if(ok) flashAction(catKeyFor(cat,a));
 }
 async function remove(c,a,p){
   if(!requireParent()) return;
@@ -2582,7 +2616,9 @@ function render(){
   }else{
     bw.classList.add("hidden"); bw.innerHTML="";
   }
-  const s=(child && !isParentRole(child)) ? stateForChild(child) : {};
+  // Parents earn points too now. This used to blank the state for anyone with a
+  // parent role, so every grown-up category showed 0 no matter what was awarded.
+  const s = child ? stateForChild(child) : {};
   let total=0,done=0,scores=[];
   if(child && me && isParentRole(me) && child.id !== me.id && !editMode){
     cards.insertAdjacentHTML("beforeend",
@@ -2628,14 +2664,17 @@ function render(){
     const acts=cat.actions.map(([name,p])=>{
       const val=valueFor(s, cat, name); catTotal+=val; total+=val; if(val>0)done++;
       const safe=name.replace(/\\/g,"\\\\").replace(/'/g,"\\'");
-      return `<div class="action ${val>0?'done':''}">
+      const justAwarded = flashKey === catKeyFor(cat, name);
+      return `<div class="action ${val>0?'done':''} ${justAwarded?'just':''}">
         <div><div class="actionname">${val>0?'✓ ':''}${name}</div><div class="actionpts">${p} point${p>1?'s':''}${val?' · earned '+val:''}</div></div>
-        <div class="controls"><button class="minus" onclick="remove(${ci},'${safe}',${p})">−</button>
-        <button class="plus" onclick="add(${ci},'${safe}',${p})">+${p}</button></div>
+        <div class="controls">
+          <button class="minus" ${val>0?'':'disabled'} title="${val>0?'Take points back':'Nothing to take back yet'}" onclick="remove(${ci},'${safe}',${p})">−</button>
+          <button class="plus" title="Give ${p} point${p>1?'s':''}" onclick="add(${ci},'${safe}',${p})">+${p}</button>
+        </div>
       </div>`;
     }).join("");
     scores.push([catTotal,cat.name]);
-    card.innerHTML=`<div class="cardhead"><div><div class="icon">${cat.icon}</div><h2>${cat.name}</h2><p>${cat.desc}</p></div><div class="points">${catTotal} pts</div></div>
+    card.innerHTML=`<div class="cardhead"><div><div class="icon">${cat.icon}</div><h2>${cat.name}</h2><p>${cat.desc}</p></div><div class="points ${catTotal>0?'earned':''}">${catTotal} pts</div></div>
       <div class="progress"><div class="bar" style="width:${Math.min(100,catTotal*5)}%"></div></div>
       <div class="actions">${acts}</div>`;
     cards.appendChild(card);
