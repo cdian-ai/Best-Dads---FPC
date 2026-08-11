@@ -106,6 +106,31 @@
   .memberhead{display:flex;align-items:center;gap:8px}
   .footer{color:var(--muted);text-align:center;font-size:12px;margin:20px 0 4px}
   .accountbar{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-top:18px;padding:14px 16px;background:#f7f7ff;border:1px solid #e1e3f4;border-radius:16px;flex-wrap:wrap}
+  /* One photo of the family, at the top of the header — the part of the page
+     every screen shares, whoever is signed in. */
+  .familycover{position:relative;height:132px;border-radius:20px;overflow:hidden;margin-top:14px;
+               background-size:cover;background-position:center;cursor:pointer}
+  .familycover .coverfade{position:absolute;inset:0;
+    background:linear-gradient(180deg,rgba(0,0,0,0) 35%,rgba(0,0,0,.55) 100%)}
+  .familycover .covername{position:absolute;left:16px;bottom:12px;color:#fff;font-weight:800;font-size:19px;
+    text-shadow:0 1px 6px rgba(0,0,0,.5);max-width:calc(100% - 70px);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .coveredit{position:absolute;top:10px;right:10px;width:auto;padding:8px 11px;border-radius:12px;
+             background:rgba(255,255,255,.92);font-size:15px}
+  .coverempty{display:flex;align-items:center;justify-content:center;gap:8px;height:88px;border-radius:20px;
+              margin-top:14px;border:2px dashed #d6d9ea;background:#fbfbfd;color:var(--muted);font-size:13px;cursor:pointer}
+
+  .lightbox{position:fixed;inset:0;z-index:180;background:rgba(20,17,45,.88);display:flex;
+            align-items:center;justify-content:center;flex-direction:column;gap:14px;padding:24px}
+  .lightbox img{max-width:100%;max-height:70vh;border-radius:20px;box-shadow:0 20px 50px rgba(0,0,0,.4)}
+  .lightbox .who{color:#fff;font-weight:800;font-size:18px}
+  .lightbox button{width:auto;padding:11px 22px}
+  .tappable{cursor:pointer}
+
+  .fab{position:fixed;right:16px;bottom:16px;z-index:120;width:auto;padding:14px 20px;border-radius:999px;
+       background:var(--accent);color:#fff;font-weight:800;font-size:15px;
+       box-shadow:0 10px 26px rgba(91,99,216,.45)}
+  .fab:hover{filter:brightness(1.05)}
+  @media(max-width:760px){ .familycover{height:112px} }
   .accountbuttons{display:flex;gap:8px;flex-wrap:wrap}.small{font-size:12px;color:var(--muted);margin-top:3px}
   /* Everything except the one action a parent actually came here to do lives
      behind the menu. Eight buttons filled the whole first screen on a phone. */
@@ -526,6 +551,14 @@
 <div id="fileWarning" class="hidden" style="position:sticky;top:0;z-index:50;padding:11px 18px;background:#fff2d6;border-bottom:2px solid #e8b84b;color:#6d4f10;font-size:13px;text-align:center;line-height:1.45">
   ⚠️ <strong>This is a local copy.</strong> Accounts can't be created or signed into from a file on your computer — open the app from its web address (github.io) instead. Everything else here is just a preview.
 </div>
+<button id="homeFab" class="fab hidden" onclick="fabAction()">🏠 Home</button>
+
+<div id="lightbox" class="lightbox hidden" onclick="closeLightbox()">
+  <img id="lightboxImg" alt="">
+  <div class="who" id="lightboxWho"></div>
+  <button class="light" onclick="closeLightbox()">Close</button>
+</div>
+
 <div id="celebration" class="celebrate hidden">
   <div class="celebratecard">
     <span class="bigemoji" id="celebrateEmoji">🎉</span>
@@ -541,6 +574,13 @@
   <h1>Family Points Card</h1>
   <p class="sub">A positive system blending Islamic values and everyday good manners — helping children grow into kind, responsible people.</p>
 
+  <div id="familyCover" class="familycover hidden" onclick="onCoverClick()">
+    <div class="coverfade"></div>
+    <div class="covername" id="coverName"></div>
+    <button class="coveredit hidden" id="coverEdit" onclick="event.stopPropagation();triggerCoverUpload()">📷</button>
+  </div>
+  <div id="coverEmpty" class="coverempty hidden" onclick="triggerCoverUpload()">📷 Add a family photo</div>
+  <input type="file" id="coverFileInput" accept="image/*" class="hidden" onchange="handleCoverUpload(this.files[0])">
   <div id="accountBar" class="accountbar">
     <div class="memberhead">
       <div id="avatarWrap"><div class="avatar-placeholder-lg">👤</div></div>
@@ -991,6 +1031,7 @@
     async saveMember(fid, id, data){ await setDoc(memberRef(fid, id), data); },
     async deleteMember(fid, id){ await deleteDoc(memberRef(fid, id)); },
     async saveFamilyName(fid, name){ await updateDoc(famRef(fid), { name }); },
+    async saveFamilyPhoto(fid, photo){ await updateDoc(famRef(fid), { photo }); },
 
     /* One points movement. Append-only: corrections are new offsetting entries,
        never edits, so the balance stays reproducible from history. */
@@ -1236,7 +1277,7 @@ const TIP_CATS = [
   {key:"behaviour", label:"Behaviour"}
 ];
 
-const APP_VERSION = "v43";
+const APP_VERSION = "v44";
 const today = new Date().toISOString().slice(0,10);
 let app = {families:[],currentFamily:null,currentChild:null};
 let categories = [];
@@ -1285,6 +1326,34 @@ function resizeImageFile(file){
     reader.readAsDataURL(file);
   });
 }
+/* The family photo is a wide banner rather than a square avatar, and it lives
+   in the family document, so it must stay well under Firestore's 1MB limit. */
+function resizeCoverFile(file){
+  return new Promise((resolve,reject)=>{
+    const reader=new FileReader();
+    reader.onerror=()=>reject(new Error("Could not read file"));
+    reader.onload=(e)=>{
+      const img=new Image();
+      img.onerror=()=>reject(new Error("Could not load image"));
+      img.onload=()=>{
+        const W=1000, H=420;                       // 2.4:1, cropped to fill
+        const canvas=document.createElement("canvas");
+        canvas.width=W; canvas.height=H;
+        const ctx=canvas.getContext("2d");
+        const scale=Math.max(W/img.width, H/img.height);
+        const w=img.width*scale, h=img.height*scale;
+        ctx.drawImage(img, (W-w)/2, (H-h)/2, w, h);
+        let out=canvas.toDataURL("image/jpeg", 0.72);
+        // Step the quality down rather than refusing a large photo outright.
+        let q=0.62;
+        while(out.length > 700000 && q > 0.35){ out=canvas.toDataURL("image/jpeg", q); q-=0.1; }
+        resolve(out);
+      };
+      img.src=e.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
 async function handleNewMemberPhoto(file){
   if(!file) return;
   try{
@@ -1316,6 +1385,84 @@ async function handleAvatarUpload(file){
 function triggerAvatarUpload(childId){
   pendingAvatarChildId=childId;
   document.getElementById("avatarFileInput").click();
+}
+
+/* ---------- The family photo ---------- */
+function renderFamilyCover(){
+  const cover=document.getElementById("familyCover");
+  const empty=document.getElementById("coverEmpty");
+  const edit=document.getElementById("coverEdit");
+  if(!cover || !empty) return;
+  const f=currentFamily();
+  if(!f){ cover.classList.add("hidden"); empty.classList.add("hidden"); return; }
+  if(f.photo){
+    cover.style.backgroundImage = "url('" + f.photo + "')";
+    document.getElementById("coverName").textContent = f.name || "";
+    cover.classList.remove("hidden");
+    empty.classList.add("hidden");
+    // Only a parent may change it; anyone may look at it.
+    if(edit) edit.classList.toggle("hidden", !isParentSession());
+  }else{
+    cover.classList.add("hidden");
+    // Don't nag a child about a photo they cannot add.
+    empty.classList.toggle("hidden", !isParentSession());
+  }
+}
+function triggerCoverUpload(){
+  if(!requireParent()) return;
+  document.getElementById("coverFileInput").click();
+}
+async function handleCoverUpload(file){
+  if(!file || !requireParent() || !familyId) return;
+  try{
+    const photo=await resizeCoverFile(file);
+    await window.fpc.saveFamilyPhoto(familyId, photo);
+  }catch(e){
+    console.error("Family photo failed:", e);
+    alert("Sorry, that photo couldn't be used. Try another.");
+  }
+}
+function onCoverClick(){
+  const f=currentFamily();
+  if(f && f.photo) openPhoto(f.photo, f.name || "Our family");
+}
+
+/* ---------- Looking at a photo properly ---------- */
+function openPhoto(src, who){
+  if(!src) return;
+  document.getElementById("lightboxImg").src = src;
+  document.getElementById("lightboxWho").textContent = who || "";
+  document.getElementById("lightbox").classList.remove("hidden");
+}
+function openMemberPhoto(id){
+  const m=memberById(id);
+  if(!m) return;
+  if(m.photo){ openPhoto(m.photo, m.name); return; }
+  // No photo yet: a parent gets the chance to add one, a child is told plainly.
+  if(isParentSession()) triggerAvatarUpload(id);
+  else alert("No photo yet \u2014 ask Mum or Dad to add one.");
+}
+function closeLightbox(){
+  document.getElementById("lightbox").classList.add("hidden");
+  document.getElementById("lightboxImg").src = "";
+}
+
+/* ---------- A way back that is always on screen ---------- */
+function fabAction(){
+  if(isParentSession() && viewChildId){ backToParentHome(); window.scrollTo({top:0,behavior:"smooth"}); return; }
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+function renderFab(){
+  const fab=document.getElementById("homeFab");
+  if(!fab) return;
+  if(!ready){ fab.classList.add("hidden"); return; }
+  const viewing = isParentSession() && !!viewChildId;
+  const scrolled = (typeof window.scrollY === "number" ? window.scrollY : 0) > 500;
+  fab.textContent = viewing ? "\ud83c\udfe0 Home" : "\u2191 Top";
+  fab.classList.toggle("hidden", !(viewing || scrolled));
+}
+if(typeof window.addEventListener === "function"){
+  window.addEventListener("scroll", renderFab, {passive:true});
 }
 
 function showVersion(){
@@ -1390,7 +1537,10 @@ function projectApp(raw){
     });
 
   app = {
-    families: raw.family ? [{ id: raw.family.id, name: raw.family.name, ownerUid: raw.family.ownerUid, children }] : [],
+    families: raw.family
+      ? [{ id: raw.family.id, name: raw.family.name, ownerUid: raw.family.ownerUid,
+           photo: raw.family.photo || null, children }]
+      : [],
     currentFamily: raw.family ? raw.family.id : null,
     currentChild: null,
     categories: cats,
@@ -2030,9 +2180,15 @@ function renderAccounts(){
     : "Signed in";
   const avatarWrap=document.getElementById("avatarWrap");
   const face = c || me;
-  avatarWrap.innerHTML = (face && face.photo)
-    ? `<img class="avatar-lg" src="${face.photo}">`
+  avatarWrap.innerHTML = face
+    ? (face.photo
+        ? `<img class="avatar-lg tappable" src="${face.photo}">`
+        : '<div class="avatar-placeholder-lg tappable">👤</div>')
     : '<div class="avatar-placeholder-lg">👤</div>';
+  if(face){
+    avatarWrap.onclick = () => openMemberPhoto(face.id);
+    avatarWrap.title = "See " + face.name + "'s photo";
+  }
   const list=document.getElementById("childrenList");
   if(!list) return;
   list.innerHTML="";
@@ -2042,7 +2198,9 @@ function renderAccounts(){
   if(f) f.children.forEach(ch=>{
     const row=document.createElement("div"); row.className="childrow"+(ch.id===currentChildId()?" selected":"");
     const left=document.createElement("div"); left.className="memberhead";
-    left.innerHTML = (ch.photo ? `<img class="avatar" src="${ch.photo}">` : '<div class="avatar-placeholder">👤</div>')
+    left.innerHTML = (ch.photo
+        ? `<img class="avatar tappable" src="${ch.photo}" onclick="event.stopPropagation();openMemberPhoto('${ch.id}')">`
+        : `<div class="avatar-placeholder tappable" onclick="event.stopPropagation();openMemberPhoto('${ch.id}')">👤</div>`)
       + `<div><span>${escapeHtml(ch.name)}${ch.age?" · "+escapeHtml(ch.age):""}</span>`
       + `<div class="small">${isParentRole(ch)?"Parent":"Child"}${ch.email?" · "+escapeHtml(ch.email):""}</div></div>`;
     row.appendChild(left);
@@ -2074,7 +2232,9 @@ function renderOverview(){
     const row=document.createElement("div"); row.className="overviewrow";
     row.onclick=()=>{ selectChild(ch.id); document.getElementById("overviewPanel").classList.add("hidden"); };
     const left=document.createElement("div"); left.className="memberhead";
-    left.innerHTML = (ch.photo ? `<img class="avatar" src="${ch.photo}">` : '<div class="avatar-placeholder">👤</div>')
+    left.innerHTML = (ch.photo
+        ? `<img class="avatar tappable" src="${ch.photo}" onclick="event.stopPropagation();openMemberPhoto('${ch.id}')">`
+        : `<div class="avatar-placeholder tappable" onclick="event.stopPropagation();openMemberPhoto('${ch.id}')">👤</div>`)
       + `<strong>${ch.name}</strong>`;
     const stats=document.createElement("div"); stats.className="overviewstats";
     stats.innerHTML = `
@@ -2907,6 +3067,8 @@ function render(){
   ensureSelection();
   applyRoleChrome();
   showVersion();
+  renderFamilyCover();
+  renderFab();
   renderWhoStrip();
   renderUndoBar();
   checkForGifts();
@@ -3087,7 +3249,9 @@ function renderParentAdminView(parent){
         const waiting=pend.filter(r=>r.childId===k.id).length;
         return `<div class="overviewrow" onclick="selectChild('${k.id}')">
           <div class="memberhead">
-            ${k.photo?`<img class="avatar" src="${k.photo}">`:'<div class="avatar-placeholder">\ud83d\udc64</div>'}
+            ${k.photo
+              ? `<img class="avatar tappable" src="${k.photo}" onclick="event.stopPropagation();openMemberPhoto('${k.id}')">`
+              : `<div class="avatar-placeholder tappable" onclick="event.stopPropagation();openMemberPhoto('${k.id}')">\ud83d\udc64</div>`}
             <div>
               <strong>${escapeHtml(k.name)}</strong>${waiting?`<span class="badge">${waiting} request${waiting>1?"s":""}</span>`:""}
               <div class="small">Today ${todayTotalFor(k)} \u00b7 This week ${weeklyTotalFor(k, getCurrentWeekDates())}</div>
@@ -3107,7 +3271,9 @@ function renderParentAdminView(parent){
     ? partners.map(pp=>`
         <div class="overviewrow" onclick="selectChild('${pp.id}')">
           <div class="memberhead">
-            ${pp.photo?`<img class="avatar" src="${pp.photo}">`:'<div class="avatar-placeholder">\ud83d\udc64</div>'}
+            ${pp.photo
+              ? `<img class="avatar tappable" src="${pp.photo}" onclick="event.stopPropagation();openMemberPhoto('${pp.id}')">`
+              : `<div class="avatar-placeholder tappable" onclick="event.stopPropagation();openMemberPhoto('${pp.id}')">\ud83d\udc64</div>`}
             <div><strong>${escapeHtml(pp.name)}</strong><div class="small">Give them points, or send a surprise</div></div>
           </div>
           <div class="overviewstats"><div><strong>${pp.balance||0}</strong><span>Balance</span></div></div>
@@ -3655,9 +3821,11 @@ function dropConfetti(){
 
 function renderKidView(child){
   document.getElementById("kidView").classList.remove("hidden");
-  document.getElementById("kidAvatar").innerHTML = child.photo
-    ? `<img class="avatar-lg" src="${child.photo}">`
-    : '<div class="avatar-placeholder-lg">\ud83d\udc64</div>';
+  const kidAv=document.getElementById("kidAvatar");
+  kidAv.innerHTML = child.photo
+    ? `<img class="avatar-lg tappable" src="${child.photo}">`
+    : '<div class="avatar-placeholder-lg tappable">\ud83d\udc64</div>';
+  kidAv.onclick = () => openMemberPhoto(child.id);
   const hour=new Date().getHours();
   const greet = hour<12 ? "Good morning" : hour<18 ? "Good afternoon" : "Good evening";
   document.getElementById("kidGreeting").textContent = greet+", "+child.name+"! \ud83c\udf1f";
