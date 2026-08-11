@@ -47,6 +47,19 @@
   .stat strong{display:block;font-size:26px}.stat span{color:var(--muted);font-size:13px}
   .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
   .card{background:white;border-radius:22px;padding:18px;box-shadow:var(--shadow);border-top:6px solid var(--accent2)}
+  /* A closed tile is one line you can scan; an open one is the full list. */
+  .cattile{padding:0;overflow:hidden}
+  .cattile .progress{margin:0 18px}
+  .cattile .actions{padding:12px 18px 18px}
+  .cathead{display:flex;align-items:center;gap:12px;width:100%;text-align:left;background:none;
+           padding:16px 18px;border-radius:0;font:inherit;color:inherit}
+  .cathead:hover{background:#f7f8fc}
+  .cathead .icon{font-size:28px;line-height:1;flex-shrink:0}
+  .cathead-main{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+  .cathead .catname{font-size:17px;font-weight:800}
+  .cathead .catdesc{font-size:12.5px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .cathead .chev{font-size:20px;color:var(--muted);flex-shrink:0;line-height:1}
+  .cattile.open .cathead{background:#f7f8fc}
   .cardhead{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}
   .icon{font-size:30px}.card h2{font-size:19px;margin:3px 0}.card p{margin:0;color:var(--muted);font-size:13px}
   .points{font-weight:800;background:#f0f1ff;color:#4149ad;padding:8px 10px;border-radius:12px;white-space:nowrap;transition:background .2s,color .2s}
@@ -289,6 +302,10 @@
   .chip.afford{border-color:#7ee0c6;background:#f0fdfa}
   .chip.afford .cprice{color:#19744a}
   .chip:disabled{opacity:.55;cursor:not-allowed}
+  .chipgroup{grid-column:1/-1;margin:6px 0 -2px;font-size:13px;font-weight:800;color:#4b4372}
+  .showall{grid-column:1/-1;background:rgba(255,255,255,.7);border:2px dashed #cfc7f7;color:#5b4fc4;
+           border-radius:16px;padding:12px;font-weight:700;font-size:14px}
+  .showall:hover{background:#fff}
   .chip .lock{position:absolute;top:-8px;right:-6px;font-size:14px}
   .savebox{margin-top:14px;background:#f5f3ff;border:1px dashed #cfc7f7;border-radius:18px;padding:13px 15px}
   .savebox p{margin:0;font-size:13px;color:#4b4372}
@@ -341,9 +358,16 @@
     .celebratecard,.celebratecard .bigemoji{animation:none}
   }
   @media(max-width:760px){
-    .kidstats{grid-template-columns:1fr}
-    .coin{margin-left:0;width:100%}
-    .kidhi{font-size:22px}
+    /* Three small numbers do not each need a full-width row — stacked, they
+       pushed everything a child actually wants below the fold. */
+    .kidstats{grid-template-columns:repeat(3,1fr);gap:8px}
+    .kidstat{padding:11px 9px;border-radius:16px}
+    .kidstat strong{font-size:21px}
+    .kidstat span{font-size:10.5px;line-height:1.25;display:block}
+    .coin{margin-left:auto;width:auto;padding:9px 14px}
+    .coin strong{font-size:26px}
+    .kidhi{font-size:21px}
+    .kidhero{padding:18px}
   }
 </style>
 </head>
@@ -673,6 +697,19 @@
     <div class="kidstat ks3"><strong id="kidStreak">0</strong><span>🔥 Day streak</span></div>
   </div>
 
+  <section class="kidcard teal">
+    <h2>🎁 Spend my points</h2>
+    <p class="lede">Tap a reward to ask Mum or Dad for it. Nothing is taken from your points until they say yes.</p>
+    <div id="kidRewardChips" class="chiprow"></div>
+    <h2 style="margin-top:18px">🎲 Activities</h2>
+    <p class="lede">Pick an activity you'd like to do — or save your points for something the family agrees on together.</p>
+    <div id="kidGameChips" class="chiprow"></div>
+    <div class="savebox">
+      <p>💡 <strong>Or save up.</strong> You don't have to spend anything today. Keeping your points builds towards a bigger family activity you all choose together.</p>
+    </div>
+    <div id="kidRequestStatus"></div>
+  </section>
+
   <section class="boostcard" id="kidBoostCard">
     <h2>⭐ Ways to get more points</h2>
     <p class="lede">Little things that add up fast.</p>
@@ -686,19 +723,6 @@
     <h2>⭐ Points I've been given</h2>
     <p class="lede">What you earned, who gave it to you, and what it was for.</p>
     <div id="kidFeed" class="feed"></div>
-  </section>
-
-  <section class="kidcard teal">
-    <h2>🎁 Spend my points</h2>
-    <p class="lede">Tap a reward to ask Mum or Dad for it. Nothing is taken from your points until they say yes.</p>
-    <div id="kidRewardChips" class="chiprow"></div>
-    <h2 style="margin-top:18px">🎲 Activities</h2>
-    <p class="lede">Pick an activity you'd like to do — or save your points for something the family agrees on together.</p>
-    <div id="kidGameChips" class="chiprow"></div>
-    <div class="savebox">
-      <p>💡 <strong>Or save up.</strong> You don't have to spend anything today. Keeping your points builds towards a bigger family activity you all choose together.</p>
-    </div>
-    <div id="kidRequestStatus"></div>
   </section>
 
   <p class="kidfooter">Only Mum and Dad can give points — keep doing kind things and they'll notice! 💛</p>
@@ -1212,7 +1236,7 @@ const TIP_CATS = [
   {key:"behaviour", label:"Behaviour"}
 ];
 
-const APP_VERSION = "v42";
+const APP_VERSION = "v43";
 const today = new Date().toISOString().slice(0,10);
 let app = {families:[],currentFamily:null,currentChild:null};
 let categories = [];
@@ -1220,6 +1244,11 @@ let ready = false;
 let editMode = false;
 let categoriesSeeded = false;   // stable ids still need writing down
 let seedSavedFor = null;        // which family's ids have already been written
+const openCategories = new Set();   // which category tiles are open right now
+function toggleCategory(id){
+  if(openCategories.has(id)) openCategories.delete(id); else openCategories.add(id);
+  render();
+}
 let flashKey = null;            // the row that was just awarded, for a moment
 let flashTimer = null;
 function flashAction(k){
@@ -2847,17 +2876,19 @@ function applyRoleChrome(){
   ["btnFamily","btnOverview","btnActivity","btnRequests","editModeBtn","btnGivePoints","btnResetDay"]
     .forEach(id=>set(id, !kid));
   set("btnSignOut", true);   // anyone signed in can hand the device on
-  set("menuSheet", kid ? true : !document.getElementById("menuSheet").classList.contains("hidden"));
+  const sheet=document.getElementById("menuSheet");
+  const quick=document.getElementById("quickActions");
+  const out=document.getElementById("btnSignOut");
+  const mb=document.getElementById("btnMenu");
   if(kid){
-    // A child's menu is only ever "sign out", so show it plainly rather than
-    // hiding one button behind another.
-    const sheet=document.getElementById("menuSheet");
-    if(sheet) sheet.classList.remove("hidden");
-    const mb=document.getElementById("btnMenu");
+    // A child's only option is to sign out. A whole menu card for one button was
+    // costing them the top of their own screen, so it sits inline instead.
+    if(sheet) sheet.classList.add("hidden");
     if(mb) mb.classList.add("hidden");
+    if(out && quick && out.parentElement !== quick) quick.appendChild(out);
   }else{
-    const mb=document.getElementById("btnMenu");
     if(mb) mb.classList.remove("hidden");
+    if(out && sheet && out.parentElement !== sheet) sheet.appendChild(out);
   }
   if(kid){
     ["accountPanel","overviewPanel","activityPanel","requestsPanel","addCategoryWrap",
@@ -2985,9 +3016,21 @@ function render(){
       </div>`;
     }).join("");
     scores.push([catTotal,cat.name]);
-    card.innerHTML=`<div class="cardhead"><div><div class="icon">${cat.icon}</div><h2>${cat.name}</h2><p>${cat.desc}</p></div><div class="points ${catTotal>0?'earned':''}">${catTotal} pts</div></div>
+    // Closed by default. Six open categories meant scrolling past forty actions
+    // to reach the one you wanted; closed, the whole set fits on a screen.
+    const open = editMode || openCategories.has(cat.id);
+    card.className = "card cattile" + (open ? " open" : "");
+    card.innerHTML=`<button class="cathead" onclick="toggleCategory('${cat.id}')" aria-expanded="${open}">
+        <span class="icon">${cat.icon}</span>
+        <span class="cathead-main">
+          <span class="catname">${escapeHtml(cat.name)}</span>
+          <span class="catdesc">${escapeHtml(cat.desc)}</span>
+        </span>
+        <span class="points ${catTotal>0?'earned':''}">${catTotal} pts</span>
+        <span class="chev">${open ? "\u2303" : "\u2304"}</span>
+      </button>
       <div class="progress"><div class="bar" style="width:${Math.min(100,catTotal*5)}%"></div></div>
-      <div class="actions">${acts}</div>`;
+      <div class="actions" ${open ? "" : 'style="display:none"'}>${acts}</div>`;
     cards.appendChild(card);
   });
   // "Give points" writes a one-off award tagged custom|..., which no category
@@ -3499,6 +3542,10 @@ function kidTips(child){
   tips.push({icon:"\ud83d\udcb0", text:"You can always save your points instead of spending them"});
   return tips;
 }
+let kidShowAllRewards = false;
+let kidShowAllGames = false;
+function toggleAllRewards(){ kidShowAllRewards = !kidShowAllRewards; render(); }
+function toggleAllGames(){ kidShowAllGames = !kidShowAllGames; render(); }
 let kidTipOffset = 0;
 function nextKidTips(){ kidTipOffset += 3; renderKidBoost(); }
 function renderKidBoost(){
@@ -3676,14 +3723,35 @@ function renderKidView(child){
       </span>
     </button>`;
   };
-  const rewardWrap=document.getElementById("kidRewardChips");
-  rewardWrap.innerHTML = app.rewards.length
-    ? app.rewards.slice().sort((a,b)=>a.points-b.points).map(r=>chip(r,"reward")).join("")
-    : '<p class="small">Mum or Dad hasn\u2019t added any rewards yet.</p>';
-  const gameWrap=document.getElementById("kidGameChips");
-  gameWrap.innerHTML = app.gameNightActivities.length
-    ? app.gameNightActivities.slice().sort((a,b)=>a.points-b.points).map(g=>chip(g,"game")).join("")
-    : '<p class="small">No activities added yet.</p>';
+  /* Lead with what they can actually have. Twenty-two locked cards to scroll
+     through is discouraging; what they can get now, plus the next few to aim
+     for, is the useful view. Everything else is one tap away. */
+  function chipList(items, type, showAll, toggleFn, emptyMsg){
+    if(!items.length) return '<p class="small">' + emptyMsg + '</p>';
+    const sorted = items.slice().sort((a,b)=>a.points-b.points);
+    const afford = sorted.filter(i=>bal >= i.points);
+    const locked = sorted.filter(i=>bal < i.points);
+    if(showAll) return sorted.map(i=>chip(i,type)).join("")
+      + `<button class="showall" onclick="${toggleFn}">Show fewer</button>`;
+    const nextUp = locked.slice(0, afford.length ? 2 : 3);
+    const hidden = sorted.length - afford.length - nextUp.length;
+    let html = "";
+    if(afford.length){
+      html += `<p class="chipgroup">\u2705 You can get these now</p>` + afford.map(i=>chip(i,type)).join("");
+    }
+    if(nextUp.length){
+      html += `<p class="chipgroup">\ud83c\udfaf ${afford.length ? "Next to aim for" : "Closest to reach"}</p>`
+            + nextUp.map(i=>chip(i,type)).join("");
+    }
+    if(hidden > 0) html += `<button class="showall" onclick="${toggleFn}">Show all ${sorted.length}</button>`;
+    return html;
+  }
+  document.getElementById("kidRewardChips").innerHTML =
+    chipList(app.rewards, "reward", kidShowAllRewards, "toggleAllRewards()",
+             "Mum or Dad hasn\u2019t added any rewards yet.");
+  document.getElementById("kidGameChips").innerHTML =
+    chipList(app.gameNightActivities, "game", kidShowAllGames, "toggleAllGames()",
+             "No activities added yet.");
 
   // Their own requests
   const mine=(app.requests||[]).filter(r=>r.childId===child.id).slice(0,4);
