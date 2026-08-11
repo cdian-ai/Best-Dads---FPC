@@ -85,27 +85,32 @@
   .gateprofiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:12px;margin-top:16px}
   .gateprofile{display:flex;flex-direction:column;align-items:center;gap:8px;background:#f7f8fc;border:1px solid #e6e8f0;border-radius:16px;padding:14px 8px;font-weight:700;color:var(--ink)}
   .gateprofile:hover{background:#eef0ff}
-  #gatePinBox{margin-top:18px;display:grid;gap:8px;text-align:left}
   #gateNoFamily{margin-top:16px;display:grid;gap:8px;text-align:left}
 </style>
 </head>
 <body>
+<div id="authGate" class="gatewrap hidden">
+  <div class="gatecard">
+    <div class="logo">🏆 Best Dad's</div>
+    <h1 style="font-size:22px;margin:0 0 4px">🌟 Family Points Card</h1>
+    <p class="sub">This device isn't signed in yet</p>
+    <div style="text-align:left;display:grid;gap:8px;margin-top:16px">
+      <input id="authEmail" type="email" placeholder="Email" autocomplete="username">
+      <input id="authPassword" type="password" placeholder="Password" autocomplete="current-password">
+      <button class="primary" onclick="submitAuthLogin()">Sign in</button>
+      <p class="small" id="authError" style="color:#a63e3e"></p>
+      <p class="small">Only you and your partner have sign-in details for this family's app.</p>
+    </div>
+  </div>
+</div>
 <div id="loginGate" class="gatewrap hidden">
   <div class="gatecard">
     <div class="logo">🏆 Best Dad's</div>
     <h1 style="font-size:22px;margin:0 0 4px">🌟 Family Points Card</h1>
     <p class="sub">Who's using this?</p>
     <div id="gateProfiles" class="gateprofiles"></div>
-    <div id="gatePinBox" class="hidden">
-      <p class="small" id="gatePinName"></p>
-      <input id="gatePinInput" type="password" inputmode="numeric" placeholder="Enter PIN" maxlength="6">
-      <button class="primary" onclick="submitGatePin()">Unlock</button>
-      <button class="light" onclick="cancelGatePin()">Back</button>
-      <p class="small" id="gatePinError" style="color:#a63e3e"></p>
-      <p class="small"><a href="#" onclick="forgotGatePin();return false;">Forgot PIN?</a></p>
-    </div>
     <div id="gateNoFamily" class="hidden">
-      <p class="small">Set up your Family Points Card — your family's data is saved privately in this browser. Add a PIN-protected profile for each family member below.</p>
+      <p class="small">Set up your Family Points Card — add a profile for each family member below.</p>
       <div id="gateFamilyNameRow"><input id="gateFamilyName" placeholder="Family name"></div>
       <input id="gateParentName" placeholder="Your name (e.g. Dad, Mum, Emma)">
       <button class="primary" onclick="createFamilyFromGate()">Continue</button>
@@ -141,7 +146,7 @@
     <div class="panelgrid">
       <section>
         <h2>Create family account</h2>
-        <p class="small">Saved privately in this browser on this device — no account or login needed. Data won't sync to other devices.</p>
+        <p class="small">Synced to the cloud — signed-in family devices see the same data.</p>
         <input id="familyName" placeholder="Family name">
         <input id="parentName" placeholder="Parent / carer name">
         <button class="primary" onclick="createFamily()">Create family</button>
@@ -150,6 +155,10 @@
             <input type="checkbox" id="championToggle" onchange="toggleChampionBanner(this.checked)" style="width:auto">
             <span class="small">🏆 Show weekly champion banner</span>
           </label>
+        </div>
+        <div style="margin-top:14px;padding-top:14px;border-top:1px solid #e6e8f0">
+          <button class="danger" onclick="signOutDevice()">🔒 Sign out this device</button>
+          <p class="small" style="margin-top:6px">You'll need the family email and password to sign back in.</p>
         </div>
       </section>
       <section>
@@ -161,7 +170,6 @@
         </div>
         <input id="newChildName" placeholder="Name (e.g. Grandma, Uncle Sam, Emma)">
         <input id="newChildAge" placeholder="Age or role — optional (e.g. 7, or Grandma)">
-        <input id="newChildPin" type="text" inputmode="numeric" placeholder="Set a PIN — optional">
         <div class="memberhead">
           <div id="newMemberPreview"><div class="avatar-placeholder">📷</div></div>
           <button type="button" class="photobtn" onclick="document.getElementById('newMemberPhotoInput').click()">Add photo (optional)</button>
@@ -187,7 +195,7 @@
   </div>
 </header>
 
-<div id="loadingMsg" class="loading">Loading your family points…</div>
+<div id="loadingMsg" class="loading hidden">Loading your family points…</div>
 
 <section id="summarySection" class="summary hidden">
   <div class="stat"><strong id="total">0</strong><span>Today's points</span></div>
@@ -237,7 +245,80 @@
 </section>
 
 <p class="footer">Tip: Praise the action, not just the points — "MashaAllah, you shared your toy without being asked. That's a really kind choice!"</p>
+<p class="footer" id="syncStatus">☁️ Connecting…</p>
 </div>
+
+<script type="module">
+  // Cloud sync: keeps family data in sync across every device signed in with this app.
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
+  import { getFirestore, doc, getDoc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
+  import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyDu6Alt9V3PouBpI3NN0KRlzbJLwVithT4",
+    authDomain: "best-dads-fpc.firebaseapp.com",
+    projectId: "best-dads-fpc",
+    storageBucket: "best-dads-fpc.firebasestorage.app",
+    messagingSenderId: "429145203249",
+    appId: "1:429145203249:web:1fc3004c4d64ce56d4eb10"
+  };
+
+  const fbApp = initializeApp(firebaseConfig);
+  const db = getFirestore(fbApp);
+  const auth = getAuth(fbApp);
+  // Single shared document for the whole family — every device reads/writes the same doc.
+  const familyDocRef = doc(db, "familyData", "shared");
+  let lastWrittenAt = 0;
+
+  window.firebaseAuth = {
+    async signIn(email, password){
+      await signInWithEmailAndPassword(auth, email, password);
+    },
+    async signOut(){
+      await signOut(auth);
+    }
+  };
+
+  onAuthStateChanged(auth, (user)=>{
+    window.__firebaseReady = true;
+    const authGate = document.getElementById("authGate");
+    if(user){
+      authGate.classList.add("hidden");
+      if(typeof window.startApp === "function") window.startApp();
+    }else{
+      document.getElementById("loadingMsg").classList.add("hidden");
+      document.getElementById("loginGate").classList.add("hidden");
+      document.getElementById("mainApp").classList.add("hidden");
+      authGate.classList.remove("hidden");
+    }
+  });
+
+  window.firebaseSync = {
+    async load(){
+      const snap = await getDoc(familyDocRef);
+      if(snap.exists()){
+        const d = snap.data();
+        return JSON.parse(d.payload);
+      }
+      return null;
+    },
+    async save(data){
+      const updatedAt = Date.now();
+      lastWrittenAt = updatedAt;
+      await setDoc(familyDocRef, { payload: JSON.stringify(data), updatedAt });
+    },
+    subscribe(callback){
+      let first = true;
+      onSnapshot(familyDocRef, (snap)=>{
+        if(first){ first=false; return; } // skip the initial snapshot; loadApp() already handled first load
+        if(!snap.exists()) return;
+        const d = snap.data();
+        if(d.updatedAt === lastWrittenAt) return; // this device made this write, ignore the echo
+        try{ callback(JSON.parse(d.payload)); }catch(e){ console.error("Cloud sync parse failed:", e); }
+      }, (err)=>{ console.error("Cloud sync listener error:", err); });
+    }
+  };
+</script>
 
 <script>
 const DEFAULT_CATEGORIES = [
@@ -334,7 +415,22 @@ function triggerAvatarUpload(childId){
   document.getElementById("avatarFileInput").click();
 }
 
+function waitForFirebase(timeoutMs){
+  return new Promise(resolve=>{
+    if(window.__firebaseReady) return resolve(true);
+    const start=Date.now();
+    const iv=setInterval(()=>{
+      if(window.__firebaseReady){ clearInterval(iv); resolve(true); }
+      else if(Date.now()-start>timeoutMs){ clearInterval(iv); resolve(false); }
+    },50);
+  });
+}
+function setSyncStatus(text){
+  const el=document.getElementById("syncStatus");
+  if(el) el.textContent=text;
+}
 async function loadApp(){
+  // Load whatever's cached locally first, so nothing breaks if the cloud is unreachable.
   try{
     const raw = localStorage.getItem(STORAGE_KEY);
     if(raw){
@@ -342,6 +438,40 @@ async function loadApp(){
     }
   }catch(e){
     app = {families:[],currentFamily:null,currentChild:null};
+  }
+  const firebaseAvailable = await waitForFirebase(3000);
+  if(firebaseAvailable){
+    try{
+      const cloudData = await window.firebaseSync.load();
+      if(cloudData){
+        app = cloudData;
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(app));
+      }else if(app.families && app.families.length>0){
+        // We have local data but nothing in the cloud yet — push it up as the starting point.
+        await window.firebaseSync.save(app);
+      }
+      setSyncStatus("☁️ Synced across devices");
+      window.firebaseSync.subscribe((cloudApp)=>{
+        app = cloudApp;
+        if(!Array.isArray(app.categories) || app.categories.length===0){
+          app.categories = JSON.parse(JSON.stringify(DEFAULT_CATEGORIES));
+        }
+        categories = app.categories;
+        try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(app)); }catch(e){}
+        setSyncStatus("☁️ Updated from another device");
+        const gateVisible = !document.getElementById("loginGate").classList.contains("hidden");
+        if(gateVisible){
+          renderLoginGate();
+        }else{
+          renderAccounts(); render();
+        }
+      });
+    }catch(e){
+      console.error("Cloud sync failed, continuing offline:", e);
+      setSyncStatus("⚠️ Offline — changes are saved on this device only");
+    }
+  }else{
+    setSyncStatus("⚠️ Offline — changes are saved on this device only");
   }
   if(!Array.isArray(app.gameNightActivities)) app.gameNightActivities=[];
   app.gameNightActivities = app.gameNightActivities.map(g=>
@@ -442,6 +572,15 @@ async function saveApp(){
   }catch(e){
     console.error("Storage save failed:", e);
     alert("Sorry, that couldn't be saved. Your browser storage may be full or blocked (e.g. private/incognito mode).");
+  }
+  if(window.firebaseSync){
+    try{
+      await window.firebaseSync.save(app);
+      setSyncStatus("☁️ Synced across devices");
+    }catch(e){
+      console.error("Cloud save failed:", e);
+      setSyncStatus("⚠️ Saved on this device only — couldn't reach the cloud");
+    }
   }
 }
 
@@ -550,11 +689,10 @@ async function addChild(){
   if(!f){alert("Create a family account first.");return;}
   const name=document.getElementById("newChildName").value.trim();
   const age=document.getElementById("newChildAge").value;
-  const pin=document.getElementById("newChildPin").value.trim();
   if(!name){alert("Please enter their name.");return;}
-  const child={id:"c"+Date.now()+Math.random().toString(16).slice(2),name,age,photo:pendingNewMemberPhoto,pin,pointsByDate:{},balance:0,activityLog:[]};
+  const child={id:"c"+Date.now()+Math.random().toString(16).slice(2),name,age,photo:pendingNewMemberPhoto,pointsByDate:{},balance:0,activityLog:[]};
   f.children.push(child); app.currentChild=child.id; await saveApp();
-  document.getElementById("newChildName").value=""; document.getElementById("newChildAge").value=""; document.getElementById("newChildPin").value="";
+  document.getElementById("newChildName").value=""; document.getElementById("newChildAge").value="";
   pendingNewMemberPhoto=null;
   document.getElementById("newMemberPreview").innerHTML='<div class="avatar-placeholder">📷</div>';
   renderAccounts(); render();
@@ -567,29 +705,14 @@ async function quickAddMember(name){
     const existing=f.children.find(c=>c.name.toLowerCase()===name.toLowerCase());
     app.currentChild=existing.id; await saveApp(); renderAccounts(); render(); return;
   }
-  const member={id:"c"+Date.now()+Math.random().toString(16).slice(2),name,age:"",photo:null,pin:"",pointsByDate:{},balance:0,activityLog:[]};
+  const member={id:"c"+Date.now()+Math.random().toString(16).slice(2),name,age:"",photo:null,pointsByDate:{},balance:0,activityLog:[]};
   f.children.push(member); app.currentChild=member.id; await saveApp();
   renderAccounts(); render();
 }
-async function setMemberPin(id){
-  const f=currentFamily(); if(!f) return;
-  const member=f.children.find(c=>c.id===id);
-  if(!member) return;
-  const val=prompt(member.pin?("Change PIN for "+member.name+" (leave blank to remove it):"):("Set a PIN for "+member.name+" (leave blank for no PIN):"), member.pin||"");
-  if(val===null) return;
-  member.pin=val.trim();
-  await saveApp();
-  renderAccounts();
-}
-let pendingGateMemberId=null;
 function renderLoginGate(){
   const f=currentFamily();
   const profilesBox=document.getElementById("gateProfiles");
   const noFamilyBox=document.getElementById("gateNoFamily");
-  const pinBox=document.getElementById("gatePinBox");
-  pinBox.classList.add("hidden");
-  document.getElementById("gatePinInput").value="";
-  document.getElementById("gatePinError").textContent="";
   if(!f || f.children.length===0){
     profilesBox.innerHTML="";
     document.getElementById("gateFamilyNameRow").classList.toggle("hidden", !!f);
@@ -602,48 +725,9 @@ function renderLoginGate(){
     const btn=document.createElement("button");
     btn.className="gateprofile";
     btn.innerHTML=(ch.photo?`<img class="avatar-lg" src="${ch.photo}">`:'<div class="avatar-placeholder-lg">👤</div>')+`<span>${ch.name}</span>`;
-    btn.onclick=()=>selectGateProfile(ch.id);
+    btn.onclick=()=>completeLogin(ch.id);
     profilesBox.appendChild(btn);
   });
-}
-function selectGateProfile(id){
-  const f=currentFamily(); if(!f) return;
-  const member=f.children.find(c=>c.id===id);
-  if(!member) return;
-  if(member.pin){
-    pendingGateMemberId=id;
-    document.getElementById("gatePinName").textContent="Enter PIN for "+member.name;
-    document.getElementById("gatePinError").textContent="";
-    document.getElementById("gatePinInput").value="";
-    document.getElementById("gatePinBox").classList.remove("hidden");
-    document.getElementById("gatePinInput").focus();
-  }else{
-    completeLogin(id);
-  }
-}
-function submitGatePin(){
-  const f=currentFamily(); if(!f) return;
-  const member=f.children.find(c=>c.id===pendingGateMemberId);
-  if(!member) return;
-  const entered=document.getElementById("gatePinInput").value.trim();
-  if(entered===member.pin){
-    completeLogin(member.id);
-  }else{
-    document.getElementById("gatePinError").textContent="Incorrect PIN. Try again.";
-  }
-}
-function cancelGatePin(){
-  pendingGateMemberId=null;
-  document.getElementById("gatePinBox").classList.add("hidden");
-}
-async function forgotGatePin(){
-  const f=currentFamily(); if(!f) return;
-  const member=f.children.find(c=>c.id===pendingGateMemberId);
-  if(!member) return;
-  if(!confirm("This will remove the PIN for "+member.name+" and let you in. You can set a new PIN afterwards. Continue?")) return;
-  member.pin="";
-  await saveApp();
-  completeLogin(member.id);
 }
 async function createFamilyFromGate(){
   const parent=document.getElementById("gateParentName").value.trim();
@@ -655,7 +739,7 @@ async function createFamilyFromGate(){
     f={id:"f"+Date.now(),name,children:[]};
     app.families.push(f); app.currentFamily=f.id;
   }
-  const member={id:"c"+Date.now()+Math.random().toString(16).slice(2),name:parent,age:"",photo:null,pin:"",pointsByDate:{},balance:0,activityLog:[]};
+  const member={id:"c"+Date.now()+Math.random().toString(16).slice(2),name:parent,age:"",photo:null,pointsByDate:{},balance:0,activityLog:[]};
   f.children.push(member); app.currentChild=member.id;
   await saveApp();
   document.getElementById("gateFamilyName").value="";
@@ -709,14 +793,10 @@ function renderAccounts(){
     photoBtn.className="photobtn"; photoBtn.textContent="📷";
     photoBtn.title="Add or change photo";
     photoBtn.onclick=()=>triggerAvatarUpload(ch.id);
-    const pinBtn=document.createElement("button");
-    pinBtn.className="photobtn"; pinBtn.textContent = ch.pin ? "🔑" : "🔑＋";
-    pinBtn.title = ch.pin ? "Change or remove PIN" : "Set a PIN";
-    pinBtn.onclick=()=>setMemberPin(ch.id);
     const btn=document.createElement("button");
     btn.className="light"; btn.textContent = ch.id===app.currentChild ? "Selected" : "Select";
     btn.onclick=()=>selectChild(ch.id);
-    btns.appendChild(photoBtn); btns.appendChild(pinBtn); btns.appendChild(btn);
+    btns.appendChild(photoBtn); btns.appendChild(btn);
     row.appendChild(btns);
     list.appendChild(row);
   });
@@ -1108,7 +1188,31 @@ async function claimReward(name,needed){
   }
 }
 
-loadApp();
+let appStarted=false;
+window.startApp=function(){
+  if(appStarted) return;
+  appStarted=true;
+  document.getElementById("loadingMsg").classList.remove("hidden");
+  loadApp();
+};
+async function submitAuthLogin(){
+  const email=document.getElementById("authEmail").value.trim();
+  const password=document.getElementById("authPassword").value;
+  const errEl=document.getElementById("authError");
+  errEl.textContent="";
+  if(!email||!password){ errEl.textContent="Please enter both email and password."; return; }
+  try{
+    await window.firebaseAuth.signIn(email,password);
+  }catch(e){
+    errEl.textContent="Sign-in failed. Check the email and password and try again.";
+  }
+}
+async function signOutDevice(){
+  if(!confirm("Sign out this device? You'll need the family email and password to sign back in.")) return;
+  await window.firebaseAuth.signOut();
+  appStarted=false;
+  location.reload();
+}
 </script>
 </body>
 </html>
