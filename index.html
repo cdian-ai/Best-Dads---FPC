@@ -312,7 +312,7 @@
         <input id="onbChildName" type="text" placeholder="Their name (e.g. Aisha)">
         <input id="onbChildAge" type="text" placeholder="Age — optional (e.g. 7)">
         <input id="onbChildPassword" type="text" placeholder="A password for them (6+ characters)">
-        <button class="confirm" onclick="onbAddChild()" id="onbAddBtn">✓ Confirm and add</button>
+        <button class="confirm" onclick="onbAddChild()" id="onbAddBtn">Add</button>
         <p class="small" id="onbAddError" style="color:#a63e3e;margin:0"></p>
       </div>
       <p class="small" style="margin:12px 0 0">On each child's own device, sign in with the email and password shown above. There's no code to enter and nothing to approve.</p>
@@ -414,14 +414,10 @@
             <div>Email: <strong id="justAddedEmail"></strong></div>
             <div>Password: <strong id="justAddedPass"></strong></div>
           </div>
-          <p class="small" style="margin:8px 0 10px">Write this down. There's no code to enter and nothing to approve — that's the whole process.</p>
-          <div style="display:flex;gap:8px;flex-wrap:wrap">
-            <button class="primary" style="width:auto" onclick="addAnotherMember()">＋ Add another family member</button>
-            <button class="light" style="width:auto" onclick="doneAddingMembers()">Done for now</button>
-          </div>
+          <p class="small" style="margin:8px 0 0">Write this down. There's no code to enter and nothing to approve — that's the whole process.</p>
         </div>
 
-        <div class="catedit" id="addMemberBox" style="margin-top:14px">
+        <div class="catedit hidden" id="addMemberBox" style="margin-top:14px">
           <p class="small" style="margin:0 0 8px"><strong>Add someone new</strong></p>
           <p class="small" style="margin:0 0 10px">Adding someone here creates their own login, so the app knows who is who. Choose <strong>Child</strong> for anyone who should earn points, and <strong>Parent</strong> for another adult who can award them.</p>
           <input id="newChildName" placeholder="Name (e.g. Emma, Grandma)">
@@ -431,15 +427,18 @@
             <button type="button" id="newRoleParent" class="light" style="width:auto;flex:1" onclick="selectNewMemberRole('parent')">Parent</button>
           </div>
           <input id="newChildPassword" type="text" placeholder="Password for their login (6+ characters)" style="margin-top:8px">
-          <p class="small" style="margin:6px 0 0">Check the details above, then confirm. Their login is created straight away and shown to you.</p>
+          <p class="small" style="margin:6px 0 0">Check the details above, then press Add. Their login is created straight away and shown to you.</p>
           <div class="memberhead" style="margin-top:8px">
             <div id="newMemberPreview"><div class="avatar-placeholder">📷</div></div>
             <button type="button" class="photobtn" onclick="document.getElementById('newMemberPhotoInput').click()">Add photo (optional)</button>
             <input type="file" id="newMemberPhotoInput" accept="image/*" class="hidden" onchange="handleNewMemberPhoto(this.files[0])">
           </div>
-          <button class="confirm" style="margin-top:8px;width:100%" id="addMemberBtn" onclick="addChild()">✓ Confirm and add</button>
+          <button class="confirm" style="margin-top:8px;width:100%" id="addMemberBtn" onclick="addChild()">Add</button>
+          <button class="light" style="margin-top:6px;width:100%" onclick="cancelAddMember()">Cancel</button>
           <p class="small" id="addMemberError" style="color:#a63e3e;margin:8px 0 0"></p>
         </div>
+
+        <button class="primary" id="revealAddBtn" style="margin-top:14px;width:100%" onclick="openAddMember()">＋ Add someone new</button>
         <input type="file" id="avatarFileInput" accept="image/*" class="hidden" onchange="handleAvatarUpload(this.files[0])">
       </section>
       <section>
@@ -488,9 +487,16 @@
   <div id="championContent"></div>
 </section>
 
-<p id="editModeNote" class="small hidden" style="background:#eef0ff;border-radius:12px;padding:10px 14px;margin:0 0 12px">✏️ Edit mode is on — change names, points, add or remove actions and categories below. Turn it off with the "Edit Categories" button when you're done.</p>
+<p id="editModeNote" class="small hidden" style="background:#eef0ff;border:1px solid #c9cdf5;border-radius:12px;padding:11px 14px;margin:0 0 12px">✏️ <strong>You're editing the categories.</strong> Change names and points, or add and remove actions below — every change saves as you make it. Press <strong>✕ Close editor</strong> at the top when you've finished.</p>
 
 <section id="tipsCard" class="tips hidden"></section>
+<div id="undoBar" class="hidden" style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;background:#fff6e8;border:1px solid #f3d6a4;border-radius:14px;padding:11px 15px;margin:0 0 12px;color:#7a5b18;font-size:13px">
+  <span id="undoText"></span>
+  <span style="display:flex;gap:8px">
+    <button class="primary" style="width:auto;padding:7px 14px;font-size:13px" onclick="undoLastDelete()">↶ Undo</button>
+    <button class="light" style="width:auto;padding:7px 12px;font-size:13px" onclick="dismissUndo()">Dismiss</button>
+  </span>
+</div>
 <div id="requestsBanner" class="requestcard hidden"></div>
 <div id="behaviourWrap" class="graphcard hidden"></div>
 
@@ -927,14 +933,15 @@ const TIP_CATS = [
   {key:"behaviour", label:"Behaviour"}
 ];
 
-const APP_VERSION = "v25";
+const APP_VERSION = "v31";
 const today = new Date().toISOString().slice(0,10);
 const STORAGE_KEY = "familyPointsApp";
 let app = {families:[],currentFamily:null,currentChild:null};
 let categories = [];
 let ready = false;
 let editMode = false;
-let rewardsSeeded = false;
+let categoriesSeeded = false;   // stable ids still need writing down
+let lastDeleted = null;      // the one thing an undo can put back
 let pendingNewMemberPhoto = null;
 let pendingAvatarChildId = null;
 let sessionMemberId = null;   // who is signed in on this device (local only)
@@ -1045,7 +1052,9 @@ function projectApp(raw){
         if(e.catKey && (e.type === "award" || e.type === "adjust")){
           const ds = tsToDateStr(e.ts);
           if(!pointsByDate[ds]) pointsByDate[ds] = {};
-          pointsByDate[ds][e.catKey] = Math.max(0, (pointsByDate[ds][e.catKey] || 0) + e.points);
+          // No clamping here — a correction can legitimately land on a different
+          // key from the award it offsets. Clamping happens at read time.
+          pointsByDate[ds][e.catKey] = (pointsByDate[ds][e.catKey] || 0) + e.points;
         }
       });
       const activityLog = entries.slice().reverse().slice(0, 40).map(e => ({
@@ -1072,10 +1081,30 @@ function projectApp(raw){
   };
   categories = app.categories;
   normaliseCatalogues();
+  // The ids have to be written down, or legacyIndex would be recalculated on a
+  // later load from a position that may since have changed. Only a parent can
+  // write, and once saved the ids come back with the data, so this runs once.
+  if(categoriesSeeded && familyId && isParentSession()){
+    categoriesSeeded = false;
+    saveApp();
+  }
 }
 /* Ids, prices and kinds, applied in memory only. Nothing is written back unless
    a parent actually edits something — a child's device must never try to write. */
 function normaliseCatalogues(){
+  // Points used to be filed against a category's POSITION in the list, so
+  // deleting or moving a category detached everything recorded against it and
+  // everything below it. Categories now carry a stable id. The ledger is
+  // append-only, so older entries keep their positional keys — legacyIndex
+  // records the position each category held at the moment of the switch, which
+  // is how those entries are still found. Captured once, never recalculated.
+  app.categories.forEach((cat, i) => {
+    if(!cat.id){
+      cat.id = "c" + Math.abs(hashString(cat.name)).toString(16);
+      if(cat.legacyIndex === undefined) cat.legacyIndex = i;
+      categoriesSeeded = true;
+    }
+  });
   app.rewards.forEach(r => {
     if(!r.id) r.id = "r" + Math.abs(hashString(r.name)).toString(16);
     if(typeof r.kind !== "string") r.kind = "";
@@ -1237,6 +1266,15 @@ function ensureSelection(){
   if(!isParentSession()) viewChildId=null;
 }
 function key(c,a){return c+"|"+a}
+/* A point's key is the category's stable id, not its position. */
+function catKeyFor(cat, actionName){ return (cat && cat.id ? cat.id : "?") + "|" + actionName; }
+/* Reading adds anything still filed under the old positional key, so history
+   from before stable ids keeps showing up against the right action. */
+function valueFor(state, cat, actionName){
+  let v = state[catKeyFor(cat, actionName)] || 0;
+  if(cat && typeof cat.legacyIndex === "number") v += state[cat.legacyIndex + "|" + actionName] || 0;
+  return Math.max(0, v);
+}
 
 function getCurrentWeekDates(){
   const now=new Date();
@@ -1402,10 +1440,10 @@ async function addChild(){
     console.error("Could not add member:", e);
     errEl.textContent = authErrorMessage(e);
     setSyncStatus("☁️ Synced across devices");
-    if(btn){ btn.disabled=false; btn.textContent="✓ Confirm and add"; }
+    if(btn){ btn.disabled=false; btn.textContent="Add"; }
     return;
   }
-  if(btn){ btn.disabled=false; btn.textContent="✓ Confirm and add"; }
+  if(btn){ btn.disabled=false; btn.textContent="Add"; }
   document.getElementById("newChildName").value="";
   document.getElementById("newChildAge").value="";
   document.getElementById("newChildPassword").value="";
@@ -1415,8 +1453,7 @@ async function addChild(){
   document.getElementById("justAddedTitle").textContent = "✅ " + name + " has been added";
   document.getElementById("justAddedEmail").textContent = email;
   document.getElementById("justAddedPass").textContent = password;
-  document.getElementById("justAdded").classList.remove("hidden");
-  document.getElementById("addMemberBox").classList.add("hidden");
+  setAddMemberState("confirmed");
 }
 /* The one thing a parent has to hand over. Shown on adding a member and
    available again later, because this is the only step a child needs. */
@@ -1434,30 +1471,46 @@ async function showMemberLogin(id){
   if(!m.email){ alert(m.name+" was added before logins existed. Remove and re-add them to create one."); return; }
   showLoginDetails(m.name, m.email, null);
 }
-/* Reopening the panel starts clean. Otherwise the last child's password stays
-   on screen from a previous visit, which is both confusing and careless. */
-function resetAddMemberPanel(){
-  const added=document.getElementById("justAdded");
-  const box=document.getElementById("addMemberBox");
-  const err=document.getElementById("addMemberError");
-  if(added){ added.classList.add("hidden"); }
-  if(box) box.classList.remove("hidden");
-  if(err) err.textContent="";
-  const pass=document.getElementById("justAddedPass");
-  const mail=document.getElementById("justAddedEmail");
-  if(pass) pass.textContent="";
-  if(mail) mail.textContent="";
+/* The panel has exactly three states, and only one control is visible at a time:
+     idle      — the member list plus "Add someone new"
+     adding    — the form, with the green confirm as the only action
+     confirmed — the new login's details, and "Add someone new" back again
+   Reopening Family & Children always returns to idle, so the last child's
+   password never lingers on screen from a previous visit. */
+function setAddMemberState(state){
+  const added = document.getElementById("justAdded");
+  const box   = document.getElementById("addMemberBox");
+  const btn   = document.getElementById("revealAddBtn");
+  const err   = document.getElementById("addMemberError");
+  if(!added || !box || !btn) return;
+  added.classList.toggle("hidden", state !== "confirmed");
+  box.classList.toggle("hidden",   state !== "adding");
+  btn.classList.toggle("hidden",   state === "adding");
+  if(err && state !== "confirmed") err.textContent = "";
+  if(state === "idle"){
+    const pass = document.getElementById("justAddedPass");
+    const mail = document.getElementById("justAddedEmail");
+    if(pass) pass.textContent = "";
+    if(mail) mail.textContent = "";
+  }
 }
-function addAnotherMember(){
-  document.getElementById("justAdded").classList.add("hidden");
-  document.getElementById("addMemberBox").classList.remove("hidden");
-  const el=document.getElementById("newChildName");
-  if(el && el.focus) el.focus();
+function resetAddMemberPanel(){ setAddMemberState("idle"); }
+function openAddMember(){
+  if(!requireParent()) return;
+  document.getElementById("newChildName").value = "";
+  document.getElementById("newChildAge").value = "";
+  document.getElementById("newChildPassword").value = "";
+  pendingNewMemberPhoto = null;
+  const preview = document.getElementById("newMemberPreview");
+  if(preview) preview.innerHTML = '<div class="avatar-placeholder">\ud83d\udcf7</div>';
+  selectNewMemberRole("child");
+  setAddMemberState("adding");
+  const name = document.getElementById("newChildName");
+  if(name && name.focus) name.focus();
 }
-function doneAddingMembers(){
-  document.getElementById("justAdded").classList.add("hidden");
-  document.getElementById("addMemberBox").classList.remove("hidden");
-}
+function cancelAddMember(){ setAddMemberState("idle"); }
+function addAnotherMember(){ openAddMember(); }
+function doneAddingMembers(){ setAddMemberState("idle"); }
 async function selectChild(id){
   if(!isParentSession()) return;          // children can only ever see their own card
   viewChildId=id;
@@ -1538,6 +1591,8 @@ function renderAccounts(){
   const list=document.getElementById("childrenList");
   if(!list) return;
   list.innerHTML="";
+  const reveal=document.getElementById("revealAddBtn");
+  if(reveal) reveal.classList.toggle("hidden", !isParentSession());
   if(!isParentSession()) return;
   if(f) f.children.forEach(ch=>{
     const row=document.createElement("div"); row.className="childrow"+(ch.id===currentChildId()?" selected":"");
@@ -1820,7 +1875,7 @@ async function onbAddChild(){
     console.error("Could not add child during setup:", e);
     errEl.textContent = authErrorMessage(e);
   }
-  btn.disabled = false; btn.textContent = "\u2713 Confirm and add";
+  btn.disabled = false; btn.textContent = "Add";
 }
 function startOnboarding(){
   onbStep = 1; onbAddedMembers = [];
@@ -1942,7 +1997,11 @@ async function removeReward(index){
 function toggleEditMode(){
   if(!requireParent()) return;
   editMode=!editMode;
-  document.getElementById("editModeBtn").textContent = editMode ? "✓ Done Editing" : "✏️ Edit Categories";
+  if(!editMode) lastDeleted=null;   // leaving the editor gives up the undo
+  const editBtn=document.getElementById("editModeBtn");
+  editBtn.textContent = editMode ? "✕ Close editor" : "✏️ Edit Categories";
+  editBtn.classList.toggle("primary", editMode);
+  editBtn.classList.toggle("light", !editMode);
   document.getElementById("editModeNote").classList.toggle("hidden", !editMode);
   document.getElementById("addCategoryWrap").classList.toggle("hidden", !editMode);
   render();
@@ -1962,7 +2021,15 @@ async function updateActionField(ci, ai, field, value){
   render();
 }
 async function removeAction(ci, ai){
-  categories[ci].actions.splice(ai,1);
+  if(!requireParent()) return;
+  const cat=categories[ci]; if(!cat || !cat.actions[ai]) return;
+  // Remember enough to put it back exactly where it was.
+  lastDeleted={
+    kind:"action", index:ci, actionIndex:ai,
+    data:JSON.parse(JSON.stringify(cat.actions[ai])),
+    label:cat.actions[ai][0], catName:cat.name
+  };
+  cat.actions.splice(ai,1);
   await saveApp();
   render();
 }
@@ -1972,13 +2039,70 @@ async function addAction(ci){
   render();
 }
 async function removeCategory(ci){
-  if(!confirm("Remove this whole category? Points already earned in it stay in each person's saved balance, but the category and its actions will be gone.")) return;
+  if(!requireParent()) return;
+  const cat=categories[ci]; if(!cat) return;
+  // No confirmation dialog: deleting is instant and undoable, which is kinder
+  // than a prompt that gets clicked through without reading.
+  lastDeleted={
+    kind:"category", index:ci,
+    data:JSON.parse(JSON.stringify(cat)),
+    label:cat.name, actionCount:(cat.actions||[]).length
+  };
   categories.splice(ci,1);
   await saveApp();
   render();
 }
+async function undoLastDelete(){
+  if(!requireParent()) return;
+  if(!lastDeleted) return;
+  const d=lastDeleted;
+  if(d.kind==="category"){
+    // Back at its original position, so the category order — and the keys that
+    // past points were recorded against — line up again.
+    categories.splice(Math.min(d.index, categories.length), 0, d.data);
+  }else{
+    // The index alone isn't trustworthy: deleting a category shifts everything
+    // after it up, so index 2 may now be a different category entirely. Confirm
+    // by name, and fall back to searching for it.
+    let ci = d.index;
+    if(!categories[ci] || categories[ci].name !== d.catName){
+      ci = categories.findIndex(c => c.name === d.catName);
+    }
+    if(ci < 0){
+      alert("The category that action belonged to has gone too. Put that back first, then this.");
+      return;
+    }
+    const cat = categories[ci];
+    cat.actions.splice(Math.min(d.actionIndex, cat.actions.length), 0, d.data);
+  }
+  lastDeleted=null;
+  await saveApp();
+  render();
+}
+function dismissUndo(){ lastDeleted=null; renderUndoBar(); }
+function renderUndoBar(){
+  const bar=document.getElementById("undoBar");
+  const txt=document.getElementById("undoText");
+  if(!bar||!txt) return;
+  if(!lastDeleted || !editMode || !isParentSession()){
+    bar.classList.add("hidden");
+    return;
+  }
+  txt.innerHTML = lastDeleted.kind==="category"
+    ? "Removed the category <strong>"+escapeHtml(lastDeleted.label)+"</strong>"
+      + (lastDeleted.actionCount ? " and its "+lastDeleted.actionCount+" action"+(lastDeleted.actionCount===1?"":"s") : "")
+      + ". Points already earned are unaffected."
+    : "Removed <strong>"+escapeHtml(lastDeleted.label)+"</strong> from "+escapeHtml(lastDeleted.catName)+".";
+  bar.classList.remove("hidden");
+}
 async function addCategory(){
-  categories.push({icon:"⭐",name:"New Category",desc:"Describe this category.",actions:[["New action",2]]});
+  if(!requireParent()) return;
+  categories.push({
+    id: "c" + Math.abs(hashString("New Category" + Date.now())).toString(16),
+    icon:"⭐", name:"New Category", desc:"Describe this category.",
+    actions:[["New action",2]]
+    // deliberately no legacyIndex: nothing was ever filed against this one
+  });
   await saveApp();
   render();
 }
@@ -1986,17 +2110,18 @@ async function addCategory(){
 async function add(c,a,p){
   if(!requireParent()) return;
   const child=currentChild(); if(!child){alert("Open a child's card first.");return;}
-  await writeLedger({childId:child.id, points:p, label:a, type:"award", catKey:key(c,a), actionName:a});
+  const cat=categories[c]; if(!cat) return;
+  await writeLedger({childId:child.id, points:p, label:a, type:"award", catKey:catKeyFor(cat,a), actionName:a});
 }
 async function remove(c,a,p){
   if(!requireParent()) return;
   const child=currentChild(); if(!child)return;
-  const k=key(c,a);
-  const earnedToday=(stateForChild(child)[k])||0;
+  const cat=categories[c]; if(!cat) return;
+  const earnedToday=valueFor(stateForChild(child), cat, a);
   const amount=Math.min(p, earnedToday);
   if(amount<=0) return;
   // Append-only: taking points back is a new offsetting entry, not an edit.
-  await writeLedger({childId:child.id, points:-amount, label:"Adjusted: "+a, type:"adjust", catKey:k, actionName:a});
+  await writeLedger({childId:child.id, points:-amount, label:"Adjusted: "+a, type:"adjust", catKey:catKeyFor(cat,a), actionName:a});
 }
 function isParentRole(ch){
   if(!ch) return false;
@@ -2022,7 +2147,7 @@ function applyRoleChrome(){
   set("btnSignOut", true);   // anyone signed in can hand the device on
   if(kid){
     ["accountPanel","overviewPanel","activityPanel","requestsPanel","addCategoryWrap",
-     "rewardSection","gameNightSection","requestsBanner","behaviourWrap","editModeNote","tipsCard"]
+     "rewardSection","gameNightSection","requestsBanner","behaviourWrap","editModeNote","tipsCard","undoBar"]
       .forEach(id=>set(id, false));
   }
 }
@@ -2031,6 +2156,7 @@ function render(){
   ensureSelection();
   applyRoleChrome();
   showVersion();
+  renderUndoBar();
   renderRequests();
   renderEyebrows();
   renderTips();
@@ -2108,7 +2234,7 @@ function render(){
       return;
     }
     const acts=cat.actions.map(([name,p])=>{
-      const val=s[key(ci,name)]||0; catTotal+=val; total+=val; if(val>0)done++;
+      const val=valueFor(s, cat, name); catTotal+=val; total+=val; if(val>0)done++;
       const safe=name.replace(/\\/g,"\\\\").replace(/'/g,"\\'");
       return `<div class="action ${val>0?'done':''}">
         <div><div class="actionname">${val>0?'✓ ':''}${name}</div><div class="actionpts">${p} point${p>1?'s':''}${val?' · earned '+val:''}</div></div>
@@ -2122,6 +2248,27 @@ function render(){
       <div class="actions">${acts}</div>`;
     cards.appendChild(card);
   });
+  // "Give points" writes a one-off award tagged custom|..., which no category
+  // card reads. Counting only the loop above made those points invisible here
+  // even though they were correctly in the balance and the history.
+  const extras = Object.keys(s)
+    .filter(k => k.startsWith("custom|") && s[k] > 0)
+    .map(k => ({ key:k, label:k.slice(7), points:s[k] }));
+  const extraTotal = extras.reduce((sum,e)=>sum+e.points, 0);
+  total += extraTotal;
+  done  += extras.length;
+  if(extras.length && !editMode){
+    cards.insertAdjacentHTML("beforeend", `<article class="card" style="grid-column:1/-1;border-top-color:var(--good)">
+      <div class="cardhead"><div><div class="icon">✨</div><h2>One-off points today</h2>
+      <p>Given with the "Give points" button rather than from a category.</p></div>
+      <div class="points">${extraTotal} pts</div></div>
+      <div class="actions">${extras.map(e=>`
+        <div class="action done">
+          <div><div class="actionname">✓ ${escapeHtml(e.label)}</div><div class="actionpts">earned ${e.points}</div></div>
+          <div class="controls"><button class="minus" onclick="removeCustomAward('${escapeHtml(e.key).replace(/'/g,"&#39;")}',${e.points})">−</button></div>
+        </div>`).join("")}</div>
+    </article>`);
+  }
   if(!editMode){
     scores.sort((a,b)=>b[0]-a[0]);
     document.getElementById("total").textContent=total;
@@ -2221,10 +2368,27 @@ async function resetDay(){
   try{ await window.fpc.addLedgerEntries(familyId, entries); }
   catch(e){ console.error(e); alert("That couldn't be saved — check your connection."); }
 }
+async function removeCustomAward(catKey, amount){
+  if(!requireParent()) return;
+  const child=currentChild(); if(!child) return;
+  const label=String(catKey).slice(7);
+  if(!confirm("Take back "+amount+" point"+(amount===1?"":"s")+" for \u201c"+label+"\u201d?")) return;
+  await writeLedger({childId:child.id, points:-amount, label:"Adjusted: "+label,
+                     type:"adjust", catKey:catKey, actionName:label});
+}
 async function addPointPrompt(){
   if(!requireParent()) return;
-  const child=currentChild();
-  if(!child){alert("Open a child's card first — tap their name on your dashboard, then give points.");return;}
+  let child=currentChild();
+  if(!child){
+    // With a single child there is no ambiguity — open them rather than
+    // sending the parent back to the dashboard for no reason.
+    const f=currentFamily();
+    const kids=f ? f.children.filter(c=>!isParentRole(c)) : [];
+    if(kids.length===1){ viewChildId=kids[0].id; child=kids[0]; renderAccounts(); render(); }
+    else { alert(kids.length
+      ? "Open a child's card first — tap their name on your dashboard, then give points."
+      : "Add a child first, under Family & Children."); return; }
+  }
   if(isParentRole(child)){alert("Points are for the children. Tap a child's name on your dashboard first.");return;}
   const choice=prompt("What positive action did you notice?\n\nExample: said a dua, helped a sibling, tidied up, told the truth.");
   if(!choice)return;
