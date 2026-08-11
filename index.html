@@ -596,6 +596,7 @@
 
 <p class="footer">Tip: Praise the action, not just the points — "MashaAllah, you shared your toy without being asked. That's a really kind choice!"</p>
 <p class="footer" id="syncStatus">☁️ Connecting…</p>
+<p class="footer" id="versionTag" style="opacity:.6"></p>
 </div>
 
 <script type="module">
@@ -926,6 +927,7 @@ const TIP_CATS = [
   {key:"behaviour", label:"Behaviour"}
 ];
 
+const APP_VERSION = "v25";
 const today = new Date().toISOString().slice(0,10);
 const STORAGE_KEY = "familyPointsApp";
 let app = {families:[],currentFamily:null,currentChild:null};
@@ -993,6 +995,10 @@ function triggerAvatarUpload(childId){
   document.getElementById("avatarFileInput").click();
 }
 
+function showVersion(){
+  const el=document.getElementById("versionTag");
+  if(el) el.textContent = "Dougoun Kids " + APP_VERSION;
+}
 function setSyncStatus(text){
   const el=document.getElementById("syncStatus");
   if(el) el.textContent=text;
@@ -1322,9 +1328,18 @@ function authErrorMessage(e){
       : "That took too long to respond. Check your connection and try again.";
   return "That didn't work" + (code ? " (" + code + ")" : "") + ". If it keeps happening, the details are in the browser console.";
 }
+/* The family id contains an underscore, and underscores are not legal in a
+   hostname — Firebase rejected every address built this way as invalid, which
+   is why adding a member never worked. Strip both halves to letters and digits
+   so the result is always a valid address. */
 function memberEmail(fid, name){
-  const slug=String(name).toLowerCase().replace(/[^a-z0-9]+/g,"").slice(0,20) || "member";
-  return slug + "." + Math.random().toString(36).slice(2,6) + "@" + fid.toLowerCase() + ".fpc.app";
+  const slug = String(name).toLowerCase().replace(/[^a-z0-9]/g, "").slice(0, 20) || "member";
+  const famPart = String(fid).toLowerCase().replace(/[^a-z0-9]/g, "").slice(0, 40) || "family";
+  return slug + Math.random().toString(36).slice(2, 6) + "@" + famPart + ".fpc.app";
+}
+/* Belt and braces: never send an address to Firebase that cannot be valid. */
+function isValidLoginEmail(email){
+  return /^[a-z0-9]+@[a-z0-9]+(\.[a-z0-9]+)+$/.test(String(email));
 }
 function selectNewMemberRole(role){
   window.__newMemberRole=role;
@@ -1369,6 +1384,10 @@ async function addChild(){
   if(!name){ errEl.textContent="Please enter their name."; return; }
   if(!password || password.length<6){ errEl.textContent="Please set a password of at least 6 characters for their login."; return; }
   const email=memberEmail(familyId, name);
+  if(!isValidLoginEmail(email)){
+    errEl.textContent="That name couldn't be turned into a login. Try one with letters or numbers in it.";
+    return;
+  }
   const btn=document.getElementById("addMemberBtn");
   if(btn){ btn.disabled=true; btn.textContent="Adding "+name+" …"; }
   setSyncStatus("☁️ Adding "+name+" …");
@@ -1785,8 +1804,12 @@ async function onbAddChild(){
   if(!password || password.length < 6){ errEl.textContent = "Please set a password of at least 6 characters."; return; }
   const blocked=localFileBlock();
   if(blocked){ errEl.textContent=blocked; return; }
-  btn.disabled = true; btn.textContent = "Adding \u2026";
   const email = memberEmail(familyId, name);
+  if(!isValidLoginEmail(email)){
+    errEl.textContent = "That name couldn't be turned into a login. Try one with letters or numbers in it.";
+    return;
+  }
+  btn.disabled = true; btn.textContent = "Adding \u2026";
   try{
     const uid = await withTimeout(window.fpc.provisionMember(familyId, {email, password}), 20000, "Creating the login");
     await withTimeout(window.fpc.saveMember(familyId, uid, {name, role:"child", age: ageEl.value.trim(), photo:null, email}), 20000, "Saving their details");
@@ -2007,6 +2030,7 @@ function render(){
   if(!ready) return;
   ensureSelection();
   applyRoleChrome();
+  showVersion();
   renderRequests();
   renderEyebrows();
   renderTips();
