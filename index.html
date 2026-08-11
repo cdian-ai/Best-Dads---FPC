@@ -93,14 +93,40 @@
   <div class="gatecard">
     <div class="logo">🏆 Best Dad's</div>
     <h1 style="font-size:22px;margin:0 0 4px">🌟 Family Points Card</h1>
-    <p class="sub">This device isn't signed in yet</p>
-    <div style="text-align:left;display:grid;gap:8px;margin-top:16px">
+    <p class="sub">A positive points system for celebrating kindness, good manners, and Islamic values — together, from any device.</p>
+
+    <div id="signInForm" style="text-align:left;display:grid;gap:8px;margin-top:16px">
       <input id="authEmail" type="email" placeholder="Email" autocomplete="username">
       <input id="authPassword" type="password" placeholder="Password" autocomplete="current-password">
       <button class="primary" onclick="submitAuthLogin()">Sign in</button>
       <p class="small" id="authError" style="color:#a63e3e"></p>
-      <p class="small">Only you and your partner have sign-in details for this family's app.</p>
+      <p class="small">New here? <a href="#" onclick="switchToSignUp();return false;">Create an account</a></p>
     </div>
+
+    <div id="signUpForm" class="hidden" style="text-align:left;display:grid;gap:8px;margin-top:16px">
+      <p class="small" style="margin:0">Join in — celebrate the good stuff your family does, every day.</p>
+      <input id="signupName" type="text" placeholder="Your name (e.g. Sarah)">
+      <input id="signupEmail" type="email" placeholder="Email" autocomplete="username">
+      <input id="signupPassword" type="password" placeholder="Password" autocomplete="new-password">
+      <div>
+        <p class="small" style="margin:0 0 6px">You are...</p>
+        <div style="display:flex;gap:8px">
+          <button type="button" id="roleMumBtn" class="light" style="width:auto;flex:1" onclick="selectSignupRole('Mum')">Mum</button>
+          <button type="button" id="roleDadBtn" class="light" style="width:auto;flex:1" onclick="selectSignupRole('Dad')">Dad</button>
+        </div>
+      </div>
+      <button class="primary" onclick="submitSignUp()">Create account</button>
+      <p class="small" id="signupError" style="color:#a63e3e"></p>
+      <p class="small">Already have an account? <a href="#" onclick="switchToSignIn();return false;">Sign in</a></p>
+    </div>
+  </div>
+</div>
+<div id="welcomeScreen" class="gatewrap hidden">
+  <div class="gatecard">
+    <div class="logo">🏆 Best Dad's</div>
+    <h1 style="font-size:22px;margin:0 0 4px">Welcome to Family Points Card! 🌟</h1>
+    <p class="sub">A simple, positive way to celebrate kindness, good manners, and Islamic values as a family — wherever everyone is.</p>
+    <button class="primary" style="margin-top:16px" onclick="dismissWelcome()">Get started</button>
   </div>
 </div>
 <div id="loginGate" class="gatewrap hidden">
@@ -145,11 +171,13 @@
   <div id="accountPanel" class="panel hidden">
     <div class="panelgrid">
       <section>
-        <h2>Create family account</h2>
-        <p class="small">Synced to the cloud — signed-in family devices see the same data.</p>
-        <input id="familyName" placeholder="Family name">
-        <input id="parentName" placeholder="Parent / carer name">
-        <button class="primary" onclick="createFamily()">Create family</button>
+        <div id="createFamilySection">
+          <h2>Create family account</h2>
+          <p class="small">Synced to the cloud — signed-in family devices see the same data.</p>
+          <input id="familyName" placeholder="Family name">
+          <input id="parentName" placeholder="Parent / carer name">
+          <button class="primary" onclick="createFamily()">Create family</button>
+        </div>
         <div style="margin-top:14px;padding-top:14px;border-top:1px solid #e6e8f0">
           <label style="display:flex;align-items:center;gap:8px;cursor:pointer">
             <input type="checkbox" id="championToggle" onchange="toggleChampionBanner(this.checked)" style="width:auto">
@@ -252,7 +280,7 @@
   // Cloud sync: keeps family data in sync across every device signed in with this app.
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
   import { getFirestore, doc, getDoc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
-  import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
+  import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyDu6Alt9V3PouBpI3NN0KRlzbJLwVithT4",
@@ -274,6 +302,9 @@
     async signIn(email, password){
       await signInWithEmailAndPassword(auth, email, password);
     },
+    async signUp(email, password){
+      await createUserWithEmailAndPassword(auth, email, password);
+    },
     async signOut(){
       await signOut(auth);
     }
@@ -289,6 +320,9 @@
       document.getElementById("loadingMsg").classList.add("hidden");
       document.getElementById("loginGate").classList.add("hidden");
       document.getElementById("mainApp").classList.add("hidden");
+      document.getElementById("welcomeScreen").classList.add("hidden");
+      document.getElementById("signUpForm").classList.add("hidden");
+      document.getElementById("signInForm").classList.remove("hidden");
       authGate.classList.remove("hidden");
     }
   });
@@ -530,6 +564,10 @@ async function loadApp(){
   renderRewardManageList();
   render();
 
+  if(window.__pendingSignup){
+    await completeSignupProfile();
+    return;
+  }
   let remembered=null;
   try{ remembered=localStorage.getItem("fp_loggedInMemberId"); }catch(e){}
   const fam=currentFamily();
@@ -542,6 +580,30 @@ async function loadApp(){
     document.getElementById("loginGate").classList.remove("hidden");
     document.getElementById("mainApp").classList.add("hidden");
   }
+}
+async function completeSignupProfile(){
+  const pending=window.__pendingSignup;
+  window.__pendingSignup=null;
+  if(!pending) return;
+  let f=currentFamily();
+  if(!f){
+    f={id:"f"+Date.now(),name:"Our Family",children:[]};
+    app.families.push(f); app.currentFamily=f.id;
+  }
+  const member={id:"c"+Date.now()+Math.random().toString(16).slice(2),name:pending.name,age:pending.role,photo:null,pointsByDate:{},balance:0,activityLog:[]};
+  f.children.push(member);
+  app.currentChild=member.id;
+  try{ localStorage.setItem("fp_loggedInMemberId", member.id); }catch(e){}
+  await saveApp();
+  renderAccounts(); render();
+  document.getElementById("loadingMsg").classList.add("hidden");
+  document.getElementById("loginGate").classList.add("hidden");
+  document.getElementById("mainApp").classList.add("hidden");
+  document.getElementById("welcomeScreen").classList.remove("hidden");
+}
+function dismissWelcome(){
+  document.getElementById("welcomeScreen").classList.add("hidden");
+  showMainApp();
 }
 async function toggleChampionBanner(checked){
   app.settings.showChampion = checked;
@@ -770,6 +832,8 @@ function logout(){
 function renderAccounts(){
   const f=currentFamily();
   document.getElementById("familyDisplay").textContent=f?("👨‍👩‍👧 "+f.name):"No family account";
+  const createSection=document.getElementById("createFamilySection");
+  if(createSection) createSection.classList.toggle("hidden", !!f);
   const c=currentChild();
   document.getElementById("childDisplay").textContent=c?("Now earning: "+c.name+(c.age?" · "+c.age:"")):"Create or select a family member";
   const avatarWrap=document.getElementById("avatarWrap");
@@ -1059,7 +1123,7 @@ function render(){
   const child=currentChild();
   const cards=document.getElementById("cards"); cards.innerHTML="";
   if(!child){
-    cards.innerHTML='<div class="card" style="grid-column:1/-1;text-align:center"><h2>👋 Welcome!</h2><p>Create a family account and add someone — Dad, Mum, or a child — to start using the points cards.</p><button class="primary" onclick="showAccountPanel()">Set up family</button></div>';
+    cards.innerHTML='<div class="card" style="grid-column:1/-1;text-align:center"><h2>👋 No profile selected</h2><p>Open "Family &amp; Children" above to add or choose who\'s earning points.</p></div>';
     document.getElementById("total").textContent=0;
     document.getElementById("actionsDone").textContent=0;
     document.getElementById("best").textContent="—";
@@ -1205,6 +1269,41 @@ async function submitAuthLogin(){
     await window.firebaseAuth.signIn(email,password);
   }catch(e){
     errEl.textContent="Sign-in failed. Check the email and password and try again.";
+  }
+}
+function switchToSignUp(){
+  document.getElementById("signInForm").classList.add("hidden");
+  document.getElementById("signUpForm").classList.remove("hidden");
+  document.getElementById("authError").textContent="";
+  selectSignupRole("Mum");
+}
+function switchToSignIn(){
+  document.getElementById("signUpForm").classList.add("hidden");
+  document.getElementById("signInForm").classList.remove("hidden");
+  document.getElementById("signupError").textContent="";
+}
+function selectSignupRole(role){
+  window.__selectedSignupRole=role;
+  document.getElementById("roleMumBtn").classList.toggle("selected", role==="Mum");
+  document.getElementById("roleDadBtn").classList.toggle("selected", role==="Dad");
+}
+async function submitSignUp(){
+  const name=document.getElementById("signupName").value.trim();
+  const email=document.getElementById("signupEmail").value.trim();
+  const password=document.getElementById("signupPassword").value;
+  const role=window.__selectedSignupRole||"Mum";
+  const errEl=document.getElementById("signupError");
+  errEl.textContent="";
+  if(!name||!email||!password){ errEl.textContent="Please fill in your name, email and password."; return; }
+  if(password.length<6){ errEl.textContent="Password should be at least 6 characters."; return; }
+  window.__pendingSignup={name,role};
+  try{
+    await window.firebaseAuth.signUp(email,password);
+  }catch(e){
+    window.__pendingSignup=null;
+    errEl.textContent = (e && e.code==="auth/email-already-in-use")
+      ? "That email is already registered — try signing in instead."
+      : "Sign-up failed. Please check your details and try again.";
   }
 }
 async function signOutDevice(){
