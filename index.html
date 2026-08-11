@@ -24,6 +24,8 @@
   button{border:0;border-radius:12px;padding:10px 14px;cursor:pointer;font-weight:700}
   button:disabled{opacity:.5;cursor:not-allowed}
   .primary{background:var(--accent);color:white}.light{background:#eef0ff;color:#3e46ad}
+  .confirm{background:var(--good);color:#fff}
+  .confirm:hover:not(:disabled){background:#268257}
   .danger{background:#fff0f0;color:#a63e3e}
   .summary{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px}
   .stat{background:white;border-radius:18px;padding:16px;box-shadow:var(--shadow)}
@@ -310,7 +312,7 @@
         <input id="onbChildName" type="text" placeholder="Their name (e.g. Aisha)">
         <input id="onbChildAge" type="text" placeholder="Age — optional (e.g. 7)">
         <input id="onbChildPassword" type="text" placeholder="A password for them (6+ characters)">
-        <button class="light" onclick="onbAddChild()" id="onbAddBtn">＋ Add this child</button>
+        <button class="confirm" onclick="onbAddChild()" id="onbAddBtn">✓ Confirm and add</button>
         <p class="small" id="onbAddError" style="color:#a63e3e;margin:0"></p>
       </div>
       <p class="small" style="margin:12px 0 0">On each child's own device, sign in with the email and password shown above. There's no code to enter and nothing to approve.</p>
@@ -429,13 +431,13 @@
             <button type="button" id="newRoleParent" class="light" style="width:auto;flex:1" onclick="selectNewMemberRole('parent')">Parent</button>
           </div>
           <input id="newChildPassword" type="text" placeholder="Password for their login (6+ characters)" style="margin-top:8px">
-          <p class="small" style="margin:6px 0 0">They sign in with the email shown next to their name once added.</p>
+          <p class="small" style="margin:6px 0 0">Check the details above, then confirm. Their login is created straight away and shown to you.</p>
           <div class="memberhead" style="margin-top:8px">
             <div id="newMemberPreview"><div class="avatar-placeholder">📷</div></div>
             <button type="button" class="photobtn" onclick="document.getElementById('newMemberPhotoInput').click()">Add photo (optional)</button>
             <input type="file" id="newMemberPhotoInput" accept="image/*" class="hidden" onchange="handleNewMemberPhoto(this.files[0])">
           </div>
-          <button class="primary" style="margin-top:8px" id="addMemberBtn" onclick="addChild()">＋ Add family member</button>
+          <button class="confirm" style="margin-top:8px;width:100%" id="addMemberBtn" onclick="addChild()">✓ Confirm and add</button>
           <p class="small" id="addMemberError" style="color:#a63e3e;margin:8px 0 0"></p>
         </div>
         <input type="file" id="avatarFileInput" accept="image/*" class="hidden" onchange="handleAvatarUpload(this.files[0])">
@@ -1291,7 +1293,7 @@ function openPanel(id){
     else el.classList.add("hidden");
   });
 }
-function showAccountPanel(){ openPanel("accountPanel"); renderAccounts(); }
+function showAccountPanel(){ resetAddMemberPanel(); openPanel("accountPanel"); renderAccounts(); }
 function showOverviewPanel(){ openPanel("overviewPanel"); renderOverview(); }
 function showActivityPanel(){ openPanel("activityPanel"); renderActivityLog(); }
 function showRequestsPanel(){ openPanel("requestsPanel"); renderRequests(); }
@@ -1381,10 +1383,10 @@ async function addChild(){
     console.error("Could not add member:", e);
     errEl.textContent = authErrorMessage(e);
     setSyncStatus("☁️ Synced across devices");
-    if(btn){ btn.disabled=false; btn.textContent="＋ Add family member"; }
+    if(btn){ btn.disabled=false; btn.textContent="✓ Confirm and add"; }
     return;
   }
-  if(btn){ btn.disabled=false; btn.textContent="＋ Add family member"; }
+  if(btn){ btn.disabled=false; btn.textContent="✓ Confirm and add"; }
   document.getElementById("newChildName").value="";
   document.getElementById("newChildAge").value="";
   document.getElementById("newChildPassword").value="";
@@ -1412,6 +1414,20 @@ async function showMemberLogin(id){
   const m=memberById(id); if(!m) return;
   if(!m.email){ alert(m.name+" was added before logins existed. Remove and re-add them to create one."); return; }
   showLoginDetails(m.name, m.email, null);
+}
+/* Reopening the panel starts clean. Otherwise the last child's password stays
+   on screen from a previous visit, which is both confusing and careless. */
+function resetAddMemberPanel(){
+  const added=document.getElementById("justAdded");
+  const box=document.getElementById("addMemberBox");
+  const err=document.getElementById("addMemberError");
+  if(added){ added.classList.add("hidden"); }
+  if(box) box.classList.remove("hidden");
+  if(err) err.textContent="";
+  const pass=document.getElementById("justAddedPass");
+  const mail=document.getElementById("justAddedEmail");
+  if(pass) pass.textContent="";
+  if(mail) mail.textContent="";
 }
 function addAnotherMember(){
   document.getElementById("justAdded").classList.add("hidden");
@@ -1781,7 +1797,7 @@ async function onbAddChild(){
     console.error("Could not add child during setup:", e);
     errEl.textContent = authErrorMessage(e);
   }
-  btn.disabled = false; btn.textContent = "\uff0b Add this child";
+  btn.disabled = false; btn.textContent = "\u2713 Confirm and add";
 }
 function startOnboarding(){
   onbStep = 1; onbAddedMembers = [];
