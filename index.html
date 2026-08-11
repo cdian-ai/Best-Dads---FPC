@@ -3,7 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Our Family Expectations - Points Cards</title>
+<title>Family Points Card</title>
+<link rel="icon" href='data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><rect width="24" height="24" rx="5" fill="%235b63d8"/><g fill="%23fff"><path d="M8 15l-3 8 4-2 3 2.4 3-2.4 4 2-3-8z" opacity=".72"/><circle cx="12" cy="9" r="7" fill="none" stroke="%23fff" stroke-width="1.7"/><path d="M12 5l1.2 2.5 2.7.4-2 1.9.5 2.8-2.4-1.3-2.4 1.3.5-2.8-2-1.9 2.7-.4z"/></g></svg>'>
+<meta name="theme-color" content="#5b63d8">
 <style>
   :root {
     --ink:#243044; --muted:#657084; --paper:#f7f8fc; --card:#fff;
@@ -61,7 +63,8 @@
   #childrenList{display:grid;gap:7px;margin-top:8px}.childrow{display:flex;justify-content:space-between;align-items:center;padding:9px 11px;background:#f7f8fc;border-radius:12px;gap:8px}
   .childrow button{padding:6px 9px;width:auto}.selected{outline:2px solid var(--accent)}
   .loading{text-align:center;padding:40px;color:var(--muted)}
-  .logo{display:inline-flex;align-items:center;gap:8px;background:linear-gradient(90deg,var(--accent),var(--accent2));
+  .logo .mark{width:17px;height:17px;flex-shrink:0;display:block}
+  .logo{display:inline-flex;align-items:center;gap:7px;background:linear-gradient(90deg,var(--accent),var(--accent2));
         color:white;font-weight:800;font-size:13px;letter-spacing:.06em;text-transform:uppercase;
         padding:7px 14px;border-radius:999px;margin-bottom:12px}
   .quickadd{display:flex;gap:8px;flex-wrap:wrap;margin:4px 0 2px}
@@ -86,13 +89,111 @@
   .gateprofile{display:flex;flex-direction:column;align-items:center;gap:8px;background:#f7f8fc;border:1px solid #e6e8f0;border-radius:16px;padding:14px 8px;font-weight:700;color:var(--ink)}
   .gateprofile:hover{background:#eef0ff}
   #gateNoFamily{margin-top:16px;display:grid;gap:8px;text-align:left}
+
+  /* ---------- Parent eyebrow reminders ---------- */
+  .eyebrow{display:flex;align-items:flex-start;gap:9px;background:#fffaf0;border:1px solid #f0dcb2;
+           border-radius:14px;padding:9px 13px;margin:0 0 12px;font-size:12.5px;color:#7a6636;line-height:1.45}
+  .eyebrow .tag{flex-shrink:0;background:#f5c86b;color:#4a3a10;font-weight:800;font-size:10px;letter-spacing:.07em;
+                text-transform:uppercase;padding:3px 8px;border-radius:999px;margin-top:1px}
+  .eyebrow.cool{background:#f6f7ff;border-color:#ccd2f2;color:#4d5480}
+  .eyebrow.cool .tag{background:#aab3ef;color:#20264d}
+  .quickchips{display:flex;gap:7px;flex-wrap:wrap;margin:8px 0 2px}
+  .quickchips button{width:auto;background:#fff;border:1px dashed #cfd4ea;color:#4a5170;font-size:12.5px;
+                     padding:7px 11px;border-radius:12px;font-weight:600}
+  .quickchips button:hover{background:#eef0ff;border-style:solid}
+  .quickchips button.added{opacity:.45;border-style:solid}
+
+  /* ---------- Behaviour graph (shared by parent + child views) ---------- */
+  .graphcard{background:#fff;border-radius:22px;padding:18px;box-shadow:var(--shadow);margin-bottom:16px}
+  .graphhead{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:6px}
+  .graphhead h2{margin:0;font-size:18px}
+  .moodpill{font-weight:800;font-size:13px;padding:7px 13px;border-radius:999px;white-space:nowrap}
+  .mood-green{background:#e4f7ed;color:#19744a}
+  .mood-amber{background:#fff2e0;color:#9a5b12}
+  .mood-red{background:#ffeced;color:#a63e3e}
+  .graphcard svg{width:100%;height:auto;display:block;margin-top:6px}
+  .graphnote{font-size:12px;color:var(--muted);margin:8px 0 0}
+
+  /* ---------- Requests (parent notifications) ---------- */
+  .requestcard{background:#fff6e8;border:1px solid #f3d6a4;border-radius:22px;padding:18px;box-shadow:var(--shadow);margin-bottom:16px}
+  .requestcard h2{margin:0 0 4px;font-size:18px}
+  .requestrow{display:flex;align-items:center;justify-content:space-between;gap:10px;background:#fff;border:1px solid #f0e0c2;border-radius:14px;padding:11px 13px;margin-top:9px;flex-wrap:wrap}
+  .requestrow .rbtns{display:flex;gap:6px}
+  .requestrow button{width:auto;padding:7px 12px;font-size:13px}
+  .approve{background:#e4f7ed;color:#19744a}
+  .badge{display:inline-block;background:#d85b5b;color:#fff;border-radius:999px;font-size:11px;font-weight:800;padding:2px 7px;margin-left:5px}
+
+  /* ---------- Child view ---------- */
+  #kidView{--k1:#ff8bb0;--k2:#ffd166;--k3:#5ad2c4;--k4:#8b7cf6;--kink:#2a2350}
+  #kidView h2{font-family:system-ui,-apple-system,Segoe UI,sans-serif}
+  .kidhero{position:relative;overflow:hidden;border-radius:28px;padding:22px;margin-bottom:16px;color:#fff;
+           background:linear-gradient(120deg,#8b7cf6 0%,#5ad2c4 55%,#ffd166 100%);box-shadow:0 12px 30px rgba(90,70,200,.22)}
+  .kidhero .bubble{position:absolute;border-radius:50%;background:rgba(255,255,255,.16);pointer-events:none}
+  .kidhero .b1{width:150px;height:150px;top:-50px;right:-30px}
+  .kidhero .b2{width:80px;height:80px;bottom:-30px;right:90px}
+  .kidhero .b3{width:46px;height:46px;top:22px;right:130px}
+  .kidherorow{position:relative;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+  .kidhero .avatar-lg,.kidhero .avatar-placeholder-lg{width:62px;height:62px;border:3px solid rgba(255,255,255,.7)}
+  .kidhi{font-size:26px;font-weight:800;margin:0;line-height:1.15}
+  .kidsub{margin:3px 0 0;font-size:13px;opacity:.92}
+  .coin{margin-left:auto;background:rgba(255,255,255,.95);color:#4b3ea8;border-radius:22px;padding:11px 18px;text-align:center;box-shadow:0 6px 16px rgba(0,0,0,.12)}
+  .coin strong{display:block;font-size:30px;line-height:1}
+  .coin span{font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;opacity:.75}
+  .kidstats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px}
+  .kidstat{border-radius:20px;padding:15px;color:#fff;box-shadow:0 8px 20px rgba(36,48,68,.13)}
+  .kidstat strong{display:block;font-size:26px;line-height:1.1}
+  .kidstat span{font-size:12px;font-weight:700;opacity:.92}
+  .ks1{background:linear-gradient(140deg,#ff8bb0,#ff6f91)}
+  .ks2{background:linear-gradient(140deg,#5ad2c4,#2bb3a3)}
+  .ks3{background:linear-gradient(140deg,#ffb454,#f59023)}
+  .kidcard{background:#fff;border-radius:24px;padding:18px;box-shadow:var(--shadow);margin-bottom:16px;border-top:6px solid var(--k4)}
+  .kidcard.pink{border-top-color:var(--k1)} .kidcard.teal{border-top-color:var(--k3)} .kidcard.sun{border-top-color:var(--k2)}
+  .kidcard h2{margin:0 0 3px;font-size:19px}
+  .kidcard .lede{margin:0 0 12px;color:var(--muted);font-size:13px}
+  .feed{display:grid;gap:9px;max-height:330px;overflow:auto}
+  .feeditem{display:flex;align-items:center;gap:11px;background:#fbfbff;border:1px solid #ececfb;border-radius:16px;padding:11px 13px}
+  .feedemoji{font-size:22px;flex-shrink:0}
+  .feedmain{flex:1;min-width:0}
+  .feedmain .what{font-weight:700;font-size:14px}
+  .feedmain .who{font-size:12px;color:var(--muted);margin-top:2px}
+  .feedpts{font-weight:800;background:#e4f7ed;color:#19744a;border-radius:12px;padding:6px 11px;white-space:nowrap;font-size:14px}
+  .feedpts.spent{background:#f0eeff;color:#5b4fc4}
+  .chiprow{display:flex;gap:9px;flex-wrap:wrap}
+  .chip{position:relative;border:2px solid #e7e5fb;background:#fbfbff;color:var(--kink);border-radius:18px;padding:12px 15px;
+        text-align:left;width:auto;line-height:1.3;transition:transform .12s,box-shadow .12s;font-weight:700}
+  .chip:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 8px 18px rgba(90,70,200,.16)}
+  .chip .cprice{display:block;font-size:12px;font-weight:800;margin-top:4px;color:#5b4fc4}
+  .chip .ckind{display:block;font-size:11px;font-weight:600;color:var(--muted);margin-top:2px}
+  .chip.afford{border-color:#7ee0c6;background:#f0fdfa}
+  .chip.afford .cprice{color:#19744a}
+  .chip:disabled{opacity:.55;cursor:not-allowed}
+  .chip .lock{position:absolute;top:-8px;right:-6px;font-size:14px}
+  .savebox{margin-top:14px;background:#f5f3ff;border:1px dashed #cfc7f7;border-radius:18px;padding:13px 15px}
+  .savebox p{margin:0;font-size:13px;color:#4b4372}
+  .statusrow{display:flex;align-items:center;justify-content:space-between;gap:10px;background:#fbfbff;border:1px solid #ececfb;border-radius:14px;padding:10px 12px;margin-top:8px;flex-wrap:wrap}
+  .stat-pending{background:#fff6e8;border-color:#f3d6a4}
+  .stat-approved{background:#eefaf4;border-color:#cbeedd}
+  .stat-declined{background:#fff0f0;border-color:#f6d5d5}
+  .ticker{position:relative;overflow:hidden;border-radius:20px;padding:13px 0;margin:4px 0 18px;
+          background:linear-gradient(90deg,#8b7cf6,#5ad2c4);color:#fff;box-shadow:0 8px 20px rgba(90,70,200,.2)}
+  .tickertrack{display:flex;gap:38px;white-space:nowrap;width:max-content;animation:tickerscroll 42s linear infinite}
+  .ticker:hover .tickertrack{animation-play-state:paused}
+  .tickeritem{font-size:14px;font-weight:700;display:inline-flex;align-items:center;gap:8px}
+  @keyframes tickerscroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+  @media(prefers-reduced-motion:reduce){.tickertrack{animation:none;flex-wrap:wrap;white-space:normal;width:auto;padding:0 14px}}
+  .kidfooter{text-align:center;color:var(--muted);font-size:12px;margin:6px 0 18px}
+  @media(max-width:760px){
+    .kidstats{grid-template-columns:1fr}
+    .coin{margin-left:0;width:100%}
+    .kidhi{font-size:22px}
+  }
 </style>
 </head>
 <body>
 <div id="authGate" class="gatewrap hidden">
   <div class="gatecard">
-    <div class="logo">🏆 Best Dad's</div>
-    <h1 style="font-size:22px;margin:0 0 4px">🌟 Family Points Card</h1>
+    <div class="logo"><svg class="mark" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M8 15l-3 8 4-2 3 2.4 3-2.4 4 2-3-8z" fill="currentColor" opacity=".72"/><circle cx="12" cy="9" r="7" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M12 5l1.2 2.5 2.7.4-2 1.9.5 2.8-2.4-1.3-2.4 1.3.5-2.8-2-1.9 2.7-.4z" fill="currentColor"/></svg><span>Dougoun Kids</span></div>
+    <h1 style="font-size:22px;margin:0 0 4px">Family Points Card</h1>
     <p class="sub">A positive points system for celebrating kindness, good manners, and Islamic values — together, from any device.</p>
 
     <div id="signInForm" style="text-align:left;display:grid;gap:8px;margin-top:16px">
@@ -100,11 +201,14 @@
       <input id="authPassword" type="password" placeholder="Password" autocomplete="current-password">
       <button class="primary" onclick="submitAuthLogin()">Sign in</button>
       <p class="small" id="authError" style="color:#a63e3e"></p>
+      <p class="small" id="authResetMsg" style="color:var(--good)"></p>
+      <p class="small"><a href="#" onclick="submitForgotPassword();return false;">Forgot password?</a></p>
       <p class="small">New here? <a href="#" onclick="switchToSignUp();return false;">Create an account</a></p>
     </div>
 
     <div id="signUpForm" class="hidden" style="text-align:left;display:grid;gap:8px;margin-top:16px">
-      <p class="small" style="margin:0">Join in — celebrate the good stuff your family does, every day.</p>
+      <p class="small" style="margin:0">This creates a new family and makes you its first parent. Everyone else gets their own login afterwards.</p>
+      <input id="signupFamilyName" type="text" placeholder="Family name (e.g. The Ahmeds)">
       <input id="signupName" type="text" placeholder="Your name (e.g. Sarah)">
       <input id="signupEmail" type="email" placeholder="Email" autocomplete="username">
       <input id="signupPassword" type="password" placeholder="Password" autocomplete="new-password">
@@ -123,30 +227,26 @@
 </div>
 <div id="welcomeScreen" class="gatewrap hidden">
   <div class="gatecard">
-    <div class="logo">🏆 Best Dad's</div>
-    <h1 style="font-size:22px;margin:0 0 4px">Welcome to Family Points Card! 🌟</h1>
+    <div class="logo"><svg class="mark" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M8 15l-3 8 4-2 3 2.4 3-2.4 4 2-3-8z" fill="currentColor" opacity=".72"/><circle cx="12" cy="9" r="7" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M12 5l1.2 2.5 2.7.4-2 1.9.5 2.8-2.4-1.3-2.4 1.3.5-2.8-2-1.9 2.7-.4z" fill="currentColor"/></svg><span>Dougoun Kids</span></div>
+    <h1 style="font-size:22px;margin:0 0 4px">Welcome to Family Points Card</h1>
     <p class="sub">A simple, positive way to celebrate kindness, good manners, and Islamic values as a family — wherever everyone is.</p>
     <button class="primary" style="margin-top:16px" onclick="dismissWelcome()">Get started</button>
   </div>
 </div>
-<div id="loginGate" class="gatewrap hidden">
+<div id="noFamilyGate" class="gatewrap hidden">
   <div class="gatecard">
-    <div class="logo">🏆 Best Dad's</div>
-    <h1 style="font-size:22px;margin:0 0 4px">🌟 Family Points Card</h1>
-    <p class="sub">Who's using this?</p>
-    <div id="gateProfiles" class="gateprofiles"></div>
-    <div id="gateNoFamily" class="hidden">
-      <p class="small">Set up your Family Points Card — add a profile for each family member below.</p>
-      <div id="gateFamilyNameRow"><input id="gateFamilyName" placeholder="Family name"></div>
-      <input id="gateParentName" placeholder="Your name (e.g. Dad, Mum, Emma)">
-      <button class="primary" onclick="createFamilyFromGate()">Continue</button>
+    <div class="logo"><svg class="mark" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M8 15l-3 8 4-2 3 2.4 3-2.4 4 2-3-8z" fill="currentColor" opacity=".72"/><circle cx="12" cy="9" r="7" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M12 5l1.2 2.5 2.7.4-2 1.9.5 2.8-2.4-1.3-2.4 1.3.5-2.8-2-1.9 2.7-.4z" fill="currentColor"/></svg><span>Dougoun Kids</span></div>
+    <h1 style="font-size:22px;margin:0 0 4px">Almost there</h1>
+    <p class="sub" id="noFamilyNotice">This login isn't linked to a family yet. If a parent set it up for you, ask them to finish adding you under "Family &amp; Children". Otherwise you can start a new family.</p>
+    <div style="display:grid;gap:8px;margin-top:16px">
+      <button class="light" onclick="signOutDevice()">Sign in as someone else</button>
     </div>
   </div>
 </div>
 <div id="mainApp" class="wrap hidden">
 <header>
-  <div class="logo">🏆 Best Dad's</div>
-  <h1>🌟 Family Points Card</h1>
+  <div class="logo"><svg class="mark" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M8 15l-3 8 4-2 3 2.4 3-2.4 4 2-3-8z" fill="currentColor" opacity=".72"/><circle cx="12" cy="9" r="7" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M12 5l1.2 2.5 2.7.4-2 1.9.5 2.8-2.4-1.3-2.4 1.3.5-2.8-2-1.9 2.7-.4z" fill="currentColor"/></svg><span>Dougoun Kids</span></div>
+  <h1>Family Points Card</h1>
   <p class="sub">A positive system blending Islamic values and everyday good manners — helping children grow into kind, responsible people.</p>
 
   <div id="accountBar" class="accountbar">
@@ -158,12 +258,13 @@
       </div>
     </div>
     <div class="accountbuttons">
-      <button class="light" onclick="showAccountPanel()">👨‍👩‍👧 Family &amp; Children</button>
-      <button class="light" onclick="showOverviewPanel()">📊 Overview</button>
-      <button class="light" onclick="showActivityPanel()">📋 Activity</button>
+      <button class="light" id="btnFamily" onclick="showAccountPanel()">👨‍👩‍👧 Family &amp; Children</button>
+      <button class="light" id="btnOverview" onclick="showOverviewPanel()">📊 Overview</button>
+      <button class="light" id="btnActivity" onclick="showActivityPanel()">📋 Activity</button>
+      <button class="light" id="btnRequests" onclick="showRequestsPanel()">🔔 Requests</button>
       <button class="light" onclick="toggleEditMode()" id="editModeBtn">✏️ Edit Categories</button>
-      <button class="primary" onclick="addPointPrompt()">＋ Give points</button>
-      <button class="light" onclick="resetDay()">↻ Reset today</button>
+      <button class="primary" id="btnGivePoints" onclick="addPointPrompt()">＋ Give points</button>
+      <button class="light" id="btnResetDay" onclick="resetDay()">↻ Reset today</button>
       <button class="light" onclick="logout()">🔒 Switch profile</button>
     </div>
   </div>
@@ -171,41 +272,47 @@
   <div id="accountPanel" class="panel hidden">
     <div class="panelgrid">
       <section>
-        <div id="createFamilySection">
-          <h2>Create family account</h2>
-          <p class="small">Synced to the cloud — signed-in family devices see the same data.</p>
-          <input id="familyName" placeholder="Family name">
-          <input id="parentName" placeholder="Parent / carer name">
-          <button class="primary" onclick="createFamily()">Create family</button>
+        <h2>👨‍👩‍👧 Family members</h2>
+        <p class="small">Everyone signed in to this family, and who's currently selected.</p>
+        <div id="childrenList"></div>
+        <div class="catedit" style="margin-top:14px">
+          <p class="small" style="margin:0 0 8px"><strong>Add someone new</strong></p>
+          <p class="small" style="margin:0 0 10px">Adding someone here creates their own login, so the app knows who is who. Choose <strong>Child</strong> for anyone who should earn points, and <strong>Parent</strong> for another adult who can award them.</p>
+          <input id="newChildName" placeholder="Name (e.g. Emma, Grandma)">
+          <input id="newChildAge" placeholder="Age or role — optional (e.g. 7, or Grandma)" style="margin-top:8px">
+          <div style="display:flex;gap:8px;margin-top:8px">
+            <button type="button" id="newRoleChild" class="light selected" style="width:auto;flex:1" onclick="selectNewMemberRole('child')">Child</button>
+            <button type="button" id="newRoleParent" class="light" style="width:auto;flex:1" onclick="selectNewMemberRole('parent')">Parent</button>
+          </div>
+          <input id="newChildPassword" type="text" placeholder="Password for their login (6+ characters)" style="margin-top:8px">
+          <p class="small" style="margin:6px 0 0">They sign in with the email shown next to their name once added.</p>
+          <div class="memberhead" style="margin-top:8px">
+            <div id="newMemberPreview"><div class="avatar-placeholder">📷</div></div>
+            <button type="button" class="photobtn" onclick="document.getElementById('newMemberPhotoInput').click()">Add photo (optional)</button>
+            <input type="file" id="newMemberPhotoInput" accept="image/*" class="hidden" onchange="handleNewMemberPhoto(this.files[0])">
+          </div>
+          <button class="primary" style="margin-top:8px" onclick="addChild()">＋ Add family member</button>
         </div>
-        <div style="margin-top:14px;padding-top:14px;border-top:1px solid #e6e8f0">
-          <label style="display:flex;align-items:center;gap:8px;cursor:pointer">
-            <input type="checkbox" id="championToggle" onchange="toggleChampionBanner(this.checked)" style="width:auto">
-            <span class="small">🏆 Show weekly champion banner</span>
-          </label>
-        </div>
-        <div style="margin-top:14px;padding-top:14px;border-top:1px solid #e6e8f0">
-          <button class="danger" onclick="signOutDevice()">🔒 Sign out this device</button>
-          <p class="small" style="margin-top:6px">You'll need the family email and password to sign back in.</p>
-        </div>
+        <input type="file" id="avatarFileInput" accept="image/*" class="hidden" onchange="handleAvatarUpload(this.files[0])">
       </section>
       <section>
-        <h2>Add a family member</h2>
-        <p class="small">Anyone can earn points — kids, Dad, Mum, or another family member.</p>
-        <div class="quickadd">
-          <button id="quickDad" onclick="quickAddMember('Dad')">＋ Add Dad</button>
-          <button id="quickMum" onclick="quickAddMember('Mum')">＋ Add Mum</button>
+        <h2>⚙️ Settings</h2>
+        <label style="display:flex;align-items:center;gap:8px;cursor:pointer">
+          <input type="checkbox" id="championToggle" onchange="toggleChampionBanner(this.checked)" style="width:auto">
+          <span class="small">🏆 Show weekly champion banner</span>
+        </label>
+        <div id="createFamilySection" style="margin-top:14px;padding-top:14px;border-top:1px solid #e6e8f0">
+          <p class="small" style="margin:0 0 8px"><strong>Create family account</strong></p>
+          <p class="small">Synced to the cloud — signed-in family devices see the same data.</p>
+          <input id="familyName" placeholder="Family name">
+          <input id="parentName" placeholder="Parent / carer name" style="margin-top:8px">
+          <button class="primary" style="margin-top:8px" onclick="createFamily()">Create family</button>
         </div>
-        <input id="newChildName" placeholder="Name (e.g. Grandma, Uncle Sam, Emma)">
-        <input id="newChildAge" placeholder="Age or role — optional (e.g. 7, or Grandma)">
-        <div class="memberhead">
-          <div id="newMemberPreview"><div class="avatar-placeholder">📷</div></div>
-          <button type="button" class="photobtn" onclick="document.getElementById('newMemberPhotoInput').click()">Add photo (optional)</button>
-          <input type="file" id="newMemberPhotoInput" accept="image/*" class="hidden" onchange="handleNewMemberPhoto(this.files[0])">
+        <div style="margin-top:14px;padding-top:14px;border-top:1px solid #e6e8f0">
+          <p class="small" style="margin:0 0 8px"><strong>🔒 This device</strong></p>
+          <button class="danger" onclick="signOutDevice()">Sign out this device</button>
+          <p class="small" style="margin-top:6px">You'll need the family email and password to sign back in.</p>
         </div>
-        <button class="primary" onclick="addChild()">＋ Add family member</button>
-        <div id="childrenList"></div>
-        <input type="file" id="avatarFileInput" accept="image/*" class="hidden" onchange="handleAvatarUpload(this.files[0])">
       </section>
     </div>
   </div>
@@ -214,6 +321,12 @@
     <h2>📊 Family Overview</h2>
     <p class="small">A quick glance at everyone — tap a row to switch to them.</p>
     <div id="overviewList" style="display:grid;gap:8px;margin-top:10px"></div>
+  </div>
+
+  <div id="requestsPanel" class="panel hidden">
+    <h2>🔔 Requests from the children</h2>
+    <p class="small">When a child spends points on a reward or a Game Night Activity, it shows up here for you to approve.</p>
+    <div id="requestsPanelList" style="display:grid;gap:8px;margin-top:10px"></div>
   </div>
 
   <div id="activityPanel" class="panel hidden">
@@ -239,35 +352,96 @@
 
 <p id="editModeNote" class="small hidden" style="background:#eef0ff;border-radius:12px;padding:10px 14px;margin:0 0 12px">✏️ Edit mode is on — change names, points, add or remove actions and categories below. Turn it off with the "Edit Categories" button when you're done.</p>
 
+<div id="requestsBanner" class="requestcard hidden"></div>
+<div id="behaviourWrap" class="graphcard hidden"></div>
+
 <div id="cards" class="grid"></div>
 <div id="addCategoryWrap" class="hidden" style="margin-top:14px;text-align:center">
   <button class="light" onclick="addCategory()">＋ Add a new category</button>
 </div>
 
+<div id="kidView" class="hidden">
+  <section class="kidhero">
+    <div class="bubble b1"></div><div class="bubble b2"></div><div class="bubble b3"></div>
+    <div class="kidherorow">
+      <div id="kidAvatar"><div class="avatar-placeholder-lg">👤</div></div>
+      <div>
+        <p class="kidhi" id="kidGreeting">Hi!</p>
+        <p class="kidsub" id="kidSubline">Here's how you're doing 🌟</p>
+      </div>
+      <div class="coin"><strong id="kidBalance">0</strong><span>points saved</span></div>
+    </div>
+    <div class="kidherorow" style="margin-top:8px">
+      <p class="kidsub hidden" id="kidHold" style="margin:0"></p>
+    </div>
+  </section>
+
+  <div class="kidstats">
+    <div class="kidstat ks1"><strong id="kidToday">0</strong><span>⭐ Points today</span></div>
+    <div class="kidstat ks2"><strong id="kidWeek">0</strong><span>📅 Points this week</span></div>
+    <div class="kidstat ks3"><strong id="kidStreak">0</strong><span>🔥 Day streak</span></div>
+  </div>
+
+  <div id="kidGraphWrap" class="graphcard"></div>
+
+  <section class="kidcard pink">
+    <h2>⭐ Points I've been given</h2>
+    <p class="lede">What you earned, who gave it to you, and what it was for.</p>
+    <div id="kidFeed" class="feed"></div>
+  </section>
+
+  <section class="kidcard teal">
+    <h2>🎁 Spend my points</h2>
+    <p class="lede">Tap a reward to ask Mum or Dad for it. Nothing is taken from your points until they say yes.</p>
+    <div id="kidRewardChips" class="chiprow"></div>
+    <h2 style="margin-top:18px">🎲 Game Night Activity</h2>
+    <p class="lede">Pick the activity you'd like for game night — or save your points for something the family agrees on together.</p>
+    <div id="kidGameChips" class="chiprow"></div>
+    <div class="savebox">
+      <p>💡 <strong>Or save up.</strong> You don't have to spend anything today. Keeping your points builds towards a bigger family activity you all choose together.</p>
+    </div>
+    <div id="kidRequestStatus"></div>
+  </section>
+
+  <div class="ticker"><div class="tickertrack" id="kidTicker"></div></div>
+  <p class="kidfooter">Only Mum and Dad can give points — keep doing kind things and they'll notice! 💛</p>
+</div>
+
 <section id="rewardSection" class="reward hidden">
-  <h2>🏆 Family rewards</h2>
-  <p>Choose rewards that are meaningful but don't need to be expensive. The aim is to celebrate effort and positive choices. Rewards are paid for from each person's saved balance, which builds up across days — not just today's points.</p>
+  <div class="eyebrow" id="rewardEyebrow"></div>
+  <h2>🏆 Family rewards <span class="small" style="font-weight:400">— parents only</span></h2>
+  <p>Set the rewards your children can spend points on. Choose things that are meaningful but don't need to be expensive — the aim is to celebrate effort and positive choices. Children can see and buy these from their own screen, but can't add, edit or remove them.</p>
   <div id="rewardButtons" class="rewardrow"></div>
   <p id="pacingNote" class="small hidden" style="margin-top:10px"></p>
   <div class="catedit" style="margin-top:16px">
-    <p class="small" style="margin:0 0 8px"><strong>Add or remove reward tiers</strong></p>
-    <div id="rewardManageList" style="display:grid;gap:6px;margin-bottom:10px"></div>
-    <div class="editrow">
+    <p class="small" style="margin:0 0 8px"><strong>Add or remove rewards</strong></p>
+    <p class="small" style="margin:0 0 2px">🍫 Snacks &amp; foodie treats — tap to add, then change the points to suit:</p>
+    <div id="snackQuickAdd" class="quickchips"></div>
+    <div id="rewardManageList" style="display:grid;gap:6px;margin:10px 0"></div>
+    <div style="display:grid;gap:8px">
       <input id="newRewardName" placeholder="Reward name — e.g. Choose the dessert">
-      <input id="newRewardPoints" class="ptsinput" type="number" min="1" placeholder="pts">
-      <button class="primary" style="width:auto" onclick="addReward()">＋ Add</button>
+      <div class="editrow">
+        <input id="newRewardKind" placeholder="Kind of reward — e.g. Treat, Outing, Screen time, Event">
+        <input id="newRewardPoints" class="ptsinput" type="number" min="1" placeholder="pts">
+        <button class="primary" style="width:auto" onclick="addReward()">＋ Add</button>
+      </div>
     </div>
   </div>
 </section>
 
 <section id="gameNightSection" class="reward hidden" style="background:#eef0ff;border-color:#c9cdf5">
-  <h2>🎲 Game Night Ideas</h2>
-  <p>Build a list of games to choose from when "Family game night" is claimed — one will be picked at random.</p>
+  <div class="eyebrow cool" id="gameEyebrow"></div>
+  <h2>🎲 Game Night Activity <span class="small" style="font-weight:400">— parents only</span></h2>
+  <p>Set the Game Night Activities and what each one costs. Children choose which activity they'd like to buy with their points — or save their points instead for a family-agreed activity. You'll get a request to approve whenever they pick one.</p>
   <div class="rewardrow" style="margin-top:12px;flex-direction:column;align-items:stretch;gap:8px">
-    <input id="newGameName" placeholder="Game name — e.g. Uno, Charades">
+    <input id="newGameName" placeholder="Activity name — e.g. Uno, Charades, Treasure hunt">
+    <div class="editrow">
+      <input id="newGameKind" placeholder="Kind of game — e.g. Card game, Board game, Active, Quiz">
+      <input id="newGamePoints" class="ptsinput" type="number" min="1" placeholder="pts">
+    </div>
     <input id="newGameBuy" placeholder="What to buy (optional) — e.g. A deck of Uno cards">
     <input id="newGameHowTo" placeholder="How to play (optional) — a short summary">
-    <button class="primary" onclick="addGameNightActivity()" style="align-self:flex-start;width:auto">＋ Add game</button>
+    <button class="primary" onclick="addGameNightActivity()" style="align-self:flex-start;width:auto">＋ Add activity</button>
   </div>
   <div id="gameNightList" style="display:grid;gap:7px;margin-top:12px"></div>
 </section>
@@ -277,11 +451,25 @@
 </div>
 
 <script type="module">
-  // Cloud sync: keeps family data in sync across every device signed in with this app.
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
-  import { getFirestore, doc, getDoc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
-  import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
+  // ---------------------------------------------------------------------------
+  // Data layer. The ledger is the source of truth: every points movement is one
+  // append-only document. Balances are never stored — they are summed from the
+  // ledger, so there is no number for a child's device to forge. Security rules
+  // (firestore.rules) enforce that only a parent may write a ledger entry.
+  // ---------------------------------------------------------------------------
+  import { initializeApp, deleteApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
+  import {
+    initializeFirestore, persistentLocalCache, doc, getDoc, setDoc, updateDoc, deleteDoc,
+    collection, addDoc, onSnapshot, writeBatch, serverTimestamp
+  } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
+  import {
+    getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword,
+    sendPasswordResetEmail, onAuthStateChanged, signOut
+  } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
 
+  // The best-dads-fpc project id below is the Firebase project's permanent
+  // identifier, not the app's name. It cannot be renamed and changing it here
+  // would point the app at a project that doesn't exist.
   const firebaseConfig = {
     apiKey: "AIzaSyDu6Alt9V3PouBpI3NN0KRlzbJLwVithT4",
     authDomain: "best-dads-fpc.firebaseapp.com",
@@ -292,66 +480,157 @@
   };
 
   const fbApp = initializeApp(firebaseConfig);
-  const db = getFirestore(fbApp);
+  // Persistent cache: re-opening the app replays from disk and only fetches what
+  // changed, which matters because the ledger only ever grows.
+  const db = initializeFirestore(fbApp, { localCache: persistentLocalCache() });
   const auth = getAuth(fbApp);
-  // Single shared document for the whole family — every device reads/writes the same doc.
-  const familyDocRef = doc(db, "familyData", "shared");
-  let lastWrittenAt = 0;
 
-  window.firebaseAuth = {
-    async signIn(email, password){
-      await signInWithEmailAndPassword(auth, email, password);
+  const famRef    = (fid) => doc(db, "families", fid);
+  const membersRef= (fid) => collection(db, "families", fid, "members");
+  const memberRef = (fid, id) => doc(db, "families", fid, "members", id);
+  const configRef = (fid, name) => doc(db, "families", fid, "config", name);
+  const ledgerRef = (fid) => collection(db, "families", fid, "ledger");
+  const reqsRef   = (fid) => collection(db, "families", fid, "requests");
+  const indexRef  = (uid) => doc(db, "userIndex", uid);
+
+  let unsubs = [];
+  function stopListening(){ unsubs.forEach(u=>{ try{u();}catch(e){} }); unsubs = []; }
+
+  window.fpc = {
+    uid(){ return auth.currentUser ? auth.currentUser.uid : null; },
+    email(){ return auth.currentUser ? auth.currentUser.email : null; },
+
+    onUser(cb){ onAuthStateChanged(auth, cb); },
+
+    async signIn(email, password){ await signInWithEmailAndPassword(auth, email, password); },
+    async resetPassword(email){ await sendPasswordResetEmail(auth, email); },
+    async signOut(){ stopListening(); await signOut(auth); },
+
+    /* Which family does this account belong to? Rules can look documents up but
+       cannot run queries, so each account keeps a one-line pointer to its family. */
+    async familyIdFor(uid){
+      const snap = await getDoc(indexRef(uid));
+      return snap.exists() ? snap.data().familyId : null;
     },
-    async signUp(email, password){
-      await createUserWithEmailAndPassword(auth, email, password);
+
+    /* Creating a family: the founder becomes its first and only parent. */
+    async createFamily({ familyName, personName, role, email, password, categories, rewards, games }){
+      const cred = await createUserWithEmailAndPassword(auth, email, password);
+      const uid = cred.user.uid;
+      const fid = "fam_" + uid.slice(0, 8) + Date.now().toString(36);
+      await setDoc(famRef(fid), { name: familyName, ownerUid: uid, createdAt: serverTimestamp() });
+      await setDoc(memberRef(fid, uid), { name: personName, role: "parent", age: role, photo: null });
+      await setDoc(indexRef(uid), { familyId: fid });
+      await setDoc(configRef(fid, "categories"), { payload: JSON.stringify(categories) });
+      await setDoc(configRef(fid, "rewards"),    { payload: JSON.stringify(rewards) });
+      await setDoc(configRef(fid, "games"),      { payload: JSON.stringify(games) });
+      await setDoc(configRef(fid, "settings"),   { payload: JSON.stringify({ showChampion: true }) });
+      return { fid, uid };
     },
-    async signOut(){
-      await signOut(auth);
-    }
-  };
 
-  onAuthStateChanged(auth, (user)=>{
-    window.__firebaseReady = true;
-    const authGate = document.getElementById("authGate");
-    if(user){
-      authGate.classList.add("hidden");
-      if(typeof window.startApp === "function") window.startApp();
-    }else{
-      document.getElementById("loadingMsg").classList.add("hidden");
-      document.getElementById("loginGate").classList.add("hidden");
-      document.getElementById("mainApp").classList.add("hidden");
-      document.getElementById("welcomeScreen").classList.add("hidden");
-      document.getElementById("signUpForm").classList.add("hidden");
-      document.getElementById("signInForm").classList.remove("hidden");
-      authGate.classList.remove("hidden");
-    }
-  });
-
-  window.firebaseSync = {
-    async load(){
-      const snap = await getDoc(familyDocRef);
-      if(snap.exists()){
-        const d = snap.data();
-        return JSON.parse(d.payload);
+    /* A parent creating a login for someone else. Done on a SECOND Firebase app
+       instance, because createUser signs you in as the new account — on the main
+       instance that would sign the parent out of their own session. */
+    async provisionMember(fid, { email, password }){
+      const secondary = initializeApp(firebaseConfig, "provision-" + Date.now());
+      try {
+        const sAuth = getAuth(secondary);
+        const cred = await createUserWithEmailAndPassword(sAuth, email, password);
+        const uid = cred.user.uid;
+        // Written while signed in AS the new member, which is the only context
+        // permitted to write their own family pointer.
+        const sDb = initializeFirestore(secondary, {});
+        await setDoc(doc(sDb, "userIndex", uid), { familyId: fid });
+        await signOut(sAuth);
+        return uid;
+      } finally {
+        try { await deleteApp(secondary); } catch(e){}
       }
-      return null;
     },
-    async save(data){
-      const updatedAt = Date.now();
-      lastWrittenAt = updatedAt;
-      await setDoc(familyDocRef, { payload: JSON.stringify(data), updatedAt });
+
+    /* Live view of the whole family. Fires whenever anything changes anywhere. */
+    listen(fid, onChange){
+      stopListening();
+      const raw = { family:null, members:[], config:{}, ledger:[], requests:[] };
+      const push = () => onChange(JSON.parse(JSON.stringify({
+        ...raw,
+        ledger: raw.ledger.map(e => ({...e, ts: e.ts })),
+      })));
+      const fail = (where) => (err) => console.error("Sync error (" + where + "):", err);
+
+      unsubs.push(onSnapshot(famRef(fid), snap => {
+        raw.family = snap.exists() ? { id: snap.id, ...snap.data() } : null; push();
+      }, fail("family")));
+
+      unsubs.push(onSnapshot(membersRef(fid), snap => {
+        raw.members = snap.docs.map(d => ({ id: d.id, ...d.data() })); push();
+      }, fail("members")));
+
+      ["categories","rewards","games","settings"].forEach(name => {
+        unsubs.push(onSnapshot(configRef(fid, name), snap => {
+          raw.config[name] = snap.exists() ? snap.data().payload : null; push();
+        }, fail("config/" + name)));
+      });
+
+      unsubs.push(onSnapshot(ledgerRef(fid), snap => {
+        raw.ledger = snap.docs.map(d => {
+          const v = d.data();
+          return { id: d.id, ...v, ts: v.ts && v.ts.toMillis ? v.ts.toMillis() : Date.now() };
+        });
+        push();
+      }, fail("ledger")));
+
+      unsubs.push(onSnapshot(reqsRef(fid), snap => {
+        raw.requests = snap.docs.map(d => {
+          const v = d.data();
+          return { id: d.id, ...v,
+                   ts: v.ts && v.ts.toMillis ? v.ts.toMillis() : Date.now(),
+                   handledTs: v.handledTs && v.handledTs.toMillis ? v.handledTs.toMillis() : null };
+        });
+        push();
+      }, fail("requests")));
     },
-    subscribe(callback){
-      let first = true;
-      onSnapshot(familyDocRef, (snap)=>{
-        if(first){ first=false; return; } // skip the initial snapshot; loadApp() already handled first load
-        if(!snap.exists()) return;
-        const d = snap.data();
-        if(d.updatedAt === lastWrittenAt) return; // this device made this write, ignore the echo
-        try{ callback(JSON.parse(d.payload)); }catch(e){ console.error("Cloud sync parse failed:", e); }
-      }, (err)=>{ console.error("Cloud sync listener error:", err); });
+
+    /* ---- writes ---- */
+
+    async saveConfig(fid, name, value){
+      await setDoc(configRef(fid, name), { payload: JSON.stringify(value) });
+    },
+    async saveMember(fid, id, data){ await setDoc(memberRef(fid, id), data); },
+    async deleteMember(fid, id){ await deleteDoc(memberRef(fid, id)); },
+    async saveFamilyName(fid, name){ await updateDoc(famRef(fid), { name }); },
+
+    /* One points movement. Append-only: corrections are new offsetting entries,
+       never edits, so the balance stays reproducible from history. */
+    async addLedgerEntry(fid, entry){
+      await addDoc(ledgerRef(fid), { ...entry, ts: serverTimestamp() });
+    },
+    async addLedgerEntries(fid, entries){
+      const batch = writeBatch(db);
+      entries.forEach(e => batch.set(doc(ledgerRef(fid)), { ...e, ts: serverTimestamp() }));
+      await batch.commit();
+    },
+
+    async createRequest(fid, req){
+      await addDoc(reqsRef(fid), { ...req, status: "pending", ts: serverTimestamp() });
+    },
+    /* Approving is the moment points are spent: the request flips to approved and
+       the deduction is written in the same batch, by the parent, in one step. */
+    async approveRequest(fid, reqId, ledgerEntry, handledBy){
+      const batch = writeBatch(db);
+      batch.update(doc(reqsRef(fid), reqId), { status:"approved", handledBy, handledTs: serverTimestamp() });
+      batch.set(doc(ledgerRef(fid)), { ...ledgerEntry, ts: serverTimestamp() });
+      await batch.commit();
+    },
+    async declineRequest(fid, reqId, handledBy){
+      await updateDoc(doc(reqsRef(fid), reqId), { status:"declined", handledBy, handledTs: serverTimestamp() });
     }
   };
+
+  window.__firebaseReady = true;
+  onAuthStateChanged(auth, (user) => {
+    if (typeof window.onAuthChanged === "function") window.onAuthChanged(user);
+  });
 </script>
 
 <script>
@@ -379,14 +658,45 @@ const DEFAULT_CATEGORIES = [
 ];
 
 const DEFAULT_REWARDS = [
-  {name:"Choose a small treat or sticker", points:10},
-  {name:"Choose the bedtime dua and story", points:20},
-  {name:"Choose a family game", points:30},
-  {name:"Choose the family meal", points:40},
-  {name:"Choose a family activity, e.g. a trip to the masjid or park", points:50},
-  {name:"Extra 30 minutes of screen time", points:60},
-  {name:"Special one-to-one time with Mum or Dad", points:75},
-  {name:"A bigger reward, e.g. a day out or small gift", points:100}
+  {name:"Choose a small treat or sticker", points:10, kind:"Treat"},
+  {name:"Pick a snack from the snack box", points:12, kind:"Snack"},
+  {name:"Choose the bedtime dua and story", points:20, kind:"Bedtime"},
+  {name:"Ice cream or a milkshake after dinner", points:25, kind:"Snack"},
+  {name:"Bake something together — cookies or cupcakes", points:35, kind:"Food"},
+  {name:"Choose the family meal", points:40, kind:"Food"},
+  {name:"Pick the pudding for everyone on Friday", points:45, kind:"Food"},
+  {name:"A takeaway or eat-out of your choice", points:80, kind:"Food"},
+  {name:"Choose a family activity, e.g. a trip to the masjid or park", points:50, kind:"Outing"},
+  {name:"Extra 30 minutes of screen time", points:60, kind:"Screen time"},
+  {name:"Special one-to-one time with Mum or Dad", points:75, kind:"Time together"},
+  {name:"A bigger reward, e.g. a day out or small gift", points:100, kind:"Event"}
+];
+
+/* Food and snack treats parents can add with one tap. Deliberately small,
+   cheap and everyday — the point is a quick, frequent win, not an expense. */
+const SNACK_EXAMPLES = [
+  {name:"Pick a snack from the snack box", points:12, kind:"Snack"},
+  {name:"Ice cream or a milkshake after dinner", points:25, kind:"Snack"},
+  {name:"Hot chocolate with marshmallows", points:15, kind:"Snack"},
+  {name:"Choose the fruit for the week's shop", points:15, kind:"Food"},
+  {name:"A chocolate bar of your choice", points:20, kind:"Snack"},
+  {name:"Bake something together — cookies or cupcakes", points:35, kind:"Food"},
+  {name:"Pick the pudding for everyone on Friday", points:45, kind:"Food"},
+  {name:"Popcorn and a film night snack", points:30, kind:"Snack"},
+  {name:"A takeaway or eat-out of your choice", points:80, kind:"Food"}
+];
+
+const STARTER_GAMES = [
+  {name:"Charades", points:20, kind:"Acting game", buy:"Nothing needed — paper and a pen if you want to write prompts", howToPlay:"Write acting prompts on slips of paper. One person picks a slip and acts it out silently while everyone else guesses. No talking or pointing at objects."},
+  {name:"20 Questions", points:15, kind:"Guessing game", buy:"Nothing needed", howToPlay:"One person thinks of a person, place or thing. Everyone else takes turns asking yes/no questions to work it out, with a maximum of 20 questions before guessing."},
+  {name:"Story chain", points:15, kind:"Storytelling", buy:"Nothing needed", howToPlay:"One person starts a story with one sentence. Each person adds the next sentence in turn, building the story together."},
+  {name:"Musical statues", points:20, kind:"Active game", buy:"A phone or speaker to play music", howToPlay:"Play music while everyone dances. When the music stops, freeze completely — anyone who moves is out. Keep going until one person is left."},
+  {name:"Draw and guess", points:25, kind:"Drawing game", buy:"Paper and pens", howToPlay:"One person draws a word or phrase without speaking or writing letters. Everyone else guesses. Whoever guesses correctly draws next."},
+  {name:"Uno", points:30, kind:"Card game", buy:"A deck of Uno cards", howToPlay:"Deal 7 cards each. Match the top card by colour or number, or play an action card. First to empty their hand wins the round."},
+  {name:"Connect 4", points:30, kind:"Board game", buy:"A Connect 4 grid and coloured discs", howToPlay:"Take turns dropping a coloured disc into the grid. First to line up 4 of your own colour — across, down or diagonally — wins."},
+  {name:"Snakes and Ladders", points:30, kind:"Board game", buy:"A Snakes and Ladders board and a die", howToPlay:"Take turns rolling the die and moving. Land on a ladder base and climb up; land on a snake's head and slide down. First to the final square wins."},
+  {name:"Family quiz night", points:35, kind:"Quiz", buy:"Nothing needed — one person writes the questions", howToPlay:"One person prepares general knowledge questions. Ask them round by round and keep score."},
+  {name:"Treasure hunt", points:50, kind:"Active game", buy:"Small prizes or treats to hide, and paper for clues", howToPlay:"Hide a small prize and write a trail of clues, each pointing to the next hiding spot. Give the first clue and follow the trail together."}
 ];
 
 const today = new Date().toISOString().slice(0,10);
@@ -395,8 +705,11 @@ let app = {families:[],currentFamily:null,currentChild:null};
 let categories = [];
 let ready = false;
 let editMode = false;
+let rewardsSeeded = false;
 let pendingNewMemberPhoto = null;
 let pendingAvatarChildId = null;
+let sessionMemberId = null;   // who is signed in on this device (local only)
+let viewChildId = null;       // which child a parent is currently looking at (local only)
 
 function resizeImageFile(file){
   return new Promise((resolve,reject)=>{
@@ -432,224 +745,211 @@ async function handleNewMemberPhoto(file){
 }
 async function handleAvatarUpload(file){
   if(!file || !pendingAvatarChildId) return;
-  const f=currentFamily(); if(!f) return;
-  const member=f.children.find(c=>c.id===pendingAvatarChildId);
-  if(!member) return;
-  try{
-    member.photo = await resizeImageFile(file);
-    await saveApp();
-    renderAccounts(); render();
-  }catch(e){
-    alert("Sorry, that photo couldn't be used. Please try another.");
-  }
+  const member=memberById(pendingAvatarChildId);
+  const id=pendingAvatarChildId;
   pendingAvatarChildId=null;
+  if(!member) return;
+  // Anyone may change their own photo; only a parent may change someone else's.
+  if(id!==sessionMemberId && !requireParent()) return;
+  try{
+    const photo = await resizeImageFile(file);
+    await window.fpc.saveMember(familyId, id, {
+      name: member.name, role: member.role, age: member.age||"", photo, email: member.email||null
+    });
+  }catch(e){
+    console.error(e);
+    alert("Sorry, that photo couldn't be used or saved. Please try another.");
+  }
 }
 function triggerAvatarUpload(childId){
   pendingAvatarChildId=childId;
   document.getElementById("avatarFileInput").click();
 }
 
-function waitForFirebase(timeoutMs){
-  return new Promise(resolve=>{
-    if(window.__firebaseReady) return resolve(true);
-    const start=Date.now();
-    const iv=setInterval(()=>{
-      if(window.__firebaseReady){ clearInterval(iv); resolve(true); }
-      else if(Date.now()-start>timeoutMs){ clearInterval(iv); resolve(false); }
-    },50);
-  });
-}
 function setSyncStatus(text){
   const el=document.getElementById("syncStatus");
   if(el) el.textContent=text;
 }
-async function loadApp(){
-  // Load whatever's cached locally first, so nothing breaks if the cloud is unreachable.
-  try{
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if(raw){
-      app = JSON.parse(raw);
-    }
-  }catch(e){
-    app = {families:[],currentFamily:null,currentChild:null};
-  }
-  const firebaseAvailable = await waitForFirebase(3000);
-  if(firebaseAvailable){
-    try{
-      const cloudData = await window.firebaseSync.load();
-      if(cloudData){
-        app = cloudData;
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(app));
-      }else if(app.families && app.families.length>0){
-        // We have local data but nothing in the cloud yet — push it up as the starting point.
-        await window.firebaseSync.save(app);
-      }
-      setSyncStatus("☁️ Synced across devices");
-      window.firebaseSync.subscribe((cloudApp)=>{
-        app = cloudApp;
-        if(!Array.isArray(app.categories) || app.categories.length===0){
-          app.categories = JSON.parse(JSON.stringify(DEFAULT_CATEGORIES));
-        }
-        categories = app.categories;
-        try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(app)); }catch(e){}
-        setSyncStatus("☁️ Updated from another device");
-        const gateVisible = !document.getElementById("loginGate").classList.contains("hidden");
-        if(gateVisible){
-          renderLoginGate();
-        }else{
-          renderAccounts(); render();
+/* ---------------------------------------------------------------------------
+   Projection: turn the raw Firestore documents into the shape the rest of the
+   app already renders from. The ledger is authoritative; balance, daily points
+   and the activity log are all derived from it on every change. Nothing below
+   this line stores a balance.
+   --------------------------------------------------------------------------- */
+let familyId = null;
+let rawData = { family:null, members:[], config:{}, ledger:[], requests:[] };
+
+function tsToDateStr(ms){
+  const d = new Date(ms); d.setHours(12,0,0,0);
+  return d.toISOString().slice(0,10);
+}
+function parseConfig(payload, fallback){
+  if(payload == null) return fallback;
+  try{ const v = JSON.parse(payload); return v == null ? fallback : v; }
+  catch(e){ console.error("Bad config payload, using defaults:", e); return fallback; }
+}
+function projectApp(raw){
+  rawData = raw;
+  const cats     = parseConfig(raw.config.categories, JSON.parse(JSON.stringify(DEFAULT_CATEGORIES)));
+  const rewards  = parseConfig(raw.config.rewards,    JSON.parse(JSON.stringify(DEFAULT_REWARDS)));
+  const games    = parseConfig(raw.config.games,      []);
+  const settings = parseConfig(raw.config.settings,   { showChampion:true });
+
+  const byChild = {};
+  raw.ledger.forEach(e => { (byChild[e.childId] = byChild[e.childId] || []).push(e); });
+
+  const children = raw.members
+    .slice()
+    .sort((a,b) => (a.name||"").localeCompare(b.name||""))
+    .map(m => {
+      const entries = (byChild[m.id] || []).slice().sort((a,b) => a.ts - b.ts);
+      const pointsByDate = {};
+      let balance = 0;
+      entries.forEach(e => {
+        balance += e.points;
+        // Only category-tagged movements count towards a day's tally; spending
+        // reduces the balance without rewriting the day it was earned.
+        if(e.catKey && (e.type === "award" || e.type === "adjust")){
+          const ds = tsToDateStr(e.ts);
+          if(!pointsByDate[ds]) pointsByDate[ds] = {};
+          pointsByDate[ds][e.catKey] = Math.max(0, (pointsByDate[ds][e.catKey] || 0) + e.points);
         }
       });
-    }catch(e){
-      console.error("Cloud sync failed, continuing offline:", e);
-      setSyncStatus("⚠️ Offline — changes are saved on this device only");
-    }
-  }else{
-    setSyncStatus("⚠️ Offline — changes are saved on this device only");
-  }
-  if(!Array.isArray(app.gameNightActivities)) app.gameNightActivities=[];
-  app.gameNightActivities = app.gameNightActivities.map(g=>
-    typeof g === "string" ? {name:g, buy:"", howToPlay:""} : g
-  );
-  const starterGames = [
-    {name:"Uno", buy:"A deck of Uno cards", howToPlay:"Deal 7 cards each. Match the top card by colour or number, or play an action card (Skip, Reverse, Draw Two, Wild). First to empty their hand wins the round. Say 'Uno!' when you have one card left."},
-    {name:"Snakes and Ladders", buy:"A Snakes and Ladders board and a die", howToPlay:"Take turns rolling the die and moving your piece. Land on a ladder base and climb up; land on a snake's head and slide down. First to reach the final square wins."},
-    {name:"Connect 4", buy:"A Connect 4 grid and coloured discs", howToPlay:"Take turns dropping a coloured disc into the grid. First to line up 4 of your own colour in a row — across, down, or diagonally — wins."},
-    {name:"Charades", buy:"Nothing needed — paper and a pen if you want to write prompts", howToPlay:"Write acting prompts (movies, animals, jobs) on slips of paper. One person picks a slip and acts it out silently while everyone else guesses. No talking or pointing at objects."},
-    {name:"20 Questions", buy:"Nothing needed", howToPlay:"One person thinks of a person, place or thing. Everyone else takes turns asking yes/no questions to work out what it is, with a maximum of 20 questions before guessing."},
-    {name:"Musical statues", buy:"A phone or speaker to play music", howToPlay:"Play music while everyone dances. When the music stops, freeze completely — anyone who moves is out. Keep going until one person is left."},
-    {name:"Treasure hunt", buy:"Small prizes or treats to hide, and paper for clues", howToPlay:"Hide a small prize and write a trail of clues, each one pointing to the next hiding spot. Give the first clue and follow the trail together."},
-    {name:"Family quiz night", buy:"Nothing needed — one person writes the questions", howToPlay:"One person (or take turns) prepares general knowledge questions. Ask them round by round and keep score. Mix in a couple of Islamic knowledge questions alongside the general ones."},
-    {name:"Story chain", buy:"Nothing needed", howToPlay:"One person starts a story with one sentence. Each person adds the next sentence in turn, building the story together. Try making the story end with a good akhlaq (character) lesson."},
-    {name:"Draw and guess", buy:"Paper and pens", howToPlay:"One person draws a word or phrase without speaking or writing letters. Everyone else guesses what it is. Whoever guesses correctly draws next."}
-  ];
-  const islamicStarters = [
-    {name:"Islamic Trivia / Quiz Night", buy:"Nothing needed — prepare a few questions beforehand", howToPlay:"Prepare questions about prophets, surahs, and Islamic history. Ask them round by round, keeping score for each family member or team."},
-    {name:"Guess the Surah", buy:"Nothing needed, or a Qur'an app/mushaf to read from", howToPlay:"Read the first few words of a surah aloud. Everyone else guesses which surah it is. Take turns reading."},
-    {name:"99 Names of Allah game", buy:"Nothing needed, or print/write the 99 names on cards for a matching version", howToPlay:"Take turns naming one of Allah's 99 names along with its meaning. For a memory version, write each name and meaning on separate cards, shuffle, lay face down, and take turns flipping two to find matching pairs."},
-    {name:"Prophet Story Charades", buy:"Nothing needed", howToPlay:"Write down moments from stories of the Prophets on slips of paper. One person acts out the moment silently while others guess which story and prophet it's from."}
-  ];
-  if(app.gameNightActivities.length===0){
-    app.gameNightActivities = starterGames;
-  }
-  let addedIslamic=false;
-  islamicStarters.forEach(g=>{
-    if(!app.gameNightActivities.some(existing=>existing.name.toLowerCase()===g.name.toLowerCase())){
-      app.gameNightActivities.push(g); addedIslamic=true;
-    }
-  });
-  if(!app.settings) app.settings={showChampion:true};
-  if(typeof app.settings.showChampion !== "boolean") app.settings.showChampion=true;
+      const activityLog = entries.slice().reverse().slice(0, 40).map(e => ({
+        id: e.id, ts: e.ts, type: e.type, points: e.points, label: e.label,
+        by: e.byName || "", byRole: e.byRole || "",
+        catKey: e.catKey || null, actionName: e.actionName || null
+      }));
+      return {
+        id: m.id, name: m.name, age: m.age || "", role: m.role, photo: m.photo || null,
+        email: m.email || null,
+        balance, pointsByDate, activityLog
+      };
+    });
 
-  // Categories: migrate to app-level mutable data so they can be edited in-app.
-  if(!Array.isArray(app.categories) || app.categories.length===0){
-    app.categories = JSON.parse(JSON.stringify(DEFAULT_CATEGORIES));
-  }
+  app = {
+    families: raw.family ? [{ id: raw.family.id, name: raw.family.name, ownerUid: raw.family.ownerUid, children }] : [],
+    currentFamily: raw.family ? raw.family.id : null,
+    currentChild: null,
+    categories: cats,
+    rewards,
+    gameNightActivities: games,
+    settings,
+    requests: raw.requests.slice().sort((a,b) => b.ts - a.ts)
+  };
   categories = app.categories;
+  normaliseCatalogues();
+}
+/* Ids, prices and kinds, applied in memory only. Nothing is written back unless
+   a parent actually edits something — a child's device must never try to write. */
+function normaliseCatalogues(){
+  app.rewards.forEach(r => {
+    if(!r.id) r.id = "r" + Math.abs(hashString(r.name)).toString(16);
+    if(typeof r.kind !== "string") r.kind = "";
+  });
+  app.gameNightActivities.forEach(g => {
+    if(!g.id) g.id = "g" + Math.abs(hashString(g.name)).toString(16);
+    if(typeof g.points !== "number" || g.points < 1) g.points = 30;
+    if(typeof g.kind !== "string" || !g.kind) g.kind = "Family game";
+  });
+}
+function hashString(str){
+  let h = 0;
+  for(let i = 0; i < String(str).length; i++){ h = (h * 31 + String(str).charCodeAt(i)) | 0; }
+  return h;
+}
 
-  // Rewards: same idea — mutable, editable list.
-  if(!Array.isArray(app.rewards) || app.rewards.length===0){
-    app.rewards = JSON.parse(JSON.stringify(DEFAULT_REWARDS));
-  }
+/* Points a child can actually commit right now: their balance, less anything
+   already awaiting a parent's decision. Stops them queueing up three rewards
+   they can only afford one of. */
+function pendingSpendFor(childId){
+  return (app.requests || [])
+    .filter(r => r.childId === childId && r.status === "pending")
+    .reduce((sum, r) => sum + r.points, 0);
+}
+function availableFor(child){
+  return Math.max(0, (child.balance || 0) - pendingSpendFor(child.id));
+}
 
-  if(addedIslamic) await saveApp();
-  if(migrateChildBalances()) await saveApp();
-  ready = true;
-  document.getElementById("loadingMsg").classList.add("hidden");
-  document.getElementById("summarySection").classList.remove("hidden");
-  document.getElementById("rewardSection").classList.remove("hidden");
-  document.getElementById("gameNightSection").classList.remove("hidden");
-  document.getElementById("championToggle").checked = app.settings.showChampion;
-  renderGameNight();
-  renderRewardManageList();
-  render();
-
-  if(window.__pendingSignup){
-    await completeSignupProfile();
+async function loadApp(){
+  const uid = window.fpc.uid();
+  if(!uid) return;
+  setSyncStatus("☁️ Connecting…");
+  try{
+    familyId = await window.fpc.familyIdFor(uid);
+  }catch(e){
+    console.error("Could not read family pointer:", e);
+    setSyncStatus("⚠️ Couldn't reach the cloud");
     return;
   }
-  let remembered=null;
-  try{ remembered=localStorage.getItem("fp_loggedInMemberId"); }catch(e){}
-  const fam=currentFamily();
-  const memberStillExists = fam && remembered && fam.children.some(c=>c.id===remembered);
-  if(memberStillExists){
-    app.currentChild=remembered;
-    showMainApp();
-  }else{
-    renderLoginGate();
-    document.getElementById("loginGate").classList.remove("hidden");
-    document.getElementById("mainApp").classList.add("hidden");
+  if(!familyId){
+    document.getElementById("loadingMsg").classList.add("hidden");
+    document.getElementById("noFamilyNotice").classList.remove("hidden");
+    return;
   }
-}
-async function completeSignupProfile(){
-  const pending=window.__pendingSignup;
-  window.__pendingSignup=null;
-  if(!pending) return;
-  let f=currentFamily();
-  if(!f){
-    f={id:"f"+Date.now(),name:"Our Family",children:[]};
-    app.families.push(f); app.currentFamily=f.id;
-  }
-  const member={id:"c"+Date.now()+Math.random().toString(16).slice(2),name:pending.name,age:pending.role,photo:null,pointsByDate:{},balance:0,activityLog:[]};
-  f.children.push(member);
-  app.currentChild=member.id;
-  try{ localStorage.setItem("fp_loggedInMemberId", member.id); }catch(e){}
-  await saveApp();
-  renderAccounts(); render();
-  document.getElementById("loadingMsg").classList.add("hidden");
-  document.getElementById("loginGate").classList.add("hidden");
-  document.getElementById("mainApp").classList.add("hidden");
-  document.getElementById("welcomeScreen").classList.remove("hidden");
-}
-function dismissWelcome(){
-  document.getElementById("welcomeScreen").classList.add("hidden");
-  showMainApp();
-}
-async function toggleChampionBanner(checked){
-  app.settings.showChampion = checked;
-  await saveApp();
-  renderChampionBanner();
-}
-function migrateChildBalances(){
-  let migrated=false;
-  app.families.forEach(f=>f.children.forEach(child=>{
-    if(typeof child.balance !== "number"){
-      let sum=0;
-      if(child.pointsByDate){
-        Object.values(child.pointsByDate).forEach(dayObj=>{
-          Object.values(dayObj).forEach(v=>{ sum+=v; });
-        });
-      }
-      child.balance=sum;
-      migrated=true;
+  sessionMemberId = uid;
+  window.fpc.listen(familyId, (raw) => {
+    projectApp(raw);
+    if(!ready){
+      ready = true;
+      document.getElementById("loadingMsg").classList.add("hidden");
+      document.getElementById("mainApp").classList.remove("hidden");
     }
-    if(!Array.isArray(child.activityLog)){ child.activityLog=[]; migrated=true; }
-  }));
-  return migrated;
+    setSyncStatus("☁️ Synced across devices");
+    renderAccounts();
+    render();
+  });
 }
 
+/* Config writes. Every caller that used to mutate `app` then call saveApp()
+   still works: this pushes the edited catalogue back to its config document.
+   Rules reject the write outright if the caller is not a parent. */
 async function saveApp(){
+  if(!familyId) return;
+  if(!isParentSession()) return;
+  // Capture the edited catalogues up front. A snapshot can land between these
+  // writes and replace `app` mid-flight; reading it again halfway through would
+  // silently write back the pre-edit version.
+  const pending = {
+    categories: app.categories,
+    rewards: app.rewards,
+    games: app.gameNightActivities,
+    settings: app.settings
+  };
   try{
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(app));
+    await Promise.all([
+      window.fpc.saveConfig(familyId, "categories", pending.categories),
+      window.fpc.saveConfig(familyId, "rewards", pending.rewards),
+      window.fpc.saveConfig(familyId, "games", pending.games),
+      window.fpc.saveConfig(familyId, "settings", pending.settings)
+    ]);
+    setSyncStatus("☁️ Synced across devices");
   }catch(e){
-    console.error("Storage save failed:", e);
-    alert("Sorry, that couldn't be saved. Your browser storage may be full or blocked (e.g. private/incognito mode).");
-  }
-  if(window.firebaseSync){
-    try{
-      await window.firebaseSync.save(app);
-      setSyncStatus("☁️ Synced across devices");
-    }catch(e){
-      console.error("Cloud save failed:", e);
-      setSyncStatus("⚠️ Saved on this device only — couldn't reach the cloud");
-    }
+    console.error("Save failed:", e);
+    setSyncStatus("⚠️ Couldn't save — check your connection");
   }
 }
 
 function currentFamily(){return app.families.find(f=>f.id===app.currentFamily);}
-function currentChild(){
+
+/* Who is actually signed in on THIS device (stays local — never synced to the
+   cloud, so one device switching profiles doesn't move everyone else). */
+function memberById(id){
   const f=currentFamily();
-  return f ? f.children.find(c=>c.id===app.currentChild) : null;
+  return f && id ? f.children.find(c=>c.id===id)||null : null;
+}
+function sessionMember(){ return memberById(sessionMemberId); }
+function isParentSession(){ return isParentRole(sessionMember()); }
+/* The person whose card is on screen. Children can only ever view themselves. */
+function currentChild(){
+  if(!isParentSession()) return sessionMember();
+  return memberById(viewChildId);
+}
+function currentChildId(){ const c=currentChild(); return c?c.id:null; }
+function requireParent(){
+  if(isParentSession()) return true;
+  alert("Only a Mum or Dad account can do that. Ask a parent to sign in on their profile.");
+  return false;
 }
 function stateForChild(child){
   if(!child.pointsByDate) child.pointsByDate={};
@@ -658,10 +958,9 @@ function stateForChild(child){
 }
 function ensureSelection(){
   const f=currentFamily();
-  if(!f) return;
-  if(!app.currentChild || !f.children.some(c=>c.id===app.currentChild)){
-    app.currentChild=f.children[0]?.id||null;
-  }
+  if(!f){ viewChildId=null; return; }
+  if(viewChildId && !f.children.some(c=>c.id===viewChildId)) viewChildId=null;
+  if(!isParentSession()) viewChildId=null;
 }
 function key(c,a){return c+"|"+a}
 
@@ -717,150 +1016,153 @@ function renderChampionBanner(){
 }
 
 /* ---------- Family & children management ---------- */
-function showAccountPanel(){
-  document.getElementById("accountPanel").classList.toggle("hidden");
-  document.getElementById("overviewPanel").classList.add("hidden");
-  document.getElementById("activityPanel").classList.add("hidden");
-  renderAccounts();
-}
-function showOverviewPanel(){
-  document.getElementById("overviewPanel").classList.toggle("hidden");
-  document.getElementById("accountPanel").classList.add("hidden");
-  document.getElementById("activityPanel").classList.add("hidden");
-  renderOverview();
-}
-function showActivityPanel(){
-  document.getElementById("activityPanel").classList.toggle("hidden");
-  document.getElementById("accountPanel").classList.add("hidden");
-  document.getElementById("overviewPanel").classList.add("hidden");
-  renderActivityLog();
-}
-async function createFamily(){
-  const name=document.getElementById("familyName").value.trim();
-  const parent=document.getElementById("parentName").value.trim();
-  if(!name||!parent){alert("Please enter the family name and parent/carer name.");return;}
-  const family={id:"f"+Date.now(),name,parent,children:[]};
-  app.families.push(family); app.currentFamily=family.id; app.currentChild=null;
-  await saveApp();
-  document.getElementById("familyName").value="";
-  document.getElementById("parentName").value="";
-  showAccountPanel(); render();
-}
-async function addChild(){
-  const f=currentFamily();
-  if(!f){alert("Create a family account first.");return;}
-  const name=document.getElementById("newChildName").value.trim();
-  const age=document.getElementById("newChildAge").value;
-  if(!name){alert("Please enter their name.");return;}
-  const child={id:"c"+Date.now()+Math.random().toString(16).slice(2),name,age,photo:pendingNewMemberPhoto,pointsByDate:{},balance:0,activityLog:[]};
-  f.children.push(child); app.currentChild=child.id; await saveApp();
-  document.getElementById("newChildName").value=""; document.getElementById("newChildAge").value="";
-  pendingNewMemberPhoto=null;
-  document.getElementById("newMemberPreview").innerHTML='<div class="avatar-placeholder">📷</div>';
-  renderAccounts(); render();
-}
-async function selectChild(id){app.currentChild=id; await saveApp(); renderAccounts(); render();}
-async function quickAddMember(name){
-  const f=currentFamily();
-  if(!f){alert("Create a family account first.");return;}
-  if(f.children.some(c=>c.name.toLowerCase()===name.toLowerCase())){
-    const existing=f.children.find(c=>c.name.toLowerCase()===name.toLowerCase());
-    app.currentChild=existing.id; await saveApp(); renderAccounts(); render(); return;
-  }
-  const member={id:"c"+Date.now()+Math.random().toString(16).slice(2),name,age:"",photo:null,pointsByDate:{},balance:0,activityLog:[]};
-  f.children.push(member); app.currentChild=member.id; await saveApp();
-  renderAccounts(); render();
-}
-function renderLoginGate(){
-  const f=currentFamily();
-  const profilesBox=document.getElementById("gateProfiles");
-  const noFamilyBox=document.getElementById("gateNoFamily");
-  if(!f || f.children.length===0){
-    profilesBox.innerHTML="";
-    document.getElementById("gateFamilyNameRow").classList.toggle("hidden", !!f);
-    noFamilyBox.classList.remove("hidden");
-    return;
-  }
-  noFamilyBox.classList.add("hidden");
-  profilesBox.innerHTML="";
-  f.children.forEach(ch=>{
-    const btn=document.createElement("button");
-    btn.className="gateprofile";
-    btn.innerHTML=(ch.photo?`<img class="avatar-lg" src="${ch.photo}">`:'<div class="avatar-placeholder-lg">👤</div>')+`<span>${ch.name}</span>`;
-    btn.onclick=()=>completeLogin(ch.id);
-    profilesBox.appendChild(btn);
+function openPanel(id){
+  if(!requireParent()) return;
+  ["accountPanel","overviewPanel","activityPanel","requestsPanel"].forEach(pid=>{
+    const el=document.getElementById(pid);
+    if(!el) return;
+    if(pid===id) el.classList.toggle("hidden");
+    else el.classList.add("hidden");
   });
 }
-async function createFamilyFromGate(){
-  const parent=document.getElementById("gateParentName").value.trim();
-  if(!parent){alert("Please enter your name.");return;}
-  let f=currentFamily();
-  if(!f){
-    const name=document.getElementById("gateFamilyName").value.trim();
-    if(!name){alert("Please enter the family name.");return;}
-    f={id:"f"+Date.now(),name,children:[]};
-    app.families.push(f); app.currentFamily=f.id;
-  }
-  const member={id:"c"+Date.now()+Math.random().toString(16).slice(2),name:parent,age:"",photo:null,pointsByDate:{},balance:0,activityLog:[]};
-  f.children.push(member); app.currentChild=member.id;
-  await saveApp();
-  document.getElementById("gateFamilyName").value="";
-  document.getElementById("gateParentName").value="";
-  completeLogin(member.id);
+function showAccountPanel(){ openPanel("accountPanel"); renderAccounts(); }
+function showOverviewPanel(){ openPanel("overviewPanel"); renderOverview(); }
+function showActivityPanel(){ openPanel("activityPanel"); renderActivityLog(); }
+function showRequestsPanel(){ openPanel("requestsPanel"); renderRequests(); }
+function memberEmail(fid, name){
+  const slug=String(name).toLowerCase().replace(/[^a-z0-9]+/g,"").slice(0,20) || "member";
+  return slug + "." + Math.random().toString(36).slice(2,6) + "@" + fid.toLowerCase() + ".fpc.app";
 }
-function completeLogin(id){
-  app.currentChild=id;
-  try{ localStorage.setItem("fp_loggedInMemberId", id); }catch(e){}
-  saveApp();
-  showMainApp();
+function selectNewMemberRole(role){
+  window.__newMemberRole=role;
+  document.getElementById("newRoleChild").classList.toggle("selected", role==="child");
+  document.getElementById("newRoleParent").classList.toggle("selected", role==="parent");
+}
+async function addChild(){
+  if(!requireParent()) return;
+  if(!familyId){alert("No family loaded.");return;}
+  const name=document.getElementById("newChildName").value.trim();
+  const age=document.getElementById("newChildAge").value.trim();
+  const password=document.getElementById("newChildPassword").value;
+  const role=window.__newMemberRole||"child";
+  if(!name){alert("Please enter their name.");return;}
+  if(!password || password.length<6){alert("Please set a password of at least 6 characters for their login.");return;}
+  const email=memberEmail(familyId, name);
+  const btnLabel="Adding "+name+"…";
+  setSyncStatus("☁️ "+btnLabel);
+  try{
+    // Their login is created first, because the member document is keyed by the
+    // account id — that key is what the security rules look up to find a role.
+    const uid=await window.fpc.provisionMember(familyId, {email, password});
+    await window.fpc.saveMember(familyId, uid, {
+      name, role, age, photo: pendingNewMemberPhoto || null, email
+    });
+  }catch(e){
+    console.error("Could not add member:", e);
+    alert("That didn't work: " + (e && e.code==="auth/weak-password"
+      ? "the password is too weak — try a longer one."
+      : "please check your connection and try again."));
+    setSyncStatus("☁️ Synced across devices");
+    return;
+  }
+  document.getElementById("newChildName").value="";
+  document.getElementById("newChildAge").value="";
+  document.getElementById("newChildPassword").value="";
+  pendingNewMemberPhoto=null;
+  document.getElementById("newMemberPreview").innerHTML='<div class="avatar-placeholder">📷</div>';
+  alert(name+" has been added.\n\nTheir login is:\n"+email+"\n\nPassword: the one you just set.\n\nWrite this down — sign in with it on their device.");
+}
+async function selectChild(id){
+  if(!isParentSession()) return;          // children can only ever see their own card
+  viewChildId=id;
+  document.getElementById("overviewPanel").classList.add("hidden");
+  renderAccounts(); render();
+}
+function backToParentHome(){
+  viewChildId=null;
+  renderAccounts(); render();
+}
+async function editChildDetails(id){
+  if(!requireParent()) return;
+  const member=memberById(id); if(!member) return;
+  const newName=prompt("Name:", member.name);
+  if(newName===null) return;
+  const trimmedName=newName.trim();
+  if(!trimmedName){ alert("Name can't be empty."); return; }
+  const newAge=prompt('Age or role label — this is just a caption (e.g. 7, Mum, Grandma):', member.age||"");
+  if(newAge===null) return;
+  try{
+    await window.fpc.saveMember(familyId, id, {
+      name: trimmedName, role: member.role, age: newAge.trim(), photo: member.photo||null, email: member.email||null
+    });
+  }catch(e){ console.error(e); alert("That couldn't be saved."); }
+}
+async function changeMemberRole(id){
+  if(!requireParent()) return;
+  const member=memberById(id); if(!member) return;
+  const next = member.role==="parent" ? "child" : "parent";
+  if(id===sessionMemberId && next==="child"){
+    alert("You can't turn your own account into a child — you'd lock yourself out of awarding points. Ask the other parent to do it.");
+    return;
+  }
+  if(!confirm("Make "+member.name+" a "+next+"?\n\n"+(next==="parent"
+    ? "They will be able to award points, edit rewards and approve requests."
+    : "They will only be able to see their own card and ask for rewards."))) return;
+  try{
+    await window.fpc.saveMember(familyId, id, {
+      name: member.name, role: next, age: member.age||"", photo: member.photo||null, email: member.email||null
+    });
+  }catch(e){ console.error(e); alert("That couldn't be saved."); }
+}
+async function removeMember(id){
+  if(!requireParent()) return;
+  const member=memberById(id); if(!member) return;
+  if(id===sessionMemberId){ alert("You can't remove your own account."); return; }
+  if(!confirm("Remove "+member.name+" from the family?\n\nTheir points history stays in the ledger, but they'll no longer appear here or be able to sign in.")) return;
+  try{ await window.fpc.deleteMember(familyId, id); }
+  catch(e){ console.error(e); alert("That couldn't be saved."); }
 }
 function showMainApp(){
-  document.getElementById("loginGate").classList.add("hidden");
   document.getElementById("mainApp").classList.remove("hidden");
   renderAccounts(); render();
 }
-function logout(){
-  try{ localStorage.removeItem("fp_loggedInMemberId"); }catch(e){}
-  editMode=false;
-  document.getElementById("editModeBtn").textContent="✏️ Edit Categories";
-  document.getElementById("editModeNote").classList.add("hidden");
-  document.getElementById("addCategoryWrap").classList.add("hidden");
-  document.getElementById("mainApp").classList.add("hidden");
-  document.getElementById("loginGate").classList.remove("hidden");
-  renderLoginGate();
+async function logout(){
+  await signOutDevice();
 }
 function renderAccounts(){
   const f=currentFamily();
   document.getElementById("familyDisplay").textContent=f?("👨‍👩‍👧 "+f.name):"No family account";
-  const createSection=document.getElementById("createFamilySection");
-  if(createSection) createSection.classList.toggle("hidden", !!f);
   const c=currentChild();
-  document.getElementById("childDisplay").textContent=c?("Now earning: "+c.name+(c.age?" · "+c.age:"")):"Create or select a family member";
+  const me=sessionMember();
+  document.getElementById("childDisplay").textContent = me
+    ? (isParentRole(me)
+        ? "Signed in as: "+me.name+" ("+(roleLabel(me)||"Parent")+")"
+          + (c && c.id!==me.id ? " · viewing "+c.name : "")
+        : "Signed in as: "+me.name)
+    : "Signed in";
   const avatarWrap=document.getElementById("avatarWrap");
-  avatarWrap.innerHTML = (c && c.photo)
-    ? `<img class="avatar-lg" src="${c.photo}">`
+  const face = c || me;
+  avatarWrap.innerHTML = (face && face.photo)
+    ? `<img class="avatar-lg" src="${face.photo}">`
     : '<div class="avatar-placeholder-lg">👤</div>';
-  const dadAdded=f&&f.children.some(m=>m.name.toLowerCase()==="dad");
-  const mumAdded=f&&f.children.some(m=>m.name.toLowerCase()==="mum");
-  const quickDad=document.getElementById("quickDad"); if(quickDad) quickDad.textContent = dadAdded ? "✓ Dad added" : "＋ Add Dad";
-  const quickMum=document.getElementById("quickMum"); if(quickMum) quickMum.textContent = mumAdded ? "✓ Mum added" : "＋ Add Mum";
   const list=document.getElementById("childrenList");
+  if(!list) return;
   list.innerHTML="";
+  if(!isParentSession()) return;
   if(f) f.children.forEach(ch=>{
-    const row=document.createElement("div"); row.className="childrow"+(ch.id===app.currentChild?" selected":"");
+    const row=document.createElement("div"); row.className="childrow"+(ch.id===currentChildId()?" selected":"");
     const left=document.createElement("div"); left.className="memberhead";
     left.innerHTML = (ch.photo ? `<img class="avatar" src="${ch.photo}">` : '<div class="avatar-placeholder">👤</div>')
-      + `<span>${ch.name}${ch.age?" · "+ch.age:""}</span>`;
+      + `<div><span>${escapeHtml(ch.name)}${ch.age?" · "+escapeHtml(ch.age):""}</span>`
+      + `<div class="small">${isParentRole(ch)?"Parent":"Child"}${ch.email?" · "+escapeHtml(ch.email):""}</div></div>`;
     row.appendChild(left);
-    const btns=document.createElement("div"); btns.style.display="flex"; btns.style.gap="6px";
-    const photoBtn=document.createElement("button");
-    photoBtn.className="photobtn"; photoBtn.textContent="📷";
-    photoBtn.title="Add or change photo";
-    photoBtn.onclick=()=>triggerAvatarUpload(ch.id);
-    const btn=document.createElement("button");
-    btn.className="light"; btn.textContent = ch.id===app.currentChild ? "Selected" : "Select";
-    btn.onclick=()=>selectChild(ch.id);
-    btns.appendChild(photoBtn); btns.appendChild(btn);
+    const btns=document.createElement("div"); btns.style.display="flex"; btns.style.gap="6px"; btns.style.flexWrap="wrap";
+    const mk=(cls,txt,title,fn)=>{const b=document.createElement("button");b.className=cls;b.textContent=txt;b.title=title;b.onclick=fn;return b;};
+    btns.appendChild(mk("photobtn","✎","Edit name or caption",()=>editChildDetails(ch.id)));
+    btns.appendChild(mk("photobtn","📷","Add or change photo",()=>triggerAvatarUpload(ch.id)));
+    btns.appendChild(mk("photobtn",isParentRole(ch)?"↓ Child":"↑ Parent","Change what they're allowed to do",()=>changeMemberRole(ch.id)));
+    if(ch.id!==sessionMemberId) btns.appendChild(mk("xbtn","✕","Remove from the family",()=>removeMember(ch.id)));
+    if(!isParentRole(ch)) btns.appendChild(mk("light", ch.id===currentChildId()?"Selected":"Open", "Open their card", ()=>selectChild(ch.id)));
     row.appendChild(btns);
     list.appendChild(row);
   });
@@ -892,14 +1194,7 @@ function renderOverview(){
   });
 }
 
-/* ---------- Activity log & undo ---------- */
-function logActivity(child, entry){
-  if(!Array.isArray(child.activityLog)) child.activityLog=[];
-  entry.id="a"+Date.now()+Math.random().toString(16).slice(2);
-  entry.ts=Date.now();
-  child.activityLog.unshift(entry);
-  child.activityLog = child.activityLog.slice(0,30);
-}
+/* ---------- Activity log ---------- */
 function renderActivityLog(){
   const list=document.getElementById("activityList");
   const child=currentChild();
@@ -921,22 +1216,16 @@ function renderActivityLog(){
   });
 }
 async function undoActivityEntry(childId, entryId){
+  if(!requireParent()) return;
   const f=currentFamily(); if(!f) return;
   const child=f.children.find(c=>c.id===childId); if(!child) return;
   const entry=(child.activityLog||[]).find(e=>e.id===entryId); if(!entry) return;
-  if(entry.type==="add" || entry.type==="custom"){
-    const s=stateForChild(child);
-    const k = entry.type==="add" ? key(entry.catIndex, entry.actionName) : "custom|"+entry.actionName;
-    const before=s[k]||0; const after=Math.max(0,before-entry.points);
-    const actualRemoved=before-after;
-    s[k]=after;
-    child.balance=Math.max(0,(child.balance||0)-actualRemoved);
-  }else if(entry.type==="reward"){
-    child.balance=(child.balance||0)+Math.abs(entry.points);
-  }
-  child.activityLog=child.activityLog.filter(e=>e.id!==entryId);
-  await saveApp();
-  renderActivityLog(); render();
+  if(!confirm("Undo \u201c"+entry.label+"\u201d ("+(entry.points>0?"+":"")+entry.points+")? This writes a correcting entry rather than erasing the original.")) return;
+  await writeLedger({
+    childId: child.id, points: -entry.points, label: "Undone: "+entry.label,
+    type: "adjust", catKey: entry.catKey || undefined, actionName: entry.actionName || undefined
+  });
+  renderActivityLog();
 }
 
 function getPoints(){
@@ -945,20 +1234,31 @@ function getPoints(){
 
 /* ---------- Game night ideas ---------- */
 async function addGameNightActivity(){
+  if(!requireParent()) return;
   const nameInput=document.getElementById("newGameName");
   const buyInput=document.getElementById("newGameBuy");
   const howToInput=document.getElementById("newGameHowTo");
+  const kindInput=document.getElementById("newGameKind");
+  const ptsInput=document.getElementById("newGamePoints");
   const name=nameInput.value.trim();
   if(!name)return;
+  const pts=parseInt(ptsInput.value);
+  if(Number.isNaN(pts) || pts<1){ alert("Please set how many points this activity costs."); return; }
   if(app.gameNightActivities.some(g=>g.name.toLowerCase()===name.toLowerCase())){
     alert(name+" is already on the list.");return;
   }
-  app.gameNightActivities.push({name, buy:buyInput.value.trim(), howToPlay:howToInput.value.trim()});
+  app.gameNightActivities.push({
+    id:"g"+Date.now()+Math.random().toString(16).slice(2),
+    name, points:pts, kind:kindInput.value.trim()||"Family game",
+    buy:buyInput.value.trim(), howToPlay:howToInput.value.trim()
+  });
+  app.gameNightActivities.sort((a,b)=>a.points-b.points);
   await saveApp();
-  nameInput.value=""; buyInput.value=""; howToInput.value="";
+  nameInput.value=""; buyInput.value=""; howToInput.value=""; kindInput.value=""; ptsInput.value="";
   renderGameNight();
 }
 async function removeGameNightActivity(name){
+  if(!requireParent()) return;
   app.gameNightActivities=app.gameNightActivities.filter(g=>g.name!==name);
   await saveApp();
   renderGameNight();
@@ -968,7 +1268,7 @@ function renderGameNight(){
   if(!list) return;
   list.innerHTML="";
   if(app.gameNightActivities.length===0){
-    list.innerHTML='<p class="small">No games added yet — add a few above so one can be picked for game night.</p>';
+    list.innerHTML='<p class="small">No activities added yet — add a few above so the children have something to choose from.</p>';
     return;
   }
   app.gameNightActivities.forEach(g=>{
@@ -979,7 +1279,7 @@ function renderGameNight(){
     if(g.howToPlay) details.push(`<div class="small">▶️ <strong>How to play:</strong> ${g.howToPlay}</div>`);
     const header=document.createElement("div");
     header.style.display="flex"; header.style.justifyContent="space-between"; header.style.alignItems="center";
-    header.innerHTML=`<span>🎲 <strong>${g.name}</strong></span>`;
+    header.innerHTML=`<span>🎲 <strong>${escapeHtml(g.name)}</strong> <span class="points" style="font-size:12px">${g.points} pts</span>${g.kind?` <span class="small">· ${escapeHtml(g.kind)}</span>`:""}</span>`;
     const btn=document.createElement("button");
     btn.className="danger"; btn.textContent="Remove";
     btn.onclick=()=>removeGameNightActivity(g.name);
@@ -998,7 +1298,8 @@ function renderRewardButtons(){
     const btn=document.createElement("button");
     btn.dataset.pts=r.points;
     btn.textContent = r.points+" pts · "+r.name;
-    btn.onclick=()=>claimReward(r.name, r.points);
+    btn.title="This is how the reward appears to the children — they buy it from their own screen.";
+    btn.onclick=()=>alert("This is a preview of what the children see.\n\n\u201c"+r.name+"\u201d costs "+r.points+" points. They buy it from their own screen and you'll get a request to approve.");
     wrap.appendChild(btn);
   });
 }
@@ -1008,30 +1309,112 @@ function renderRewardManageList(){
   wrap.innerHTML="";
   app.rewards.forEach((r,i)=>{
     const row=document.createElement("div"); row.className="editrow";
-    row.innerHTML=`<span class="small" style="flex:1">${r.points} pts · ${r.name}</span>`;
+    row.innerHTML=`<span class="small" style="flex:1"><strong>${r.points} pts</strong> · ${escapeHtml(r.name)}${r.kind?` <em style="color:#8a90a6">(${escapeHtml(r.kind)})</em>`:""}</span>`;
     const btn=document.createElement("button");
     btn.className="xbtn"; btn.textContent="✕ Remove";
     btn.onclick=()=>removeReward(i);
     row.appendChild(btn);
     wrap.appendChild(row);
   });
+  renderSnackQuickAdd();
+  renderEyebrows();
   renderRewardButtons();
 }
+/* ---------- Parent eyebrow reminders ----------
+   Small nudges above the two lists a parent maintains. The reminder is chosen
+   from what the data actually shows (no food rewards, prices drifting high,
+   nothing bought lately) and falls back to a rotating general tip. */
+function daysSince(ts){ return ts ? Math.floor((Date.now()-ts)/86400000) : null; }
+function rewardEyebrowText(){
+  const reqs=(app.requests||[]).filter(r=>r.type==="reward");
+  const lastBuy=reqs.length?daysSince(reqs[0].ts):null;
+  const cheapest=app.rewards.length?Math.min(...app.rewards.map(r=>r.points)):0;
+  const foodCount=app.rewards.filter(r=>/snack|food|treat/i.test(r.kind||"")).length;
+  const lastEdit=daysSince((app.settings||{}).rewardsEditedTs);
+  if(!app.rewards.length)
+    return "There are no rewards yet \u2014 add two or three so the points lead somewhere.";
+  if(foodCount===0)
+    return "No snacks or foodie treats on the list. A small everyday one \u2014 a hot chocolate, or picking Friday\u2019s pudding \u2014 gives a quick win between the bigger rewards.";
+  if(cheapest>=25)
+    return "Your cheapest reward is "+cheapest+" points. Something small and often-reachable keeps younger children in the game while they save for the big ones.";
+  if(lastBuy!==null && lastBuy>=14)
+    return "Nobody has spent points on a reward for "+lastBuy+" days. That usually means the list has gone stale, or everything on it is priced out of reach.";
+  if(reqs.length===0)
+    return "No rewards have been bought yet. Check the prices feel reachable \u2014 the first purchase is what makes the points feel real.";
+  if(lastEdit!==null && lastEdit>=30)
+    return "You haven\u2019t changed these rewards in "+lastEdit+" days. Swapping one or two keeps them interesting.";
+  const general=[
+    "Refresh these every few weeks. Rewards lose their pull once they become predictable \u2014 swap one out, adjust a price, add a snack.",
+    "Mix the prices. A few cheap everyday treats alongside one big saver-goal works better than everything costing about the same.",
+    "Rewards don\u2019t have to cost money \u2014 choosing the meal, picking the pudding, or staying up 15 minutes later all work.",
+    "Ask the children what they\u2019d actually like on this list. A reward they chose is worth more than one you picked for them."
+  ];
+  return general[new Date().getDate() % general.length];
+}
+function gameEyebrowText(){
+  const games=app.gameNightActivities||[];
+  const reqs=(app.requests||[]).filter(r=>r.type==="game");
+  const lastBuy=reqs.length?daysSince(reqs[0].ts):null;
+  if(games.length<3)
+    return "Only "+games.length+" activit"+(games.length===1?"y":"ies")+" here. A few more choices makes the pick feel like a real decision.";
+  if(games.every(g=>g.points===games[0].points))
+    return "Every activity costs the same. Varying the prices lets a child choose between something now and saving for a bigger one.";
+  if(lastBuy!==null && lastBuy>=21)
+    return "No game night activity has been chosen for "+lastBuy+" days \u2014 worth adding something new, or dropping the prices a little.";
+  const general=[
+    "Change these around now and then. Add one the children suggest \u2014 they\u2019re far more likely to pick it.",
+    "Fill in \u201cWhat to buy\u201d and \u201cHow to play\u201d so game night doesn\u2019t stall while someone works out the rules.",
+    "Keep a couple of no-equipment activities on the list for the weeks when nothing has been bought.",
+    "Prices here are yours to set \u2014 if a child saves rather than spends, that\u2019s the system working, not failing."
+  ];
+  return general[new Date().getDate() % general.length];
+}
+function renderEyebrows(){
+  const parent=isParentSession();
+  const r=document.getElementById("rewardEyebrow");
+  const g=document.getElementById("gameEyebrow");
+  if(r) r.innerHTML = parent ? `<span class="tag">Parent tip</span><span>${escapeHtml(rewardEyebrowText())}</span>` : "";
+  if(g) g.innerHTML = parent ? `<span class="tag">Parent tip</span><span>${escapeHtml(gameEyebrowText())}</span>` : "";
+}
+function renderSnackQuickAdd(){
+  const wrap=document.getElementById("snackQuickAdd");
+  if(!wrap) return;
+  wrap.innerHTML = SNACK_EXAMPLES.map((ex,i)=>{
+    const already=app.rewards.some(r=>r.name.toLowerCase()===ex.name.toLowerCase());
+    return `<button class="${already?"added":""}" ${already?"disabled":""} onclick="addSnackExample(${i})">${already?"\u2713":"\uff0b"} ${escapeHtml(ex.name)} <strong>${ex.points}</strong></button>`;
+  }).join("");
+}
+async function addSnackExample(i){
+  if(!requireParent()) return;
+  const ex=SNACK_EXAMPLES[i]; if(!ex) return;
+  if(app.rewards.some(r=>r.name.toLowerCase()===ex.name.toLowerCase())) return;
+  app.rewards.push({id:"r"+Date.now()+Math.random().toString(16).slice(2), name:ex.name, points:ex.points, kind:ex.kind});
+  app.rewards.sort((a,b)=>a.points-b.points);
+  app.settings.rewardsEditedTs=Date.now();
+  await saveApp();
+  renderRewardManageList();
+  render();
+}
 async function addReward(){
+  if(!requireParent()) return;
   const nameInput=document.getElementById("newRewardName");
   const ptsInput=document.getElementById("newRewardPoints");
+  const kindInput=document.getElementById("newRewardKind");
   const name=nameInput.value.trim();
   const pts=parseInt(ptsInput.value);
   if(!name || Number.isNaN(pts) || pts<1){ alert("Please enter a reward name and a positive number of points."); return; }
-  app.rewards.push({name, points:pts});
+  app.rewards.push({id:"r"+Date.now()+Math.random().toString(16).slice(2), name, points:pts, kind:kindInput.value.trim()});
   app.rewards.sort((a,b)=>a.points-b.points);
+  app.settings.rewardsEditedTs=Date.now();
   await saveApp();
-  nameInput.value=""; ptsInput.value="";
+  nameInput.value=""; ptsInput.value=""; kindInput.value="";
   renderRewardManageList();
   render();
 }
 async function removeReward(index){
+  if(!requireParent()) return;
   app.rewards.splice(index,1);
+  app.settings.rewardsEditedTs=Date.now();
   await saveApp();
   renderRewardManageList();
   render();
@@ -1039,6 +1422,7 @@ async function removeReward(index){
 
 /* ---------- Category & action editing ---------- */
 function toggleEditMode(){
+  if(!requireParent()) return;
   editMode=!editMode;
   document.getElementById("editModeBtn").textContent = editMode ? "✓ Done Editing" : "✏️ Edit Categories";
   document.getElementById("editModeNote").classList.toggle("hidden", !editMode);
@@ -1082,57 +1466,102 @@ async function addCategory(){
 }
 
 async function add(c,a,p){
-  const child=currentChild(); if(!child){alert("Please create a family account and add a family member first.");return;}
-  const s=stateForChild(child); const k=key(c,a); s[k]=(s[k]||0)+p;
-  child.balance=(child.balance||0)+p;
-  logActivity(child, {type:"add", catIndex:c, actionName:a, points:p, label:a});
-  await saveApp(); render();
+  if(!requireParent()) return;
+  const child=currentChild(); if(!child){alert("Open a child's card first.");return;}
+  await writeLedger({childId:child.id, points:p, label:a, type:"award", catKey:key(c,a), actionName:a});
 }
 async function remove(c,a,p){
+  if(!requireParent()) return;
   const child=currentChild(); if(!child)return;
-  const s=stateForChild(child); const k=key(c,a);
-  const before=s[k]||0; const after=Math.max(0,before-p); const actualRemoved=before-after;
-  s[k]=after;
-  child.balance=Math.max(0,(child.balance||0)-actualRemoved);
-  reconcileActivityLog(child, c, a, actualRemoved);
-  await saveApp(); render();
+  const k=key(c,a);
+  const earnedToday=(stateForChild(child)[k])||0;
+  const amount=Math.min(p, earnedToday);
+  if(amount<=0) return;
+  // Append-only: taking points back is a new offsetting entry, not an edit.
+  await writeLedger({childId:child.id, points:-amount, label:"Adjusted: "+a, type:"adjust", catKey:k, actionName:a});
 }
-function reconcileActivityLog(child, catIndex, actionName, amountToRemove){
-  // Keeps the Activity Log honest when the − button is used: it trims or
-  // removes the matching "add" entries (most recent first) by the same
-  // amount, so the log never shows points that were immediately undone.
-  if(!Array.isArray(child.activityLog) || amountToRemove<=0) return;
-  let remaining=amountToRemove;
-  for(let i=0;i<child.activityLog.length && remaining>0;i++){
-    const entry=child.activityLog[i];
-    if(entry.type==="add" && entry.catIndex===catIndex && entry.actionName===actionName && entry.points>0){
-      if(entry.points<=remaining){
-        remaining-=entry.points;
-        entry.points=0;
-      }else{
-        entry.points-=remaining;
-        remaining=0;
-      }
-    }
+function isParentRole(ch){
+  if(!ch) return false;
+  if(ch.role) return ch.role === "parent";
+  const v=String(ch.age||"").trim().toLowerCase();   // legacy families
+  return v==="mum" || v==="dad";
+}
+function roleLabel(ch){
+  const v=String((ch&&ch.age)||"").trim();
+  return v ? v.charAt(0).toUpperCase()+v.slice(1).toLowerCase() : v;
+}
+function applyRoleChrome(){
+  const me=sessionMember();
+  const kid = !!me && !isParentRole(me);
+  const set=(id,on)=>{const el=document.getElementById(id); if(el) el.classList.toggle("hidden", !on);};
+  set("kidView", kid);
+  set("summarySection", !kid);
+  set("cards", !kid);
+  set("championBanner", !kid && app.settings && app.settings.showChampion);
+  // Parent-only controls and sections
+  ["btnFamily","btnOverview","btnActivity","btnRequests","editModeBtn","btnGivePoints","btnResetDay"]
+    .forEach(id=>set(id, !kid));
+  if(kid){
+    ["accountPanel","overviewPanel","activityPanel","requestsPanel","addCategoryWrap",
+     "rewardSection","gameNightSection","requestsBanner","behaviourWrap","editModeNote"]
+      .forEach(id=>set(id, false));
   }
-  child.activityLog = child.activityLog.filter(e=>e.points!==0);
 }
 function render(){
   if(!ready) return;
   ensureSelection();
+  applyRoleChrome();
+  renderRequests();
+  renderEyebrows();
+  const me=sessionMember();
+  if(me && !isParentRole(me)){
+    renderKidView(me);
+    renderAccounts();
+    return;
+  }
   const child=currentChild();
   const cards=document.getElementById("cards"); cards.innerHTML="";
-  if(!child){
-    cards.innerHTML='<div class="card" style="grid-column:1/-1;text-align:center"><h2>👋 No profile selected</h2><p>Open "Family &amp; Children" above to add or choose who\'s earning points.</p></div>';
-    document.getElementById("total").textContent=0;
-    document.getElementById("actionsDone").textContent=0;
-    document.getElementById("best").textContent="—";
-    document.getElementById("balance").textContent=0;
-    updateRewardPacing(null);
-    renderChampionBanner();
-    renderAccounts(); return;
+  const rewardSection=document.getElementById("rewardSection");
+  const gameNightSection=document.getElementById("gameNightSection");
+  const bw=document.getElementById("behaviourWrap");
+  if(!child || isParentRole(child)){
+    if(!editMode){
+      if(me && isParentRole(me)){ renderParentAdminView(me); return; }
+      cards.innerHTML='<div class="card" style="grid-column:1/-1;text-align:center"><h2>👋 No profile selected</h2><p>Open "Family &amp; Children" above to add or choose who\'s earning points.</p></div>';
+      document.getElementById("total").textContent=0;
+      document.getElementById("actionsDone").textContent=0;
+      document.getElementById("best").textContent="—";
+      document.getElementById("balance").textContent=0;
+      rewardSection.classList.add("hidden");
+      gameNightSection.classList.add("hidden");
+      bw.classList.add("hidden");
+      updateRewardPacing(null);
+      renderChampionBanner();
+      renderAccounts(); return;
+    }
   }
-  const s=stateForChild(child); let total=0,done=0,scores=[];
+  rewardSection.classList.remove("hidden");
+  gameNightSection.classList.remove("hidden");
+  // Behaviour trend sits directly above the category cards, so a parent sees the
+  // fortnight's shape before deciding what to award today.
+  if(child && !isParentRole(child) && !editMode){
+    bw.classList.remove("hidden");
+    bw.innerHTML = behaviourCardHTML(child, false);
+  }else{
+    bw.classList.add("hidden"); bw.innerHTML="";
+  }
+  const s=(child && !isParentRole(child)) ? stateForChild(child) : {};
+  let total=0,done=0,scores=[];
+  if(child && !isParentRole(child) && me && isParentRole(me) && !editMode){
+    cards.insertAdjacentHTML("beforeend",
+      `<div class="card" style="grid-column:1/-1;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;border-top-color:var(--accent)">
+        <div>
+          <h2 style="margin:0">Giving points to ${escapeHtml(child.name)}</h2>
+          <p style="margin:2px 0 0">Only Mum and Dad accounts can award points. Tap ＋ on anything ${escapeHtml(child.name)} has done well.</p>
+        </div>
+        <button class="light" style="width:auto" onclick="backToParentHome()">← Back to my dashboard</button>
+      </div>`);
+  }
   categories.forEach((cat,ci)=>{
     let catTotal=0;
     const card=document.createElement("article"); card.className="card";
@@ -1178,11 +1607,57 @@ function render(){
     document.getElementById("actionsDone").textContent=done;
     document.getElementById("best").textContent=scores[0] && scores[0][0]>0?scores[0][1]:"—";
   }
-  document.getElementById("balance").textContent=child.balance||0;
-  updateRewardPacing(child);
+  document.getElementById("balance").textContent=(child && child.balance)||0;
+  updateRewardPacing(child && !isParentRole(child) ? child : null);
   renderChampionBanner();
   renderAccounts();
   renderRewardButtons();
+  const overviewPanel=document.getElementById("overviewPanel");
+  if(overviewPanel && !overviewPanel.classList.contains("hidden")) renderOverview();
+  const activityPanel=document.getElementById("activityPanel");
+  if(activityPanel && !activityPanel.classList.contains("hidden")) renderActivityLog();
+}
+function renderParentAdminView(parent){
+  const cards=document.getElementById("cards");
+  document.getElementById("behaviourWrap").classList.add("hidden");
+  // Rewards and Game Night Activity are managed from the parent dashboard.
+  document.getElementById("rewardSection").classList.remove("hidden");
+  document.getElementById("gameNightSection").classList.remove("hidden");
+  const f=currentFamily();
+  const kids = f ? f.children.filter(c=>!isParentRole(c)) : [];
+  const pend=pendingRequests();
+  const kidsHtml = kids.length
+    ? kids.map(k=>{
+        const series=behaviourSeries(k);
+        const band=bandFor(series[series.length-1].score);
+        const waiting=pend.filter(r=>r.childId===k.id).length;
+        return `<div class="overviewrow" onclick="selectChild('${k.id}')">
+          <div class="memberhead">
+            ${k.photo?`<img class="avatar" src="${k.photo}">`:'<div class="avatar-placeholder">\ud83d\udc64</div>'}
+            <div>
+              <strong>${escapeHtml(k.name)}</strong>${waiting?`<span class="badge">${waiting} request${waiting>1?"s":""}</span>`:""}
+              <div class="small">Today ${todayTotalFor(k)} \u00b7 This week ${weeklyTotalFor(k, getCurrentWeekDates())}</div>
+            </div>
+          </div>
+          <div class="overviewstats" style="align-items:center">
+            <span class="moodpill ${band.cls}">${band.label}</span>
+            <div><strong>${k.balance||0}</strong><span>Balance</span></div>
+          </div>
+        </div>`;
+      }).join("")
+    : '<p class="small">No children added yet \u2014 use "Family &amp; Children" above to add one.</p>';
+  cards.innerHTML = `<div class="card" style="grid-column:1/-1">
+    <h2>\ud83d\udc4b Signed in as ${escapeHtml(parent.name)} (${roleLabel(parent)})</h2>
+    <p class="small">Points are for the children. Tap a child to open their card, see their behaviour trend, and award points for something they\u2019ve done well.</p>
+    <div style="display:grid;gap:8px;margin-top:14px">${kidsHtml}</div>
+  </div>`;
+  document.getElementById("total").textContent="\u2014";
+  document.getElementById("actionsDone").textContent="\u2014";
+  document.getElementById("best").textContent="\u2014";
+  document.getElementById("balance").textContent="\u2014";
+  updateRewardPacing(null);
+  renderChampionBanner();
+  renderAccounts();
   const overviewPanel=document.getElementById("overviewPanel");
   if(overviewPanel && !overviewPanel.classList.contains("hidden")) renderOverview();
   const activityPanel=document.getElementById("activityPanel");
@@ -1213,68 +1688,476 @@ function updateRewardPacing(child){
   }
 }
 async function resetDay(){
+  if(!requireParent()) return;
   const child=currentChild(); if(!child)return;
-  if(confirm("Reset all of today's points for "+child.name+"?")){
-    child.pointsByDate[today]={}; await saveApp(); render();
-  }
+  const dayState=child.pointsByDate[today]||{};
+  const entries=Object.keys(dayState)
+    .filter(k=>dayState[k]>0)
+    .map(k=>({childId:child.id, points:-dayState[k], label:"Reset today: "+k.split("|").slice(1).join("|"),
+              type:"adjust", catKey:k, actionName:k.split("|").slice(1).join("|"),
+              byUid:window.fpc.uid(), byName:(sessionMember()||{}).name||"", byRole:roleLabel(sessionMember()||{})}));
+  if(!entries.length){ alert("No points logged today for "+child.name+"."); return; }
+  if(!confirm("Reset all of today's points for "+child.name+"? This adds "+entries.length+" correcting entries — the history stays intact.")) return;
+  try{ await window.fpc.addLedgerEntries(familyId, entries); }
+  catch(e){ console.error(e); alert("That couldn't be saved — check your connection."); }
 }
 async function addPointPrompt(){
-  const child=currentChild(); if(!child){alert("Please create a family account and add a family member first.");return;}
+  if(!requireParent()) return;
+  const child=currentChild();
+  if(!child){alert("Open a child's card first — tap their name on your dashboard, then give points.");return;}
+  if(isParentRole(child)){alert("Points are for the children. Tap a child's name on your dashboard first.");return;}
   const choice=prompt("What positive action did you notice?\n\nExample: said a dua, helped a sibling, tidied up, told the truth.");
   if(!choice)return;
   const p=parseInt(prompt("How many points? (1–5)","2"));
   if(!Number.isNaN(p)&&p>=1&&p<=5){
-    const s=stateForChild(child); const k="custom|"+choice;
-    s[k]=(s[k]||0)+p;
-    child.balance=(child.balance||0)+p;
-    logActivity(child, {type:"custom", actionName:choice, points:p, label:choice});
-    await saveApp(); render();
-    alert("🎉 "+child.name+" earned "+p+" points for: "+choice);
+    const okWrite=await writeLedger({childId:child.id, points:p, label:choice, type:"award", catKey:"custom|"+choice, actionName:choice});
+    if(okWrite) alert("🎉 "+child.name+" earned "+p+" points for: "+choice);
   }
 }
-async function claimReward(name,needed){
-  const child=currentChild(); if(!child)return;
-  const balance=child.balance||0;
-  if(balance<needed){alert("Keep going! "+child.name+" needs "+(needed-balance)+" more points (saved balance) for this reward.");return;}
-  if(confirm("Use "+needed+" points from "+child.name+"'s saved balance for: "+name+"?")){
-    child.balance=balance-needed;
-    logActivity(child, {type:"reward", points:-needed, label:"Spent on: "+name});
-    await saveApp();render();
-    if(name.toLowerCase().includes("game") && app.gameNightActivities.length>0){
-      const pick=app.gameNightActivities[Math.floor(Math.random()*app.gameNightActivities.length)];
-      let msg="🎉 Reward earned: "+name+"\n\n🎲 Tonight's game: "+pick.name+"!";
-      if(pick.buy) msg+="\n🛒 You'll need: "+pick.buy;
-      if(pick.howToPlay) msg+="\n▶️ How to play: "+pick.howToPlay;
-      alert(msg);
-    }else{
-      alert("🎉 Reward earned: "+name);
-    }
+/* One place where every points movement is written, so the "who wrote this"
+   fields can never drift apart from the signed-in account. */
+async function writeLedger(entry){
+  if(!familyId) return false;
+  const me=sessionMember();
+  try{
+    await window.fpc.addLedgerEntry(familyId, {
+      childId: entry.childId,
+      points: entry.points,
+      label: entry.label,
+      type: entry.type,
+      byUid: window.fpc.uid(),
+      byName: me ? me.name : "",
+      byRole: me ? (roleLabel(me)||"") : "",
+      ...(entry.catKey ? { catKey: entry.catKey } : {}),
+      ...(entry.actionName ? { actionName: entry.actionName } : {})
+    });
+    return true;
+  }catch(e){
+    console.error("Ledger write refused:", e);
+    alert("That couldn't be saved. If you're signed in as a child this is expected — only Mum and Dad can change points.");
+    return false;
   }
 }
 
-let appStarted=false;
-window.startApp=function(){
-  if(appStarted) return;
-  appStarted=true;
-  document.getElementById("loadingMsg").classList.remove("hidden");
-  loadApp();
+/* ---------- Buying: children ask, parents approve, approval spends ---------- */
+async function kidBuy(type, id){
+  const child=sessionMember();
+  if(!child || isParentRole(child)) return;
+  const item = type==="reward"
+    ? app.rewards.find(r=>r.id===id)
+    : app.gameNightActivities.find(g=>g.id===id);
+  if(!item) return;
+  const price=item.points||0;
+  const spendable=availableFor(child);
+  if(spendable<price){
+    const waiting=pendingSpendFor(child.id);
+    alert(waiting>0
+      ? "You\u2019ve already asked for something worth "+waiting+" points, so you have "+spendable+" left to spend. Wait for Mum or Dad to decide, or keep earning! \u2b50"
+      : "Not quite yet! You need "+(price-spendable)+" more point"+((price-spendable)===1?"":"s")+" for \u201c"+item.name+"\u201d. Keep going \u2014 you\u2019re getting closer! \u2b50");
+    return;
+  }
+  const label = type==="reward" ? "reward" : "game night activity";
+  if(!confirm("Ask for this "+label+"?\n\n"+item.name+"\n\nIt costs "+price+" points. Nothing is taken until Mum or Dad says yes.")) return;
+  try{
+    await window.fpc.createRequest(familyId, {
+      childId: child.id, childName: child.name,
+      type, itemId: item.id, itemName: item.name, kind: item.kind||"", points: price
+    });
+  }catch(e){
+    console.error("Request refused:", e);
+    alert("That couldn\u2019t be sent \u2014 check your connection and try again.");
+    return;
+  }
+  let msg="\ud83c\udf89 Asked! You chose: "+item.name+"\n\nMum or Dad will see it and decide. Your points stay yours until then.";
+  if(type==="game"){
+    if(item.buy) msg+="\n\n\ud83d\uded2 You\u2019ll need: "+item.buy;
+    if(item.howToPlay) msg+="\n\u25b6\ufe0f How to play: "+item.howToPlay;
+  }
+  alert(msg);
+}
+function pendingRequests(){
+  return (app.requests||[]).filter(r=>r.status==="pending");
+}
+async function approveRequest(id){
+  if(!requireParent()) return;
+  const r=(app.requests||[]).find(x=>x.id===id); if(!r || r.status!=="pending") return;
+  const child=memberById(r.childId);
+  if(child && (child.balance||0) < r.points){
+    alert(child.name+" only has "+(child.balance||0)+" points now \u2014 not enough for this. Turn it down, or give them the points first.");
+    return;
+  }
+  const me=sessionMember();
+  try{
+    // Approval is the moment the points are spent: status and deduction commit together.
+    await window.fpc.approveRequest(familyId, id, {
+      childId: r.childId, points: -r.points, type: "purchase",
+      label: (r.type==="game" ? "Game night: " : "Reward: ") + r.itemName,
+      byUid: window.fpc.uid(), byName: me?me.name:"", byRole: me?(roleLabel(me)||""):""
+    }, me?me.name:"");
+  }catch(e){
+    console.error("Approve failed:", e);
+    alert("That couldn't be saved \u2014 check your connection.");
+  }
+}
+async function declineRequest(id){
+  if(!requireParent()) return;
+  const r=(app.requests||[]).find(x=>x.id===id); if(!r || r.status!=="pending") return;
+  // Nothing to refund: points are only ever spent on approval.
+  if(!confirm("Turn down "+r.childName+"\u2019s request for \u201c"+r.itemName+"\u201d? No points are taken.")) return;
+  try{
+    await window.fpc.declineRequest(familyId, id, (sessionMember()||{}).name||"");
+  }catch(e){
+    console.error("Decline failed:", e);
+    alert("That couldn't be saved \u2014 check your connection.");
+  }
+}
+function requestRowHTML(r){
+  const when=new Date(r.ts).toLocaleString([], {weekday:"short", hour:"2-digit", minute:"2-digit"});
+  const what = r.type==="game" ? "\ud83c\udfb2 Game Night Activity" : "\ud83c\udf81 Family reward";
+  return `<div class="requestrow">
+    <div style="flex:1;min-width:180px">
+      <div><strong>${escapeHtml(r.childName)}</strong> would like <strong>${escapeHtml(r.itemName)}</strong></div>
+      <div class="logmeta">${what}${r.kind?" \u00b7 "+escapeHtml(r.kind):""} \u00b7 ${r.points} pts \u00b7 ${when}</div>
+    </div>
+    <div class="rbtns">
+      <button class="approve" onclick="approveRequest('${r.id}')">\u2713 Approve</button>
+      <button class="danger" onclick="declineRequest('${r.id}')">Turn down</button>
+    </div>
+  </div>`;
+}
+function renderRequests(){
+  const banner=document.getElementById("requestsBanner");
+  const panelList=document.getElementById("requestsPanelList");
+  const btn=document.getElementById("btnRequests");
+  const pend=pendingRequests();
+  if(btn) btn.innerHTML = "\ud83d\udd14 Requests" + (pend.length?`<span class="badge">${pend.length}</span>`:"");
+  if(banner){
+    if(isParentSession() && pend.length){
+      banner.classList.remove("hidden");
+      banner.innerHTML = `<h2>\ud83d\udd14 ${pend.length} request${pend.length>1?"s":""} waiting for you</h2>
+        <p class="small" style="margin:0">Your children have asked for these. Points are only taken when you approve \u2014 turning one down costs them nothing.</p>
+        ${pend.map(requestRowHTML).join("")}`;
+    }else{
+      banner.classList.add("hidden"); banner.innerHTML="";
+    }
+  }
+  if(panelList){
+    const recent=(app.requests||[]).slice(0,12);
+    if(!recent.length){
+      panelList.innerHTML='<p class="small">No requests yet. When a child spends points, it appears here.</p>';
+    }else{
+      panelList.innerHTML=recent.map(r=>{
+        if(r.status==="pending") return requestRowHTML(r);
+        const when=new Date(r.handledTs||r.ts).toLocaleDateString();
+        const tag=r.status==="approved"?"\u2705 Approved \u2014 points spent":"\u21a9\ufe0f Turned down \u2014 no points taken";
+        return `<div class="requestrow" style="opacity:.75">
+          <div style="flex:1;min-width:180px">
+            <div><strong>${escapeHtml(r.childName)}</strong> \u00b7 ${escapeHtml(r.itemName)}</div>
+            <div class="logmeta">${tag} \u00b7 ${when}</div>
+          </div></div>`;
+      }).join("");
+    }
+  }
+}
+function escapeHtml(str){
+  return String(str==null?"":str)
+    .replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")
+    .replace(/"/g,"&quot;").replace(/'/g,"&#39;");
+}
+
+/* ---------- Behaviour trend ----------
+   A rolling 0\u2013100 momentum score. Earning points pushes it up; a day with
+   nothing logged lets it drift down. Green above 66, orange in the middle,
+   red below 36 \u2014 so a good week looks green and a quiet stretch fades. */
+const BEHAVIOUR_DAYS=14, BEHAVIOUR_START=58, BEHAVIOUR_DECAY=9;
+function dateStr(d){ return d.toISOString().slice(0,10); }
+function behaviourSeries(child){
+  const series=[]; let score=BEHAVIOUR_START;
+  for(let i=BEHAVIOUR_DAYS-1;i>=0;i--){
+    const d=new Date(); d.setHours(12,0,0,0); d.setDate(d.getDate()-i);
+    const ds=dateStr(d);
+    const day=child.pointsByDate && child.pointsByDate[ds];
+    const pts=day?Object.values(day).reduce((a,b)=>a+b,0):0;
+    // Gains taper as the score climbs, so a good run keeps its shape instead of
+    // flatlining at the top; quiet days pull it back down at a steady rate.
+    if(pts>0) score += Math.min(24, 5 + pts*2.2) * (1 - score/118);
+    else score -= BEHAVIOUR_DECAY;
+    score=Math.max(5,Math.min(100,score));
+    series.push({ds, pts, score:Math.round(score), d});
+  }
+  return series;
+}
+function bandFor(score){
+  if(score>=66) return {key:"green", colour:"#2e9b68", cls:"mood-green", label:"Going great"};
+  if(score>=36) return {key:"amber", colour:"#e08b28", cls:"mood-amber", label:"Doing okay"};
+  return {key:"red", colour:"#d85b5b", cls:"mood-red", label:"Needs a boost"};
+}
+function behaviourChartSVG(series, uid){
+  const W=600,H=180,L=10,R=10,T=12,B=26;
+  const n=series.length;
+  const x=i=> L + i*((W-L-R)/(n-1));
+  const y=v=> T + (100-v)/100*(H-T-B);
+  const pts=series.map((p,i)=>({x:x(i), y:y(p.score), ...p}));
+  const bands=`
+    <rect x="0" y="${y(100)}" width="${W}" height="${y(66)-y(100)}" fill="#2e9b68" opacity="0.07"/>
+    <rect x="0" y="${y(66)}" width="${W}" height="${y(36)-y(66)}" fill="#e08b28" opacity="0.07"/>
+    <rect x="0" y="${y(36)}" width="${W}" height="${y(0)-y(36)}" fill="#d85b5b" opacity="0.07"/>`;
+  const areaD = `M ${pts[0].x} ${y(0)} ` + pts.map(p=>`L ${p.x} ${p.y}`).join(" ") + ` L ${pts[n-1].x} ${y(0)} Z`;
+  const last=bandFor(pts[n-1].score);
+  const segs=pts.slice(1).map((p,i)=>{
+    const prev=pts[i];
+    const c=bandFor(p.score).colour;
+    return `<line x1="${prev.x}" y1="${prev.y}" x2="${p.x}" y2="${p.y}" stroke="${c}" stroke-width="3.5" stroke-linecap="round"/>`;
+  }).join("");
+  const dots=pts.map((p,i)=>{
+    const c=bandFor(p.score).colour;
+    const isLast=i===n-1;
+    return `<circle cx="${p.x}" cy="${p.y}" r="${isLast?6:3.4}" fill="${c}" ${isLast?`stroke="#fff" stroke-width="2.5"`:""}>
+      <title>${p.d.toLocaleDateString(undefined,{weekday:"long", day:"numeric", month:"short"})} \u2014 ${p.pts} points</title></circle>`;
+  }).join("");
+  const labels=pts.map((p,i)=>{
+    if(n>10 && i%2!==0 && i!==n-1) return "";
+    const letter=p.d.toLocaleDateString(undefined,{weekday:"short"}).slice(0,1);
+    return `<text x="${p.x}" y="${H-7}" text-anchor="middle" font-size="11" fill="#98a0b3">${letter}</text>`;
+  }).join("");
+  return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Behaviour trend over the last two weeks">
+    <defs><linearGradient id="fill${uid}" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="${last.colour}" stop-opacity="0.30"/>
+      <stop offset="100%" stop-color="${last.colour}" stop-opacity="0.02"/>
+    </linearGradient></defs>
+    ${bands}
+    <path d="${areaD}" fill="url(#fill${uid})"/>
+    ${segs}${dots}${labels}
+  </svg>`;
+}
+function behaviourCardHTML(child, forChild){
+  const series=behaviourSeries(child);
+  const latest=series[series.length-1];
+  const band=bandFor(latest.score);
+  const prev=series[series.length-4] || series[0];
+  const trend = latest.score>prev.score+4 ? "climbing \u2b06\ufe0f"
+              : latest.score<prev.score-4 ? "slipping \u2b07\ufe0f" : "steady \u27a1\ufe0f";
+  const quietDays=series.slice(-5).filter(p=>p.pts===0).length;
+  const heading = forChild ? "\ud83d\udcc8 How my two weeks are going" : "\ud83d\udcc8 "+escapeHtml(child.name)+"\u2019s behaviour trend";
+  let note;
+  if(forChild){
+    note = band.key==="green"
+      ? "Brilliant \u2014 your line is green because you\u2019ve been earning points regularly. Keep it up!"
+      : band.key==="amber"
+      ? "Your line has slipped to orange. A few good points this week will pull it back up to green."
+      : "Your line has gone red because it\u2019s been quiet for a while. Pick one small thing today \u2014 it starts climbing straight away.";
+  }else{
+    note = "Green means points are coming in regularly; it fades to orange and then red after quiet stretches with nothing logged. "
+         + escapeHtml(child.name)+" is currently <strong>"+band.label.toLowerCase()+"</strong> and "+trend
+         + (quietDays>=3 ? " \u2014 "+quietDays+" of the last 5 days had no points logged." : ".");
+  }
+  return `<div class="graphhead">
+      <h2>${heading}</h2>
+      <span class="moodpill ${band.cls}">${band.label} \u00b7 ${latest.score}/100</span>
+    </div>
+    ${behaviourChartSVG(series, forChild?"k":"p")}
+    <p class="graphnote">${note}</p>`;
+}
+
+/* ---------- Child view ---------- */
+function streakFor(child){
+  let streak=0;
+  for(let i=0;i<60;i++){
+    const d=new Date(); d.setHours(12,0,0,0); d.setDate(d.getDate()-i);
+    const day=child.pointsByDate && child.pointsByDate[dateStr(d)];
+    const pts=day?Object.values(day).reduce((a,b)=>a+b,0):0;
+    if(pts>0) streak++;
+    else if(i>0) break;              // today not counting yet is fine
+    else if(i===0) continue;
+  }
+  return streak;
+}
+function kidTips(child){
+  const tips=[];
+  const weekDates=getCurrentWeekDates();
+  // Rewards just out of reach
+  const balance=availableFor(child);
+  const next=app.rewards.filter(r=>r.points>balance).sort((a,b)=>a.points-b.points)[0];
+  if(next) tips.push("\ud83c\udfaf Only "+(next.points-balance)+" more points until \u201c"+next.name+"\u201d");
+  const nextGame=app.gameNightActivities.filter(g=>g.points>balance).sort((a,b)=>a.points-b.points)[0];
+  if(nextGame) tips.push("\ud83c\udfb2 "+(nextGame.points-balance)+" points to go for "+nextGame.name+" on game night");
+  // Categories with nothing earned this week = areas to work on
+  const catTotals=categories.map(cat=>{
+    let sum=0;
+    weekDates.forEach(ds=>{
+      const day=child.pointsByDate && child.pointsByDate[ds]; if(!day) return;
+      cat.actions.forEach(([name])=>{ Object.keys(day).forEach(k=>{ if(k.endsWith("|"+name)) sum+=day[k]; }); });
+    });
+    return {cat, sum};
+  });
+  catTotals.filter(c=>c.sum===0).slice(0,4).forEach(c=>{
+    const best=c.cat.actions.slice().sort((a,b)=>b[1]-a[1])[0];
+    if(best) tips.push("\ud83c\udf31 To work on \u2014 "+c.cat.icon+" "+c.cat.name+": try \u201c"+best[0]+"\u201d (+"+best[1]+")");
+  });
+  // Highest-value actions overall
+  const bigWins=[];
+  categories.forEach(cat=>cat.actions.forEach(([name,p])=>bigWins.push({name,p,icon:cat.icon})));
+  bigWins.sort((a,b)=>b.p-a.p).slice(0,3).forEach(w=>{
+    tips.push("\ud83d\udcab Big one: "+w.icon+" "+w.name+" is worth "+w.p+" points");
+  });
+  tips.push("\ud83d\ude4c Ask Mum or Dad if there\u2019s a job you can help with");
+  tips.push("\ud83d\udca1 Doing something kind without being asked earns the most");
+  tips.push("\ud83d\udcb0 You can always save your points instead of spending them");
+  return tips;
+}
+function renderKidView(child){
+  document.getElementById("kidView").classList.remove("hidden");
+  document.getElementById("kidAvatar").innerHTML = child.photo
+    ? `<img class="avatar-lg" src="${child.photo}">`
+    : '<div class="avatar-placeholder-lg">\ud83d\udc64</div>';
+  const hour=new Date().getHours();
+  const greet = hour<12 ? "Good morning" : hour<18 ? "Good afternoon" : "Good evening";
+  document.getElementById("kidGreeting").textContent = greet+", "+child.name+"! \ud83c\udf1f";
+  const weekDates=getCurrentWeekDates();
+  const week=weeklyTotalFor(child, weekDates);
+  const todayPts=todayTotalFor(child);
+  let subline = todayPts>0
+    ? "You\u2019ve earned "+todayPts+" point"+(todayPts===1?"":"s")+" today \u2014 lovely work."
+    : "No points yet today \u2014 there\u2019s still lots of time!";
+  const fam=currentFamily();
+  if(fam && week>0){
+    const top=Math.max(...fam.children.map(c=>weeklyTotalFor(c, weekDates)));
+    if(week===top) subline = "\ud83c\udfc6 You\u2019re this week\u2019s champion! "+subline;
+  }
+  document.getElementById("kidSubline").textContent = subline;
+  document.getElementById("kidBalance").textContent = child.balance||0;
+  const onHold=pendingSpendFor(child.id);
+  const holdEl=document.getElementById("kidHold");
+  if(holdEl){
+    holdEl.textContent = onHold>0
+      ? "\u23f3 "+onHold+" points are waiting on Mum or Dad\u2019s answer \u2014 you have "+availableFor(child)+" left to spend."
+      : "";
+    holdEl.classList.toggle("hidden", onHold===0);
+  }
+  document.getElementById("kidToday").textContent = todayPts;
+  document.getElementById("kidWeek").textContent = week;
+  document.getElementById("kidStreak").textContent = streakFor(child);
+  document.getElementById("kidGraphWrap").innerHTML = behaviourCardHTML(child, true);
+
+  // Feed: what they got, from whom, for what
+  const feed=document.getElementById("kidFeed");
+  const entries=(child.activityLog||[]).slice(0,14);
+  if(!entries.length){
+    feed.innerHTML='<p class="small">Nothing yet \u2014 when Mum or Dad gives you points, they\u2019ll show up here with what they were for. \u2b50</p>';
+  }else{
+    feed.innerHTML=entries.map(e=>{
+      const when=new Date(e.ts).toLocaleString([], {weekday:"short", hour:"2-digit", minute:"2-digit"});
+      const spent=e.points<0;
+      const emoji = spent ? "\ud83c\udf81" : e.type==="refund" ? "\u21a9\ufe0f" : "\u2b50";
+      const who = spent ? "You chose this \u00b7 "+when
+        : e.by ? "From "+escapeHtml(e.by)+(e.byRole?" ("+escapeHtml(e.byRole)+")":"")+" \u00b7 "+when
+        : when;
+      return `<div class="feeditem">
+        <div class="feedemoji">${emoji}</div>
+        <div class="feedmain"><div class="what">${escapeHtml(e.label)}</div><div class="who">${who}</div></div>
+        <div class="feedpts ${spent?"spent":""}">${e.points>=0?"+":""}${e.points}</div>
+      </div>`;
+    }).join("");
+  }
+
+  // Reward + game night tabs
+  const bal=availableFor(child);
+  const chip=(item,type)=>{
+    const can=bal>=item.points;
+    return `<button class="chip ${can?"afford":""}" ${can?"":"disabled"} onclick="kidBuy('${type}','${item.id}')">
+      ${can?"":'<span class="lock">\ud83d\udd12</span>'}
+      ${escapeHtml(item.name)}
+      <span class="cprice">${item.points} points</span>
+      ${item.kind?`<span class="ckind">${escapeHtml(item.kind)}</span>`:""}
+    </button>`;
+  };
+  const rewardWrap=document.getElementById("kidRewardChips");
+  rewardWrap.innerHTML = app.rewards.length
+    ? app.rewards.slice().sort((a,b)=>a.points-b.points).map(r=>chip(r,"reward")).join("")
+    : '<p class="small">Mum or Dad hasn\u2019t added any rewards yet.</p>';
+  const gameWrap=document.getElementById("kidGameChips");
+  gameWrap.innerHTML = app.gameNightActivities.length
+    ? app.gameNightActivities.slice().sort((a,b)=>a.points-b.points).map(g=>chip(g,"game")).join("")
+    : '<p class="small">No game night activities added yet.</p>';
+
+  // Their own requests
+  const mine=(app.requests||[]).filter(r=>r.childId===child.id).slice(0,4);
+  document.getElementById("kidRequestStatus").innerHTML = mine.length
+    ? mine.map(r=>{
+        const cls = r.status==="pending"?"stat-pending":r.status==="approved"?"stat-approved":"stat-declined";
+        const txt = r.status==="pending"?"\u23f3 Waiting for Mum or Dad"
+                  : r.status==="approved"?"\ud83c\udf89 Approved!"
+                  : "\u21a9\ufe0f Not this time \u2014 no points were taken";
+        return `<div class="statusrow ${cls}"><span><strong>${escapeHtml(r.itemName)}</strong></span><span class="small">${txt}</span></div>`;
+      }).join("")
+    : "";
+
+  // Scrolling reminders
+  const tips=kidTips(child);
+  const items=tips.map(t=>`<span class="tickeritem">${escapeHtml(t)}</span>`).join("");
+  document.getElementById("kidTicker").innerHTML = items+items;  // duplicated for a seamless loop
+}
+
+/* ---------- Auth entry points ---------- */
+window.onAuthChanged = async function(user){
+  const authGate=document.getElementById("authGate");
+  const noFamily=document.getElementById("noFamilyGate");
+  if(user){
+    authGate.classList.add("hidden");
+    noFamily.classList.add("hidden");
+    if(window.__creatingFamily) return;      // createFamily() drives its own flow
+    document.getElementById("loadingMsg").classList.remove("hidden");
+    await loadApp();
+  }else{
+    stopEverything();
+    document.getElementById("loadingMsg").classList.add("hidden");
+    document.getElementById("mainApp").classList.add("hidden");
+    document.getElementById("welcomeScreen").classList.add("hidden");
+    noFamily.classList.add("hidden");
+    document.getElementById("signUpForm").classList.add("hidden");
+    document.getElementById("signInForm").classList.remove("hidden");
+    authGate.classList.remove("hidden");
+  }
 };
+function stopEverything(){
+  ready=false; familyId=null; sessionMemberId=null; viewChildId=null; editMode=false;
+  app={families:[],currentFamily:null,currentChild:null,rewards:[],gameNightActivities:[],requests:[],settings:{showChampion:true},categories:[]};
+}
 async function submitAuthLogin(){
   const email=document.getElementById("authEmail").value.trim();
   const password=document.getElementById("authPassword").value;
   const errEl=document.getElementById("authError");
-  errEl.textContent="";
+  const resetEl=document.getElementById("authResetMsg");
+  errEl.textContent=""; resetEl.textContent="";
   if(!email||!password){ errEl.textContent="Please enter both email and password."; return; }
   try{
-    await window.firebaseAuth.signIn(email,password);
+    await window.fpc.signIn(email,password);
   }catch(e){
     errEl.textContent="Sign-in failed. Check the email and password and try again.";
+  }
+}
+async function submitForgotPassword(){
+  const email=document.getElementById("authEmail").value.trim();
+  const errEl=document.getElementById("authError");
+  const resetEl=document.getElementById("authResetMsg");
+  errEl.textContent=""; resetEl.textContent="";
+  if(!email){ errEl.textContent="Enter your email above first, then tap \"Forgot password?\"."; return; }
+  if(email.endsWith(".fpc.app")){
+    errEl.textContent="That's a family login without a real mailbox, so it can't be reset by email. Ask a parent to set a new password.";
+    return;
+  }
+  try{
+    await window.fpc.resetPassword(email);
+    resetEl.textContent="Check "+email+" for a link to reset your password.";
+  }catch(e){
+    errEl.textContent="Couldn't send a reset email. Double-check the address and try again.";
   }
 }
 function switchToSignUp(){
   document.getElementById("signInForm").classList.add("hidden");
   document.getElementById("signUpForm").classList.remove("hidden");
   document.getElementById("authError").textContent="";
+  document.getElementById("authResetMsg").textContent="";
   selectSignupRole("Mum");
 }
 function switchToSignIn(){
@@ -1288,28 +2171,42 @@ function selectSignupRole(role){
   document.getElementById("roleDadBtn").classList.toggle("selected", role==="Dad");
 }
 async function submitSignUp(){
+  const familyName=document.getElementById("signupFamilyName").value.trim();
   const name=document.getElementById("signupName").value.trim();
   const email=document.getElementById("signupEmail").value.trim();
   const password=document.getElementById("signupPassword").value;
   const role=window.__selectedSignupRole||"Mum";
   const errEl=document.getElementById("signupError");
   errEl.textContent="";
-  if(!name||!email||!password){ errEl.textContent="Please fill in your name, email and password."; return; }
+  if(!familyName||!name||!email||!password){ errEl.textContent="Please fill in every field."; return; }
   if(password.length<6){ errEl.textContent="Password should be at least 6 characters."; return; }
-  window.__pendingSignup={name,role};
+  window.__creatingFamily=true;
   try{
-    await window.firebaseAuth.signUp(email,password);
+    await window.fpc.createFamily({
+      familyName, personName:name, role, email, password,
+      categories: DEFAULT_CATEGORIES,
+      rewards: DEFAULT_REWARDS,
+      games: STARTER_GAMES
+    });
+    window.__creatingFamily=false;
+    document.getElementById("authGate").classList.add("hidden");
+    document.getElementById("welcomeScreen").classList.remove("hidden");
+    await loadApp();
   }catch(e){
-    window.__pendingSignup=null;
+    window.__creatingFamily=false;
+    console.error("Sign-up failed:", e);
     errEl.textContent = (e && e.code==="auth/email-already-in-use")
       ? "That email is already registered — try signing in instead."
       : "Sign-up failed. Please check your details and try again.";
   }
 }
+function dismissWelcome(){
+  document.getElementById("welcomeScreen").classList.add("hidden");
+  showMainApp();
+}
 async function signOutDevice(){
-  if(!confirm("Sign out this device? You'll need the family email and password to sign back in.")) return;
-  await window.firebaseAuth.signOut();
-  appStarted=false;
+  if(!confirm("Sign out on this device? You'll need your own email and password to sign back in.")) return;
+  await window.fpc.signOut();
   location.reload();
 }
 </script>
