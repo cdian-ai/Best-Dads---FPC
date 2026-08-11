@@ -123,7 +123,8 @@
   .overviewrow .avatar,.overviewrow .avatar-placeholder{width:44px;height:44px;font-size:22px}
   .overviewrow strong{font-size:16px}
   /* A quick switcher, so changing child does not mean going back to a list. */
-  .whostrip{display:flex;gap:8px;overflow-x:auto;padding:2px 0 6px;margin:0 0 12px;-webkit-overflow-scrolling:touch}
+  .whostrip{display:flex;gap:8px;overflow-x:auto;padding:12px 0 4px;margin:10px 0 0;
+            border-top:1px solid #e6e8f0;-webkit-overflow-scrolling:touch}
   .whochip{flex:0 0 auto;display:flex;align-items:center;gap:8px;background:#fff;border:2px solid #e6e8f0;
            border-radius:999px;padding:7px 14px 7px 7px;font-weight:700;font-size:14px;color:var(--ink);width:auto}
   .whochip.on{border-color:var(--accent);background:#eef0ff;color:#3e46ad}
@@ -520,7 +521,7 @@
       <button class="light" id="btnMenu" onclick="toggleMenu()">☰ Menu <span id="menuBadge"></span></button>
     </div>
     <div class="menusheet hidden" id="menuSheet">
-      <button class="light" id="btnFamily" onclick="showAccountPanel()">👨‍👩‍👧 Family &amp; Children</button>
+      <button class="light" id="btnFamily" onclick="showAccountPanel()">👨‍👩‍👧 Family members</button>
       <button class="light" id="btnRequests" onclick="showRequestsPanel()">🔔 Requests</button>
       <button class="light" id="btnOverview" onclick="showOverviewPanel()">📊 Overview</button>
       <button class="light" id="btnActivity" onclick="showActivityPanel()">📋 History</button>
@@ -528,6 +529,9 @@
       <button class="light" id="btnResetDay" onclick="resetDay()">↻ Reset today</button>
       <button class="light" id="btnSignOut" onclick="signOutDevice()">🔒 Sign out</button>
     </div>
+    <!-- Switching person is navigation, so it lives with the other navigation.
+         Floating in the page it drifted below whichever panel was open. -->
+    <div id="whoStrip" class="whostrip hidden"></div>
   </div>
 
   <div id="accountPanel" class="panel hidden">
@@ -606,8 +610,6 @@
 </header>
 
 <div id="loadingMsg" class="loading hidden">Loading your family points…</div>
-
-<div id="whoStrip" class="whostrip hidden"></div>
 
 <div id="requestsBanner" class="requestcard hidden"></div>
 <p id="editModeNote" class="small hidden" style="background:#eef0ff;border:1px solid #c9cdf5;border-radius:12px;padding:11px 14px;margin:0 0 12px">✏️ <strong>You're editing the categories.</strong> Change names and points, or add and remove actions below — every change saves as you make it. Press <strong>✕ Close editor</strong> at the top when you've finished.</p>
@@ -853,7 +855,12 @@
     async _writeFamily(uid, { familyName, personName, role, categories, rewards, games }){
       const fid = "fam_" + uid.slice(0, 8) + Date.now().toString(36);
       await setDoc(famRef(fid), { name: familyName, ownerUid: uid, createdAt: serverTimestamp() });
-      await setDoc(memberRef(fid, uid), { name: personName, role: "parent", age: role, photo: null });
+      await setDoc(memberRef(fid, uid), {
+        name: personName, role: "parent", age: role, photo: null,
+        // Their own address, so the app can suggest sensible recovery addresses
+        // for the children later without guessing.
+        email: (auth.currentUser && auth.currentUser.email) || null
+      });
       await setDoc(indexRef(uid), { familyId: fid });
       await setDoc(configRef(fid, "categories"), { payload: JSON.stringify(categories) });
       await setDoc(configRef(fid, "rewards"),    { payload: JSON.stringify(rewards) });
@@ -1196,7 +1203,7 @@ const TIP_CATS = [
   {key:"behaviour", label:"Behaviour"}
 ];
 
-const APP_VERSION = "v40";
+const APP_VERSION = "v41";
 const today = new Date().toISOString().slice(0,10);
 let app = {families:[],currentFamily:null,currentChild:null};
 let categories = [];
@@ -1659,7 +1666,8 @@ function showRequestsPanel(){ openPanel("requestsPanel"); renderRequests(); }
 function authErrorMessage(e){
   const code = (e && e.code) || "";
   if(code === "auth/weak-password") return "That password is too short — use at least 6 characters.";
-  if(code === "auth/email-already-in-use") return "That name produced a login that already exists. Try a slightly different name.";
+  if(code === "auth/email-already-in-use")
+    return "There's already an account with that email address. If you used a recovery address, try a variation such as yourname+theirname@example.com \u2014 it reaches the same inbox but counts as a separate login.";
   if(code === "auth/invalid-email") return "That name couldn't be turned into a valid login. Try letters and numbers only.";
   if(code === "auth/operation-not-allowed")
     return "Email sign-in isn't switched on for this project yet. In the Firebase console, go to Authentication → Sign-in method and enable Email/Password.";
@@ -1758,10 +1766,30 @@ async function addChild(){
   const role=window.__newMemberRole||"child";
   if(!name){ errEl.textContent="Please enter their name."; return; }
   if(!password || password.length<6){ errEl.textContent="Please set a password of at least 6 characters for their login."; return; }
-  const recovery=(document.getElementById("newChildRecovery").value || "").trim();
+  let recovery=(document.getElementById("newChildRecovery").value || "").trim();
   if(recovery && !looksLikeEmail(recovery)){
     errEl.textContent="That doesn't look like an email address. Leave it blank if you'd rather not use one.";
     return;
+  }
+  if(recovery){
+    // An address already signed in to the app cannot become a second account.
+    // Rather than letting Firebase refuse it with a message about names, turn it
+    // into a plus-suffixed variation, which lands in the same inbox.
+    const taken = (currentFamily() ? currentFamily().children : [])
+      .map(c => (c.email || "").toLowerCase())
+      .concat([(window.fpc && window.fpc.email() ? window.fpc.email() : "").toLowerCase()]);
+    if(taken.includes(recovery.toLowerCase())){
+      const suffixed = suggestRecoveryEmail(recovery, name);
+      if(suffixed && !taken.includes(suffixed.toLowerCase())){
+        recovery = suffixed;
+        document.getElementById("newChildRecovery").value = suffixed;
+      }else{
+        errEl.textContent = "That address is already used by someone in this family. Try a variation such as "
+          + (suggestRecoveryEmail(recovery, name) || "yourname+" + (name||"child") + "@example.com")
+          + " \u2014 it arrives in the same inbox.";
+        return;
+      }
+    }
   }
   // A real address becomes the login itself, which is what makes the reset work.
   const email = recovery || memberEmail(familyId, name);
@@ -1816,7 +1844,7 @@ function showLoginDetails(name, email, password){
     + (password ? "Password: "+password+"\n" : "Password: the one you set\n")
     + "\nThat's the whole process — there's no code to enter and nothing for you to approve."
     + (recoverable
-        ? "\n\nIf they forget the password, you can send a reset to that address from Family & Children."
+        ? "\n\nIf they forget the password, you can send a reset to that address from Family members."
         : "\n\nThis login has no mailbox, so write the password down — a forgotten one can't be reset by email.");
   alert(msg);
 }
@@ -1846,7 +1874,7 @@ async function showMemberLogin(id){
      idle      — the member list plus "Add someone new"
      adding    — the form, with the green confirm as the only action
      confirmed — the new login's details, and "Add someone new" back again
-   Reopening Family & Children always returns to idle, so the last child's
+   Reopening Family members always returns to idle, so the last child's
    password never lingers on screen from a previous visit. */
 function setAddMemberState(state){
   const added = document.getElementById("justAdded");
@@ -2000,7 +2028,7 @@ function renderOverview(){
   const f=currentFamily();
   list.innerHTML="";
   if(!f || f.children.length===0){
-    list.innerHTML='<p class="small">No family members yet — add someone under "Family &amp; Children" first.</p>';
+    list.innerHTML='<p class="small">No family members yet — add someone under "Family members" first.</p>';
     return;
   }
   const weekDates=getCurrentWeekDates();
@@ -2160,7 +2188,7 @@ async function parentRequestReward(id){
   const f=currentFamily();
   const partners=f ? f.children.filter(c=>isParentRole(c) && c.id!==me.id) : [];
   if(!partners.length){
-    alert("There\u2019s no other parent to approve it. Add one under \u201cFamily & Children\u201d first.");
+    alert("There\u2019s no other parent to approve it. Add one under \u201cFamily members\u201d first.");
     return;
   }
   if(!confirm("Ask for \u201c"+item.name+"\u201d?\n\nIt costs "+item.points+" points. Nothing is taken until "+partners[0].name+" says yes.")) return;
@@ -2234,7 +2262,7 @@ function renderParentRewardEyebrow(){
   const partners=f ? f.children.filter(c=>isParentRole(c) && c.id!==sessionMemberId) : [];
   let text;
   if(!partners.length)
-    text="There\u2019s no second parent yet, so nobody can approve these. Add one under \u201cFamily & Children\u201d and the grown-ups\u2019 side starts working.";
+    text="There\u2019s no second parent yet, so nobody can approve these. Add one under \u201cFamily members\u201d and the grown-ups\u2019 side starts working.";
   else if(!app.parentRewards.length)
     text="Add two or three things you\u2019d each actually want. Rest and time to yourself tend to beat anything that costs money.";
   else if(Math.min(...app.parentRewards.map(r=>r.points)) >= 30)
@@ -2508,7 +2536,7 @@ function finishOnboarding(){
   renderAccounts(); render();
   if(added.length){
     alert("All set.\n\n" + added.map(m => m.name + "  \u2014  " + m.email).join("\n")
-      + "\n\nOn each child's own device, sign in with their email and the password you set. You can see these again any time under \u201cFamily & Children\u201d.");
+      + "\n\nOn each child's own device, sign in with their email and the password you set. You can see these again any time under \u201cFamily members\u201d.");
   }
 }
 
@@ -2863,7 +2891,7 @@ function render(){
   if((!child || isParentRole(child)) && !viewingPartner){
     if(!editMode){
       if(me && isParentRole(me)){ renderParentAdminView(me); return; }
-      cards.innerHTML='<div class="card" style="grid-column:1/-1;text-align:center"><h2>👋 No profile selected</h2><p>Open "Family &amp; Children" above to add or choose who\'s earning points.</p></div>';
+      cards.innerHTML='<div class="card" style="grid-column:1/-1;text-align:center"><h2>👋 No profile selected</h2><p>Open "Family members" above to add or choose who\'s earning points.</p></div>';
       document.getElementById("total").textContent=0;
       document.getElementById("actionsDone").textContent=0;
       document.getElementById("best").textContent="—";
@@ -3019,7 +3047,7 @@ function renderParentAdminView(parent){
           </div>
         </div>`;
       }).join("")
-    : '<p class="small">No children added yet \u2014 use "Family &amp; Children" above to add one.</p>';
+    : '<p class="small">No children added yet \u2014 use "Family members" above to add one.</p>';
   const partners = f ? f.children.filter(c=>isParentRole(c) && c.id!==parent.id) : [];
   const myBalance = parent.balance || 0;
   const myPending = pendingSpendFor(parent.id);
@@ -3032,7 +3060,7 @@ function renderParentAdminView(parent){
           </div>
           <div class="overviewstats"><div><strong>${pp.balance||0}</strong><span>Balance</span></div></div>
         </div>`).join("")
-    : '<p class="small">Add another parent under "Family &amp; Children" and you can start noticing each other too.</p>';
+    : '<p class="small">Add another parent under "Family members" and you can start noticing each other too.</p>';
   const spendable = Math.max(0, myBalance - myPending);
   cards.innerHTML = `<div class="card" style="grid-column:1/-1">
     <h2>\ud83d\udc4b Signed in as ${escapeHtml(parent.name)} (${roleLabel(parent)})</h2>
@@ -3134,7 +3162,7 @@ async function addPointPrompt(){
     if(kids.length===1){ viewChildId=kids[0].id; child=kids[0]; renderAccounts(); render(); }
     else { alert(kids.length
       ? "Open a child's card first — tap their name on your dashboard, then give points."
-      : "Add a child first, under Family & Children."); return; }
+      : "Add a child first, under Family members."); return; }
   }
   if(isParentRole(child)){alert("Points are for the children. Tap a child's name on your dashboard first.");return;}
   const choice=prompt("What positive action did you notice?\n\nExample: said a dua, helped a sibling, tidied up, told the truth.");
@@ -3791,7 +3819,7 @@ async function submitForgotPassword(){
   errEl.textContent=""; resetEl.textContent="";
   if(!email){ errEl.textContent="Enter your email above first, then tap \"Forgot password?\"."; return; }
   if(email.endsWith(".fpc.app")){
-    errEl.textContent="That's a family login without a real mailbox, so nothing can be sent to it. Ask a parent \u2014 they can send a reset from Family & Children if the login has a recovery address.";
+    errEl.textContent="That's a family login without a real mailbox, so nothing can be sent to it. Ask a parent \u2014 they can send a reset from Family members if the login has a recovery address.";
     return;
   }
   try{
