@@ -123,12 +123,21 @@
   .overviewrow .avatar,.overviewrow .avatar-placeholder{width:44px;height:44px;font-size:22px}
   .overviewrow strong{font-size:16px}
   /* A quick switcher, so changing child does not mean going back to a list. */
-  .whostrip{display:flex;gap:8px;overflow-x:auto;padding:12px 0 4px;margin:10px 0 0;
-            border-top:1px solid #e6e8f0;-webkit-overflow-scrolling:touch}
-  .whochip{flex:0 0 auto;display:flex;align-items:center;gap:8px;background:#fff;border:2px solid #e6e8f0;
-           border-radius:999px;padding:7px 14px 7px 7px;font-weight:700;font-size:14px;color:var(--ink);width:auto}
+  /* Wrapping, not scrolling. As a flex item in a column container this sized
+     itself to its content, so it grew wider than the screen and its own
+     overflow-x never engaged — dragging it just bounced the page. A family has
+     a handful of members, so a second row costs nothing and always works. */
+  /* A grid rather than ragged wrapping: equal columns line up, and the count
+     adapts to the width instead of leaving an awkward gap at the end of a row. */
+  .whostrip{display:grid;grid-template-columns:repeat(auto-fill,minmax(115px,1fr));gap:8px;
+            width:100%;align-self:stretch;min-width:0;
+            padding:12px 0 2px;margin:10px 0 0;border-top:1px solid #e6e8f0}
+  .whochip{display:flex;align-items:center;gap:7px;background:#fff;border:2px solid #e6e8f0;
+           border-radius:999px;padding:6px 13px 6px 6px;font-weight:700;font-size:13.5px;color:var(--ink);
+           width:auto;max-width:100%;min-width:0;min-height:44px}
+  .whochip span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
   .whochip.on{border-color:var(--accent);background:#eef0ff;color:#3e46ad}
-  .whochip img,.whochip .avatar-placeholder{width:30px;height:30px;font-size:15px}
+  .whochip img,.whochip .avatar-placeholder{width:26px;height:26px;font-size:13px}
   .overviewrow:hover{background:#eef0ff}
   .overviewstats{display:flex;gap:14px;text-align:right}
   .overviewstats div strong{display:block;font-size:16px}
@@ -1203,7 +1212,7 @@ const TIP_CATS = [
   {key:"behaviour", label:"Behaviour"}
 ];
 
-const APP_VERSION = "v41";
+const APP_VERSION = "v42";
 const today = new Date().toISOString().slice(0,10);
 let app = {families:[],currentFamily:null,currentChild:null};
 let categories = [];
@@ -2765,10 +2774,10 @@ function renderWhoStrip(){
   const openId=currentChildId();
   strip.classList.remove("hidden");
   strip.innerHTML =
-    `<button class="whochip ${!openId?"on":""}" onclick="backToParentHome()">\ud83c\udfe0 Home</button>` +
+    `<button class="whochip ${!openId?"on":""}" onclick="backToParentHome()">\ud83c\udfe0 <span>Home</span></button>` +
     others.map(c=>`<button class="whochip ${c.id===openId?"on":""}" onclick="selectChild('${c.id}')">
         ${c.photo?`<img class="avatar" src="${c.photo}">`:'<div class="avatar-placeholder">\ud83d\udc64</div>'}
-        ${escapeHtml(c.name)}
+        <span>${escapeHtml(c.name)}</span>
       </button>`).join("");
 }
 function renderUndoBar(){
