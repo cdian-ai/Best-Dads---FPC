@@ -6,6 +6,13 @@
 <title>Family Points Card</title>
 <link rel="icon" href='data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><rect width="24" height="24" rx="5" fill="%235b63d8"/><g fill="%23fff"><path d="M8 15l-3 8 4-2 3 2.4 3-2.4 4 2-3-8z" opacity=".72"/><circle cx="12" cy="9" r="7" fill="none" stroke="%23fff" stroke-width="1.7"/><path d="M12 5l1.2 2.5 2.7.4-2 1.9.5 2.8-2.4-1.3-2.4 1.3.5-2.8-2-1.9 2.7-.4z"/></g></svg>'>
 <meta name="theme-color" content="#5b63d8">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Dougoun Kids">
+<meta name="description" content="A positive points system for celebrating kindness, good manners and everyday effort, together as a family.">
 <style>
   :root {
     --ink:#243044; --muted:#657084; --paper:#f7f8fc; --card:#fff;
@@ -13,6 +20,14 @@
     --shadow:0 8px 24px rgba(36,48,68,.10);
   }
   *{box-sizing:border-box}
+  /* A grid or flex child defaults to min-width:auto, so it cannot shrink below
+     its content and pushes the whole page sideways. This was 34px of horizontal
+     overflow on a 390px phone. */
+  .grid>*,.summary>*,.kidstats>*,.overviewrow>*,.memberhead>*,.childrow>*,.action>*,.requestrow>*{min-width:0}
+  .card,.kidcard,.reward,.graphcard,.tips,.boostcard{overflow-wrap:break-word}
+  /* Only addresses and ids, which have no spaces, may break anywhere. */
+  .childrow code,.childrow .small,#justAddedEmail,#noFamilyEmail{overflow-wrap:anywhere}
+  html,body{max-width:100%;overflow-x:hidden}
   body{margin:0;background:linear-gradient(180deg,#eef0ff 0,#f8f9fc 42%,#fff 100%);
        font-family:system-ui,-apple-system,Segoe UI,sans-serif;color:var(--ink)}
   .wrap{max-width:1100px;margin:auto;padding:24px}
@@ -79,6 +94,12 @@
   .footer{color:var(--muted);text-align:center;font-size:12px;margin:20px 0 4px}
   .accountbar{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-top:18px;padding:14px 16px;background:#f7f7ff;border:1px solid #e1e3f4;border-radius:16px;flex-wrap:wrap}
   .accountbuttons{display:flex;gap:8px;flex-wrap:wrap}.small{font-size:12px;color:var(--muted);margin-top:3px}
+  /* Everything except the one action a parent actually came here to do lives
+     behind the menu. Eight buttons filled the whole first screen on a phone. */
+  .menusheet{display:grid;gap:7px;width:100%;margin-top:10px;padding:12px;
+             background:#fff;border:1px solid #e1e3f4;border-radius:16px;box-shadow:var(--shadow)}
+  .menusheet button{width:100%;text-align:left;padding:13px 15px;font-size:14px}
+  #menuBadge:empty{display:none}
   .accountbuttons button{width:auto}
   .panel{margin-top:14px;padding:18px;background:#fff;border:1px solid #e0e3ef;border-radius:18px}
   .panelgrid{display:grid;grid-template-columns:1fr 1fr;gap:20px}.panel section{display:grid;gap:9px}
@@ -98,14 +119,42 @@
   .editrow input[type=text],.editrow input:not([type]){flex:1}
   .ptsinput{width:64px!important;flex:none!important}
   .catedit{border:1px dashed #c8cdec;border-radius:14px;padding:10px;margin-top:10px;background:#fbfbff}
-  .overviewrow{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px;background:#f7f8fc;border-radius:14px;cursor:pointer}
+  .overviewrow{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px 14px;background:#f7f8fc;border-radius:16px;cursor:pointer;min-height:64px}
+  .overviewrow .avatar,.overviewrow .avatar-placeholder{width:44px;height:44px;font-size:22px}
+  .overviewrow strong{font-size:16px}
+  /* A quick switcher, so changing child does not mean going back to a list. */
+  .whostrip{display:flex;gap:8px;overflow-x:auto;padding:2px 0 6px;margin:0 0 12px;-webkit-overflow-scrolling:touch}
+  .whochip{flex:0 0 auto;display:flex;align-items:center;gap:8px;background:#fff;border:2px solid #e6e8f0;
+           border-radius:999px;padding:7px 14px 7px 7px;font-weight:700;font-size:14px;color:var(--ink);width:auto}
+  .whochip.on{border-color:var(--accent);background:#eef0ff;color:#3e46ad}
+  .whochip img,.whochip .avatar-placeholder{width:30px;height:30px;font-size:15px}
   .overviewrow:hover{background:#eef0ff}
   .overviewstats{display:flex;gap:14px;text-align:right}
   .overviewstats div strong{display:block;font-size:16px}
   .overviewstats div span{font-size:11px;color:var(--muted)}
   .logrow{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:9px 11px;background:#f7f8fc;border-radius:12px}
   .logmeta{font-size:12px;color:var(--muted)}
-  @media(max-width:760px){.grid{grid-template-columns:1fr}.summary{grid-template-columns:repeat(2,1fr)}.panelgrid{grid-template-columns:1fr}.accountbar{align-items:flex-start;flex-direction:column;width:100%}}
+  @media(max-width:760px){
+    .grid{grid-template-columns:1fr}
+    .summary{grid-template-columns:repeat(2,1fr)}
+    .panelgrid{grid-template-columns:1fr}
+    .accountbar{align-items:flex-start;flex-direction:column;width:100%}
+    .wrap{padding:14px}
+    header{padding:16px;border-radius:20px}
+    h1{font-size:24px}
+    .card,.reward,.graphcard,.tips,.boostcard,.kidcard{padding:15px}
+    .accountbuttons{width:100%}
+    .accountbuttons button{flex:1}
+    /* Stack the numbers under the name rather than squeezing them alongside. */
+    .overviewrow{flex-wrap:wrap}
+    .overviewstats{width:100%;justify-content:flex-start;text-align:left;gap:18px;padding-left:56px}
+    .childrow{flex-wrap:wrap}
+    .childrow>div:last-child{width:100%;justify-content:flex-start}
+    .rewardrow button,.chip{width:100%}
+    header>.sub{display:none}
+    .chip{padding:14px}
+    .chip .cicon{font-size:34px}
+  }
   .gatewrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
   .gatecard{max-width:440px;width:100%;background:var(--card);border-radius:24px;padding:28px;box-shadow:var(--shadow);text-align:center}
   .gateprofiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:12px;margin-top:16px}
@@ -216,10 +265,16 @@
   .feedpts{font-weight:800;background:#e4f7ed;color:#19744a;border-radius:12px;padding:6px 11px;white-space:nowrap;font-size:14px}
   .feedpts.spent{background:#f0eeff;color:#5b4fc4}
   .chiprow{display:flex;gap:9px;flex-wrap:wrap}
-  .chip{position:relative;border:2px solid #e7e5fb;background:#fbfbff;color:var(--kink);border-radius:18px;padding:12px 15px;
-        text-align:left;width:auto;line-height:1.3;transition:transform .12s,box-shadow .12s;font-weight:700}
+  /* One per row on a phone: two columns left names breaking mid-word. */
+  .chiprow{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px}
+  .chip{position:relative;display:flex;align-items:center;gap:11px;border:2px solid #e7e5fb;background:#fbfbff;
+        color:var(--kink);border-radius:20px;padding:13px;text-align:left;width:100%;line-height:1.25;
+        transition:transform .12s,box-shadow .12s;font-weight:700}
+  .chip .cicon{font-size:32px;line-height:1;flex-shrink:0}
+  .chip .cbody{display:flex;flex-direction:column;min-width:0}
+  .chip .cname{font-size:15px;overflow-wrap:break-word}
   .chip:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 8px 18px rgba(90,70,200,.16)}
-  .chip .cprice{display:block;font-size:12px;font-weight:800;margin-top:4px;color:#5b4fc4}
+  .chip .cprice{display:block;font-size:12px;font-weight:800;margin-top:3px;color:#5b4fc4}
   .chip .ckind{display:block;font-size:11px;font-weight:600;color:var(--muted);margin-top:2px}
   .chip.afford{border-color:#7ee0c6;background:#f0fdfa}
   .chip.afford .cprice{color:#19744a}
@@ -425,6 +480,11 @@
     </div>
   </div>
 </div>
+<div id="updateBar" class="hidden" style="position:sticky;top:0;z-index:55;padding:10px 18px;background:#e4f7ed;border-bottom:2px solid #7ec9a8;color:#19744a;font-size:13px;text-align:center">
+  A newer version is ready.
+  <button class="light" style="width:auto;padding:4px 12px;font-size:12px;margin-left:8px" onclick="applyUpdate()">Reload</button>
+  <button class="light" style="width:auto;padding:4px 10px;font-size:12px;margin-left:4px" onclick="document.getElementById('updateBar').classList.add('hidden')">Later</button>
+</div>
 <div id="crashBar" class="hidden" style="position:sticky;top:0;z-index:60;padding:11px 18px;background:#ffecec;border-bottom:2px solid #e08585;color:#8c2b2b;font-size:13px;line-height:1.45">
   <strong>Something went wrong.</strong> <span id="crashText"></span>
   <button class="light" style="width:auto;padding:4px 10px;font-size:12px;margin-left:8px" onclick="document.getElementById('crashBar').classList.add('hidden')">Dismiss</button>
@@ -455,13 +515,16 @@
         <div class="small" id="childDisplay">No child selected</div>
       </div>
     </div>
-    <div class="accountbuttons">
+    <div class="accountbuttons" id="quickActions">
+      <button class="primary" id="btnGivePoints" onclick="addPointPrompt()">＋ Give points</button>
+      <button class="light" id="btnMenu" onclick="toggleMenu()">☰ Menu <span id="menuBadge"></span></button>
+    </div>
+    <div class="menusheet hidden" id="menuSheet">
       <button class="light" id="btnFamily" onclick="showAccountPanel()">👨‍👩‍👧 Family &amp; Children</button>
+      <button class="light" id="btnRequests" onclick="showRequestsPanel()">🔔 Requests</button>
       <button class="light" id="btnOverview" onclick="showOverviewPanel()">📊 Overview</button>
       <button class="light" id="btnActivity" onclick="showActivityPanel()">📋 History</button>
-      <button class="light" id="btnRequests" onclick="showRequestsPanel()">🔔 Requests</button>
       <button class="light" onclick="toggleEditMode()" id="editModeBtn">✏️ Edit Categories</button>
-      <button class="primary" id="btnGivePoints" onclick="addPointPrompt()">＋ Give points</button>
       <button class="light" id="btnResetDay" onclick="resetDay()">↻ Reset today</button>
       <button class="light" id="btnSignOut" onclick="signOutDevice()">🔒 Sign out</button>
     </div>
@@ -480,19 +543,22 @@
             <div>Email: <strong id="justAddedEmail"></strong></div>
             <div>Password: <strong id="justAddedPass"></strong></div>
           </div>
-          <p class="small" style="margin:8px 0 0">Write this down. There's no code to enter and nothing to approve — that's the whole process.</p>
+          <p class="small" style="margin:8px 0 0">There's no code to enter and nothing to approve — that's the whole process.</p>
+          <p class="small" id="justAddedNote" style="margin:6px 0 0;font-weight:600"></p>
         </div>
 
         <div class="catedit hidden" id="addMemberBox" style="margin-top:14px">
           <p class="small" style="margin:0 0 8px"><strong>Add someone new</strong></p>
           <p class="small" style="margin:0 0 10px">Adding someone here creates their own login, so the app knows who is who. Choose <strong>Child</strong> for anyone who should earn points, and <strong>Parent</strong> for another adult who can award them.</p>
-          <input id="newChildName" placeholder="Name (e.g. Emma, Grandma)">
+          <input id="newChildName" placeholder="Name (e.g. Emma, Grandma)" oninput="suggestRecoveryForName()">
           <input id="newChildAge" placeholder="Age or role — optional (e.g. 7, or Grandma)" style="margin-top:8px">
           <div style="display:flex;gap:8px;margin-top:8px">
             <button type="button" id="newRoleChild" class="light selected" style="width:auto;flex:1" onclick="selectNewMemberRole('child')">Child</button>
             <button type="button" id="newRoleParent" class="light" style="width:auto;flex:1" onclick="selectNewMemberRole('parent')">Parent</button>
           </div>
           <input id="newChildPassword" type="text" placeholder="Password for their login (6+ characters)" style="margin-top:8px">
+          <input id="newChildRecovery" type="email" placeholder="Recovery email — optional" style="margin-top:8px" oninput="recoveryTouched=true">
+          <p class="small" id="recoveryHint" style="margin:6px 0 0">Give an address you can open and a forgotten password can be reset by email. Leave it blank and only you can help them back in.</p>
           <p class="small" style="margin:6px 0 0">Check the details above, then press Add. Their login is created straight away and shown to you.</p>
           <div class="memberhead" style="margin-top:8px">
             <div id="newMemberPreview"><div class="avatar-placeholder">📷</div></div>
@@ -541,21 +607,11 @@
 
 <div id="loadingMsg" class="loading hidden">Loading your family points…</div>
 
-<section id="summarySection" class="summary hidden">
-  <div class="stat"><strong id="total">0</strong><span>Today's points</span></div>
-  <div class="stat"><strong id="actionsDone">0</strong><span>Actions completed</span></div>
-  <div class="stat"><strong id="best">0</strong><span>Best category</span></div>
-  <div class="stat"><strong id="balance">0</strong><span>Points saved (balance)</span></div>
-</section>
+<div id="whoStrip" class="whostrip hidden"></div>
 
-<section id="championBanner" class="reward hidden" style="background:linear-gradient(90deg,#fff8df,#ffe9b0);border-color:#f1c96a;text-align:center">
-  <h2 style="margin:0">🏆 This Week's Champion</h2>
-  <div id="championContent"></div>
-</section>
-
+<div id="requestsBanner" class="requestcard hidden"></div>
 <p id="editModeNote" class="small hidden" style="background:#eef0ff;border:1px solid #c9cdf5;border-radius:12px;padding:11px 14px;margin:0 0 12px">✏️ <strong>You're editing the categories.</strong> Change names and points, or add and remove actions below — every change saves as you make it. Press <strong>✕ Close editor</strong> at the top when you've finished.</p>
 
-<section id="tipsCard" class="tips hidden"></section>
 <div id="undoBar" class="hidden" style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;background:#fff6e8;border:1px solid #f3d6a4;border-radius:14px;padding:11px 15px;margin:0 0 12px;color:#7a5b18;font-size:13px">
   <span id="undoText"></span>
   <span style="display:flex;gap:8px">
@@ -563,13 +619,26 @@
     <button class="light" style="width:auto;padding:7px 12px;font-size:13px" onclick="dismissUndo()">Dismiss</button>
   </span>
 </div>
-<div id="requestsBanner" class="requestcard hidden"></div>
+<section id="summarySection" class="summary hidden">
+  <div class="stat"><strong id="total">0</strong><span>Today's points</span></div>
+  <div class="stat"><strong id="actionsDone">0</strong><span>Actions completed</span></div>
+  <div class="stat"><strong id="best">0</strong><span>Best category</span></div>
+  <div class="stat"><strong id="balance">0</strong><span>Points saved (balance)</span></div>
+</section>
+
 <div id="behaviourWrap" class="graphcard hidden"></div>
 
 <div id="cards" class="grid"></div>
 <div id="addCategoryWrap" class="hidden" style="margin-top:14px;text-align:center">
   <button class="light" onclick="addCategory()">＋ Add a new category</button>
 </div>
+<section id="championBanner" class="reward hidden" style="background:linear-gradient(90deg,#fff8df,#ffe9b0);border-color:#f1c96a;text-align:center">
+  <h2 style="margin:0">🏆 This Week's Champion</h2>
+  <div id="championContent"></div>
+</section>
+
+<section id="tipsCard" class="tips hidden"></section>
+
 
 <div id="kidView" class="hidden">
   <section class="kidhero">
@@ -636,17 +705,22 @@
   <div id="rewardManageList" style="display:grid;gap:7px"></div>
   <p id="pacingNote" class="small hidden" style="margin-top:10px"></p>
 
-  <div class="catedit" style="margin-top:16px">
-    <p class="small" style="margin:0 0 8px"><strong>Add a reward</strong></p>
-    <p class="small" style="margin:0 0 2px">🍫 Snacks &amp; foodie treats — tap to add, then change the points to suit:</p>
+  <button class="primary" id="rewardAddToggle" style="margin-top:14px;width:100%" onclick="toggleRewardEditor()">＋ Add or change rewards</button>
+  <div class="catedit hidden" id="rewardEditor" style="margin-top:14px">
+    <p class="small" style="margin:0 0 2px">🍫 Ideas — tap to add, then change the points to suit:</p>
     <div id="snackQuickAdd" class="quickchips"></div>
-    <div style="display:grid;gap:8px;margin-top:10px">
+    <div style="display:grid;gap:8px;margin-top:12px">
       <div class="editrow">
         <input id="newRewardName" placeholder="Name — e.g. Choose the dessert (required)">
         <input id="newRewardPoints" class="ptsinput" type="number" min="1" placeholder="pts">
       </div>
-      <input id="newRewardKind" placeholder="Short description — optional (e.g. Treat, Outing, Screen time)">
-      <button class="primary" onclick="addReward()" style="align-self:flex-start;width:auto">＋ Add reward</button>
+      <input id="newRewardKind" placeholder="Short description — optional (e.g. Treat, Outing)">
+      <input id="newRewardIcon" placeholder="Icon — optional, one emoji (chosen for you if left blank)" maxlength="4">
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="confirm" onclick="addReward()" style="width:auto">Add</button>
+        <button class="light" onclick="toggleRewardEditor()" style="width:auto">Done</button>
+      </div>
+      <p class="small" id="rewardError" style="color:#a63e3e;margin:0"></p>
     </div>
   </div>
 </section>
@@ -659,8 +733,8 @@
   <p class="small" style="margin:14px 0 6px"><strong>Available to ask for</strong> — <span id="parentRewardCount">0</span> on the list</p>
   <div id="parentRewardList" style="display:grid;gap:7px"></div>
 
-  <div class="catedit" style="margin-top:16px">
-    <p class="small" style="margin:0 0 8px"><strong>Add a reward</strong></p>
+  <button class="primary" id="parentRewardAddToggle" style="margin-top:14px;width:100%" onclick="toggleParentRewardEditor()">＋ Add or change rewards</button>
+  <div class="catedit hidden" id="parentRewardEditor" style="margin-top:14px">
     <p class="small" style="margin:0 0 2px">💛 Ideas — tap to add, then change the points to suit:</p>
     <div id="parentRewardQuickAdd" class="quickchips"></div>
     <div style="display:grid;gap:8px;margin-top:10px">
@@ -669,7 +743,10 @@
         <input id="newParentRewardPoints" class="ptsinput" type="number" min="1" placeholder="pts">
       </div>
       <input id="newParentRewardKind" placeholder="Short description — optional (e.g. Rest, Time, Food)">
-      <button class="confirm" style="align-self:flex-start;width:auto" onclick="addParentReward()">Add</button>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="confirm" style="width:auto" onclick="addParentReward()">Add</button>
+        <button class="light" style="width:auto" onclick="toggleParentRewardEditor()">Done</button>
+      </div>
       <p class="small" id="parentRewardError" style="color:#a63e3e;margin:0"></p>
     </div>
   </div>
@@ -683,15 +760,19 @@
   <p class="small" style="margin:14px 0 6px"><strong>Available to buy right now</strong> — <span id="gameCount">0</span> on the list</p>
   <div id="gameNightList" style="display:grid;gap:7px"></div>
 
-  <div class="catedit" style="margin-top:16px">
-    <p class="small" style="margin:0 0 8px"><strong>Add an activity</strong></p>
+  <button class="primary" id="gameAddToggle" style="margin-top:14px;width:100%" onclick="toggleGameEditor()">＋ Add or change activities</button>
+  <div class="catedit hidden" id="gameEditor" style="margin-top:14px">
     <div style="display:grid;gap:8px">
       <div class="editrow">
         <input id="newGameName" placeholder="Name — e.g. Uno, Treasure hunt (required)">
         <input id="newGamePoints" class="ptsinput" type="number" min="1" placeholder="pts">
       </div>
       <input id="newGameDesc" placeholder="Short description — what happens, in a line (optional)">
-      <button class="primary" onclick="addGameNightActivity()" style="align-self:flex-start;width:auto">＋ Add activity</button>
+      <input id="newGameIcon" placeholder="Icon — optional, one emoji (chosen for you if left blank)" maxlength="4">
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="confirm" onclick="addGameNightActivity()" style="width:auto">Add</button>
+        <button class="light" onclick="toggleGameEditor()" style="width:auto">Done</button>
+      </div>
     </div>
   </div>
 </section>
@@ -699,6 +780,9 @@
 <p class="footer">Tip: Praise the action, not just the points — "MashaAllah, you shared your toy without being asked. That's a really kind choice!"</p>
 <p class="footer" id="syncStatus">☁️ Connecting…</p>
 <p class="footer" id="versionTag" style="opacity:.6"></p>
+<p class="footer hidden" id="installRow">
+  <button class="light" style="width:auto" onclick="promptInstall()">📲 Add Dougoun Kids to your home screen</button>
+</p>
 </div>
 
 <script type="module">
@@ -979,6 +1063,55 @@ const DEFAULT_PARENT_REWARDS = [
   {name:"A night out with friends, no logistics to sort", points:90, kind:"Time"}
 ];
 
+/* Rewards mean more to a child as a picture than as a line of text. Rather than
+   making every parent choose an emoji, one is matched from the wording — with a
+   field to override it when the guess is wrong. Order matters: the most specific
+   phrase has to win, so "hot chocolate" is not caught by "chocolate". */
+const ICON_RULES = [
+  [/hot chocolate|marshmallow/, "\u2615"],
+  [/ice cream|milkshake|sundae/, "\ud83c\udf66"],
+  [/popcorn|film night|movie/, "\ud83c\udf7f"],
+  [/cookie|cupcake|bake|baking/, "\ud83c\udf6a"],
+  [/pudding|dessert/, "\ud83c\udf6e"],
+  [/chocolate|sweet|candy/, "\ud83c\udf6b"],
+  [/takeaway|take-away|eat out|restaurant/, "\ud83e\udd61"],
+  [/fruit/, "\ud83c\udf4e"],
+  [/breakfast/, "\ud83c\udf73"],
+  [/snack/, "\ud83c\udf6c"],
+  [/meal|dinner|lunch|food/, "\ud83c\udf7d\ufe0f"],
+  [/sticker/, "\u2b50"],
+  [/screen time|tv|telly|remote|tablet/, "\ud83d\udcfa"],
+  [/masjid|mosque/, "\ud83d\udd4c"],
+  [/park|day out|outing|trip|zoo/, "\ud83c\udfde\ufe0f"],
+  [/story|book|read/, "\ud83d\udcd6"],
+  [/dua|prayer/, "\ud83e\udd32"],
+  [/bedtime/, "\ud83c\udf19"],
+  [/lie-in|lie in|sleep|rest|nap/, "\ud83d\ude34"],
+  [/one-to-one|one to one|time together|together/, "\ud83e\udd17"],
+  [/night out|friends/, "\ud83c\udf89"],
+  [/on your own|to yourself|alone|off duty/, "\ud83e\uddd8"],
+  [/gift|present/, "\ud83c\udf81"],
+  // activities
+  [/uno|cards/, "\ud83c\udccf"],
+  [/connect 4|connect four/, "\ud83d\udd35"],
+  [/snakes|ladders/, "\ud83d\udc0d"],
+  [/charades|acting/, "\ud83c\udfad"],
+  [/quiz|trivia|20 questions|guess/, "\u2753"],
+  [/draw/, "\u270f\ufe0f"],
+  [/treasure|hunt/, "\ud83d\uddfa\ufe0f"],
+  [/musical|statues|dance/, "\ud83d\udc83"],
+  [/story chain/, "\ud83d\udcda"],
+  [/hide and seek/, "\ud83d\ude48"],
+  [/board game|game/, "\ud83c\udfb2"]
+];
+function iconFor(item, fallback){
+  if(item && item.icon) return item.icon;
+  const text = ((item && item.name) || "") + " " + ((item && item.kind) || "");
+  const hay = text.toLowerCase();
+  for(const [re, emoji] of ICON_RULES){ if(re.test(hay)) return emoji; }
+  return fallback || "\ud83c\udf81";
+}
+
 const STARTER_GAMES = [
   {name:"20 Questions", points:15, desc:"One person thinks of something; everyone else asks yes/no questions to work out what it is."},
   {name:"Story chain", points:15, desc:"Each person adds one sentence in turn until the story finds an ending."},
@@ -1063,7 +1196,7 @@ const TIP_CATS = [
   {key:"behaviour", label:"Behaviour"}
 ];
 
-const APP_VERSION = "v36";
+const APP_VERSION = "v40";
 const today = new Date().toISOString().slice(0,10);
 let app = {families:[],currentFamily:null,currentChild:null};
 let categories = [];
@@ -1498,8 +1631,18 @@ function renderChampionBanner(){
 }
 
 /* ---------- Family & children management ---------- */
+function toggleMenu(){
+  const sheet=document.getElementById("menuSheet");
+  if(!sheet) return;
+  sheet.classList.toggle("hidden");
+}
+function closeMenu(){
+  const sheet=document.getElementById("menuSheet");
+  if(sheet) sheet.classList.add("hidden");
+}
 function openPanel(id){
   if(!requireParent()) return;
+  closeMenu();
   ["accountPanel","overviewPanel","activityPanel","requestsPanel"].forEach(pid=>{
     const el=document.getElementById(pid);
     if(!el) return;
@@ -1540,10 +1683,34 @@ function authErrorMessage(e){
    hostname — Firebase rejected every address built this way as invalid, which
    is why adding a member never worked. Strip both halves to letters and digits
    so the result is always a valid address. */
+/* Kept short on purpose: someone has to type this on a child's device.
+   The family part is trimmed to six characters, which is still unique enough
+   across families and far kinder than the forty it used to be. */
 function memberEmail(fid, name){
-  const slug = String(name).toLowerCase().replace(/[^a-z0-9]/g, "").slice(0, 20) || "member";
-  const famPart = String(fid).toLowerCase().replace(/[^a-z0-9]/g, "").slice(0, 40) || "family";
-  return slug + Math.random().toString(36).slice(2, 6) + "@" + famPart + ".fpc.app";
+  const slug = String(name).toLowerCase().replace(/[^a-z0-9]/g, "").slice(0, 12) || "member";
+  const famPart = String(fid).toLowerCase().replace(/[^a-z0-9]/g, "").slice(3, 9) || "family";
+  return slug + Math.random().toString(36).slice(2, 4) + "@" + famPart + ".fpc.app";
+}
+
+/* A login that can actually be recovered.
+   A generated address has no mailbox, so "Forgot password?" has nowhere to send
+   anything. If a parent gives an address they control, Firebase's own reset
+   email works — and most providers accept a plus-suffix, so one inbox covers
+   every child without needing a separate account for each. */
+function suggestRecoveryEmail(parentEmail, childName){
+  const e = String(parentEmail || "");
+  const at = e.indexOf("@");
+  if(at < 1 || e.endsWith(".fpc.app")) return "";
+  const slug = String(childName).toLowerCase().replace(/[^a-z0-9]/g, "").slice(0, 12);
+  if(!slug) return "";
+  const local = e.slice(0, at).split("+")[0];   // don't stack suffixes
+  return local + "+" + slug + e.slice(at);
+}
+function looksLikeEmail(v){
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(v || "").trim());
+}
+function canResetByEmail(member){
+  return !!(member && member.email && !member.email.endsWith(".fpc.app"));
 }
 /* Belt and braces: never send an address to Firebase that cannot be valid. */
 function isValidLoginEmail(email){
@@ -1591,8 +1758,14 @@ async function addChild(){
   const role=window.__newMemberRole||"child";
   if(!name){ errEl.textContent="Please enter their name."; return; }
   if(!password || password.length<6){ errEl.textContent="Please set a password of at least 6 characters for their login."; return; }
-  const email=memberEmail(familyId, name);
-  if(!isValidLoginEmail(email)){
+  const recovery=(document.getElementById("newChildRecovery").value || "").trim();
+  if(recovery && !looksLikeEmail(recovery)){
+    errEl.textContent="That doesn't look like an email address. Leave it blank if you'd rather not use one.";
+    return;
+  }
+  // A real address becomes the login itself, which is what makes the reset work.
+  const email = recovery || memberEmail(familyId, name);
+  if(!recovery && !isValidLoginEmail(email)){
     errEl.textContent="That name couldn't be turned into a login. Try one with letters or numbers in it.";
     return;
   }
@@ -1623,17 +1796,45 @@ async function addChild(){
   document.getElementById("justAddedTitle").textContent = "✅ " + name + " has been added";
   document.getElementById("justAddedEmail").textContent = email;
   document.getElementById("justAddedPass").textContent = password;
+  // Say up front whether this login can ever be recovered, rather than leaving
+  // the parent to discover it the day a password is forgotten.
+  const note = document.getElementById("justAddedNote");
+  if(note){
+    note.textContent = String(email).endsWith(".fpc.app")
+      ? "\u26a0\ufe0f Write the password down \u2014 this login has no mailbox, so a forgotten one can't be reset by email."
+      : "\u2709\ufe0f If they forget it, you can send a reset to that address from here.";
+  }
   setAddMemberState("confirmed");
 }
 /* The one thing a parent has to hand over. Shown on adding a member and
    available again later, because this is the only step a child needs. */
 function showLoginDetails(name, email, password){
+  const recoverable = !String(email).endsWith(".fpc.app");
   const msg = name+" is all set — their account is already part of the family.\n\n"
     + "On "+name+"'s own device, open the app and sign in with:\n\n"
     + "Email:    "+email+"\n"
     + (password ? "Password: "+password+"\n" : "Password: the one you set\n")
-    + "\nThat's the whole process — there's no code to enter and nothing for you to approve.";
+    + "\nThat's the whole process — there's no code to enter and nothing for you to approve."
+    + (recoverable
+        ? "\n\nIf they forget the password, you can send a reset to that address from Family & Children."
+        : "\n\nThis login has no mailbox, so write the password down — a forgotten one can't be reset by email.");
   alert(msg);
+}
+async function sendMemberReset(id){
+  if(!requireParent()) return;
+  const m=memberById(id); if(!m) return;
+  if(!canResetByEmail(m)){
+    alert(m.name+"'s login has no mailbox, so there's nothing to send a reset to. Remove and re-add them with a recovery email if you'd like that to work.");
+    return;
+  }
+  if(!confirm("Send a password reset for "+m.name+" to:\n\n"+m.email+"\n\nOpen that inbox and follow the link to set a new one.")) return;
+  try{
+    await window.fpc.resetPassword(m.email);
+    alert("Sent to "+m.email+".\n\nCheck that inbox \u2014 including the spam folder \u2014 and follow the link.");
+  }catch(e){
+    console.error("Reset failed:", e);
+    alert(authErrorMessage(e));
+  }
 }
 async function showMemberLogin(id){
   if(!requireParent()) return;
@@ -1670,15 +1871,31 @@ function openAddMember(){
   document.getElementById("newChildName").value = "";
   document.getElementById("newChildAge").value = "";
   document.getElementById("newChildPassword").value = "";
+  const recEl=document.getElementById("newChildRecovery");
+  if(recEl) recEl.value = "";
   pendingNewMemberPhoto = null;
   const preview = document.getElementById("newMemberPreview");
   if(preview) preview.innerHTML = '<div class="avatar-placeholder">\ud83d\udcf7</div>';
   selectNewMemberRole("child");
+  const rec=document.getElementById("newChildRecovery");
+  if(rec) rec.value="";
   setAddMemberState("adding");
   const name = document.getElementById("newChildName");
   if(name && name.focus) name.focus();
 }
 function cancelAddMember(){ setAddMemberState("idle"); }
+/* Offer the plus-suffixed address as they type, but never overwrite something
+   the parent has typed themselves. */
+let recoveryTouched = false;
+function suggestRecoveryForName(){
+  const rec=document.getElementById("newChildRecovery");
+  const nameEl=document.getElementById("newChildName");
+  if(!rec || !nameEl) return;
+  if(recoveryTouched && rec.value) return;
+  const me=sessionMember();
+  const suggestion=suggestRecoveryEmail(me && me.email ? me.email : (window.fpc ? window.fpc.email() : ""), nameEl.value);
+  rec.value = suggestion;
+}
 async function selectChild(id){
   if(!isParentSession()) return;          // children can only ever see their own card
   if(id===sessionMemberId) return;        // your own card is your dashboard
@@ -1768,6 +1985,7 @@ function renderAccounts(){
     btns.appendChild(mk("photobtn","✎","Edit name or caption",()=>editChildDetails(ch.id)));
     btns.appendChild(mk("photobtn","📷","Add or change photo",()=>triggerAvatarUpload(ch.id)));
     if(ch.email) btns.appendChild(mk("photobtn","🔑","Show their sign-in details",()=>showMemberLogin(ch.id)));
+    if(canResetByEmail(ch)) btns.appendChild(mk("photobtn","✉️","Send them a password reset",()=>sendMemberReset(ch.id)));
     btns.appendChild(mk("photobtn",isParentRole(ch)?"↓ Child":"↑ Parent","Change what they're allowed to do",()=>changeMemberRole(ch.id)));
     if(ch.id!==sessionMemberId) btns.appendChild(mk("xbtn","✕","Remove from the family",()=>removeMember(ch.id)));
     if(!isParentRole(ch)) btns.appendChild(mk("light", ch.id===currentChildId()?"Selected":"Open", "Open their card", ()=>selectChild(ch.id)));
@@ -1850,13 +2068,15 @@ async function addGameNightActivity(){
   if(app.gameNightActivities.some(g=>g.name.toLowerCase()===name.toLowerCase())){
     alert(name+" is already on the list.");return;
   }
+  const gIcon=document.getElementById("newGameIcon");
   app.gameNightActivities.push({
     id:"g"+Date.now()+Math.random().toString(16).slice(2),
-    name, points:pts, desc:descInput.value.trim()
+    name, points:pts, desc:descInput.value.trim(), icon:(gIcon ? gIcon.value.trim() : "")
   });
   app.gameNightActivities.sort((a,b)=>a.points-b.points);
   await saveApp();
   nameInput.value=""; descInput.value=""; ptsInput.value="";
+  if(document.getElementById("newGameIcon")) document.getElementById("newGameIcon").value="";
   renderGameNight();
 }
 async function removeGameNightActivity(name){
@@ -1877,7 +2097,8 @@ function renderGameNight(){
   }
   app.gameNightActivities.slice().sort((a,b)=>a.points-b.points).forEach(g=>{
     const row=document.createElement("div"); row.className="childrow";
-    row.innerHTML=`<div style="flex:1;min-width:0">
+    row.innerHTML=`<div style="font-size:26px;flex-shrink:0;margin-right:4px">${iconFor(g,"\ud83c\udfb2")}</div>
+      <div style="flex:1;min-width:0">
         <div><strong>${escapeHtml(g.name)}</strong> <span class="points" style="font-size:12px">${g.points} pts</span></div>
         ${g.desc?`<div class="small" style="margin-top:2px">${escapeHtml(g.desc)}</div>`:""}
       </div>`;
@@ -1905,7 +2126,8 @@ function renderRewardManageList(){
   app.rewards.slice().sort((a,b)=>a.points-b.points).forEach(r=>{
     const row=document.createElement("div"); row.className="childrow";
     row.dataset.pts=r.points;
-    row.innerHTML=`<div style="flex:1;min-width:0">
+    row.innerHTML=`<div style="font-size:26px;flex-shrink:0;margin-right:4px">${iconFor(r,"\ud83c\udf81")}</div>
+      <div style="flex:1;min-width:0">
         <div><strong>${escapeHtml(r.name)}</strong> <span class="points" style="font-size:12px">${r.points} pts</span></div>
         ${r.kind?`<div class="small" style="margin-top:2px">${escapeHtml(r.kind)}</div>`:""}
       </div>`;
@@ -2365,6 +2587,18 @@ async function addSnackExample(i){
   renderRewardManageList();
   render();
 }
+function toggleEditorPane(btnId, paneId, openLabel){
+  const pane=document.getElementById(paneId);
+  const btn=document.getElementById(btnId);
+  if(!pane || !btn) return;
+  const opening=pane.classList.contains("hidden");
+  pane.classList.toggle("hidden", !opening);
+  btn.textContent = opening ? "Close" : openLabel;
+}
+function toggleRewardEditor(){ toggleEditorPane("rewardAddToggle","rewardEditor","＋ Add or change rewards"); }
+function toggleGameEditor(){ toggleEditorPane("gameAddToggle","gameEditor","＋ Add or change activities"); }
+function toggleParentRewardEditor(){ toggleEditorPane("parentRewardAddToggle","parentRewardEditor","＋ Add or change rewards"); }
+
 async function addReward(){
   if(!requireParent()) return;
   const nameInput=document.getElementById("newRewardName");
@@ -2373,11 +2607,14 @@ async function addReward(){
   const name=nameInput.value.trim();
   const pts=parseInt(ptsInput.value);
   if(!name || Number.isNaN(pts) || pts<1){ alert("Please enter a reward name and a positive number of points."); return; }
-  app.rewards.push({id:"r"+Date.now()+Math.random().toString(16).slice(2), name, points:pts, kind:kindInput.value.trim()});
+  const iconInput=document.getElementById("newRewardIcon");
+  app.rewards.push({id:"r"+Date.now()+Math.random().toString(16).slice(2), name, points:pts,
+                    kind:kindInput.value.trim(), icon:(iconInput.value||"").trim()});
   app.rewards.sort((a,b)=>a.points-b.points);
   app.settings.rewardsEditedTs=Date.now();
   await saveApp();
   nameInput.value=""; ptsInput.value=""; kindInput.value="";
+  if(document.getElementById("newRewardIcon")) document.getElementById("newRewardIcon").value="";
   renderRewardManageList();
   render();
 }
@@ -2393,6 +2630,7 @@ async function removeReward(index){
 /* ---------- Category & action editing ---------- */
 function toggleEditMode(){
   if(!requireParent()) return;
+  closeMenu();
   editMode=!editMode;
   if(!editMode) lastDeleted=null;   // leaving the editor gives up the undo
   const editBtn=document.getElementById("editModeBtn");
@@ -2483,6 +2721,28 @@ async function undoLastDelete(){
   render();
 }
 function dismissUndo(){ lastDeleted=null; renderUndoBar(); }
+/* Everyone in the family as a row of chips. Picking a different child is one
+   tap from wherever you are, rather than going back to a list. */
+function renderWhoStrip(){
+  const strip=document.getElementById("whoStrip");
+  if(!strip) return;
+  const f=currentFamily();
+  if(!isParentSession() || !f || editMode){ strip.classList.add("hidden"); strip.innerHTML=""; return; }
+  const me=sessionMember();
+  const others=f.children.filter(c=>c.id!==sessionMemberId);
+  // One other person is still a switch worth having — it is the fast way to
+  // open them, and the fast way back. Hiding it here was why a partner looked
+  // like they were missing.
+  if(!others.length){ strip.classList.add("hidden"); strip.innerHTML=""; return; }
+  const openId=currentChildId();
+  strip.classList.remove("hidden");
+  strip.innerHTML =
+    `<button class="whochip ${!openId?"on":""}" onclick="backToParentHome()">\ud83c\udfe0 Home</button>` +
+    others.map(c=>`<button class="whochip ${c.id===openId?"on":""}" onclick="selectChild('${c.id}')">
+        ${c.photo?`<img class="avatar" src="${c.photo}">`:'<div class="avatar-placeholder">\ud83d\udc64</div>'}
+        ${escapeHtml(c.name)}
+      </button>`).join("");
+}
 function renderUndoBar(){
   const bar=document.getElementById("undoBar");
   const txt=document.getElementById("undoText");
@@ -2550,9 +2810,21 @@ function applyRoleChrome(){
   ["btnFamily","btnOverview","btnActivity","btnRequests","editModeBtn","btnGivePoints","btnResetDay"]
     .forEach(id=>set(id, !kid));
   set("btnSignOut", true);   // anyone signed in can hand the device on
+  set("menuSheet", kid ? true : !document.getElementById("menuSheet").classList.contains("hidden"));
+  if(kid){
+    // A child's menu is only ever "sign out", so show it plainly rather than
+    // hiding one button behind another.
+    const sheet=document.getElementById("menuSheet");
+    if(sheet) sheet.classList.remove("hidden");
+    const mb=document.getElementById("btnMenu");
+    if(mb) mb.classList.add("hidden");
+  }else{
+    const mb=document.getElementById("btnMenu");
+    if(mb) mb.classList.remove("hidden");
+  }
   if(kid){
     ["accountPanel","overviewPanel","activityPanel","requestsPanel","addCategoryWrap",
-     "rewardSection","gameNightSection","parentRewardSection","requestsBanner","behaviourWrap","editModeNote","tipsCard","undoBar"]
+     "rewardSection","gameNightSection","parentRewardSection","requestsBanner","behaviourWrap","editModeNote","tipsCard","undoBar","whoStrip"]
       .forEach(id=>set(id, false));
     // Hidden is not the same as absent: clear the grown-ups' content out of the
     // DOM entirely rather than leaving it sitting there under display:none.
@@ -2567,6 +2839,7 @@ function render(){
   ensureSelection();
   applyRoleChrome();
   showVersion();
+  renderWhoStrip();
   renderUndoBar();
   checkForGifts();
   checkForCelebrations();
@@ -2604,6 +2877,7 @@ function render(){
       renderAccounts(); return;
     }
   }
+  document.getElementById("summarySection").classList.remove("hidden");
   rewardSection.classList.remove("hidden");
   gameNightSection.classList.remove("hidden");
   // The grown-ups' list belongs on the dashboard, not on someone's card.
@@ -2778,9 +3052,11 @@ function renderParentAdminView(parent){
         ? app.parentRewards.slice().sort((a,b)=>a.points-b.points).map(r=>{
             const can = spendable >= r.points;
             return `<button class="chip ${can?"afford":""}" ${can?"":"disabled"} onclick="parentRequestReward('${r.id}')">
-              ${can?"":'<span class="lock">\ud83d\udd12</span>'}${escapeHtml(r.name)}
+              ${can?"":'<span class="lock">\ud83d\udd12</span>'}
+              <span class="cicon">${iconFor(r,"\ud83c\udf81")}</span>
+              <span class="cbody"><span class="cname">${escapeHtml(r.name)}</span>
               <span class="cprice">${r.points} points</span>
-              ${r.kind?`<span class="ckind">${escapeHtml(r.kind)}</span>`:""}</button>`;
+              ${r.kind?`<span class="ckind">${escapeHtml(r.kind)}</span>`:""}</span></button>`;
           }).join("")
         : '<p class="small">No grown-up rewards set yet.</p>'}</div>
       <p class="small" style="margin:10px 0 0">Your partner decides \u2014 you can\u2019t approve your own.</p>
@@ -2790,10 +3066,9 @@ function renderParentAdminView(parent){
       </div>
     </div>
   </div>`;
-  document.getElementById("total").textContent="\u2014";
-  document.getElementById("actionsDone").textContent="\u2014";
-  document.getElementById("best").textContent="\u2014";
-  document.getElementById("balance").textContent="\u2014";
+  // On the dashboard these four tiles can only show dashes, and they were
+  // taking the top of the first screen on a phone.
+  document.getElementById("summarySection").classList.add("hidden");
   updateRewardPacing(null);
   renderChampionBanner();
   renderAccounts();
@@ -2984,6 +3259,8 @@ function renderRequests(){
   const btn=document.getElementById("btnRequests");
   const pend=pendingRequests();
   if(btn) btn.innerHTML = "\ud83d\udd14 Requests" + (pend.length?`<span class="badge">${pend.length}</span>`:"");
+  const mb=document.getElementById("menuBadge");
+  if(mb) mb.innerHTML = (isParentSession() && pend.length) ? `<span class="badge">${pend.length}</span>` : "";
   if(banner){
     if(isParentSession() && pend.length){
       banner.classList.remove("hidden");
@@ -3354,9 +3631,12 @@ function renderKidView(child){
     const blurb = item.desc || item.kind || "";
     return `<button class="chip ${can?"afford":""}" ${can?"":"disabled"} onclick="kidBuy('${type}','${item.id}')">
       ${can?"":'<span class="lock">\ud83d\udd12</span>'}
-      ${escapeHtml(item.name)}
-      <span class="cprice">${item.points} points</span>
-      ${blurb?`<span class="ckind">${escapeHtml(blurb)}</span>`:""}
+      <span class="cicon">${iconFor(item, type==="game" ? "\ud83c\udfb2" : "\ud83c\udf81")}</span>
+      <span class="cbody">
+        <span class="cname">${escapeHtml(item.name)}</span>
+        <span class="cprice">${item.points} points</span>
+        ${blurb?`<span class="ckind">${escapeHtml(blurb)}</span>`:""}
+      </span>
     </button>`;
   };
   const rewardWrap=document.getElementById("kidRewardChips");
@@ -3385,6 +3665,74 @@ function renderKidView(child){
 }
 
 /* ---------- Auth entry points ---------- */
+/* ---------- Installing as an app ----------
+   The service worker is what makes this installable and usable offline. It is
+   registered from a real web address only: a browser refuses it from a file://
+   copy, and there would be nothing to install anyway. */
+let deferredInstall = null;
+let swRegistration = null;
+
+if("serviceWorker" in navigator && location.protocol.startsWith("http")){
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("sw.js").then((reg) => {
+      swRegistration = reg;
+      // A new release is waiting: offer it rather than reloading underneath
+      // someone who may be halfway through awarding points.
+      if(reg.waiting && navigator.serviceWorker.controller) showUpdateBar();
+      reg.addEventListener("updatefound", () => {
+        const fresh = reg.installing;
+        if(!fresh) return;
+        fresh.addEventListener("statechange", () => {
+          if(fresh.state === "installed" && navigator.serviceWorker.controller) showUpdateBar();
+        });
+      });
+    }).catch((e) => console.error("Service worker registration failed:", e));
+
+    let reloading = false;
+    navigator.serviceWorker.addEventListener("controllerchange", () => {
+      if(reloading) return;      // guard against a reload loop
+      reloading = true;
+      location.reload();
+    });
+  });
+}
+function showUpdateBar(){
+  const bar = document.getElementById("updateBar");
+  if(bar) bar.classList.remove("hidden");
+}
+function applyUpdate(){
+  const bar = document.getElementById("updateBar");
+  if(bar) bar.classList.add("hidden");
+  if(swRegistration && swRegistration.waiting){
+    swRegistration.waiting.postMessage("skip-waiting");
+  }else{
+    location.reload();
+  }
+}
+window.addEventListener("beforeinstallprompt", (e) => {
+  e.preventDefault();
+  deferredInstall = e;
+  const row = document.getElementById("installRow");
+  if(row) row.classList.remove("hidden");
+});
+window.addEventListener("appinstalled", () => {
+  deferredInstall = null;
+  const row = document.getElementById("installRow");
+  if(row) row.classList.add("hidden");
+});
+async function promptInstall(){
+  if(!deferredInstall){
+    // Safari never fires the prompt event, so tell people what to do instead.
+    alert("To add it to your home screen:\n\niPhone or iPad \u2014 tap the Share button, then \u201cAdd to Home Screen\u201d.\n\nAndroid \u2014 open the browser menu and choose \u201cInstall app\u201d or \u201cAdd to Home screen\u201d.");
+    return;
+  }
+  deferredInstall.prompt();
+  try{ await deferredInstall.userChoice; }catch(e){}
+  deferredInstall = null;
+  const row = document.getElementById("installRow");
+  if(row) row.classList.add("hidden");
+}
+
 /* Anything that escapes a try/catch used to vanish into the console, which
    looks exactly like "I clicked the button and nothing happened". */
 function showCrash(msg){
@@ -3443,7 +3791,7 @@ async function submitForgotPassword(){
   errEl.textContent=""; resetEl.textContent="";
   if(!email){ errEl.textContent="Enter your email above first, then tap \"Forgot password?\"."; return; }
   if(email.endsWith(".fpc.app")){
-    errEl.textContent="That's a family login without a real mailbox, so it can't be reset by email. Ask a parent to set a new password.";
+    errEl.textContent="That's a family login without a real mailbox, so nothing can be sent to it. Ask a parent \u2014 they can send a reset from Family & Children if the login has a recovery address.";
     return;
   }
   try{
@@ -3536,6 +3884,19 @@ async function startFamilyHere(){
       : "That didn't work — check your connection and try again.";
   }
 }
+/* Nothing appears on screen until Firebase reports the sign-in state, so if the
+   SDK never arrives — offline, blocked, or the CDN having a bad day — the page
+   would simply stay blank. Now installable, this app will be opened offline. */
+showGate("bootGate");
+setTimeout(() => {
+  if(window.fpc || ready) return;
+  showLoadError(
+    navigator.onLine
+      ? "The app couldn't load. Its connection to the database didn't arrive — reload to try again."
+      : "You're offline and the app hasn't finished loading yet. Reconnect, then reload.",
+    null);
+}, 8000);
+
 async function signOutDevice(){
   const me=sessionMember();
   const who = me ? me.name : "this account";
