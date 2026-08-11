@@ -210,14 +210,50 @@
   .stat-pending{background:#fff6e8;border-color:#f3d6a4}
   .stat-approved{background:#eefaf4;border-color:#cbeedd}
   .stat-declined{background:#fff0f0;border-color:#f6d5d5}
-  .ticker{position:relative;overflow:hidden;border-radius:20px;padding:13px 0;margin:4px 0 18px;
-          background:linear-gradient(90deg,#8b7cf6,#5ad2c4);color:#fff;box-shadow:0 8px 20px rgba(90,70,200,.2)}
-  .tickertrack{display:flex;gap:38px;white-space:nowrap;width:max-content;animation:tickerscroll 42s linear infinite}
-  .ticker:hover .tickertrack{animation-play-state:paused}
-  .tickeritem{font-size:14px;font-weight:700;display:inline-flex;align-items:center;gap:8px}
-  @keyframes tickerscroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
-  @media(prefers-reduced-motion:reduce){.tickertrack{animation:none;flex-wrap:wrap;white-space:normal;width:auto;padding:0 14px}}
   .kidfooter{text-align:center;color:var(--muted);font-size:12px;margin:6px 0 18px}
+
+  /* ---------- "Ways to get more points" — replaces the scrolling ticker ----------
+     A marquee moves at the machine's pace, not a child's, sits below the fold and
+     shows one item at a time. This shows three at once, high up, and holds still. */
+  .boostcard{border-radius:24px;padding:18px;margin-bottom:16px;color:#4a3410;
+             background:linear-gradient(135deg,#ffe9a8,#ffd166 60%,#ffc04d);
+             box-shadow:0 10px 26px rgba(214,158,32,.28)}
+  .boostcard h2{margin:0 0 3px;font-size:20px}
+  .boostcard .lede{margin:0 0 13px;font-size:13px;opacity:.8}
+  .boostrow{display:flex;align-items:center;gap:12px;background:rgba(255,255,255,.85);
+            border-radius:16px;padding:13px 15px;margin-bottom:9px}
+  .boostrow .bicon{font-size:24px;flex-shrink:0;line-height:1}
+  .boostrow .btext{flex:1;min-width:0;font-size:15px;font-weight:600;line-height:1.35}
+  .boostrow .bbadge{flex-shrink:0;background:#4a3410;color:#ffe9a8;border-radius:999px;
+                    padding:5px 11px;font-size:13px;font-weight:800;white-space:nowrap}
+  .boostmore{background:rgba(255,255,255,.55);color:#4a3410;font-weight:700;width:auto;
+             padding:9px 15px;border-radius:14px;font-size:13px}
+  .boostmore:hover{background:rgba(255,255,255,.85)}
+
+  /* ---------- Approval celebration ---------- */
+  .celebrate{position:fixed;inset:0;z-index:200;display:flex;align-items:center;justify-content:center;
+             padding:20px;background:rgba(36,30,70,.55);overflow:hidden}
+  .celebratecard{position:relative;z-index:2;max-width:420px;width:100%;text-align:center;
+                 background:#fff;border-radius:28px;padding:30px 26px;box-shadow:0 24px 60px rgba(0,0,0,.3);
+                 animation:popin .45s cubic-bezier(.2,1.4,.4,1) both}
+  .celebratecard .bigemoji{font-size:60px;line-height:1;display:block;margin-bottom:6px;
+                           animation:cheer 1.6s ease-in-out infinite}
+  .celebratecard h2{margin:0 0 6px;font-size:26px;color:#2a2350}
+  .celebratecard .what{font-size:19px;font-weight:800;color:#5b4fc4;margin:0 0 4px}
+  .celebratecard p{margin:0;color:var(--muted);font-size:14px;line-height:1.5}
+  .celebratecard button{margin-top:18px;width:100%}
+  @keyframes popin{from{transform:scale(.7);opacity:0}to{transform:scale(1);opacity:1}}
+  @keyframes cheer{0%,100%{transform:rotate(-8deg) scale(1)}50%{transform:rotate(8deg) scale(1.12)}}
+  .confetti{position:absolute;top:-14px;width:11px;height:16px;border-radius:2px;opacity:.95;
+            animation:fall linear forwards}
+  @keyframes fall{
+    0%{transform:translateY(-20px) rotate(0deg);opacity:1}
+    100%{transform:translateY(102vh) rotate(680deg);opacity:.85}
+  }
+  @media(prefers-reduced-motion:reduce){
+    .confetti{display:none}
+    .celebratecard,.celebratecard .bigemoji{animation:none}
+  }
   @media(max-width:760px){
     .kidstats{grid-template-columns:1fr}
     .coin{margin-left:0;width:100%}
@@ -375,6 +411,15 @@
 <div id="fileWarning" class="hidden" style="position:sticky;top:0;z-index:50;padding:11px 18px;background:#fff2d6;border-bottom:2px solid #e8b84b;color:#6d4f10;font-size:13px;text-align:center;line-height:1.45">
   ⚠️ <strong>This is a local copy.</strong> Accounts can't be created or signed into from a file on your computer — open the app from its web address (github.io) instead. Everything else here is just a preview.
 </div>
+<div id="celebration" class="celebrate hidden">
+  <div class="celebratecard">
+    <span class="bigemoji" id="celebrateEmoji">🎉</span>
+    <h2 id="celebrateTitle">Yes!</h2>
+    <p class="what" id="celebrateWhat"></p>
+    <p id="celebrateWho"></p>
+    <button class="primary" onclick="closeCelebration()">Brilliant!</button>
+  </div>
+</div>
 <div id="mainApp" class="wrap hidden">
 <header>
   <div class="logo"><svg class="mark" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M8 15l-3 8 4-2 3 2.4 3-2.4 4 2-3-8z" fill="currentColor" opacity=".72"/><circle cx="12" cy="9" r="7" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M12 5l1.2 2.5 2.7.4-2 1.9.5 2.8-2.4-1.3-2.4 1.3.5-2.8-2-1.9 2.7-.4z" fill="currentColor"/></svg><span>Dougoun Kids</span></div>
@@ -527,6 +572,13 @@
     <div class="kidstat ks3"><strong id="kidStreak">0</strong><span>🔥 Day streak</span></div>
   </div>
 
+  <section class="boostcard" id="kidBoostCard">
+    <h2>⭐ Ways to get more points</h2>
+    <p class="lede">Little things that add up fast.</p>
+    <div id="kidBoostList"></div>
+    <button class="boostmore" onclick="nextKidTips()">Show me different ideas</button>
+  </section>
+
   <div id="kidGraphWrap" class="graphcard"></div>
 
   <section class="kidcard pink">
@@ -548,7 +600,6 @@
     <div id="kidRequestStatus"></div>
   </section>
 
-  <div class="ticker"><div class="tickertrack" id="kidTicker"></div></div>
   <p class="kidfooter">Only Mum and Dad can give points — keep doing kind things and they'll notice! 💛</p>
   <div style="text-align:center;margin:0 0 24px">
     <button class="light" style="width:auto" onclick="signOutDevice()">🔒 Sign out — hand the device back</button>
@@ -575,6 +626,30 @@
       </div>
       <input id="newRewardKind" placeholder="Short description — optional (e.g. Treat, Outing, Screen time)">
       <button class="primary" onclick="addReward()" style="align-self:flex-start;width:auto">＋ Add reward</button>
+    </div>
+  </div>
+</section>
+
+<section id="parentRewardSection" class="reward hidden" style="background:#f5f3ff;border-color:#cfc7f7">
+  <div class="eyebrow cool" id="parentRewardEyebrow"></div>
+  <h2>🤝 The grown-ups' rewards <span class="small" style="font-weight:400">— parents only</span></h2>
+  <p>What you and your partner can ask each other for. The children never see this list, and neither of you can approve your own request.</p>
+
+  <p class="small" style="margin:14px 0 6px"><strong>Available to ask for</strong> — <span id="parentRewardCount">0</span> on the list</p>
+  <div id="parentRewardList" style="display:grid;gap:7px"></div>
+
+  <div class="catedit" style="margin-top:16px">
+    <p class="small" style="margin:0 0 8px"><strong>Add a reward</strong></p>
+    <p class="small" style="margin:0 0 2px">💛 Ideas — tap to add, then change the points to suit:</p>
+    <div id="parentRewardQuickAdd" class="quickchips"></div>
+    <div style="display:grid;gap:8px;margin-top:10px">
+      <div class="editrow">
+        <input id="newParentRewardName" placeholder="Name — e.g. A lie-in this weekend (required)">
+        <input id="newParentRewardPoints" class="ptsinput" type="number" min="1" placeholder="pts">
+      </div>
+      <input id="newParentRewardKind" placeholder="Short description — optional (e.g. Rest, Time, Food)">
+      <button class="confirm" style="align-self:flex-start;width:auto" onclick="addParentReward()">Add</button>
+      <p class="small" id="parentRewardError" style="color:#a63e3e;margin:0"></p>
     </div>
   </div>
 </section>
@@ -646,6 +721,7 @@
   const configRef = (fid, name) => doc(db, "families", fid, "config", name);
   const ledgerRef = (fid) => collection(db, "families", fid, "ledger");
   const reqsRef   = (fid) => collection(db, "families", fid, "requests");
+  const giftsRef  = (fid) => collection(db, "families", fid, "gifts");
   const indexRef  = (uid) => doc(db, "userIndex", uid);
 
   let unsubs = [];
@@ -714,7 +790,7 @@
     /* Live view of the whole family. Fires whenever anything changes anywhere. */
     listen(fid, onChange){
       stopListening();
-      const raw = { family:null, members:[], config:{}, ledger:[], requests:[] };
+      const raw = { family:null, members:[], config:{}, ledger:[], requests:[], gifts:[] };
       const push = () => onChange(JSON.parse(JSON.stringify({
         ...raw,
         ledger: raw.ledger.map(e => ({...e, ts: e.ts })),
@@ -729,7 +805,7 @@
         raw.members = snap.docs.map(d => ({ id: d.id, ...d.data() })); push();
       }, fail("members")));
 
-      ["categories","rewards","games","settings"].forEach(name => {
+      ["categories","rewards","games","settings","parentCategories","parentRewards"].forEach(name => {
         unsubs.push(onSnapshot(configRef(fid, name), snap => {
           raw.config[name] = snap.exists() ? snap.data().payload : null; push();
         }, fail("config/" + name)));
@@ -742,6 +818,14 @@
         });
         push();
       }, fail("ledger")));
+
+      unsubs.push(onSnapshot(giftsRef(fid), snap => {
+        raw.gifts = snap.docs.map(d => {
+          const v = d.data();
+          return { id: d.id, ...v, ts: v.ts && v.ts.toMillis ? v.ts.toMillis() : Date.now() };
+        });
+        push();
+      }, fail("gifts")));
 
       unsubs.push(onSnapshot(reqsRef(fid), snap => {
         raw.requests = snap.docs.map(d => {
@@ -787,6 +871,10 @@
     },
     async declineRequest(fid, reqId, handledBy){
       await updateDoc(doc(reqsRef(fid), reqId), { status:"declined", handledBy, handledTs: serverTimestamp() });
+    },
+    /* A gift costs the recipient nothing, so it is not a points movement. */
+    async sendGift(fid, gift){
+      await addDoc(giftsRef(fid), { ...gift, ts: serverTimestamp() });
     }
   };
 
@@ -847,6 +935,27 @@ const SNACK_EXAMPLES = [
   {name:"Pick the pudding for everyone on Friday", points:45, kind:"Food"},
   {name:"Popcorn and a film night snack", points:30, kind:"Snack"},
   {name:"A takeaway or eat-out of your choice", points:80, kind:"Food"}
+];
+
+/* The grown-ups' own list. Deliberately about the unglamorous work that keeps a
+   house running — the things partners rarely thank each other for out loud. */
+const DEFAULT_PARENT_CATEGORIES = [
+  {icon:"🤝", name:"Carrying the load", desc:"The invisible work that keeps everything running.",
+   actions:[["Took a job that wasn't yours",3],["Sorted something before it became a problem",3],["Did the bedtime round alone",4],["Handled a hard morning solo",4]]},
+  {icon:"💬", name:"Kindness to each other", desc:"How we treat the person we see most.",
+   actions:[["Said thank you for something ordinary",2],["Listened properly without fixing",3],["Took the temperature down in a tense moment",4],["Apologised first",4]]},
+  {icon:"🌙", name:"Making space", desc:"Protecting each other's rest and time.",
+   actions:[["Let the other sleep in",4],["Took the children out so they had the house",4],["Covered so they could see a friend",4],["Noticed they were running on empty",3]]},
+  {icon:"👨‍👩‍👧", name:"United front", desc:"Backing each other up in front of the children.",
+   actions:[["Backed the other's decision in the moment",3],["Disagreed privately, not in front of them",4],["Praised the other where the children could hear",3]]}
+];
+const DEFAULT_PARENT_REWARDS = [
+  {name:"A lie-in this weekend", points:30, kind:"Rest"},
+  {name:"An evening entirely off duty", points:40, kind:"Rest"},
+  {name:"Pick the takeaway, no debate", points:25, kind:"Food"},
+  {name:"Two hours out on your own", points:45, kind:"Time"},
+  {name:"They do bedtime all week", points:70, kind:"Rest"},
+  {name:"A night out with friends, no logistics to sort", points:90, kind:"Time"}
 ];
 
 const STARTER_GAMES = [
@@ -933,9 +1042,8 @@ const TIP_CATS = [
   {key:"behaviour", label:"Behaviour"}
 ];
 
-const APP_VERSION = "v31";
+const APP_VERSION = "v35";
 const today = new Date().toISOString().slice(0,10);
-const STORAGE_KEY = "familyPointsApp";
 let app = {families:[],currentFamily:null,currentChild:null};
 let categories = [];
 let ready = false;
@@ -1017,7 +1125,7 @@ function setSyncStatus(text){
    this line stores a balance.
    --------------------------------------------------------------------------- */
 let familyId = null;
-let rawData = { family:null, members:[], config:{}, ledger:[], requests:[] };
+let rawData = { family:null, members:[], config:{}, ledger:[], requests:[], gifts:[] };
 
 function tsToDateStr(ms){
   const d = new Date(ms); d.setHours(12,0,0,0);
@@ -1034,6 +1142,10 @@ function projectApp(raw){
   const rewards  = parseConfig(raw.config.rewards,    JSON.parse(JSON.stringify(DEFAULT_REWARDS)));
   const games    = parseConfig(raw.config.games,      []);
   const settings = parseConfig(raw.config.settings,   { showChampion:true });
+  // The grown-ups keep their own categories and rewards, entirely separate from
+  // the children's and never shown to them.
+  const parentCats    = parseConfig(raw.config.parentCategories, JSON.parse(JSON.stringify(DEFAULT_PARENT_CATEGORIES)));
+  const parentRewards = parseConfig(raw.config.parentRewards,    JSON.parse(JSON.stringify(DEFAULT_PARENT_REWARDS)));
 
   const byChild = {};
   raw.ledger.forEach(e => { (byChild[e.childId] = byChild[e.childId] || []).push(e); });
@@ -1077,7 +1189,10 @@ function projectApp(raw){
     rewards,
     gameNightActivities: games,
     settings,
-    requests: raw.requests.slice().sort((a,b) => b.ts - a.ts)
+    requests: raw.requests.slice().sort((a,b) => b.ts - a.ts),
+    gifts: (raw.gifts || []).slice().sort((a,b) => b.ts - a.ts),
+    parentCategories: parentCats,
+    parentRewards
   };
   categories = app.categories;
   normaliseCatalogues();
@@ -1107,6 +1222,18 @@ function normaliseCatalogues(){
   });
   app.rewards.forEach(r => {
     if(!r.id) r.id = "r" + Math.abs(hashString(r.name)).toString(16);
+    if(typeof r.kind !== "string") r.kind = "";
+  });
+  // Prefixed so a grown-up category can never collide with a child's.
+  app.parentCategories.forEach((cat, i) => {
+    if(!cat.id){
+      cat.id = "p" + Math.abs(hashString(cat.name)).toString(16);
+      if(cat.legacyIndex === undefined) cat.legacyIndex = undefined;
+      categoriesSeeded = true;
+    }
+  });
+  app.parentRewards.forEach(r => {
+    if(!r.id) r.id = "pr" + Math.abs(hashString(r.name)).toString(16);
     if(typeof r.kind !== "string") r.kind = "";
   });
   app.gameNightActivities.forEach(g => {
@@ -1217,14 +1344,18 @@ async function saveApp(){
     categories: app.categories,
     rewards: app.rewards,
     games: app.gameNightActivities,
-    settings: app.settings
+    settings: app.settings,
+    parentCategories: app.parentCategories,
+    parentRewards: app.parentRewards
   };
   try{
     await Promise.all([
       window.fpc.saveConfig(familyId, "categories", pending.categories),
       window.fpc.saveConfig(familyId, "rewards", pending.rewards),
       window.fpc.saveConfig(familyId, "games", pending.games),
-      window.fpc.saveConfig(familyId, "settings", pending.settings)
+      window.fpc.saveConfig(familyId, "settings", pending.settings),
+      window.fpc.saveConfig(familyId, "parentCategories", pending.parentCategories),
+      window.fpc.saveConfig(familyId, "parentRewards", pending.parentRewards)
     ]);
     setSyncStatus("☁️ Synced across devices");
   }catch(e){
@@ -1249,6 +1380,13 @@ function currentChild(){
   return memberById(viewChildId);
 }
 function currentChildId(){ const c=currentChild(); return c?c.id:null; }
+/* A parent's card uses the grown-ups' categories; a child's uses the children's.
+   Everything downstream — awarding, editing, undo — works off this. */
+function viewingParent(){
+  const c=currentChild();
+  return !!(c && isParentRole(c));
+}
+function activeCats(){ return viewingParent() ? app.parentCategories : app.categories; }
 function requireParent(){
   if(isParentSession()) return true;
   alert("Only a Mum or Dad account can do that. Ask a parent to sign in on their profile.");
@@ -1265,7 +1403,6 @@ function ensureSelection(){
   if(viewChildId && !f.children.some(c=>c.id===viewChildId)) viewChildId=null;
   if(!isParentSession()) viewChildId=null;
 }
-function key(c,a){return c+"|"+a}
 /* A point's key is the category's stable id, not its position. */
 function catKeyFor(cat, actionName){ return (cat && cat.id ? cat.id : "?") + "|" + actionName; }
 /* Reading adds anything still filed under the old positional key, so history
@@ -1509,10 +1646,9 @@ function openAddMember(){
   if(name && name.focus) name.focus();
 }
 function cancelAddMember(){ setAddMemberState("idle"); }
-function addAnotherMember(){ openAddMember(); }
-function doneAddingMembers(){ setAddMemberState("idle"); }
 async function selectChild(id){
   if(!isParentSession()) return;          // children can only ever see their own card
+  if(id===sessionMemberId) return;        // your own card is your dashboard
   viewChildId=id;
   document.getElementById("overviewPanel").classList.add("hidden");
   renderAccounts(); render();
@@ -1560,13 +1696,6 @@ async function removeMember(id){
   if(!confirm("Remove "+member.name+" from the family?\n\nTheir points history stays in the ledger, but they'll no longer appear here or be able to sign in.")) return;
   try{ await window.fpc.deleteMember(familyId, id); }
   catch(e){ console.error(e); alert("That couldn't be saved."); }
-}
-function showMainApp(){
-  showGate("mainApp");
-  renderAccounts(); render();
-}
-async function logout(){
-  await signOutDevice();
 }
 function renderAccounts(){
   const f=currentFamily();
@@ -1674,9 +1803,6 @@ async function undoActivityEntry(childId, entryId){
   renderActivityLog();
 }
 
-function getPoints(){
-  const c=currentChild(); return c?stateForChild(c):{};
-}
 
 /* ---------- Game night ideas ---------- */
 async function addGameNightActivity(){
@@ -1766,6 +1892,244 @@ async function removeRewardById(id){
   if(i<0) return;
   await removeReward(i);
 }
+/* ---------- The grown-ups' own points ---------- */
+async function parentRequestReward(id){
+  if(!requireParent()) return;
+  const me=sessionMember(); if(!me) return;
+  const item=app.parentRewards.find(r=>r.id===id); if(!item) return;
+  const spendable=Math.max(0,(me.balance||0) - pendingSpendFor(me.id));
+  if(spendable < item.points){
+    alert("Not yet \u2014 you need "+(item.points-spendable)+" more points for that.");
+    return;
+  }
+  const f=currentFamily();
+  const partners=f ? f.children.filter(c=>isParentRole(c) && c.id!==me.id) : [];
+  if(!partners.length){
+    alert("There\u2019s no other parent to approve it. Add one under \u201cFamily & Children\u201d first.");
+    return;
+  }
+  if(!confirm("Ask for \u201c"+item.name+"\u201d?\n\nIt costs "+item.points+" points. Nothing is taken until "+partners[0].name+" says yes.")) return;
+  try{
+    await window.fpc.createRequest(familyId, {
+      childId: me.id, childName: me.name,
+      type: "reward", itemId: item.id, itemName: item.name, kind: item.kind||"", points: item.points
+    });
+    alert("Asked. "+partners[0].name+" will see it on their dashboard.");
+  }catch(e){
+    console.error("Parent request failed:", e);
+    alert(authErrorMessage(e));
+  }
+}
+/* Ideas a parent can add with one tap, so the list never starts empty and
+   nobody has to invent rewards on the spot. */
+const PARENT_REWARD_IDEAS = [
+  {name:"A lie-in this weekend", points:30, kind:"Rest"},
+  {name:"An evening entirely off duty", points:40, kind:"Rest"},
+  {name:"Pick the takeaway, no debate", points:25, kind:"Food"},
+  {name:"Two hours out on your own", points:45, kind:"Time"},
+  {name:"They do bedtime all week", points:70, kind:"Rest"},
+  {name:"A night out with friends, no logistics to sort", points:90, kind:"Time"},
+  {name:"Control of the remote for the night", points:15, kind:"Small"},
+  {name:"Breakfast made for you", points:20, kind:"Food"},
+  {name:"A whole Saturday morning to yourself", points:60, kind:"Time"}
+];
+function jumpToParentRewards(){
+  const el=document.getElementById("parentRewardSection");
+  if(el && el.scrollIntoView) el.scrollIntoView({behavior:"smooth", block:"start"});
+}
+function renderParentRewards(){
+  const wrap=document.getElementById("parentRewardList");
+  if(!wrap) return;
+  const count=document.getElementById("parentRewardCount");
+  if(count) count.textContent=app.parentRewards.length;
+  wrap.innerHTML="";
+  if(app.parentRewards.length===0){
+    wrap.innerHTML='<p class="small">Nothing here yet — add a couple below so your points lead somewhere.</p>';
+  }else{
+    app.parentRewards.slice().sort((a,b)=>a.points-b.points).forEach(r=>{
+      const row=document.createElement("div"); row.className="childrow";
+      row.innerHTML=`<div style="flex:1;min-width:0">
+          <div><strong>${escapeHtml(r.name)}</strong> <span class="points" style="font-size:12px">${r.points} pts</span></div>
+          ${r.kind?`<div class="small" style="margin-top:2px">${escapeHtml(r.kind)}</div>`:""}
+        </div>`;
+      const btn=document.createElement("button");
+      btn.className="xbtn"; btn.textContent="✕ Remove";
+      btn.title="Take this off the list";
+      btn.onclick=()=>removeParentReward(r.id);
+      row.appendChild(btn);
+      wrap.appendChild(row);
+    });
+  }
+  renderParentRewardIdeas();
+  renderParentRewardEyebrow();
+}
+function renderParentRewardIdeas(){
+  const wrap=document.getElementById("parentRewardQuickAdd");
+  if(!wrap) return;
+  wrap.innerHTML = PARENT_REWARD_IDEAS.map((ex,i)=>{
+    const already=app.parentRewards.some(r=>r.name.toLowerCase()===ex.name.toLowerCase());
+    return `<button class="${already?"added":""}" ${already?"disabled":""} onclick="addParentRewardIdea(${i})">${already?"\u2713":"\uff0b"} ${escapeHtml(ex.name)} <strong>${ex.points}</strong></button>`;
+  }).join("");
+}
+function renderParentRewardEyebrow(){
+  const el=document.getElementById("parentRewardEyebrow");
+  if(!el) return;
+  if(!isParentSession()){ el.innerHTML=""; return; }
+  const f=currentFamily();
+  const partners=f ? f.children.filter(c=>isParentRole(c) && c.id!==sessionMemberId) : [];
+  let text;
+  if(!partners.length)
+    text="There\u2019s no second parent yet, so nobody can approve these. Add one under \u201cFamily & Children\u201d and the grown-ups\u2019 side starts working.";
+  else if(!app.parentRewards.length)
+    text="Add two or three things you\u2019d each actually want. Rest and time to yourself tend to beat anything that costs money.";
+  else if(Math.min(...app.parentRewards.map(r=>r.points)) >= 30)
+    text="Everything here is 30 points or more. Something small and quickly reachable keeps this from feeling like a distant promise.";
+  else
+    text="Keep this list honest \u2014 there\u2019s no point putting something on it that you wouldn\u2019t really give.";
+  el.innerHTML = `<span class="tag">Parent tip</span><span>${escapeHtml(text)}</span>`;
+}
+async function addParentReward(){
+  if(!requireParent()) return;
+  const nameEl=document.getElementById("newParentRewardName");
+  const ptsEl=document.getElementById("newParentRewardPoints");
+  const kindEl=document.getElementById("newParentRewardKind");
+  const errEl=document.getElementById("parentRewardError");
+  errEl.textContent="";
+  const name=nameEl.value.trim();
+  const pts=parseInt(ptsEl.value);
+  if(!name){ errEl.textContent="Please give the reward a name."; return; }
+  if(Number.isNaN(pts) || pts<1){ errEl.textContent="Please set how many points it costs."; return; }
+  if(app.parentRewards.some(r=>r.name.toLowerCase()===name.toLowerCase())){
+    errEl.textContent=name+" is already on the list."; return;
+  }
+  app.parentRewards.push({id:"pr"+Date.now().toString(16)+Math.random().toString(16).slice(2,5), name, points:pts, kind:kindEl.value.trim()});
+  app.parentRewards.sort((a,b)=>a.points-b.points);
+  await saveApp();
+  nameEl.value=""; ptsEl.value=""; kindEl.value="";
+  renderParentRewards();
+  render();
+}
+async function addParentRewardIdea(i){
+  if(!requireParent()) return;
+  const ex=PARENT_REWARD_IDEAS[i]; if(!ex) return;
+  if(app.parentRewards.some(r=>r.name.toLowerCase()===ex.name.toLowerCase())) return;
+  app.parentRewards.push({id:"pr"+Date.now().toString(16)+Math.random().toString(16).slice(2,5), name:ex.name, points:ex.points, kind:ex.kind});
+  app.parentRewards.sort((a,b)=>a.points-b.points);
+  await saveApp();
+  renderParentRewards();
+  render();
+}
+async function removeParentReward(id){
+  if(!requireParent()) return;
+  const i=app.parentRewards.findIndex(r=>r.id===id);
+  if(i<0) return;
+  app.parentRewards.splice(i,1);
+  await saveApp();
+  renderParentRewards();
+  render();
+}
+
+/* ---------- Surprise gifts ----------
+   A gift is not a points transaction: it costs the recipient nothing. It exists
+   so one parent can do something kind without it having to be earned. */
+async function openGiftDialog(){
+  if(!requireParent()) return;
+  const me=sessionMember();
+  const to=currentChild();
+  if(!me || !to || !isParentRole(to) || to.id===me.id){ alert("Open your partner\u2019s card first."); return; }
+  const ideas=app.parentRewards.map(r=>"\u2022 "+r.name).join("\n");
+  const what=prompt("What are you giving "+to.name+"?\n\nAnything you like \u2014 they don\u2019t pay any points for it.\n\nIdeas:\n"+ideas);
+  if(!what || !what.trim()) return;
+  const message=prompt("Add a message (optional):", "");
+  if(message===null) return;
+  try{
+    await window.fpc.sendGift(familyId, {
+      fromUid: me.id, fromName: me.name, toUid: to.id, toName: to.name,
+      itemName: what.trim(), message: message.trim()
+    });
+    alert("Sent. "+to.name+" will see it next time they open the app.");
+  }catch(e){
+    console.error("Gift failed:", e);
+    alert(authErrorMessage(e));
+  }
+}
+function giftsKey(){ return "fpc_gifts_seen_" + (sessionMemberId || ""); }
+function loadGiftsSeen(){
+  try{
+    const raw=localStorage.getItem(giftsKey());
+    return raw===null ? null : new Set(JSON.parse(raw));
+  }catch(e){ return new Set(); }
+}
+function checkForGifts(){
+  const me=sessionMember();
+  if(!me || !isParentRole(me)) return;
+  let seen=loadGiftsSeen();
+  const firstRun = seen===null;
+  if(firstRun) seen=new Set();
+  const DAY=86400000;
+  (app.gifts||[]).filter(g=>g.toUid===me.id).forEach(g=>{
+    if(seen.has(g.id)) return;
+    const stale = firstRun && g.ts && (Date.now()-g.ts) > DAY;
+    if(!stale) celebrationQueue.push({
+      gift:true, itemName:g.itemName, handledBy:g.fromName, message:g.message||"", points:0
+    });
+    seen.add(g.id);
+  });
+  try{ localStorage.setItem(giftsKey(), JSON.stringify([...seen].slice(-60))); }catch(e){}
+  if(celebrationQueue.length && !celebrating) showNextCelebration();
+}
+
+/* ---------- Sharing ----------
+   Uses the device's own share sheet where there is one, so WhatsApp and the rest
+   appear exactly as the person expects, with a copy fallback everywhere else. */
+function shareTextFor(memberId){
+  const m=memberById(memberId);
+  if(!m) return "";
+  const lines=[];
+  lines.push(isParentRole(m) ? m.name+" \u2014 this week" : "\u2b50 "+m.name+"\u2019s week");
+  lines.push("");
+  lines.push("Today: "+todayTotalFor(m)+" points");
+  lines.push("This week: "+weeklyTotalFor(m, getCurrentWeekDates())+" points");
+  lines.push("Saved up: "+(m.balance||0)+" points");
+  if(!isParentRole(m)) lines.push("How it\u2019s going: "+bandForChild(m).label);
+  const won=(app.requests||[]).filter(r=>r.childId===m.id && r.status==="approved").slice(0,3);
+  if(won.length){
+    lines.push("");
+    lines.push("Recently earned:");
+    won.forEach(r=>lines.push("\u2022 "+r.itemName));
+  }
+  const best=(m.activityLog||[]).filter(e=>e.points>0).slice(0,3);
+  if(best.length){
+    lines.push("");
+    lines.push("Lately:");
+    best.forEach(e=>lines.push("\u2022 "+e.label+" (+"+e.points+")"));
+  }
+  return lines.join("\n");
+}
+async function shareStatus(memberId){
+  if(!requireParent()) return;
+  const m=memberById(memberId); if(!m) return;
+  const text=shareTextFor(memberId);
+  const title=isParentRole(m) ? m.name : m.name+"\u2019s points";
+  try{
+    if(navigator.share){ await navigator.share({ title, text }); return; }
+  }catch(e){
+    if(e && e.name === "AbortError") return;   // they changed their mind
+    console.error("Share sheet unavailable:", e);
+  }
+  shareFallback(text);
+}
+function shareFallback(text){
+  if(confirm("Share this?\n\n"+text+"\n\nOK opens WhatsApp. Cancel copies it instead.")){
+    window.open("https://wa.me/?text="+encodeURIComponent(text), "_blank", "noopener");
+  }else{
+    try{
+      if(navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text);
+      alert("Copied \u2014 paste it wherever you like.");
+    }catch(e){ alert(text); }
+  }
+}
+
 /* ---------- Parenting tips ----------
    One idea at a time, chosen by the date so it stays steady through the day
    rather than reshuffling on every render. If a child has gone quiet, the card
@@ -2007,22 +2371,24 @@ function toggleEditMode(){
   render();
 }
 async function updateCategoryField(ci, field, value){
-  categories[ci][field]=value;
+  activeCats()[ci][field]=value;
   await saveApp();
 }
 async function updateActionField(ci, ai, field, value){
+  const cats=activeCats();
   if(field==="points"){
     const n=parseInt(value);
-    categories[ci].actions[ai][1] = Number.isNaN(n) || n<1 ? 1 : n;
+    cats[ci].actions[ai][1] = Number.isNaN(n) || n<1 ? 1 : n;
   }else{
-    categories[ci].actions[ai][0]=value;
+    cats[ci].actions[ai][0]=value;
   }
   await saveApp();
   render();
 }
 async function removeAction(ci, ai){
   if(!requireParent()) return;
-  const cat=categories[ci]; if(!cat || !cat.actions[ai]) return;
+  const cats=activeCats();
+  const cat=cats[ci]; if(!cat || !cat.actions[ai]) return;
   // Remember enough to put it back exactly where it was.
   lastDeleted={
     kind:"action", index:ci, actionIndex:ai,
@@ -2034,13 +2400,15 @@ async function removeAction(ci, ai){
   render();
 }
 async function addAction(ci){
-  categories[ci].actions.push(["New action",2]);
+  if(!requireParent()) return;
+  activeCats()[ci].actions.push(["New action",2]);
   await saveApp();
   render();
 }
 async function removeCategory(ci){
   if(!requireParent()) return;
-  const cat=categories[ci]; if(!cat) return;
+  const cats=activeCats();
+  const cat=cats[ci]; if(!cat) return;
   // No confirmation dialog: deleting is instant and undoable, which is kinder
   // than a prompt that gets clicked through without reading.
   lastDeleted={
@@ -2048,7 +2416,8 @@ async function removeCategory(ci){
     data:JSON.parse(JSON.stringify(cat)),
     label:cat.name, actionCount:(cat.actions||[]).length
   };
-  categories.splice(ci,1);
+  cats.splice(ci,1);
+  lastDeleted.list = viewingParent() ? "parent" : "child";
   await saveApp();
   render();
 }
@@ -2056,23 +2425,24 @@ async function undoLastDelete(){
   if(!requireParent()) return;
   if(!lastDeleted) return;
   const d=lastDeleted;
+  const cats = d.list === "parent" ? app.parentCategories : (d.list === "child" ? app.categories : activeCats());
   if(d.kind==="category"){
     // Back at its original position, so the category order — and the keys that
     // past points were recorded against — line up again.
-    categories.splice(Math.min(d.index, categories.length), 0, d.data);
+    cats.splice(Math.min(d.index, cats.length), 0, d.data);
   }else{
     // The index alone isn't trustworthy: deleting a category shifts everything
     // after it up, so index 2 may now be a different category entirely. Confirm
     // by name, and fall back to searching for it.
     let ci = d.index;
-    if(!categories[ci] || categories[ci].name !== d.catName){
-      ci = categories.findIndex(c => c.name === d.catName);
+    if(!cats[ci] || cats[ci].name !== d.catName){
+      ci = cats.findIndex(c => c.name === d.catName);
     }
     if(ci < 0){
       alert("The category that action belonged to has gone too. Put that back first, then this.");
       return;
     }
-    const cat = categories[ci];
+    const cat = cats[ci];
     cat.actions.splice(Math.min(d.actionIndex, cat.actions.length), 0, d.data);
   }
   lastDeleted=null;
@@ -2097,8 +2467,8 @@ function renderUndoBar(){
 }
 async function addCategory(){
   if(!requireParent()) return;
-  categories.push({
-    id: "c" + Math.abs(hashString("New Category" + Date.now())).toString(16),
+  activeCats().push({
+    id: (viewingParent()?"p":"c") + Math.abs(hashString("New Category" + Date.now())).toString(16),
     icon:"⭐", name:"New Category", desc:"Describe this category.",
     actions:[["New action",2]]
     // deliberately no legacyIndex: nothing was ever filed against this one
@@ -2109,14 +2479,15 @@ async function addCategory(){
 
 async function add(c,a,p){
   if(!requireParent()) return;
-  const child=currentChild(); if(!child){alert("Open a child's card first.");return;}
-  const cat=categories[c]; if(!cat) return;
+  const child=currentChild(); if(!child){alert("Open someone's card first.");return;}
+  if(child.id===sessionMemberId){ alert("You can't award points to yourself."); return; }
+  const cat=activeCats()[c]; if(!cat) return;
   await writeLedger({childId:child.id, points:p, label:a, type:"award", catKey:catKeyFor(cat,a), actionName:a});
 }
 async function remove(c,a,p){
   if(!requireParent()) return;
   const child=currentChild(); if(!child)return;
-  const cat=categories[c]; if(!cat) return;
+  const cat=activeCats()[c]; if(!cat) return;
   const earnedToday=valueFor(stateForChild(child), cat, a);
   const amount=Math.min(p, earnedToday);
   if(amount<=0) return;
@@ -2147,8 +2518,14 @@ function applyRoleChrome(){
   set("btnSignOut", true);   // anyone signed in can hand the device on
   if(kid){
     ["accountPanel","overviewPanel","activityPanel","requestsPanel","addCategoryWrap",
-     "rewardSection","gameNightSection","requestsBanner","behaviourWrap","editModeNote","tipsCard","undoBar"]
+     "rewardSection","gameNightSection","parentRewardSection","requestsBanner","behaviourWrap","editModeNote","tipsCard","undoBar"]
       .forEach(id=>set(id, false));
+    // Hidden is not the same as absent: clear the grown-ups' content out of the
+    // DOM entirely rather than leaving it sitting there under display:none.
+    ["cards","requestsBanner","behaviourWrap","tipsCard"].forEach(id=>{
+      const el=document.getElementById(id);
+      if(el) el.innerHTML="";
+    });
   }
 }
 function render(){
@@ -2157,6 +2534,8 @@ function render(){
   applyRoleChrome();
   showVersion();
   renderUndoBar();
+  checkForGifts();
+  checkForCelebrations();
   renderRequests();
   renderEyebrows();
   renderTips();
@@ -2171,7 +2550,10 @@ function render(){
   const rewardSection=document.getElementById("rewardSection");
   const gameNightSection=document.getElementById("gameNightSection");
   const bw=document.getElementById("behaviourWrap");
-  if(!child || isParentRole(child)){
+  // A parent viewing their partner gets the grown-ups' card; viewing nobody
+  // (or themselves) gets the dashboard.
+  const viewingPartner = child && isParentRole(child) && me && isParentRole(me) && child.id !== me.id;
+  if((!child || isParentRole(child)) && !viewingPartner){
     if(!editMode){
       if(me && isParentRole(me)){ renderParentAdminView(me); return; }
       cards.innerHTML='<div class="card" style="grid-column:1/-1;text-align:center"><h2>👋 No profile selected</h2><p>Open "Family &amp; Children" above to add or choose who\'s earning points.</p></div>';
@@ -2181,6 +2563,7 @@ function render(){
       document.getElementById("balance").textContent=0;
       rewardSection.classList.add("hidden");
       gameNightSection.classList.add("hidden");
+      document.getElementById("parentRewardSection").classList.add("hidden");
       bw.classList.add("hidden");
       updateRewardPacing(null);
       renderChampionBanner();
@@ -2189,6 +2572,8 @@ function render(){
   }
   rewardSection.classList.remove("hidden");
   gameNightSection.classList.remove("hidden");
+  // The grown-ups' list belongs on the dashboard, not on someone's card.
+  document.getElementById("parentRewardSection").classList.add("hidden");
   // Behaviour trend sits directly above the category cards, so a parent sees the
   // fortnight's shape before deciding what to award today.
   if(child && !isParentRole(child) && !editMode){
@@ -2199,17 +2584,24 @@ function render(){
   }
   const s=(child && !isParentRole(child)) ? stateForChild(child) : {};
   let total=0,done=0,scores=[];
-  if(child && !isParentRole(child) && me && isParentRole(me) && !editMode){
+  if(child && me && isParentRole(me) && child.id !== me.id && !editMode){
     cards.insertAdjacentHTML("beforeend",
       `<div class="card" style="grid-column:1/-1;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;border-top-color:var(--accent)">
         <div>
           <h2 style="margin:0">Giving points to ${escapeHtml(child.name)}</h2>
-          <p style="margin:2px 0 0">Only Mum and Dad accounts can award points. Tap ＋ on anything ${escapeHtml(child.name)} has done well.</p>
+          <p style="margin:2px 0 0">${isParentRole(child)
+            ? "The grown-ups' own list — the children never see any of this."
+            : "Only Mum and Dad accounts can award points. Tap ＋ on anything "+escapeHtml(child.name)+" has done well."}</p>
         </div>
-        <button class="light" style="width:auto" onclick="backToParentHome()">← Back to my dashboard</button>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          ${isParentRole(child) ? `<button class="confirm" style="width:auto" onclick="openGiftDialog()">🎁 Send a surprise</button>` : ""}
+          <button class="light" style="width:auto" onclick="shareStatus('${child.id}')">↗ Share</button>
+          <button class="light" style="width:auto" onclick="backToParentHome()">← Back</button>
+        </div>
       </div>`);
   }
-  categories.forEach((cat,ci)=>{
+  const cats = activeCats();
+  cats.forEach((cat,ci)=>{
     let catTotal=0;
     const card=document.createElement("article"); card.className="card";
     if(editMode){
@@ -2291,6 +2683,8 @@ function renderParentAdminView(parent){
   // Rewards and Activities are managed from the parent dashboard.
   document.getElementById("rewardSection").classList.remove("hidden");
   document.getElementById("gameNightSection").classList.remove("hidden");
+  document.getElementById("parentRewardSection").classList.remove("hidden");
+  renderParentRewards();
   const f=currentFamily();
   const kids = f ? f.children.filter(c=>!isParentRole(c)) : [];
   const pend=pendingRequests();
@@ -2313,10 +2707,49 @@ function renderParentAdminView(parent){
         </div>`;
       }).join("")
     : '<p class="small">No children added yet \u2014 use "Family &amp; Children" above to add one.</p>';
+  const partners = f ? f.children.filter(c=>isParentRole(c) && c.id!==parent.id) : [];
+  const myBalance = parent.balance || 0;
+  const myPending = pendingSpendFor(parent.id);
+  const partnersHtml = partners.length
+    ? partners.map(pp=>`
+        <div class="overviewrow" onclick="selectChild('${pp.id}')">
+          <div class="memberhead">
+            ${pp.photo?`<img class="avatar" src="${pp.photo}">`:'<div class="avatar-placeholder">\ud83d\udc64</div>'}
+            <div><strong>${escapeHtml(pp.name)}</strong><div class="small">Give them points, or send a surprise</div></div>
+          </div>
+          <div class="overviewstats"><div><strong>${pp.balance||0}</strong><span>Balance</span></div></div>
+        </div>`).join("")
+    : '<p class="small">Add another parent under "Family &amp; Children" and you can start noticing each other too.</p>';
+  const spendable = Math.max(0, myBalance - myPending);
   cards.innerHTML = `<div class="card" style="grid-column:1/-1">
     <h2>\ud83d\udc4b Signed in as ${escapeHtml(parent.name)} (${roleLabel(parent)})</h2>
-    <p class="small">Points are for the children. Tap a child to open their card, see their behaviour trend, and award points for something they\u2019ve done well.</p>
+    <p class="small">Tap a child to open their card, see their behaviour trend, and award points for something they\u2019ve done well.</p>
     <div style="display:grid;gap:8px;margin-top:14px">${kidsHtml}</div>
+  </div>
+  <div class="card" style="grid-column:1/-1;border-top-color:#7c83ef">
+    <div class="cardhead">
+      <div><div class="icon">\ud83e\udd1d</div><h2>The grown-ups</h2>
+      <p>Your own points and rewards. None of this is visible to the children.</p></div>
+      <div class="points">${myBalance} pts</div>
+    </div>
+    <div style="display:grid;gap:8px;margin-top:14px">${partnersHtml}</div>
+    <div style="margin-top:14px;padding-top:14px;border-top:1px solid #e6e8f0">
+      <p class="small" style="margin:0 0 8px"><strong>What you can ask for</strong>${myPending?` \u00b7 ${myPending} pts already awaiting a decision`:""}</p>
+      <div class="chiprow">${app.parentRewards.length
+        ? app.parentRewards.slice().sort((a,b)=>a.points-b.points).map(r=>{
+            const can = spendable >= r.points;
+            return `<button class="chip ${can?"afford":""}" ${can?"":"disabled"} onclick="parentRequestReward('${r.id}')">
+              ${can?"":'<span class="lock">\ud83d\udd12</span>'}${escapeHtml(r.name)}
+              <span class="cprice">${r.points} points</span>
+              ${r.kind?`<span class="ckind">${escapeHtml(r.kind)}</span>`:""}</button>`;
+          }).join("")
+        : '<p class="small">No grown-up rewards set yet.</p>'}</div>
+      <p class="small" style="margin:10px 0 0">Your partner decides \u2014 you can\u2019t approve your own.</p>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">
+        <button class="light" style="width:auto" onclick="jumpToParentRewards()">\u2699\ufe0f Edit grown-ups\u2019 rewards</button>
+        <button class="light" style="width:auto" onclick="shareStatus('${parent.id}')">\u2197 Share my week</button>
+      </div>
+    </div>
   </div>`;
   document.getElementById("total").textContent="\u2014";
   document.getElementById("actionsDone").textContent="\u2014";
@@ -2684,36 +3117,142 @@ function streakFor(child){
 function kidTips(child){
   const tips=[];
   const weekDates=getCurrentWeekDates();
-  // Rewards just out of reach
   const balance=availableFor(child);
+  // Closest thing they could actually get — the strongest motivator there is.
   const next=app.rewards.filter(r=>r.points>balance).sort((a,b)=>a.points-b.points)[0];
-  if(next) tips.push("\ud83c\udfaf Only "+(next.points-balance)+" more points until \u201c"+next.name+"\u201d");
+  if(next) tips.push({icon:"\ud83c\udfaf", text:"Only "+(next.points-balance)+" more points until \u201c"+next.name+"\u201d", badge:next.points+" pts"});
   const nextGame=app.gameNightActivities.filter(g=>g.points>balance).sort((a,b)=>a.points-b.points)[0];
-  if(nextGame) tips.push("\ud83c\udfb2 "+(nextGame.points-balance)+" points to go for "+nextGame.name);
-  // Categories with nothing earned this week = areas to work on
-  const catTotals=categories.map(cat=>{
+  if(nextGame) tips.push({icon:"\ud83c\udfb2", text:(nextGame.points-balance)+" points to go for "+nextGame.name, badge:nextGame.points+" pts"});
+  // Anything untouched this week — the areas worth a nudge.
+  categories.map(cat=>{
     let sum=0;
     weekDates.forEach(ds=>{
       const day=child.pointsByDate && child.pointsByDate[ds]; if(!day) return;
       cat.actions.forEach(([name])=>{ Object.keys(day).forEach(k=>{ if(k.endsWith("|"+name)) sum+=day[k]; }); });
     });
     return {cat, sum};
-  });
-  catTotals.filter(c=>c.sum===0).slice(0,4).forEach(c=>{
+  }).filter(c=>c.sum===0).slice(0,4).forEach(c=>{
     const best=c.cat.actions.slice().sort((a,b)=>b[1]-a[1])[0];
-    if(best) tips.push("\ud83c\udf31 To work on \u2014 "+c.cat.icon+" "+c.cat.name+": try \u201c"+best[0]+"\u201d (+"+best[1]+")");
+    if(best) tips.push({icon:c.cat.icon, text:"Try \u201c"+best[0]+"\u201d \u2014 nothing yet this week in "+c.cat.name, badge:"+"+best[1]});
   });
-  // Highest-value actions overall
+  // The biggest single wins on the board.
   const bigWins=[];
   categories.forEach(cat=>cat.actions.forEach(([name,p])=>bigWins.push({name,p,icon:cat.icon})));
   bigWins.sort((a,b)=>b.p-a.p).slice(0,3).forEach(w=>{
-    tips.push("\ud83d\udcab Big one: "+w.icon+" "+w.name+" is worth "+w.p+" points");
+    tips.push({icon:w.icon, text:w.name, badge:"+"+w.p});
   });
-  tips.push("\ud83d\ude4c Ask Mum or Dad if there\u2019s a job you can help with");
-  tips.push("\ud83d\udca1 Doing something kind without being asked earns the most");
-  tips.push("\ud83d\udcb0 You can always save your points instead of spending them");
+  tips.push({icon:"\ud83d\ude4c", text:"Ask Mum or Dad if there\u2019s a job you can help with"});
+  tips.push({icon:"\ud83d\udca1", text:"Doing something kind without being asked earns the most"});
+  tips.push({icon:"\ud83d\udcb0", text:"You can always save your points instead of spending them"});
   return tips;
 }
+let kidTipOffset = 0;
+function nextKidTips(){ kidTipOffset += 3; renderKidBoost(); }
+function renderKidBoost(){
+  const wrap=document.getElementById("kidBoostList");
+  const card=document.getElementById("kidBoostCard");
+  const me=sessionMember();
+  if(!wrap || !card || !me) return;
+  const tips=kidTips(me);
+  if(!tips.length){ card.classList.add("hidden"); return; }
+  card.classList.remove("hidden");
+  // Three at a time: enough to feel like choices, few enough to read.
+  const shown=[];
+  for(let i=0;i<Math.min(3,tips.length);i++) shown.push(tips[(kidTipOffset+i) % tips.length]);
+  wrap.innerHTML = shown.map(t=>`
+    <div class="boostrow">
+      <span class="bicon">${t.icon}</span>
+      <span class="btext">${escapeHtml(t.text)}</span>
+      ${t.badge?`<span class="bbadge">${escapeHtml(t.badge)}</span>`:""}
+    </div>`).join("");
+}
+
+/* ---------- Celebrating an approval ----------
+   Approvals must land whether or not the child was watching. Anything approved
+   while they were away is celebrated the next time they open the app, so the
+   moment is never lost to bad timing. What has already been celebrated is kept
+   on the device, since a child cannot write to the request itself. */
+let celebrationQueue = [];
+let celebrating = false;
+function celebratedKey(){ return "fpc_celebrated_" + (sessionMemberId || ""); }
+function loadCelebrated(){
+  try{
+    const raw = localStorage.getItem(celebratedKey());
+    return raw === null ? null : new Set(JSON.parse(raw));
+  }catch(e){ return new Set(); }
+}
+function saveCelebrated(set){
+  try{ localStorage.setItem(celebratedKey(), JSON.stringify([...set].slice(-60))); }catch(e){}
+}
+function checkForCelebrations(){
+  const me = sessionMember();
+  if(!me) return;
+  let seen = loadCelebrated();
+  const firstRun = seen === null;
+  if(firstRun) seen = new Set();
+  const mine = (app.requests || []).filter(r => r.childId === me.id && r.status === "approved");
+  const DAY = 86400000;
+  mine.forEach(r => {
+    if(seen.has(r.id)) return;
+    // On the very first run don't replay months of history — but anything
+    // approved in the last day still counts as news worth celebrating.
+    const stale = firstRun && r.handledTs && (Date.now() - r.handledTs) > DAY;
+    if(!stale) celebrationQueue.push(r);
+    seen.add(r.id);
+  });
+  saveCelebrated(seen);
+  if(celebrationQueue.length && !celebrating) showNextCelebration();
+}
+function showNextCelebration(){
+  const r = celebrationQueue.shift();
+  if(!r){ celebrating = false; return; }
+  celebrating = true;
+  if(r.gift){
+    // A surprise, not something earned — the wording should say so.
+    document.getElementById("celebrateEmoji").textContent = "\ud83c\udf81";
+    document.getElementById("celebrateTitle").textContent = "A surprise for you \ud83d\udc9b";
+    document.getElementById("celebrateWhat").textContent = r.itemName;
+    document.getElementById("celebrateWho").textContent =
+      (r.handledBy ? "From " + r.handledBy : "From your partner")
+      + (r.message ? " \u2014 \u201c" + r.message + "\u201d" : "")
+      + "\n\nNo points needed. Just because.";
+  }else{
+    document.getElementById("celebrateEmoji").textContent = r.type === "game" ? "\ud83c\udf89" : "\ud83c\udf81";
+    document.getElementById("celebrateTitle").textContent = "Yes! It\u2019s yours \ud83c\udf1f";
+    document.getElementById("celebrateWhat").textContent = r.itemName;
+    document.getElementById("celebrateWho").textContent =
+      (r.handledBy ? r.handledBy + " said yes" : "Mum or Dad said yes")
+      + " \u2014 " + r.points + " points well spent.";
+  }
+  document.getElementById("celebration").classList.remove("hidden");
+  dropConfetti();
+}
+function closeCelebration(){
+  document.getElementById("celebration").classList.add("hidden");
+  clearConfetti();
+  celebrating = false;
+  if(celebrationQueue.length) showNextCelebration();
+}
+function clearConfetti(){
+  document.querySelectorAll("#celebration .confetti").forEach(el => { if(el && el.remove) el.remove(); });
+}
+function dropConfetti(){
+  const host = document.getElementById("celebration");
+  if(!host) return;
+  clearConfetti();
+  const colours = ["#ff8bb0","#ffd166","#5ad2c4","#8b7cf6","#7ee0c6","#ffb454"];
+  for(let i=0;i<70;i++){
+    const bit = document.createElement("div");
+    bit.classList.add("confetti");
+    bit.style.left = Math.random()*100 + "%";
+    bit.style.background = colours[i % colours.length];
+    bit.style.animationDuration = (2.4 + Math.random()*1.8) + "s";
+    bit.style.animationDelay = (Math.random()*0.9) + "s";
+    bit.style.width = (7 + Math.random()*7) + "px";
+    host.appendChild(bit);
+  }
+}
+
 function renderKidView(child){
   document.getElementById("kidView").classList.remove("hidden");
   document.getElementById("kidAvatar").innerHTML = child.photo
@@ -2802,10 +3341,8 @@ function renderKidView(child){
       }).join("")
     : "";
 
-  // Scrolling reminders
-  const tips=kidTips(child);
-  const items=tips.map(t=>`<span class="tickeritem">${escapeHtml(t)}</span>`).join("");
-  document.getElementById("kidTicker").innerHTML = items+items;  // duplicated for a seamless loop
+  renderKidBoost();
+  checkForCelebrations();
 }
 
 /* ---------- Auth entry points ---------- */
