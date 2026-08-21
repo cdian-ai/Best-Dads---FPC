@@ -170,6 +170,27 @@
   .goalshare img,.goalshare .avatar-placeholder{width:26px;height:26px;border-radius:50%;
              object-fit:cover;font-size:13px;display:flex;align-items:center;justify-content:center}
   .goalshare strong{color:#3e46ad}
+  .notebox{background:#fffaef;border:1px solid #f0e2bd;border-radius:16px;padding:12px 13px;margin-bottom:14px}
+  .notebox input{width:100%;font-size:15px}
+  .quickcard{background:#fff;border-radius:20px;padding:14px;box-shadow:var(--shadow);margin-bottom:12px}
+  .quickhead{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+  .quickhead img,.quickhead .avatar-placeholder{width:42px;height:42px;border-radius:50%;object-fit:cover;
+        font-size:20px;display:flex;align-items:center;justify-content:center}
+  .quickacts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
+  .quickact{display:flex;align-items:center;justify-content:space-between;gap:8px;text-align:left;
+        background:#f4f5fb;border:1px solid #e6e8f0;border-radius:14px;padding:11px 12px;
+        width:auto;min-height:56px;color:var(--ink)}
+  .quickact .qname{font-size:12.5px;font-weight:700;line-height:1.25}
+  .quickact .qpts{font-size:15px;font-weight:800;color:#3e46ad;white-space:nowrap}
+  .quickact.ticked{background:#e4f7ed;border-color:#bfe8d3}
+  .quickact.ticked .qpts{color:#19744a}
+  @media(max-width:380px){ .quickacts{grid-template-columns:1fr} }
+  .rulelist{display:grid;gap:10px;margin-top:12px}
+  .rule{display:flex;gap:12px;align-items:flex-start;background:#fff;border:1px solid #e6e8f0;
+        border-radius:16px;padding:13px 14px;font-size:13.5px;line-height:1.5}
+  .rule strong{display:block;margin-bottom:2px;font-size:14.5px}
+  .rn{flex-shrink:0;width:28px;height:28px;border-radius:50%;background:var(--accent);color:#fff;
+      font-weight:800;font-size:14px;display:flex;align-items:center;justify-content:center}
   .yearpick{display:flex;gap:5px;flex-wrap:wrap;margin-top:10px}
   .yearpick button{width:auto;padding:6px 12px;font-size:12.5px;font-weight:800;
                    background:rgba(255,255,255,.55);color:#4b4372}
@@ -687,10 +708,10 @@
       <p class="small" id="authError" style="color:#a63e3e"></p>
       <p class="small" id="authResetMsg" style="color:var(--good)"></p>
       <div id="askParentPanel" class="hidden" style="background:#f5f3ff;border:1px solid #cfc7f7;border-radius:16px;padding:14px;margin:4px 0;text-align:left">
-        <p style="margin:0 0 6px;font-weight:800;font-size:15px">\u{1F511} Ask Mum or Dad</p>
+        <p style="margin:0 0 6px;font-weight:800;font-size:15px">🔑 Ask Mum or Dad</p>
         <p class="small" style="margin:0 0 10px">Nothing is lost and nothing is broken. Your points are all still there. A parent can give you a new password in about ten seconds.</p>
-        <p class="small" style="margin:0 0 4px;font-weight:800">Show them this bit \u{1F447}</p>
-        <p class="small" style="margin:0">Open Dougoun Kids \u2192 <strong>\u2630 Menu</strong> \u2192 <strong>\u{1F468}\u200D\u{1F469}\u200D\u{1F467} Family members</strong> \u2192 tap <strong>\u2709\uFE0F</strong> next to their name. Then check your own email for the link.</p>
+        <p class="small" style="margin:0 0 4px;font-weight:800">Show them this bit 👇</p>
+        <p class="small" style="margin:0">Open Dougoun Kids → <strong>☰ Menu</strong> → <strong>👨‍👩‍👧 Family members</strong> → tap <strong>✉️</strong> next to their name. Then check your own email for the link.</p>
       </div>
       <p class="small"><a href="#" onclick="submitForgotPassword();return false;">Forgot password?</a></p>
       <p class="small" style="background:#f7f7ff;border:1px solid #e1e3f4;border-radius:12px;padding:9px 11px;margin:2px 0">
@@ -823,10 +844,10 @@
 
     <div style="text-align:left;background:#f7f7ff;border:1px solid #e1e3f4;border-radius:16px;padding:14px;margin-top:16px">
       <p class="small" style="margin:0 0 6px"><strong>Got an invitation code?</strong></p>
-      <p class="small" style="margin:0 0 8px">Parents, grandparents, uncles, aunties and tutors all join this way. The code itself decides which \u2014 a parent generates it under <strong>Family members</strong>, and what they choose there is what you become.</p>
+      <p class="small" style="margin:0 0 8px">Parents, grandparents, uncles, aunties and tutors all join this way. The code itself decides which — a parent generates it under <strong>Family members</strong>, and what they choose there is what you become.</p>
       <input id="joinCodeInput" type="text" placeholder="Code — e.g. K7PM4RQX" autocapitalize="characters" style="text-transform:uppercase;letter-spacing:.1em;font-weight:700">
       <input id="joinPersonName" type="text" placeholder="Your name (e.g. Yusuf)" style="margin-top:8px">
-      <input id="joinRoleLabel" type="text" placeholder="What should they call you? (e.g. Dad, Grandma, Uncle Yusuf, Qur\u2019an tutor)" style="margin-top:8px">
+      <input id="joinRoleLabel" type="text" placeholder="What should they call you? (e.g. Dad, Grandma, Uncle Yusuf, Qur’an tutor)" style="margin-top:8px">
       <p class="small" style="margin:6px 0 0">This is the label the family sees next to your name. What you can actually do comes from the code.</p>
       <button class="confirm" style="margin-top:10px;width:100%" id="joinBtn" onclick="submitJoinCode()">Join the family</button>
       <p class="small" id="joinError" style="color:#a63e3e;margin:8px 0 0"></p>
@@ -957,6 +978,7 @@
       <button class="light" id="btnActivity" onclick="showActivityPanel()">📋 History</button>
       <button class="light" onclick="toggleEditMode()" id="editModeBtn">✏️ Edit Categories</button>
       <button class="light" id="btnRefreshLists" onclick="applyRecommendedLists()">✨ Update to recommended lists</button>
+      <button class="light" id="btnRules" onclick="showRulesPanel()">📜 House rules</button>
       <button class="light" id="btnHowItWorks" onclick="openHowItWorks()">❓ How this works</button>
       <button class="light" id="btnResetDay" onclick="resetDay()">↻ Reset today</button>
       <button class="light" id="btnSignOut" onclick="signOutDevice()">🔒 Sign out</button>
@@ -986,7 +1008,7 @@
 
         <div class="catedit hidden" id="addMemberBox" style="margin-top:14px">
           <p class="small" style="margin:0 0 8px"><strong>Add someone new</strong></p>
-          <p class="small" style="margin:0 0 10px">This creates a login for a <strong>child</strong> \u2014 someone who earns points. Every other grown-up joins by invitation instead, so they set their own password and you never hold it.</p>
+          <p class="small" style="margin:0 0 10px">This creates a login for a <strong>child</strong> — someone who earns points. Every other grown-up joins by invitation instead, so they set their own password and you never hold it.</p>
           <input id="newChildName" placeholder="Name (e.g. Emma, Grandma)" oninput="suggestRecoveryForName()">
           <input id="newChildAge" placeholder="Age or role — optional (e.g. 7, or Grandma)" style="margin-top:8px">
           <div style="display:flex;gap:8px;margin-top:8px" class="hidden">
@@ -1010,11 +1032,11 @@
         <button class="primary" id="revealAddBtn" style="margin-top:14px;width:100%" onclick="openAddMember()">＋ Add someone new</button>
         <div style="display:grid;gap:6px;margin-top:10px">
           <p class="small" style="margin:0">Invite someone to this family:</p>
-          <button class="light" id="inviteParentBtn" style="width:100%" onclick="createParentInvite('parent')">\u{1F517} Invite another parent</button>
-          <button class="light" id="inviteFamilyBtn" style="width:100%" onclick="createParentInvite('family')">\u{1F46A} Invite a grandparent, uncle or aunty</button>
-          <button class="light" id="inviteTutorBtn" style="width:100%" onclick="createParentInvite('tutor')">\u{1F4DA} Invite a tutor</button>
-          <p class="small" style="margin:0">A grandparent, uncle or aunty can see the children\u2019s names and weekly points, give each child up to 10 points a week, and offer them a shared goal or a gift. They can\u2019t take points away, change rewards, or see your own list.</p>
-          <p class="small" style="margin:0">A tutor sees only the children you assign them \u2014 no photos, no behaviour graphs, no prayer board. They can record up to 5 points once a day for a lesson, and you can undo anything they record.</p>
+          <button class="light" id="inviteParentBtn" style="width:100%" onclick="createParentInvite('parent')">🔗 Invite another parent</button>
+          <button class="light" id="inviteFamilyBtn" style="width:100%" onclick="createParentInvite('family')">👪 Invite a grandparent, uncle or aunty</button>
+          <button class="light" id="inviteTutorBtn" style="width:100%" onclick="createParentInvite('tutor')">📚 Invite a tutor</button>
+          <p class="small" style="margin:0">A grandparent, uncle or aunty can see the children’s names and weekly points, give each child up to 10 points a week, and offer them a shared goal or a gift. They can’t take points away, change rewards, or see your own list.</p>
+          <p class="small" style="margin:0">A tutor sees only the children you assign them — no photos, no behaviour graphs, no prayer board. They can record up to 5 points once a day for a lesson, and you can undo anything they record.</p>
         </div>
         <div id="inviteBox" class="hidden" style="margin-top:12px;background:#eef0ff;border:1px solid #c9cdf5;border-radius:16px;padding:14px;text-align:center">
           <p class="small" style="margin:0 0 6px">Read this out to them. It works once, and lasts fifteen minutes.</p>
@@ -1046,9 +1068,36 @@
 
   <div id="progressPanel" class="panel hidden">
     <button class="panelback" onclick="goHome()">← Home</button>
-    <h2>\u{1f4d6} Progress</h2>
+    <h2>📖 Progress</h2>
     <p class="small">What each child has covered and what they can do unaided. Every mark shows who made it.</p>
     <div id="progressBody" style="margin-top:10px"></div>
+  </div>
+
+  <div id="quickPanel" class="panel hidden">
+    <button class="panelback" onclick="goHome()">← Home</button>
+    <h2>⚡ Quick award</h2>
+    <p class="small">Everyone on one screen. Tap and it’s recorded — no need to open anyone’s card.</p>
+    <div class="notebox">
+      <input id="quickNote" placeholder="What did you notice? (optional — they’ll read this)" oninput="renderQuickPanel()">
+      <p class="small" style="margin:6px 0 0">A note is attached to the next thing you tap, then clears. It matters more than the number.</p>
+    </div>
+    <div id="quickBody" style="margin-top:14px"></div>
+  </div>
+
+  <div id="reviewPanel" class="panel hidden">
+    <button class="panelback" onclick="goHome()">← Home</button>
+    <h2>🗣️ Review together</h2>
+    <p class="small">Sit down with them and go through the week. Everything is already decided — this is the talking part.</p>
+    <div id="reviewBody" style="margin-top:12px"></div>
+  </div>
+
+  <div id="rulesPanel" class="panel hidden">
+    <button class="panelback" onclick="goHome()">← Home</button>
+    <div class="spendtabs" style="max-width:420px">
+      <button id="rulesTabKids" onclick="setRulesTab('kids')">For children</button>
+      <button id="rulesTabGrown" onclick="setRulesTab('grown')">For grown-ups</button>
+    </div>
+    <div id="rulesBody"></div>
   </div>
 
   <div id="rewardsPanel" class="panel hidden">
@@ -1074,7 +1123,7 @@
     <h2>🔔 Requests from the children</h2>
     <p class="small">When a child asks for a reward or an activity, it shows up here for you to approve.</p>
     <div id="requestsPanelList" style="display:grid;gap:8px;margin-top:10px"></div>
-    <h2 style="margin:18px 0 0">\u{1f91d} Offers from the family</h2>
+    <h2 style="margin:18px 0 0">🤝 Offers from the family</h2>
     <p class="small">Grandparents, uncles and aunties can offer the children something. Nothing reaches them until you say yes.</p>
     <div id="offersList" style="display:grid;gap:8px;margin-top:10px"></div>
   </div>
@@ -1098,6 +1147,9 @@
     <button class="primary" style="width:auto;padding:7px 14px;font-size:13px" onclick="undoLastDelete()">↶ Undo</button>
     <button class="light" style="width:auto;padding:7px 12px;font-size:13px" onclick="dismissUndo()">Dismiss</button>
   </span>
+</div>
+<div id="awardNoteWrap" class="notebox hidden">
+  <input id="awardNote" placeholder="What did you notice? (optional — they’ll read this)">
 </div>
 <div id="coachNudge"></div>
 <div id="parentGoal"></div>
@@ -1172,7 +1224,10 @@
       <button class="boostmore" onclick="nextKidTips()">Show me different ideas</button>
     </section>
 
-    <div class="helpline"><button onclick="startTour(kidTourKey(sessionMember()))">❓ How this works</button></div>
+    <div class="helpline">
+      <button onclick="showRulesPanel()">📜 House rules</button>
+      <button onclick="startTour(kidTourKey(sessionMember()))">❓ How this works</button>
+    </div>
 
     <p class="kidfooter">Only Mum and Dad can give points — keep doing kind things and they'll notice! 💛</p>
     <div style="text-align:center;margin:0 0 24px">
@@ -2499,7 +2554,7 @@ const TIP_CATS = [
   {key:"behaviour", label:"Behaviour"}
 ];
 
-const APP_VERSION = "v62";
+const APP_VERSION = "v64";
 const today = new Date().toISOString().slice(0,10);
 let app = {families:[],currentFamily:null,currentChild:null};
 let categories = [];
@@ -3287,6 +3342,209 @@ function learnScreenHTML(child){
   }).join("")
   + `<p class="kidfooter">Tap <strong>Practised</strong> when you\u2019ve worked on something. Only a grown-up can mark it secure.</p>`;
 }
+
+/* ---------- The note ----------
+   "Say what it was for, out loud" was already the advice; this writes it down.
+   A feed that says "Use kind words +2" is a scoreboard. One that says what they
+   actually did is the child being noticed, and it is the thing they re-read. */
+function takeAwardNote(){
+  const ids=["awardNote","quickNote"];
+  for(const id of ids){
+    const el=document.getElementById(id);
+    if(el && el.value.trim()){
+      const v=el.value.trim();
+      el.value="";
+      return v;
+    }
+  }
+  return "";
+}
+
+/* ---------- Quick award ----------
+   The evening pass used to be: open the app, Give points, pick a child, open a
+   category, tap. Five journeys for four children. This is one screen. */
+function topActionsForFamily(limit){
+  const counts={};
+  const f=currentFamily();
+  (f?f.children:[]).filter(isChildRole).forEach(c=>(c.activityLog||[]).forEach(e=>{
+    if(e.type==="award" && e.actionName) counts[e.actionName]=(counts[e.actionName]||0)+1;
+  }));
+  const found=[];
+  (app.categories||[]).forEach((cat,ci)=>(cat.actions||[]).forEach(a=>{
+    found.push({ci, cat, name:a[0], points:a[1], opts:actionOpts(a), used:counts[a[0]]||0});
+  }));
+  const byUse=found.slice().sort((x,y)=> y.used-x.used || x.name.localeCompare(y.name));
+  const picked=byUse.slice(0, limit||8);
+  // A brand new family has no history, so fall back to one from each category.
+  // That walk has to use the original order, not the sorted copy, or it picks
+  // whichever action happens to sort first rather than the one each category
+  // deliberately leads with.
+  if(picked.every(p=>p.used===0)){
+    const seen={}; const spread=[];
+    found.forEach(p=>{ if(!seen[p.cat.name] && spread.length<(limit||8)){ seen[p.cat.name]=1; spread.push(p); } });
+    return spread;
+  }
+  return picked;
+}
+function showQuickPanel(){ openPanel("quickPanel"); renderQuickPanel(); }
+function renderQuickPanel(){
+  const body=document.getElementById("quickBody");
+  if(!body) return;
+  const f=currentFamily();
+  const kids=f ? f.children.filter(isChildRole) : [];
+  if(!kids.length){ body.innerHTML='<p class="small">Add a child first, under Family members.</p>'; return; }
+  const actions=topActionsForFamily(8);
+  const noteEl=document.getElementById("quickNote");
+  const hasNote=!!(noteEl && noteEl.value.trim());
+  body.innerHTML = kids.map(c=>{
+    const s=stateForChild(c);
+    return `<section class="quickcard">
+      <div class="quickhead">
+        ${c.photo?`<img src="${c.photo}" alt="">`:'<span class="avatar-placeholder">\ud83d\udc64</span>'}
+        <div><strong>${escapeHtml(c.name)}</strong>
+          <div class="small">${todayTotalFor(c)} today</div></div>
+      </div>
+      <div class="quickacts">${actions.map(a=>{
+        const done = a.opts.once && valueFor(s, a.cat, a.name) > 0;
+        return `<button class="quickact ${done?"ticked":""}" ${done?"disabled":""}
+          onclick="quickAward('${c.id}',${a.ci},'${String(a.name).replace(/'/g,"\\'")}',${a.points})">
+          <span class="qname">${escapeHtml(a.name)}</span>
+          <span class="qpts">${done?"\u2713":"+"+a.points}</span></button>`;
+      }).join("")}</div>
+    </section>`;
+  }).join("")
+  + `<p class="small" style="margin:14px 0 0">${hasNote
+      ? "\u270d\ufe0f Your note goes on the next one you tap."
+      : "Tip: award quietly when you notice something, and talk it through later under Review together. Awarding in front of them turns every point into a negotiation."}</p>`;
+}
+async function quickAward(childId, ci, actionName, points){
+  if(!requireParent()) return;
+  const child=memberById(childId);
+  const cat=activeCats()[ci];
+  if(!child || !cat) return;
+  if(child.id===sessionMemberId){ alert("You can't award points to yourself."); return; }
+  const entry=(cat.actions||[]).find(x=>x[0]===actionName);
+  if(actionOpts(entry).once && valueFor(stateForChild(child), cat, actionName) > 0){
+    alert("\u2713 "+actionName+" is already recorded for "+child.name+" today.");
+    return;
+  }
+  const note=takeAwardNote();
+  const ok=await writeLedger({childId:child.id, points:points,
+    label: note ? actionName+" \u2014 "+note : actionName, type:"award",
+    catKey:catKeyFor(cat,actionName), actionName:actionName,
+    tag:actionOpts(entry).tag||null});
+  if(ok) renderQuickPanel();
+}
+
+/* ---------- Review together ----------
+   The decisions are already made and recorded. This is only the conversation,
+   which is where the explaining belongs \u2014 not at the moment of the tap. */
+function showReviewPanel(){ openPanel("reviewPanel"); renderReviewPanel(); }
+function renderReviewPanel(){
+  const body=document.getElementById("reviewBody");
+  if(!body) return;
+  const f=currentFamily();
+  const kids=f ? f.children.filter(isChildRole) : [];
+  if(!kids.length){ body.innerHTML='<p class="small">Add a child first.</p>'; return; }
+  const who=(currentChild() && isChildRole(currentChild())) ? currentChild() : kids[0];
+  const weekDates=getCurrentWeekDates();
+  const from=weekDates[0];
+  const mine=(who.activityLog||[]).filter(e=>e.type==="award" && tsToDateStr(e.ts)>=from);
+  const byDay={};
+  mine.forEach(e=>{ const d=tsToDateStr(e.ts); (byDay[d]=byDay[d]||[]).push(e); });
+  const days=Object.keys(byDay).sort().reverse();
+  const band=bandForChild(who);
+  body.innerHTML =
+    `<div class="chiprow" style="margin-bottom:12px">${kids.map(c=>`<button class="whochip ${
+      c.id===who.id?"on":""}" onclick="selectChild('${c.id}');showReviewPanel()">${escapeHtml(c.name)}</button>`).join("")}</div>
+     <section class="card">
+       <h2 style="margin:0 0 2px">${escapeHtml(who.name)}\u2019s week</h2>
+       <div class="statgrid">
+         <div><strong>${weeklyTotalFor(who, weekDates)}</strong><span>Points</span></div>
+         <div><strong>${mine.length}</strong><span>Things noticed</span></div>
+         <div><strong>${who.balance||0}</strong><span>Saved up</span></div>
+       </div>
+       <span class="moodpill ${band.cls}">${band.label}</span>
+     </section>
+     ${days.length ? days.map(d=>{
+        const dd=new Date(d+"T12:00:00");
+        return `<section class="card"><h2 style="margin:0 0 8px;font-size:16px">${
+          dd.toLocaleDateString(undefined,{weekday:"long", day:"numeric", month:"short"})}</h2>
+          <div style="display:grid;gap:7px">${byDay[d].map(e=>`<div class="logrow">
+            <div><div>${escapeHtml(e.label)}</div>
+              <div class="logmeta">${e.points>=0?"+":""}${e.points} \u00b7 ${escapeHtml(e.by||"")}</div></div>
+          </div>`).join("")}</div></section>`;
+      }).join("")
+      : '<p class="small">Nothing recorded this week yet.</p>'}
+     <section class="card" style="border-top-color:#e0b13c">
+       <h2 style="margin:0 0 4px">\u{1f64b} Anything I missed?</h2>
+       <p class="small" style="margin:0">Ask them now. This is the moment for it \u2014 not when you\u2019re awarding. If they\u2019re right, add it while you\u2019re sitting together.</p>
+       <button class="primary" style="margin-top:12px;width:100%" onclick="showQuickPanel()">\u26a1 Add something now</button>
+     </section>`;
+}
+
+/* ---------- House rules ---------- */
+let rulesTab="kids";
+function setRulesTab(t){ rulesTab=t; renderRulesPanel(); }
+function showRulesPanel(){
+  const me=sessionMember();
+  rulesTab = (me && isChildRole(me)) ? "kids" : rulesTab;
+  if(me && isChildRole(me)){ showScreen("rulesPanel"); renderRulesPanel(); return; }
+  openPanel("rulesPanel"); renderRulesPanel();
+}
+function renderRulesPanel(){
+  const body=document.getElementById("rulesBody");
+  if(!body) return;
+  const me=sessionMember();
+  const kidOnly = me && isChildRole(me);
+  const tabs=document.querySelector("#rulesPanel .spendtabs");
+  if(tabs) tabs.classList.toggle("hidden", !!kidOnly);
+  ["kids","grown"].forEach(t=>{
+    const b=document.getElementById(t==="kids"?"rulesTabKids":"rulesTabGrown");
+    if(b) b.classList.toggle("on", rulesTab===t);
+  });
+  body.innerHTML = (kidOnly || rulesTab==="kids") ? RULES_KIDS : RULES_GROWN;
+}
+const RULES_KIDS = `
+  <h2>\u{1f4dc} How points work</h2>
+  <p class="small">The same rules for everyone, every day.</p>
+  <div class="rulelist">
+    <div class="rule"><span class="rn">1</span><div><strong>Points are for what you do, not for asking.</strong>
+      If you ask \u201cdo I get points for that?\u201d, the answer is no \u2014 even if the thing was good. Just do it, and you\u2019ll be noticed.</div></div>
+    <div class="rule"><span class="rn">2</span><div><strong>Only Mum and Dad give points.</strong>
+      Not you, not your brother or sister. Grandparents and teachers can give a few, but Mum and Dad decide everything else.</div></div>
+    <div class="rule"><span class="rn">3</span><div><strong>Nothing is ever taken away.</strong>
+      Points you\u2019ve earned are yours to keep. If you have a bad afternoon you don\u2019t lose anything \u2014 you just don\u2019t earn during it.</div></div>
+    <div class="rule"><span class="rn">4</span><div><strong>Arguing never changes a number.</strong>
+      Shouting, sulking or asking again won\u2019t add points and won\u2019t remove them. It only makes the conversation longer.</div></div>
+    <div class="rule"><span class="rn">5</span><div><strong>If you think something was missed, say so at the weekly review.</strong>
+      Once a week you sit down together and go through it. That\u2019s when you say \u201cwhat about when I\u2026\u201d \u2014 and if you\u2019re right, it gets added.</div></div>
+    <div class="rule"><span class="rn">6</span><div><strong>You ask for rewards, and a grown-up decides.</strong>
+      Nothing is taken from your points until they say yes. A no costs you nothing.</div></div>
+    <div class="rule"><span class="rn">7</span><div><strong>Some rewards are limited.</strong>
+      Sweet things are once a week for everyone. That\u2019s not a punishment \u2014 it\u2019s just how it works.</div></div>
+  </div>
+  <p class="small" style="margin-top:14px">Points aren\u2019t the point. They\u2019re a way of noticing. \u{1f49b}</p>`;
+const RULES_GROWN = `
+  <h2>\u{1f9ed} How to run this without arguments</h2>
+  <p class="small">Seven things that keep it quick and keep it calm.</p>
+  <div class="rulelist">
+    <div class="rule"><span class="rn">1</span><div><strong>Award privately, discuss later.</strong>
+      Tap it when you notice it, phone in your pocket. Awarding in front of a child turns every point into a negotiation, and the one who argues hardest learns that arguing is the lever.</div></div>
+    <div class="rule"><span class="rn">2</span><div><strong>Never take points away.</strong>
+      Losing something already earned feels like an injustice worth fighting; simply not gaining doesn\u2019t. The consequence of a tantrum is that nothing gets awarded during it \u2014 not that something is removed.</div></div>
+    <div class="rule"><span class="rn">3</span><div><strong>Asking never earns.</strong>
+      A kind, consistent no to \u201cdo I get points for that?\u201d. Once it is genuinely true a few times, the asking stops.</div></div>
+    <div class="rule"><span class="rn">4</span><div><strong>Use the note.</strong>
+      \u201cUse kind words +2\u201d is a scoreboard. \u201cFor how you were with your sister when she was upset\u201d is being noticed. It takes five seconds and does most of the work.</div></div>
+    <div class="rule"><span class="rn">5</span><div><strong>One pass a day, on one screen.</strong>
+      Quick award has every child and your most-used actions together. Do the day in thirty seconds rather than four separate journeys.</div></div>
+    <div class="rule"><span class="rn">6</span><div><strong>Hold a weekly review.</strong>
+      Go through the week together and end with \u201canything I missed?\u201d. It gives the arguing a legitimate home, once, instead of at every award.</div></div>
+    <div class="rule"><span class="rn">7</span><div><strong>Be boringly consistent.</strong>
+      The same action worth the same points, whoever is on duty. Most disputes are really about the rules changing between Mum and Dad.</div></div>
+  </div>
+  <p class="small" style="margin-top:14px">If a child argues because the system feels arbitrary to them, the note field will do more than any rule here.</p>`;
 
 /* ---------- Programme of study: reading and marking ---------- */
 function progressOf(child, objId){
@@ -4363,7 +4621,7 @@ async function toggleExcusedToday(childId){
    Before this, visibility was decided in five different functions and no single
    place could tell you what was open. screenNow === null means the home screen
    for whoever is signed in: the parent dashboard, or the child's own card. */
-const SCREENS = ["accountPanel","overviewPanel","activityPanel","requestsPanel","progressPanel","rewardsPanel","grownupsPanel","pickPanel",
+const SCREENS = ["accountPanel","overviewPanel","activityPanel","requestsPanel","progressPanel","rewardsPanel","grownupsPanel","pickPanel","quickPanel","reviewPanel","rulesPanel",
                  "kidSpendScreen","kidLearnScreen","kidPointsScreen"];
 let screenNow = null;
 function showScreen(id){
@@ -5912,8 +6170,11 @@ async function add(c,a,p){
     alert("\u2713 "+a+" is already recorded for "+child.name+" today.");
     return;
   }
-  const ok=await writeLedger({childId:child.id, points:p, label:a, type:"award",
-    catKey:catKeyFor(cat,a), actionName:a, tag:actionOpts(entry).tag||null});
+  // The note travels in the label so it shows in their feed; actionName stays
+  // clean so the stats and the prayer board are unaffected.
+  const note=takeAwardNote();
+  const ok=await writeLedger({childId:child.id, points:p, label: note ? a+" \u2014 "+note : a,
+    type:"award", catKey:catKeyFor(cat,a), actionName:a, tag:actionOpts(entry).tag||null});
   if(ok) flashAction(catKeyFor(cat,a));
 }
 async function remove(c,a,p){
@@ -5985,7 +6246,7 @@ function applyRoleChrome(){
   set("cards", !kid);
   set("championBanner", !kid && app.settings && app.settings.showChampion);
   // Parent-only controls and sections
-  ["btnFamily","btnOverview","btnActivity","btnRequests","btnProgress","editModeBtn","btnResetDay"]
+  ["btnFamily","btnOverview","btnActivity","btnRequests","btnProgress","btnRewardsMenu","btnGrownups","editModeBtn","btnResetDay"]
     .forEach(id=>set(id, !kid));
   // One Give points and one menu: the wide tile on the home screen, and the
   // fixed button. The pair inside the old account bar were the duplicates.
@@ -6022,7 +6283,7 @@ function applyRoleChrome(){
   if(fam){
     // A grandparent gets one screen and no machinery: no menu, no panels, no
     // category tiles, and nothing that could move a point.
-    ["accountPanel","overviewPanel","activityPanel","requestsPanel","progressPanel","addCategoryWrap","summarySection",
+    ["accountPanel","overviewPanel","activityPanel","requestsPanel","progressPanel","quickPanel","reviewPanel","addCategoryWrap","summarySection",
      "cards","rewardSection","gameNightSection","parentRewardSection","requestsBanner","behaviourWrap",
      "editModeNote","tipsCard","undoBar","whoStrip","championBanner","coachNudge","parentGoal","kidTabBar","championFab"]
       .forEach(id=>set(id, false));
@@ -6049,6 +6310,8 @@ function render(){
   showVersion();
   renderFamilyCover();
   renderFab();
+  const anw=document.getElementById("awardNoteWrap");
+  if(anw) anw.classList.toggle("hidden", !(isParentSession() && viewChildId && !editMode && !screenNow));
   const mf=document.getElementById("menuFab");
   if(mf) mf.classList.toggle("hidden", !(ready && isParentSession() && !editMode && !screenNow));
   const eb=document.getElementById("editBar");
@@ -6301,6 +6564,8 @@ function renderParentAdminView(parent){
               ? kids.length+" child"+(kids.length===1?"":"ren")+" \u00b7 "+weekTotal+" points this week"
               : "Add a child to get started"}</span></span>
         </button>
+        ${tile("\u26a1","Quick award","Everyone on one screen","showQuickPanel()")}
+        ${tile("\ud83d\udde3\ufe0f","Review together","Go through the week with them","showReviewPanel()")}
         ${tile("\ud83d\udd14","Requests", pend.length?pend.length+" waiting on you":"Nothing waiting","showRequestsPanel()", pend.length||0)}
         ${tile("\ud83d\udcd6","Progress","Qur\u2019an and what they can do","showProgressPanel()")}
         ${tile("\ud83d\udcca","Overview","Everyone\u2019s week at a glance","showOverviewPanel()")}
@@ -6308,6 +6573,7 @@ function renderParentAdminView(parent){
         ${tile("\ud83e\udd1d","The grown-ups","Your own list, and your partner","showGrownupsPanel()", offers.length||0)}
         ${tile("\ud83d\udc68\u200d\ud83d\udc69\u200d\ud83d\udc67","Family and friends","Logins, invites and tutors","showPicker('people')")}
         ${tile("\ud83d\udccb","History","What was awarded today","showActivityPanel()")}
+        ${tile("\ud83d\udcdc","House rules","How points work, for both of you","showRulesPanel()")}
       </div>
     </div>`;
   document.getElementById("summarySection").classList.add("hidden");
@@ -7297,11 +7563,6 @@ async function createParentInvite(role){
 function prefillJoinName(){
   const el=document.getElementById("joinPersonName");
   if(el && window.__pendingJoinName && !el.value) el.value=window.__pendingJoinName;
-}
-function selectJoinRole(role){
-  window.__joinRole=role;
-  document.getElementById("joinRoleMum").classList.toggle("selected", role==="Mum");
-  document.getElementById("joinRoleDad").classList.toggle("selected", role==="Dad");
 }
 async function submitJoinCode(){
   const errEl=document.getElementById("joinError");
