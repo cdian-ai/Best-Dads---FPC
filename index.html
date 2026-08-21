@@ -151,6 +151,140 @@
        background:var(--accent);color:#fff;font-weight:800;font-size:15px;
        box-shadow:0 10px 26px rgba(91,99,216,.45)}
   .fab:hover{filter:brightness(1.05)}
+  .fab.raised{bottom:88px}
+
+  /* --- This week's champion, floating top-right ------------------------- */
+  .champfab{position:fixed;right:14px;z-index:120;width:auto;padding:0;background:none;
+            top:calc(14px + env(safe-area-inset-top));border-radius:50%;
+            filter:drop-shadow(0 8px 22px rgba(201,151,31,.45))}
+  .champring{position:relative;width:76px;height:76px;border-radius:50%;padding:5px;
+             background:conic-gradient(#f6d365,#fda085,#f6d365,#ffe9a8,#f6d365);
+             display:flex;align-items:center;justify-content:center}
+  .champring img,.champring .avatar-placeholder{width:100%;height:100%;border-radius:50%;
+             object-fit:cover;border:3px solid #fff;background:#fff;font-size:28px;
+             display:flex;align-items:center;justify-content:center}
+  .champcrown{position:absolute;top:-10px;left:50%;transform:translateX(-50%);font-size:22px;
+              filter:drop-shadow(0 2px 3px rgba(0,0,0,.25))}
+  .champspark{position:absolute;inset:-10px;pointer-events:none}
+  .champspark i{position:absolute;width:7px;height:7px;border-radius:50%;
+                background:radial-gradient(circle,#fff 0,#ffd970 60%,rgba(255,217,112,0) 70%)}
+  .champspark i:nth-child(1){top:2%;left:14%}   .champspark i:nth-child(2){top:10%;right:4%}
+  .champspark i:nth-child(3){bottom:6%;left:4%} .champspark i:nth-child(4){bottom:0;right:20%}
+  .champspark i:nth-child(5){top:44%;right:-2%} .champspark i:nth-child(6){top:38%;left:-2%}
+  /* Quiet version: what another child sees if they choose to look. The full
+     celebration stays the champion's own. */
+  .champfab.quiet{filter:none}
+  .champfab.quiet .champring{width:52px;height:52px;padding:3px;background:#e8d9a8}
+  .champfab.quiet .champcrown{font-size:15px;top:-7px}
+  .champfab.quiet .champspark{display:none}
+  @media (prefers-reduced-motion: no-preference){
+    .champfab:not(.quiet) .champring{animation:champspin 7s linear infinite}
+    .champspark i{animation:champtwinkle 2.4s ease-in-out infinite}
+    .champspark i:nth-child(2){animation-delay:.4s} .champspark i:nth-child(3){animation-delay:.8s}
+    .champspark i:nth-child(4){animation-delay:1.2s} .champspark i:nth-child(5){animation-delay:1.6s}
+    .champspark i:nth-child(6){animation-delay:2s}
+  }
+  @keyframes champspin{to{transform:rotate(360deg)}}
+  @keyframes champtwinkle{0%,100%{opacity:0;transform:scale(.4)}50%{opacity:1;transform:scale(1.25)}}
+  .champcard{background:#fff;border-radius:24px;padding:24px;max-width:340px;width:100%;
+             text-align:center;box-shadow:0 24px 60px rgba(20,17,45,.35);
+             border-top:7px solid #e0b13c}
+  .champcard .champring{margin:0 auto 12px;width:104px;height:104px}
+  .champtoggle{display:flex;align-items:center;justify-content:space-between;gap:10px;
+               background:#fffaef;border:1px solid #f0e2bd;border-radius:16px;
+               padding:11px 14px;margin-bottom:16px;font-size:13.5px;font-weight:700;color:#7a6320}
+  .champtoggle button{width:auto;padding:8px 14px;font-size:13px;background:#f6e3ae;color:#6b551a}
+  .climit{display:block;font-size:11px;font-weight:700;color:#8a6d1f;background:#fff5d8;
+          border-radius:99px;padding:2px 8px;margin-top:4px;width:fit-content}
+  .plus.ticked{background:#e4f7ed!important;color:#19744a!important}
+
+  /* --- Prayer board ------------------------------------------------------ */
+  .prayercard{background:#fff;border-radius:22px;padding:16px;box-shadow:var(--shadow);
+              border-top:6px solid #17a08a;margin-bottom:16px}
+  .prayercard.allfive{border-top-color:#e0b13c;background:linear-gradient(180deg,#fffaef,#fff)}
+  .prayerhead{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
+  .prayerhead h2{margin:0;font-size:17px}
+  .prayercount{font-size:12px;font-weight:800;background:#eef0ff;color:#3e46ad;padding:4px 10px;border-radius:99px}
+  .pdots{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-top:12px}
+  .pdot{display:flex;flex-direction:column;align-items:center;gap:4px}
+  .pmark{width:44px;height:44px;border-radius:50%;border:2px dashed #d5d8e8;background:#fbfbff;
+         display:flex;align-items:center;justify-content:center;font-size:20px;color:#fff;font-weight:800}
+  .pdot.on .pmark{background:#17a08a;border:2px solid #17a08a}
+  .plabel{font-size:11.5px;font-weight:800;color:var(--muted)}
+  .pdot.on .plabel{color:#17a08a}
+  .prayernote{margin:12px 0 0;font-weight:800;color:#8a6d1f;text-align:center}
+  .prayerwall{background:#fff;border-radius:22px;padding:16px;box-shadow:var(--shadow);margin-bottom:16px}
+  .pwgrid{margin-top:12px;display:grid;gap:5px}
+  .pwrow{display:grid;grid-template-columns:58px 1fr 18px;align-items:center;gap:7px}
+  .pwname{font-size:12px;font-weight:800;color:var(--ink)}
+  .pwcells{display:flex;gap:3px}
+  .pwcell{flex:1;aspect-ratio:1;min-width:0;border-radius:4px;background:#f1f2f8;border:1px solid #e6e8f0}
+  .pwcell.on{background:#17a08a;border-color:#17a08a}
+  .pwcell.exc{background:repeating-linear-gradient(45deg,#e8e9f2,#e8e9f2 2px,#f6f7fb 2px,#f6f7fb 4px)}
+  .pwstreak{font-size:11px;font-weight:800;color:#e08b28;text-align:right}
+  .pwrow.head .pwcells{gap:3px}
+  .pwd{flex:1;min-width:0;text-align:center;font-size:9.5px;font-weight:700;color:var(--muted)}
+  .pwd.gold{color:#c9971f}
+
+  /* --- Profile tiles under the Give points button ------------------------ */
+  .stripcap{font-size:12px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;
+            color:var(--muted);margin:0 0 8px}
+  .stripcap.grown{margin-top:14px;padding-top:12px;border-top:1px dashed #dfe1ee}
+  .kidtiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(148px,1fr));gap:8px}
+  .kidtile{display:flex;flex-direction:column;align-items:center;gap:5px;text-align:center;
+           background:#fff;border:2px solid #e6e8f0;border-radius:18px;padding:12px 10px;
+           width:auto;min-width:0;color:var(--ink);font-weight:700}
+  .kidtile.on{border-color:var(--accent);background:#eef0ff}
+  .kidtile.grown{background:#f7f6ff;border-color:#ded9f6}
+  .kidtile-av{position:relative;display:block;width:56px;height:56px}
+  .kidtile-av img,.kidtile-av .avatar-placeholder{width:56px;height:56px;border-radius:50%;
+           object-fit:cover;font-size:26px;display:flex;align-items:center;justify-content:center}
+  .tilebadge{position:absolute;top:-4px;right:-4px;background:#d85b5b;color:#fff;font-size:11px;
+             font-weight:800;min-width:20px;height:20px;border-radius:99px;display:flex;
+             align-items:center;justify-content:center;padding:0 5px;border:2px solid #fff}
+  .kidtile-name{font-size:14.5px;font-weight:800;line-height:1.2;overflow-wrap:anywhere}
+  .kidtile-meta{font-size:11.5px;color:var(--muted);font-weight:600}
+  .kidtile .moodpill{font-size:10.5px;padding:3px 8px}
+
+  /* --- Overview: one tile per child, two to a row ------------------------ */
+  .overviewgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:12px}
+  .ovtile{display:flex;flex-direction:column;gap:6px;align-items:stretch;text-align:left;
+          background:#f7f8fc;border:1px solid #e6e8f0;border-radius:18px;padding:12px 11px;
+          width:auto;min-width:0;color:var(--ink)}
+  .ovtile:hover{background:#eef0ff}
+  .ovhead{display:flex;align-items:center;gap:8px;min-width:0}
+  .ovhead img,.ovhead .avatar-placeholder{width:34px;height:34px;border-radius:50%;object-fit:cover;
+          font-size:17px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+  .ovname{font-size:14.5px;font-weight:800;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .ovtile svg{width:100%;height:auto;display:block}
+  .ovfoot{display:flex;align-items:center;justify-content:space-between;gap:6px;flex-wrap:wrap}
+  .ovweek{font-size:11.5px;color:var(--muted);font-weight:700}
+  .ovtile .moodpill{font-size:10.5px;padding:3px 8px}
+  @media(max-width:360px){ .overviewgrid{grid-template-columns:1fr} }
+  .statgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:14px 0}
+  .statgrid div{background:#f7f8fc;border-radius:14px;padding:11px 8px;text-align:center}
+  .statgrid strong{display:block;font-size:20px}
+  .statgrid span{font-size:11.5px;color:var(--muted)}
+
+  /* --- Child navigation: one big Spend button and a bottom tab bar ------- */
+  .spendbtn{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;
+            background:linear-gradient(135deg,#17a08a,#0f8f9c);color:#fff;border-radius:22px;
+            padding:20px 22px;font-size:20px;font-weight:800;text-align:left;
+            box-shadow:0 12px 28px rgba(15,143,156,.32);margin-bottom:16px}
+  .spendbtn small{display:block;font-size:13px;font-weight:600;opacity:.92;margin-top:3px}
+  .spendbtn .spendbal{font-size:26px;font-weight:800;white-space:nowrap}
+  .tabbar{position:fixed;left:0;right:0;bottom:0;z-index:130;display:grid;grid-template-columns:repeat(3,1fr);
+          gap:4px;background:#fff;border-top:1px solid #e6e8f0;padding:7px 8px calc(7px + env(safe-area-inset-bottom));
+          box-shadow:0 -6px 20px rgba(24,22,60,.08)}
+  .tabbar button{display:flex;flex-direction:column;align-items:center;gap:2px;background:none;
+                 color:var(--muted);font-size:11.5px;font-weight:700;padding:7px 4px;width:auto;
+                 border-radius:14px;min-height:52px}
+  .tabbar button .tabemoji{font-size:21px;line-height:1}
+  .tabbar button.on{background:#eef0ff;color:#3e46ad}
+  body.haskidbar{padding-bottom:80px}
+  .spendtabs{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
+  .spendtabs button{background:#eef0ff;color:#3e46ad;font-size:13px;padding:13px 6px;width:auto}
+  .spendtabs button.on{background:var(--accent);color:#fff}
   @media(max-width:760px){ .familycover{height:112px} }
   .accountbuttons{display:flex;gap:8px;flex-wrap:wrap}.small{font-size:12px;color:var(--muted);margin-top:3px}
   /* Everything except the one action a parent actually came here to do lives
@@ -188,8 +322,7 @@
      a handful of members, so a second row costs nothing and always works. */
   /* A grid rather than ragged wrapping: equal columns line up, and the count
      adapts to the width instead of leaving an awkward gap at the end of a row. */
-  .whostrip{display:grid;grid-template-columns:repeat(auto-fill,minmax(115px,1fr));gap:8px;
-            width:100%;align-self:stretch;min-width:0;
+  .whostrip{display:block;width:100%;align-self:stretch;min-width:0;
             padding:12px 0 2px;margin:10px 0 0;border-top:1px solid #e6e8f0}
   .whochip{display:flex;align-items:center;gap:7px;background:#fff;border:2px solid #e6e8f0;
            border-radius:999px;padding:6px 13px 6px 6px;font-weight:700;font-size:13.5px;color:var(--ink);
@@ -430,6 +563,11 @@
       <button class="primary" onclick="submitAuthLogin()">Sign in</button>
       <p class="small" id="authError" style="color:#a63e3e"></p>
       <p class="small" id="authResetMsg" style="color:var(--good)"></p>
+      <div id="askParentPanel" class="hidden" style="background:#f5f3ff;border:1px solid #cfc7f7;border-radius:16px;padding:14px;margin:4px 0;text-align:left">
+        <p style="margin:0 0 6px;font-weight:800;font-size:15px">\u{1F511} Ask Mum or Dad</p>
+        <p class="small" style="margin:0 0 8px">Your password is safe \u2014 a parent can send you a new one.</p>
+        <p class="small" style="margin:0">Ask them to open Dougoun Kids on their phone, tap <strong>\u2630 Menu \u2192 \u{1F468}\u200D\u{1F469}\u200D\u{1F467} Family members</strong>, find your name and tap <strong>\u2709\uFE0F</strong>.</p>
+      </div>
       <p class="small"><a href="#" onclick="submitForgotPassword();return false;">Forgot password?</a></p>
       <p class="small" style="background:#f7f7ff;border:1px solid #e1e3f4;border-radius:12px;padding:9px 11px;margin:2px 0">
         <strong>Children:</strong> sign in with the email and password a parent gave you when they added you. It looks like <em>yourname.ab12@…</em>
@@ -504,6 +642,7 @@
         <input id="onbChildName" type="text" placeholder="Their name (e.g. Aisha)">
         <input id="onbChildAge" type="text" placeholder="Age — optional (e.g. 7)">
         <input id="onbChildPassword" type="text" placeholder="A password for them (6+ characters)">
+        <input id="onbChildRecovery" type="email" placeholder="Email for their login (filled in for you)">
         <button class="confirm" onclick="onbAddChild()" id="onbAddBtn">Add</button>
         <p class="small" id="onbAddError" style="color:#a63e3e;margin:0"></p>
       </div>
@@ -535,8 +674,20 @@
     <p class="sub">You're signed in as <strong id="noFamilyEmail">—</strong>, but this account isn't in any family yet.</p>
 
     <div style="text-align:left;background:#f7f7ff;border:1px solid #e1e3f4;border-radius:16px;padding:14px;margin-top:16px">
-      <p class="small" style="margin:0 0 6px"><strong>Are you a child, or joining someone else's family?</strong></p>
-      <p class="small" style="margin:0">You don't join from here — there's no code or invitation. A parent adds you on their own device, which creates your login for you. Ask them for the email address and password it showed them, then sign in with those below. Nothing else is needed.</p>
+      <p class="small" style="margin:0 0 6px"><strong>Joining your partner's family?</strong></p>
+      <p class="small" style="margin:0 0 8px">Ask them to open the app, go to <strong>Family members</strong> and tap <strong>Invite another parent</strong>. Type the code they read out below.</p>
+      <input id="joinCodeInput" type="text" placeholder="Code — e.g. K7PM4RQX" autocapitalize="characters" style="text-transform:uppercase;letter-spacing:.1em;font-weight:700">
+      <input id="joinPersonName" type="text" placeholder="Your name (e.g. Yusuf)" style="margin-top:8px">
+      <div style="margin-top:8px">
+        <p class="small" style="margin:0 0 6px">You are...</p>
+        <div style="display:flex;gap:8px">
+          <button type="button" id="joinRoleMum" class="light" style="width:auto;flex:1" onclick="selectJoinRole('Mum')">Mum</button>
+          <button type="button" id="joinRoleDad" class="light selected" style="width:auto;flex:1" onclick="selectJoinRole('Dad')">Dad</button>
+        </div>
+      </div>
+      <button class="confirm" style="margin-top:10px;width:100%" id="joinBtn" onclick="submitJoinCode()">Join the family</button>
+      <p class="small" id="joinError" style="color:#a63e3e;margin:8px 0 0"></p>
+      <p class="small" style="margin:8px 0 0"><strong>Are you a child?</strong> You don't join from here. A parent adds you on their own device and gives you an email and password — sign in with those.</p>
     </div>
 
     <div style="display:grid;gap:8px;margin-top:14px">
@@ -573,6 +724,11 @@
   ⚠️ <strong>This is a local copy.</strong> Accounts can't be created or signed into from a file on your computer — open the app from its web address (github.io) instead. Everything else here is just a preview.
 </div>
 <button id="homeFab" class="fab hidden" onclick="fabAction()">🏠 Home</button>
+<button id="championFab" class="champfab hidden" onclick="openChampionCard()" aria-label="This week's champion"></button>
+
+<div id="championCard" class="celebrate hidden" onclick="closeChampionCard()">
+  <div class="champcard" id="championCardBody" onclick="event.stopPropagation()"></div>
+</div>
 
 <div id="catPage" class="catpage hidden">
   <div class="catpage-inner">
@@ -590,6 +746,13 @@
       <button id="catTabIdeas" onclick="setCatTab('ideas')">＋ More options</button>
     </div>
     <div id="catSheetBody"></div>
+  </div>
+</div>
+
+<div id="childStatsPage" class="catpage hidden">
+  <div class="catpage-inner">
+    <button class="catback" onclick="closeChildStats()">← Back to overview</button>
+    <div id="childStatsBody"></div>
   </div>
 </div>
 
@@ -639,6 +802,7 @@
       <button class="light" id="btnOverview" onclick="showOverviewPanel()">📊 Overview</button>
       <button class="light" id="btnActivity" onclick="showActivityPanel()">📋 History</button>
       <button class="light" onclick="toggleEditMode()" id="editModeBtn">✏️ Edit Categories</button>
+      <button class="light" id="btnRefreshLists" onclick="applyRecommendedLists()">✨ Update to recommended lists</button>
       <button class="light" id="btnResetDay" onclick="resetDay()">↻ Reset today</button>
       <button class="light" id="btnSignOut" onclick="signOutDevice()">🔒 Sign out</button>
     </div>
@@ -674,8 +838,8 @@
             <button type="button" id="newRoleParent" class="light" style="width:auto;flex:1" onclick="selectNewMemberRole('parent')">Parent</button>
           </div>
           <input id="newChildPassword" type="text" placeholder="Password for their login (6+ characters)" style="margin-top:8px">
-          <input id="newChildRecovery" type="email" placeholder="Recovery email — optional" style="margin-top:8px" oninput="recoveryTouched=true">
-          <p class="small" id="recoveryHint" style="margin:6px 0 0">Give an address you can open and a forgotten password can be reset by email. Leave it blank and only you can help them back in.</p>
+          <input id="newChildRecovery" type="email" placeholder="Email for their login (required)" style="margin-top:8px" oninput="recoveryTouched=true">
+          <p class="small" id="recoveryHint" style="margin:6px 0 0">For a child, this is filled in for you as a variation of your own address — resets land in your inbox. For another parent, put in their own address: they'll need it to get back in, and you won't be able to reset it for them.</p>
           <p class="small" style="margin:6px 0 0">Check the details above, then press Add. Their login is created straight away and shown to you.</p>
           <div class="memberhead" style="margin-top:8px">
             <div id="newMemberPreview"><div class="avatar-placeholder">📷</div></div>
@@ -688,6 +852,13 @@
         </div>
 
         <button class="primary" id="revealAddBtn" style="margin-top:14px;width:100%" onclick="openAddMember()">＋ Add someone new</button>
+        <button class="light" id="inviteParentBtn" style="margin-top:8px;width:100%" onclick="createParentInvite()">\u{1F517} Invite another parent</button>
+        <div id="inviteBox" class="hidden" style="margin-top:12px;background:#eef0ff;border:1px solid #c9cdf5;border-radius:16px;padding:14px;text-align:center">
+          <p class="small" style="margin:0 0 6px">Read this out to them. It works once, and lasts fifteen minutes.</p>
+          <p id="inviteCode" style="margin:0;font-size:30px;font-weight:800;letter-spacing:.12em;color:#3e46ad"></p>
+          <p class="small" id="inviteExpiry" style="margin:6px 0 0"></p>
+          <p class="small" style="margin:8px 0 0">They download the app, create their own account with their own email, then enter this code.</p>
+        </div>
         <input type="file" id="avatarFileInput" accept="image/*" class="hidden" onchange="handleAvatarUpload(this.files[0])">
       </section>
       <section>
@@ -706,7 +877,7 @@
   <div id="overviewPanel" class="panel hidden">
     <h2>📊 Family Overview</h2>
     <p class="small">A quick glance at everyone — tap a row to switch to them.</p>
-    <div id="overviewList" style="display:grid;gap:8px;margin-top:10px"></div>
+    <div id="overviewList" class="overviewgrid"></div>
   </div>
 
   <div id="requestsPanel" class="panel hidden">
@@ -756,59 +927,95 @@
 
 
 <div id="kidView" class="hidden">
-  <section class="kidhero">
-    <div class="bubble b1"></div><div class="bubble b2"></div><div class="bubble b3"></div>
-    <div class="kidherorow">
-      <div id="kidAvatar"><div class="avatar-placeholder-lg">👤</div></div>
-      <div>
-        <p class="kidhi" id="kidGreeting">Hi!</p>
-        <p class="kidsub" id="kidSubline">Here's how you're doing 🌟</p>
+
+  <div id="kidHomeScreen">
+    <section class="kidhero">
+      <div class="bubble b1"></div><div class="bubble b2"></div><div class="bubble b3"></div>
+      <div class="kidherorow">
+        <div id="kidAvatar"><div class="avatar-placeholder-lg">👤</div></div>
+        <div>
+          <p class="kidhi" id="kidGreeting">Hi!</p>
+          <p class="kidsub" id="kidSubline">Here's how you're doing 🌟</p>
+        </div>
+        <div class="coin"><strong id="kidBalance">0</strong><span>points saved</span></div>
       </div>
-      <div class="coin"><strong id="kidBalance">0</strong><span>points saved</span></div>
-    </div>
-    <div class="kidherorow" style="margin-top:8px">
-      <p class="kidsub hidden" id="kidHold" style="margin:0"></p>
-    </div>
-  </section>
+      <div class="kidherorow" style="margin-top:8px">
+        <p class="kidsub hidden" id="kidHold" style="margin:0"></p>
+      </div>
+    </section>
 
-  <div class="kidstats">
-    <div class="kidstat ks1"><strong id="kidToday">0</strong><span>⭐ Points today</span></div>
-    <div class="kidstat ks2"><strong id="kidWeek">0</strong><span>📅 Points this week</span></div>
-    <div class="kidstat ks3"><strong id="kidStreak">0</strong><span>🔥 Day streak</span></div>
-  </div>
-
-  <section class="kidcard teal">
-    <h2>🎁 Spend my points</h2>
-    <p class="lede">Tap a reward to ask Mum or Dad for it. Nothing is taken from your points until they say yes.</p>
-    <div id="kidRewardChips" class="chiprow"></div>
-    <h2 style="margin-top:18px">🎲 Activities</h2>
-    <p class="lede">Pick an activity you'd like to do — or save your points for something the family agrees on together.</p>
-    <div id="kidGameChips" class="chiprow"></div>
-    <div class="savebox">
-      <p>💡 <strong>Or save up.</strong> You don't have to spend anything today. Keeping your points builds towards a bigger family activity you all choose together.</p>
+    <div class="kidstats">
+      <div class="kidstat ks1"><strong id="kidToday">0</strong><span>⭐ Points today</span></div>
+      <div class="kidstat ks2"><strong id="kidWeek">0</strong><span>📅 Points this week</span></div>
+      <div class="kidstat ks3"><strong id="kidStreak">0</strong><span>🔥 Day streak</span></div>
     </div>
+
+    <button class="spendbtn" onclick="showScreen('kidSpendScreen')">
+      <span>🎁 Spend my points
+        <small>Rewards, activities, or save up</small></span>
+      <span class="spendbal" id="kidSpendBal">0</span>
+    </button>
+
+    <div id="championToggleRow"></div>
+
+    <div id="prayerToday"></div>
+
     <div id="kidRequestStatus"></div>
-  </section>
 
-  <section class="boostcard" id="kidBoostCard">
-    <h2>⭐ Ways to get more points</h2>
-    <p class="lede">Little things that add up fast.</p>
-    <div id="kidBoostList"></div>
-    <button class="boostmore" onclick="nextKidTips()">Show me different ideas</button>
-  </section>
+    <section class="boostcard" id="kidBoostCard">
+      <h2>⭐ Ways to get more points</h2>
+      <p class="lede">Little things that add up fast.</p>
+      <div id="kidBoostList"></div>
+      <button class="boostmore" onclick="nextKidTips()">Show me different ideas</button>
+    </section>
 
-  <div id="kidGraphWrap" class="graphcard"></div>
-
-  <section class="kidcard pink">
-    <h2>⭐ Points I've been given</h2>
-    <p class="lede">What you earned, who gave it to you, and what it was for.</p>
-    <div id="kidFeed" class="feed"></div>
-  </section>
-
-  <p class="kidfooter">Only Mum and Dad can give points — keep doing kind things and they'll notice! 💛</p>
-  <div style="text-align:center;margin:0 0 24px">
-    <button class="light" style="width:auto" onclick="signOutDevice()">🔒 Sign out — hand the device back</button>
+    <p class="kidfooter">Only Mum and Dad can give points — keep doing kind things and they'll notice! 💛</p>
+    <div style="text-align:center;margin:0 0 24px">
+      <button class="light" style="width:auto" onclick="signOutDevice()">🔒 Sign out — hand the device back</button>
+    </div>
   </div>
+
+  <div id="kidSpendScreen" class="hidden">
+    <section class="kidcard teal">
+      <h2>🎁 Spend my points</h2>
+      <p class="lede">You have <strong id="kidSpendBal2">0</strong> points to spend. Nothing is taken until Mum or Dad say yes.</p>
+      <div class="spendtabs">
+        <button id="spendTabRewards" onclick="setSpendTab('rewards')">🎁 Rewards</button>
+        <button id="spendTabGames" onclick="setSpendTab('games')">🎲 Activities</button>
+        <button id="spendTabSave" onclick="setSpendTab('save')">💰 Save up</button>
+      </div>
+      <div id="spendPaneRewards">
+        <p class="lede">Tap a reward to ask Mum or Dad for it.</p>
+        <div id="kidRewardChips" class="chiprow"></div>
+      </div>
+      <div id="spendPaneGames" class="hidden">
+        <p class="lede">Pick an activity you'd like to do together.</p>
+        <div id="kidGameChips" class="chiprow"></div>
+      </div>
+      <div id="spendPaneSave" class="hidden">
+        <div class="savebox">
+          <p>💡 <strong>Or save up.</strong> You don't have to spend anything today. Keeping your points builds towards a bigger family activity you all choose together.</p>
+        </div>
+      </div>
+      <div id="kidSpendRequests"></div>
+    </section>
+  </div>
+
+  <div id="kidPointsScreen" class="hidden">
+    <div id="prayerWall"></div>
+    <div id="kidGraphWrap" class="graphcard"></div>
+    <section class="kidcard pink">
+      <h2>⭐ Points I've been given</h2>
+      <p class="lede">What you earned, who gave it to you, and what it was for.</p>
+      <div id="kidFeed" class="feed"></div>
+    </section>
+  </div>
+
+  <nav id="kidTabBar" class="tabbar hidden">
+    <button id="kidTabHome" onclick="showScreen(null)"><span class="tabemoji">🏠</span>Home</button>
+    <button id="kidTabSpend" onclick="showScreen('kidSpendScreen')"><span class="tabemoji">🎁</span>Spend</button>
+    <button id="kidTabPoints" onclick="showScreen('kidPointsScreen')"><span class="tabemoji">⭐</span>My points</button>
+  </nav>
 </div>
 
 <section id="rewardSection" class="reward hidden">
@@ -1012,6 +1219,38 @@
       }
     },
 
+    /* An invitation is a short-lived, single-use pointer to a family. It lets an
+       adult who ALREADY has an account join one — which provisionMember cannot
+       do, because createUser refuses an address that is already registered. */
+    async createInvite(fid, code, ttlMs){
+      await setDoc(doc(db, "invites", code), {
+        familyId: fid, role: "parent",
+        createdBy: auth.currentUser ? auth.currentUser.uid : null,
+        createdAt: serverTimestamp(),
+        expiresAtMs: Date.now() + ttlMs,
+        usedBy: null
+      });
+      return code;
+    },
+    async lookupInvite(code){
+      const snap = await getDoc(doc(db, "invites", code));
+      return snap.exists() ? snap.data() : null;
+    },
+    /* One batch, so a half-joined account cannot exist: the member document, the
+       family pointer the rules read, and the spent invite all land together. */
+    async redeemInvite(code, invite, personName, roleLabel){
+      const uid = auth.currentUser.uid;
+      const batch = writeBatch(db);
+      batch.set(doc(db, "families", invite.familyId, "members", uid), {
+        name: personName, role: "parent", age: roleLabel, photo: null,
+        email: auth.currentUser.email || null
+      });
+      batch.set(doc(db, "userIndex", uid), { familyId: invite.familyId });
+      batch.update(doc(db, "invites", code), { usedBy: uid });
+      await batch.commit();
+      return invite.familyId;
+    },
+
     /* Live view of the whole family. Fires whenever anything changes anywhere. */
     listen(fid, onChange){
       stopListening();
@@ -1069,6 +1308,10 @@
       await setDoc(configRef(fid, name), { payload: JSON.stringify(value) });
     },
     async saveMember(fid, id, data){ await setDoc(memberRef(fid, id), data); },
+    /* A child may write their own row but not the family config, so a personal
+       view preference lives here. update, not set, so nothing else is touched
+       and the role field stays exactly as it was. */
+    async saveMemberPrefs(fid, id, prefs){ await updateDoc(memberRef(fid, id), { prefs }); },
     async deleteMember(fid, id){ await deleteDoc(memberRef(fid, id)); },
     async saveFamilyName(fid, name){ await updateDoc(famRef(fid), { name }); },
     async saveFamilyPhoto(fid, photo){ await updateDoc(famRef(fid), { photo }); },
@@ -1112,55 +1355,119 @@
 
 <script>
 const DEFAULT_CATEGORIES = [
- {icon:"🕌",name:"Salah & Duas",desc:"We remember Allah and say our duas.",
-  actions:[["Pray on time",3],["Say a dua before eating",1],["Say a dua before bed",1],["Learn a new short surah",3]]},
- {icon:"📖",name:"Learning & Qur'an",desc:"We enjoy learning new things, including the Qur'an.",
-  actions:[["Read or listen to Qur'an",3],["Complete homework",3],["Read a book for fun",3],["Keep trying when something is hard",4],["Learn a new fact or story",2]]},
- {icon:"❤️",name:"Kind Hearts",desc:"We are kind, gentle and caring to others.",
+ {icon:"\u{1f54c}",name:"Salah & Duas",desc:"We remember Allah and say our duas.",
+  actions:[["Prayed Fajr",5,{tag:"fajr",once:true}],["Prayed Dhuhr",5,{tag:"dhuhr",once:true}],
+           ["Prayed Asr",5,{tag:"asr",once:true}],["Prayed Maghrib",5,{tag:"maghrib",once:true}],
+           ["Prayed Isha",5,{tag:"isha",once:true}],
+           ["Said a dua before eating",1],["Said a dua before bed",1]]},
+ {icon:"\u{1f4d6}",name:"Learning & Qur'an",desc:"We enjoy learning new things, including the Qur'an.",
+  actions:[["Read or listen to Qur'an",3],["Learn a new short surah",4],["Complete homework",3],
+           ["Read a book for fun",2],["Keep trying when something is hard",4]]},
+ {icon:"\u2764\ufe0f",name:"Kind Hearts",desc:"We are kind, gentle and caring to others.",
   actions:[["Use kind words",2],["Help someone in the family",3],["Show care when someone is upset",3],["Share or take turns",2]]},
- {icon:"👂",name:"Listening & Respect",desc:"We listen well and show respect to parents and elders.",
-  actions:[["Listen the first time",2],["Follow an instruction",2],["Speak politely to Mum and Dad",3],["Say salaam and show respect to elders",2]]},
- {icon:"🗣️",name:"Good Manners",desc:"We use good manners, at home and with Allah in mind.",
-  actions:[["Say Bismillah before eating",1],["Say Alhamdulillah after eating",1],["Say please and thank you",1],["Say sorry and make up after a mistake",3]]},
- {icon:"🧸",name:"Tidy & Helpful",desc:"We look after our things and help around the house.",
-  actions:[["Put toys away",2],["Put clothes in the right place",2],["Help without being asked",4],["Do a job carefully",3]]},
- {icon:"🧘",name:"Big Feelings",desc:"We use patience (sabr) to handle big feelings calmly.",
-  actions:[["Take a calm-down break",2],["Use words to explain a feeling",3],["Try again after becoming frustrated",3],["Ask for help instead of shouting",3]]},
- {icon:"🧼",name:"Looking After Myself",desc:"Cleanliness is part of our faith and part of looking after ourselves.",
-  actions:[["Brush teeth",2],["Wash hands / make wudu",1],["Get dressed and ready",2],["Put belongings away safely",2]]},
- {icon:"🌙",name:"Daily Routines",desc:"We follow good routines, morning and night.",
-  actions:[["Get ready on time",2],["Come to mealtime when asked",2],["Follow the bedtime routine and dua",3],["Get ready for school",3]]},
- {icon:"⭐",name:"Honesty & Good Choices",desc:"We tell the truth and think about how our choices affect others.",
-  actions:[["Make a safe choice",2],["Tell the truth",3],["Make a good choice after a reminder",3],["Do the right thing when nobody is watching",4]]}
+ {icon:"\u{1f442}",name:"Listening & Respect",desc:"We listen well and show respect to parents and elders.",
+  actions:[["Took an answer of no calmly",5],["Listen the first time",3],["Speak politely to Mum and Dad",3],["Follow an instruction",2]]},
+ {icon:"\u{1f5e3}\ufe0f",name:"Good Manners",desc:"We use good manners, at home and with Allah in mind.",
+  actions:[["Say sorry and make up after a mistake",4],["Say salaam and show respect to elders",2],
+           ["Say Bismillah before eating",1],["Say Alhamdulillah after eating",1],["Say please and thank you",1]]},
+ {icon:"\u{1f9f8}",name:"Tidy & Helpful",desc:"We look after our things and help around the house.",
+  actions:[["Help without being asked",4],["Do a job carefully",3],["Put toys away",2],["Put clothes in the right place",2]]},
+ {icon:"\u{1f9d8}",name:"Big Feelings",desc:"We use patience (sabr) to handle big feelings calmly.",
+  actions:[["Try again after becoming frustrated",4],["Use words to explain a feeling",3],["Ask for help instead of shouting",3],
+           ["Sat quietly while others prayed",2],["Take a calm-down break",2]]},
+ {icon:"\u{1f9fc}",name:"Looking After Myself",desc:"Cleanliness is part of our faith and part of looking after ourselves.",
+  actions:[["Get dressed and ready",2],["Put belongings away safely",2],["Brush teeth",1],["Wash hands",1]]},
+ {icon:"\u{1f319}",name:"Daily Routines",desc:"We follow good routines, morning and night.",
+  actions:[["Get ready for school",3],["Get ready on time",2],["Come to mealtime when asked",2],["Follow the bedtime routine",2]]},
+ {icon:"\u2b50",name:"Honesty & Good Choices",desc:"We tell the truth and think about how our choices affect others.",
+  actions:[["Do the right thing when nobody is watching",5],["Tell the truth",3],["Make a safe choice",2],["Make a good choice after a reminder",2]]}
 ];
+
+/* An action may carry options as a third element: {tag} names it for the prayer
+   board so a rename cannot break it, {once} means it can only be recorded once
+   a day — you either prayed Asr or you did not. */
+function actionOpts(a){ return (a && typeof a[2] === "object" && a[2]) || {}; }
 
 const DEFAULT_REWARDS = [
-  {name:"Choose a small treat or sticker", points:10, kind:"Treat"},
-  {name:"Pick a snack from the snack box", points:12, kind:"Snack"},
-  {name:"Choose the bedtime dua and story", points:20, kind:"Bedtime"},
-  {name:"Ice cream or a milkshake after dinner", points:25, kind:"Snack"},
-  {name:"Bake something together — cookies or cupcakes", points:35, kind:"Food"},
-  {name:"Choose the family meal", points:40, kind:"Food"},
-  {name:"Pick the pudding for everyone on Friday", points:45, kind:"Food"},
-  {name:"A takeaway or eat-out of your choice", points:80, kind:"Food"},
-  {name:"Choose a family activity, e.g. a trip to the masjid or park", points:50, kind:"Outing"},
-  {name:"Extra 30 minutes of screen time", points:60, kind:"Screen time"},
-  {name:"Special one-to-one time with Mum or Dad", points:75, kind:"Time together"},
-  {name:"A bigger reward, e.g. a day out or small gift", points:100, kind:"Event"}
+  // Connection — deliberately cheap. These are what we want chosen most often,
+  // so the brake on them is a limit, not a price.
+  {name:"Choose what we listen to in the car", points:15, kind:"Time together"},
+  {name:"Choose the bedtime dua and story", points:20, kind:"Bedtime", limit:"day"},
+  {name:"Go to the masjid with Dad", points:25, kind:"Time together"},
+  {name:"Pick the family walk route after Maghrib", points:25, kind:"Outing"},
+  {name:"20 minutes one-to-one with Mum or Dad", points:25, kind:"Time together", limit:"day"},
+  {name:"Choose the family board game", points:30, kind:"Time together"},
+  {name:"Help cook dinner with Mum or Dad", points:30, kind:"Time together"},
+  {name:"Stay up 15 minutes later to talk", points:30, kind:"Bedtime", limit:"week"},
+  {name:"Pick the fruit for the week's shop", points:40, kind:"Food", limit:"week"},
+  {name:"A trip to the park", points:60, kind:"Outing", limit:"week"},
+  {name:"Choose the family meal", points:60, kind:"Food", limit:"week"},
+  {name:"Bake something together \u2014 cookies or cupcakes", points:60, kind:"Food", limit:"week"},
+  {name:"A full hour one-to-one, your choice of what", points:90, kind:"Time together", limit:"week"},
+  // Everyday treats
+  {name:"Hot chocolate with marshmallows", points:100, kind:"Snack"},
+  {name:"Popcorn for a family film night", points:120, kind:"Snack", limit:"week"},
+  {name:"Pick the pudding for everyone on Friday", points:120, kind:"Food", limit:"week"},
+  {name:"Ice cream or a milkshake after dinner", points:150, kind:"Snack"},
+  // Sometimes food — about a week of consistent effort each, on purpose
+  {name:"A packet of crisps", points:250, kind:"Sometimes"},
+  {name:"A lollipop or a handful of sweets", points:250, kind:"Sometimes"},
+  {name:"A chocolate bar of your choice", points:300, kind:"Sometimes"},
+  {name:"A fizzy drink", points:350, kind:"Sometimes"},
+  {name:"A takeaway or eat-out of your choice", points:400, kind:"Sometimes"},
+  // Big things
+  {name:"A film night, you choose the film", points:200, kind:"Time together", limit:"week"},
+  {name:"Extra 30 minutes of screen time", points:300, kind:"Screen time"},
+  {name:"Soft play or a trampoline park", points:500, kind:"Event"},
+  {name:"A day out of your choosing", points:750, kind:"Event"},
+  {name:"A small gift you've chosen", points:1000, kind:"Event"}
 ];
 
-/* Food and snack treats parents can add with one tap. Deliberately small,
+/* How often a reward may be taken. The price says how much it is worth; the
+   limit says how often you can face doing it. Cheap-and-limited is a different
+   thing from expensive, and for anything that costs a parent an afternoon it is
+   the one that is actually meant. */
+const LIMIT_LABEL = { day:"once a day", week:"once a week", month:"once a month" };
+function limitWindowStart(kind){
+  const d=new Date();
+  if(kind==="day"){ d.setHours(0,0,0,0); return d.getTime(); }
+  if(kind==="week"){ d.setHours(0,0,0,0); d.setDate(d.getDate()-6); return d.getTime(); }
+  if(kind==="month"){ d.setHours(0,0,0,0); d.setDate(d.getDate()-29); return d.getTime(); }
+  return 0;
+}
+/* Counted from the ledger rather than the requests collection: approval writes
+   a purchase entry with a real timestamp, and requests may be tidied away. */
+function timesTakenRecently(child, item){
+  if(!item || !item.limit || !child) return 0;
+  const since=limitWindowStart(item.limit);
+  const name=String(item.name||"");
+  const taken=(child.activityLog||[]).filter(e =>
+    e.type==="purchase" && e.ts>=since && String(e.label||"").endsWith(name)).length;
+  const pending=(app.requests||[]).filter(r =>
+    r.childId===child.id && r.status==="pending" && r.itemName===name).length;
+  return taken + pending;
+}
+function limitReachedMessage(child, item){
+  if(!item || !item.limit) return null;
+  if(timesTakenRecently(child, item) < 1) return null;
+  return item.limit==="day"
+    ? "\u201c"+item.name+"\u201d is once a day \u2014 you\u2019ve already had it today. It comes back tomorrow!"
+    : "\u201c"+item.name+"\u201d is "+(LIMIT_LABEL[item.limit]||"limited")+" \u2014 you\u2019ve already had it. Save your points and it comes back round.";
+}
+
+/* Food and snack treats parents can add with one tap./* Food and snack treats parents can add with one tap. Deliberately small,
    cheap and everyday — the point is a quick, frequent win, not an expense. */
 const SNACK_EXAMPLES = [
-  {name:"Pick a snack from the snack box", points:12, kind:"Snack"},
-  {name:"Ice cream or a milkshake after dinner", points:25, kind:"Snack"},
-  {name:"Hot chocolate with marshmallows", points:15, kind:"Snack"},
-  {name:"Choose the fruit for the week's shop", points:15, kind:"Food"},
-  {name:"A chocolate bar of your choice", points:20, kind:"Snack"},
-  {name:"Bake something together — cookies or cupcakes", points:35, kind:"Food"},
-  {name:"Pick the pudding for everyone on Friday", points:45, kind:"Food"},
-  {name:"Popcorn and a film night snack", points:30, kind:"Snack"},
-  {name:"A takeaway or eat-out of your choice", points:80, kind:"Food"}
+  {name:"Pick the fruit for the week's shop", points:40, kind:"Food", limit:"week"},
+  {name:"Hot chocolate with marshmallows", points:100, kind:"Snack"},
+  {name:"Popcorn for a family film night", points:120, kind:"Snack", limit:"week"},
+  {name:"Pick the pudding for everyone on Friday", points:120, kind:"Food", limit:"week"},
+  {name:"Ice cream or a milkshake after dinner", points:150, kind:"Snack"},
+  {name:"A packet of crisps", points:250, kind:"Sometimes"},
+  {name:"A lollipop or a handful of sweets", points:250, kind:"Sometimes"},
+  {name:"A chocolate bar of your choice", points:300, kind:"Sometimes"},
+  {name:"A fizzy drink", points:350, kind:"Sometimes"},
+  {name:"A takeaway or eat-out of your choice", points:400, kind:"Sometimes"}
 ];
 
 /* The grown-ups' own list. Deliberately about the unglamorous work that keeps a
@@ -1317,7 +1624,7 @@ const TIP_CATS = [
   {key:"behaviour", label:"Behaviour"}
 ];
 
-const APP_VERSION = "v47";
+const APP_VERSION = "v51";
 const today = new Date().toISOString().slice(0,10);
 let app = {families:[],currentFamily:null,currentChild:null};
 let categories = [];
@@ -1333,16 +1640,16 @@ let seedSavedFor = null;        // which family's ids have already been written
    match the tone of the starter lists; a category the family invented itself
    falls back to the general pool rather than opening empty. */
 const CATEGORY_IDEAS = {
- "Salah & Duas":[["Made wudu without being asked",2],["Prayed alongside Mum or Dad",3],["Reminded the family it was prayer time",3],["Sat quietly while others prayed",2],["Said a dua for someone else",2],["Said the dua for leaving the house",1],["Recited a surah from memory",4],["Came to the masjid",4]],
- "Learning & Qur'an":[["Practised Arabic letters or words",3],["Revised a surah already learned",2],["Asked a good question about something new",2],["Helped a brother or sister with their work",3],["Listened to Qur'an at bedtime",2],["Finished a reading book",4],["Practised spellings or times tables",3],["Started homework without being reminded",4]],
- "Kind Hearts":[["Included someone who was left out",3],["Gave something away without being asked",3],["Comforted a younger child",3],["Said something kind about someone else",2],["Made something for someone",3],["Forgave quickly after an argument",4],["Gave sadaqah",3],["Was gentle with an animal",2]],
- "Listening & Respect":[["Stopped and came when called",2],["Waited their turn to speak",2],["Took an answer of no calmly",4],["Listened to a brother or sister's idea",2],["Followed an instruction first time in the morning rush",3],["Was polite to a guest",3],["Helped an elder without being asked",3],["Answered respectfully after being corrected",3]],
- "Good Manners":[["Ate with their right hand",1],["Ate what was given without complaining",3],["Said salaam first",2],["Held the door for someone",1],["Waited for everyone before starting to eat",2],["Covered their mouth when sneezing",1],["Thanked whoever cooked",2],["Spoke kindly on the phone",2]],
- "Tidy & Helpful":[["Cleared their plate away",2],["Helped set the table",2],["Made their bed",2],["Tidied a shared space nobody asked about",4],["Helped carry the shopping",2],["Sorted the washing",2],["Looked after a younger one for a while",4],["Put shoes away by the door",1]],
- "Big Feelings":[["Named the feeling instead of shouting",3],["Walked away instead of hitting back",4],["Took losing a game well",3],["Waited patiently without complaining",3],["Settled quickly after being upset",3],["Told a grown-up what was wrong",2],["Went back to a hard thing after a wobble",4],["Said sorry without being told to",4]],
- "Looking After Myself":[["Had a shower without a fuss",2],["Combed hair and looked smart",1],["Put dirty clothes in the basket",1],["Changed into clean clothes",1],["Kept nails clean and cut",1],["Chose water over a fizzy drink",2],["Packed their own bag",2],["Went to bed without being asked twice",3]],
- "Daily Routines":[["Got up on the first call",3],["Dressed within ten minutes",2],["Was ready before leaving time",3],["Packed the school bag the night before",3],["Turned screens off when asked",3],["Helped a sibling get ready",3],["Kept to bedtime without stalling",3],["Tidied up before bed",2]],
- "Honesty & Good Choices":[["Owned up before being found out",4],["Gave back something that wasn't theirs",3],["Kept a promise",3],["Said no to something they knew was wrong",4],["Told the truth when it was hard",4],["Admitted a mistake in their work",3],["Played fair when nobody was checking",3],["Told a grown-up about something unsafe",3]],
+ "Salah & Duas":[["Prayed without being reminded",4],["Made wudu without being asked",3],["Prayed alongside Mum or Dad",3],["Reminded the family it was prayer time",3],["Came to the masjid",4],["Said a dua for someone else",2],["Said the dua for leaving the house",1]],
+ "Learning & Qur'an":[["Recited a surah from memory",4],["Finished a reading book",4],["Started homework without being reminded",4],["Practised Arabic letters or words",3],["Helped a brother or sister with their work",3],["Practised spellings or times tables",3],["Revised a surah already learned",2],["Learn a new fact or story",2],["Asked a good question about something new",2],["Listened to Qur'an at bedtime",2]],
+ "Kind Hearts":[["Forgave quickly after an argument",5],["Gave something away without being asked",4],["Included someone who was left out",3],["Comforted a younger child",3],["Made something for someone",3],["Gave sadaqah",3],["Said something kind about someone else",2],["Was gentle with an animal",2]],
+ "Listening & Respect":[["Followed an instruction first time in the morning rush",4],["Answered respectfully after being corrected",4],["Helped an elder without being asked",3],["Stopped and came when called",2],["Waited their turn to speak",2],["Listened to a brother or sister's idea",2]],
+ "Good Manners":[["Ate what was given without complaining",4],["Was polite to a guest",3],["Said salaam first",2],["Waited for everyone before starting to eat",2],["Thanked whoever cooked",2],["Spoke kindly on the phone",2],["Ate with their right hand",1],["Held the door for someone",1],["Covered their mouth when sneezing",1]],
+ "Tidy & Helpful":[["Tidied a shared space nobody asked about",4],["Looked after a younger one for a while",4],["Cleared their plate away",2],["Helped set the table",2],["Made their bed",2],["Helped carry the shopping",2],["Sorted the washing",2],["Put shoes away by the door",1]],
+ "Big Feelings":[["Walked away instead of hitting back",5],["Took losing a game well",4],["Went back to a hard thing after a wobble",4],["Said sorry without being told to",4],["Named the feeling instead of shouting",3],["Waited patiently without complaining",3],["Settled quickly after being upset",3],["Told a grown-up what was wrong",2]],
+ "Looking After Myself":[["Went to bed without being asked twice",3],["Had a shower without a fuss",2],["Chose water over a fizzy drink",2],["Packed their own bag",2],["Combed hair and looked smart",1],["Put dirty clothes in the basket",1],["Changed into clean clothes",1],["Kept nails clean and cut",1]],
+ "Daily Routines":[["Turned screens off when asked",4],["Got up on the first call",3],["Was ready before leaving time",3],["Packed the school bag the night before",3],["Helped a sibling get ready",3],["Kept to bedtime without stalling",3],["Dressed within ten minutes",2],["Tidied up before bed",2]],
+ "Honesty & Good Choices":[["Owned up before being found out",5],["Told the truth when it was hard",4],["Said no to something they knew was wrong",4],["Played fair when nobody was checking",4],["Gave back something that wasn't theirs",3],["Kept a promise",3],["Admitted a mistake in their work",3],["Told a grown-up about something unsafe",3]],
  "Carrying the load":[["Did the school run at short notice",3],["Cooked when it wasn't your turn",3],["Sorted an appointment nobody wanted to",3],["Got up in the night",4]],
  "Kindness to each other":[["Made them a drink unprompted",2],["Asked how the day really went",3],["Let something small go",3],["Noticed something they'd done",2]],
  "Making space":[["Took the early morning so they could rest",4],["Encouraged them to go out",3],["Handled bedtime so they could finish something",3],["Gave them an hour of quiet",3]],
@@ -1432,7 +1739,9 @@ function renderCatModal(){
         : `<p class="small" style="margin:0">Every suggestion for this category is already on the list. Add your own wording under <strong>\u270f\ufe0f Edit Categories</strong> in the menu.</p>`)
       + `<button class="light" style="width:100%;margin-top:12px" onclick="setCatTab('approved')">\u2b50 Back to the approved list</button>`;
   }else{
-    const rows = (cat.actions || []).map(([name, p], ai) => {
+    const rows = (cat.actions || []).map((entry, ai) => {
+      const name = entry[0], p = entry[1];
+      const once = !!actionOpts(entry).once;
       const val = valueFor(s, cat, name);
       const safe = name.replace(/\\/g, "\\\\").replace(/'/g, "\\'").replace(/"/g, "&quot;");
       const justAwarded = flashKey === catKeyFor(cat, name);
@@ -1441,7 +1750,7 @@ function renderCatModal(){
           <div class="actionpts">${p} point${p > 1 ? "s" : ""}${val ? " \u00b7 earned " + val : ""}</div></div>
         <div class="controls">${parent ? `
           <button class="minus" ${val > 0 ? "" : "disabled"} title="${val > 0 ? "Take points back" : "Nothing to take back yet"}" onclick="remove(${ci},'${safe}',${p})">\u2212</button>
-          <button class="plus" title="Give ${p} point${p > 1 ? "s" : ""}" onclick="add(${ci},'${safe}',${p})">+${p}</button>
+          <button class="plus ${once && val > 0 ? "ticked" : ""}" ${once && val > 0 ? "disabled" : ""} title="${once && val > 0 ? "Already recorded today" : "Give " + p + " point" + (p > 1 ? "s" : "")}" onclick="add(${ci},'${safe}',${p})">${once && val > 0 ? "\u2713" : "+" + p}</button>
           <button class="xbtn" title="Take this off the approved list" onclick="removeAction(${ci},${ai})">\u2715</button>` : ""}
         </div>
       </div>`;
@@ -1621,6 +1930,7 @@ function closeLightbox(){
 
 /* ---------- A way back that is always on screen ---------- */
 function fabAction(){
+  if(screenNow){ showScreen(null); return; }
   if(isParentSession() && viewChildId){ backToParentHome(); window.scrollTo({top:0,behavior:"smooth"}); return; }
   window.scrollTo({top:0,behavior:"smooth"});
 }
@@ -1631,6 +1941,8 @@ function renderFab(){
   const viewing = isParentSession() && !!viewChildId;
   const scrolled = (typeof window.scrollY === "number" ? window.scrollY : 0) > 500;
   fab.textContent = viewing ? "\ud83c\udfe0 Home" : "\u2191 Top";
+  // Clear of the child's tab bar, which owns the bottom of the screen.
+  fab.classList.toggle("raised", document.body.classList.contains("haskidbar"));
   fab.classList.toggle("hidden", !(viewing || scrolled));
 }
 if(typeof window.addEventListener === "function"){
@@ -1683,6 +1995,7 @@ function projectApp(raw){
     .map(m => {
       const entries = (byChild[m.id] || []).slice().sort((a,b) => a.ts - b.ts);
       const pointsByDate = {};
+      const prayerByDate = {};
       let balance = 0;
       entries.forEach(e => {
         balance += e.points;
@@ -1694,6 +2007,10 @@ function projectApp(raw){
           // No clamping here — a correction can legitimately land on a different
           // key from the award it offsets. Clamping happens at read time.
           pointsByDate[ds][e.catKey] = (pointsByDate[ds][e.catKey] || 0) + e.points;
+          if(e.tag && e.points > 0){
+            if(!prayerByDate[ds]) prayerByDate[ds] = {};
+            prayerByDate[ds][e.tag] = true;
+          }
         }
       });
       const activityLog = entries.slice().reverse().slice(0, 40).map(e => ({
@@ -1704,7 +2021,8 @@ function projectApp(raw){
       return {
         id: m.id, name: m.name, age: m.age || "", role: m.role, photo: m.photo || null,
         email: m.email || null,
-        balance, pointsByDate, activityLog
+        prefs: m.prefs || {},
+        balance, pointsByDate, prayerByDate, activityLog
       };
     });
 
@@ -1970,9 +2288,113 @@ function todayTotalFor(child){
   const day=child.pointsByDate && child.pointsByDate[today];
   return day ? Object.values(day).reduce((a,b)=>a+b,0) : 0;
 }
+/* ---------- This week's champion ----------
+   One winner a week is three "not me"s in a four-child family, so a child who
+   is not the champion does not get someone else's face pinned to their screen.
+   They can choose to look — and their own week, when it comes, is waiting for
+   them without being asked for. */
+function championNow(){
+  const f=currentFamily();
+  if(!f) return null;
+  const kids=f.children.filter(c=>!isParentRole(c));
+  if(!kids.length) return null;
+  const weekDates=getCurrentWeekDates();
+  const totals=kids.map(c=>({child:c, sum:weeklyTotalFor(c, weekDates)}));
+  const top=Math.max(...totals.map(t=>t.sum));
+  if(top<=0) return null;
+  const leaders=totals.filter(t=>t.sum===top);
+  return {leaders:leaders.map(l=>l.child), total:top, tied:leaders.length>1};
+}
+function memberPrefs(m){ return (m && m.prefs && typeof m.prefs==="object") ? m.prefs : {}; }
+/* Defaulting is where the whole design sits. On for the champion, because it is
+   their moment and it should be waiting for them. Off for everyone else,
+   because switching off a sibling's photo is a small act of admitting defeat
+   and most children will not do it. */
+function championVisibleFor(me, champ){
+  if(!champ) return false;
+  if(!app.settings || !app.settings.showChampion) return false;
+  if(isParentRole(me)) return true;
+  const amChampion = champ.leaders.some(c=>c.id===me.id);
+  if(amChampion) return true;
+  return memberPrefs(me).showChampion === true;
+}
+function championFaceHTML(child, quiet){
+  const av = child.photo
+    ? `<img src="${child.photo}" alt="">`
+    : '<span class="avatar-placeholder">\ud83d\udc64</span>';
+  return `<span class="champring">${av}<span class="champcrown">\ud83c\udfc6</span>
+      ${quiet?"":'<span class="champspark"><i></i><i></i><i></i><i></i><i></i><i></i></span>'}</span>`;
+}
+function renderChampionFloat(){
+  const fab=document.getElementById("championFab");
+  if(!fab) return;
+  const me=sessionMember();
+  const champ=championNow();
+  if(!ready || !me || !champ || !championVisibleFor(me, champ)){
+    fab.classList.add("hidden"); fab.innerHTML=""; return;
+  }
+  const amChampion = !isParentRole(me) && champ.leaders.some(c=>c.id===me.id);
+  const face=champ.leaders[0];
+  fab.classList.toggle("quiet", !amChampion && !isParentRole(me));
+  fab.innerHTML=championFaceHTML(face, !amChampion && !isParentRole(me));
+  fab.classList.remove("hidden");
+}
+/* The offer to look, for a child who is not the champion. Deliberately a plain
+   line of text rather than anything that nags. */
+function renderChampionToggle(){
+  const row=document.getElementById("championToggleRow");
+  if(!row) return;
+  const me=sessionMember();
+  const champ=championNow();
+  if(!me || isParentRole(me) || !champ || !app.settings || !app.settings.showChampion){
+    row.innerHTML=""; return;
+  }
+  if(champ.leaders.some(c=>c.id===me.id)){ row.innerHTML=""; return; }
+  const on=memberPrefs(me).showChampion === true;
+  row.innerHTML=`<div class="champtoggle">
+      <span>\ud83c\udfc6 See who\u2019s this week\u2019s champion?</span>
+      <button onclick="toggleChampionVisible()">${on?"Hide":"Show me"}</button>
+    </div>`;
+}
+async function toggleChampionVisible(){
+  const me=sessionMember();
+  if(!me || isParentRole(me)) return;
+  const prefs=Object.assign({}, memberPrefs(me));
+  prefs.showChampion = !(prefs.showChampion === true);
+  me.prefs=prefs;                       // shown immediately; the snapshot confirms it
+  renderChampionFloat(); renderChampionToggle();
+  try{ await window.fpc.saveMemberPrefs(familyId, me.id, prefs); }
+  catch(e){ console.error("Couldn't save that preference:", e); }
+}
+function openChampionCard(){
+  const champ=championNow(); if(!champ) return;
+  const me=sessionMember();
+  const amChampion = me && !isParentRole(me) && champ.leaders.some(c=>c.id===me.id);
+  const names=champ.leaders.map(c=>escapeHtml(c.name)).join(" &amp; ");
+  const body=document.getElementById("championCardBody");
+  if(body) body.innerHTML=`${championFaceHTML(champ.leaders[0], false)}
+    <h2 style="margin:0">\ud83c\udfc6 This week\u2019s champion</h2>
+    <p style="margin:6px 0 0;font-size:19px;font-weight:800">${names}</p>
+    <p class="small" style="margin:4px 0 0">${champ.total} points this week${champ.tied?" \u2014 a joint win!":""}</p>
+    <p style="margin:14px 0 0">${amChampion
+      ? "MashaAllah \u2014 that\u2019s your week. It resets on Saturday, so keep going!"
+      : "The week resets on Saturday, so there\u2019s always another go."}</p>
+    <button class="primary" style="margin-top:16px;width:100%" onclick="closeChampionCard()">Close</button>`;
+  const wrap=document.getElementById("championCard");
+  if(wrap) wrap.classList.remove("hidden");
+}
+function closeChampionCard(){
+  const wrap=document.getElementById("championCard");
+  if(wrap) wrap.classList.add("hidden");
+}
+
 function renderChampionBanner(){
   const banner=document.getElementById("championBanner");
   const content=document.getElementById("championContent");
+  // The floating badge carries this now, and tapping it gives the detail. The
+  // wide gold card underneath was the same fact a second time.
+  banner.classList.add("hidden");
+  if(true) return;
   if(!app.settings || !app.settings.showChampion){ banner.classList.add("hidden"); return; }
   const f=currentFamily();
   if(!f || f.children.length===0){ banner.classList.add("hidden"); return; }
@@ -1997,6 +2419,200 @@ function renderChampionBanner(){
   }
 }
 
+/* ---------- Bringing an existing family onto the new lists ----------
+   The catalogues are seeded once, at family creation, and then live in
+   Firestore — so changing the code changes what new families get and nothing
+   else. This merges the recommended lists in: it adds what is missing,
+   restates the points on anything matched by name, and leaves anything the
+   family wrote itself completely alone. Points already awarded are untouched,
+   because the ledger is append-only. */
+function normKey(s){ return String(s||"").trim().toLowerCase(); }
+async function applyRecommendedLists(){
+  if(!requireParent()) return;
+  closeMenu();
+  if(!confirm("Update to the recommended lists?\n\n\u2022 Prayers become five separate actions worth 5 points each\n\u2022 Every action is rescored 1\u20135 by difficulty\n\u2022 Rewards are repriced, with limits on the ones that cost you time\n\nAnything you added yourself is kept. Points already earned are not affected."))
+    return;
+  let added=0, rescored=0, repriced=0;
+  // Categories: match on name, then merge actions by name.
+  DEFAULT_CATEGORIES.forEach(def=>{
+    let cat=(app.categories||[]).find(c=>normKey(c.name)===normKey(def.name));
+    if(!cat){
+      cat=JSON.parse(JSON.stringify(def));
+      cat.id="c"+Math.abs(hashString(cat.name)).toString(16);
+      app.categories.push(cat); added+=cat.actions.length; return;
+    }
+    cat.actions=cat.actions||[];
+    def.actions.forEach(da=>{
+      const found=cat.actions.find(a=>normKey(a[0])===normKey(da[0]));
+      if(!found){ cat.actions.push(JSON.parse(JSON.stringify(da))); added++; }
+      else{
+        if(found[1]!==da[1]){ found[1]=da[1]; rescored++; }
+        const opts=actionOpts(da);
+        if(Object.keys(opts).length) found[2]=Object.assign({}, actionOpts(found), opts);
+      }
+    });
+    // "Pray on time" is superseded by the five named prayers.
+    const stale=cat.actions.findIndex(a=>normKey(a[0])==="pray on time");
+    if(stale>=0) cat.actions.splice(stale,1);
+  });
+  // Rewards: reprice what matches, add what is missing, keep the family's own.
+  DEFAULT_REWARDS.forEach(dr=>{
+    const found=(app.rewards||[]).find(r=>normKey(r.name)===normKey(dr.name));
+    if(!found){
+      app.rewards.push(Object.assign({id:"r"+Math.abs(hashString(dr.name)).toString(16)}, dr));
+      repriced++;
+    }else{
+      if(found.points!==dr.points){ found.points=dr.points; repriced++; }
+      if(dr.limit) found.limit=dr.limit;
+      if(dr.kind) found.kind=dr.kind;
+    }
+  });
+  app.rewards.sort((a,b)=>a.points-b.points);
+  await saveApp();
+  render();
+  alert("Done.\n\n"+added+" actions added\n"+rescored+" rescored\n"+repriced+" rewards added or repriced\n\nAnything you wrote yourself was left as it was.");
+}
+
+/* ---------- The prayer board ----------
+   Nothing new is stored. Every award already lands in the ledger against a date
+   and an action, and the app already projects that into pointsByDate on load,
+   so the board is a loop over data that is in memory on every device. The live
+   part is free too: the ledger is on a snapshot listener, so a prayer recorded
+   on one device fills a circle on another within a second. */
+const PRAYERS = [
+  {tag:"fajr",    label:"Fajr",    short:"F"},
+  {tag:"dhuhr",   label:"Dhuhr",   short:"D"},
+  {tag:"asr",     label:"Asr",     short:"A"},
+  {tag:"maghrib", label:"Maghrib", short:"M"},
+  {tag:"isha",    label:"Isha",    short:"I"}
+];
+/* Keyed off the tag, never the wording: renaming "Prayed Fajr" would otherwise
+   blank a child's board silently. */
+function prayerKeys(){
+  const map={};
+  (app.categories||[]).forEach(cat=>{
+    (cat.actions||[]).forEach(a=>{
+      const t=actionOpts(a).tag;
+      if(t) map[catKeyFor(cat, a[0])] = t;
+    });
+  });
+  return map;
+}
+function excusedDays(){
+  const e = app.settings && app.settings.prayerExcused;
+  return (e && typeof e === "object") ? e : {};
+}
+function isExcused(childId, ds){
+  const list = excusedDays()[childId];
+  return Array.isArray(list) && list.indexOf(ds) >= 0;
+}
+function lastNDates(n){
+  const out=[];
+  for(let i=n-1;i>=0;i--){
+    const d=new Date(); d.setHours(12,0,0,0); d.setDate(d.getDate()-i);
+    out.push({ds:dateStr(d), d});
+  }
+  return out;
+}
+function prayerGrid(child, days){
+  const keys=prayerKeys();
+  return lastNDates(days).map(({ds,d})=>{
+    const day=(child.pointsByDate && child.pointsByDate[ds]) || {};
+    const rec=(child.prayerByDate && child.prayerByDate[ds]) || {};
+    // The tagged record is authoritative; the key match is the fallback for
+    // entries written before an action carried its tag.
+    const done=PRAYERS.map(p=>rec[p.tag]===true || Object.keys(day).some(k=>keys[k]===p.tag && day[k]>0));
+    return {ds, d, done, count:done.filter(Boolean).length,
+            complete:done.every(Boolean), excused:isExcused(child.id, ds)};
+  });
+}
+/* An excused day neither breaks a streak nor counts towards it. */
+function prayerStreak(child, tagIndex){
+  const grid=prayerGrid(child, 60);
+  let run=0;
+  for(let i=grid.length-1;i>=0;i--){
+    const g=grid[i];
+    if(g.excused) continue;
+    if(tagIndex===null ? g.complete : g.done[tagIndex]) run++;
+    else if(i===grid.length-1) continue;   // today is not a miss yet
+    else break;
+  }
+  return run;
+}
+function prayerBoardEnabled(){ return Object.keys(prayerKeys()).length > 0; }
+
+function prayerTodayHTML(child){
+  if(!prayerBoardEnabled()) return "";
+  const today=prayerGrid(child,1)[0];
+  const dots=PRAYERS.map((p,i)=>`<span class="pdot ${today.done[i]?"on":""}">
+      <span class="pmark">${today.done[i]?"\u2713":""}</span><span class="plabel">${p.short}</span></span>`).join("");
+  return `<section class="prayercard ${today.complete?"allfive":""}">
+      <div class="prayerhead"><h2>\u{1f54c} Today\u2019s prayers</h2>
+        <span class="prayercount">${today.excused?"Excused":today.count+" of 5"}</span></div>
+      <div class="pdots">${dots}</div>
+      ${today.complete?'<p class="prayernote">\u2b50 All five today \u2014 MashaAllah!</p>':""}
+    </section>`;
+}
+function prayerWallHTML(child, days, forChild){
+  if(!prayerBoardEnabled()) return "";
+  const grid=prayerGrid(child, days);
+  const head=grid.map(g=>`<span class="pwd ${g.complete?"gold":""}">${
+    days>10 ? g.d.getDate() : g.d.toLocaleDateString(undefined,{weekday:"short"}).slice(0,2)}</span>`).join("");
+  const rows=PRAYERS.map((p,i)=>`<div class="pwrow"><span class="pwname">${p.label}</span>
+      <div class="pwcells">${grid.map(g=>`<span class="pwcell ${g.excused?"exc":(g.done[i]?"on":"")}" title="${
+        g.d.toLocaleDateString(undefined,{weekday:"long",day:"numeric",month:"short"})} \u2014 ${
+        g.excused?"excused":(g.done[i]?"prayed":"not recorded")}"></span>`).join("")}</div>
+      <span class="pwstreak">${prayerStreak(child,i)||""}</span></div>`).join("");
+  const full=grid.filter(g=>g.complete).length;
+  return `<section class="prayerwall">
+      <div class="prayerhead"><h2>\u{1f54c} ${forChild?"My prayers":escapeHtml(child.name)+"\u2019s prayers"}</h2>
+        <span class="prayercount">${full} full day${full===1?"":"s"} of ${days}</span></div>
+      <div class="pwgrid"><div class="pwrow head"><span class="pwname"></span>
+        <div class="pwcells">${head}</div><span class="pwstreak">\u{1f525}</span></div>${rows}</div>
+      <p class="small" style="margin:10px 0 0">A filled square is a prayer that was recorded. The number on the right is the current run.</p>
+      ${forChild?"":`<button class="light" style="width:auto;margin-top:10px" onclick="toggleExcusedToday('${child.id}')">${
+        grid[grid.length-1].excused?"Undo today\u2019s excused mark":"Mark today as excused"}</button>`}
+    </section>`;
+}
+/* Illness, travel, or any other legitimate reason. No reason is recorded, and
+   an excused day neither breaks a streak nor counts as a miss. */
+async function toggleExcusedToday(childId){
+  if(!requireParent()) return;
+  const ds=dateStr(new Date());
+  app.settings = app.settings || {};
+  const all = Object.assign({}, excusedDays());
+  const list = (all[childId] || []).slice();
+  const at = list.indexOf(ds);
+  if(at >= 0) list.splice(at,1); else list.push(ds);
+  all[childId] = list;
+  app.settings.prayerExcused = all;
+  await saveApp();
+  render();
+  refreshChildStats();
+}
+
+/* ---------- One place that decides what is on screen ----------
+   Every navigable destination is registered here and shown through showScreen().
+   Before this, visibility was decided in five different functions and no single
+   place could tell you what was open. screenNow === null means the home screen
+   for whoever is signed in: the parent dashboard, or the child's own card. */
+const SCREENS = ["accountPanel","overviewPanel","activityPanel","requestsPanel",
+                 "kidSpendScreen","kidPointsScreen"];
+let screenNow = null;
+function showScreen(id){
+  screenNow = id || null;
+  SCREENS.forEach(s=>{
+    const el=document.getElementById(s);
+    if(el) el.classList.toggle("hidden", s!==screenNow);
+  });
+  const home=document.getElementById("kidHomeScreen");
+  if(home) home.classList.toggle("hidden",
+    screenNow==="kidSpendScreen" || screenNow==="kidPointsScreen");
+  window.scrollTo({top:0,behavior:"smooth"});
+  render();
+}
+function goHome(){ showScreen(null); }
+
 /* ---------- Family & children management ---------- */
 function toggleMenu(){
   const sheet=document.getElementById("menuSheet");
@@ -2010,12 +2626,8 @@ function closeMenu(){
 function openPanel(id){
   if(!requireParent()) return;
   closeMenu();
-  ["accountPanel","overviewPanel","activityPanel","requestsPanel"].forEach(pid=>{
-    const el=document.getElementById(pid);
-    if(!el) return;
-    if(pid===id) el.classList.toggle("hidden");
-    else el.classList.add("hidden");
-  });
+  // Tapping the menu item you are already on closes it, as it always did.
+  showScreen(screenNow===id ? null : id);
 }
 function showAccountPanel(){ resetAddMemberPanel(); openPanel("accountPanel"); renderAccounts(); }
 function showOverviewPanel(){ openPanel("overviewPanel"); renderOverview(); }
@@ -2054,6 +2666,9 @@ function authErrorMessage(e){
 /* Kept short on purpose: someone has to type this on a child's device.
    The family part is trimmed to six characters, which is still unique enough
    across families and far kinder than the forty it used to be. */
+/* Legacy. No longer used to mint a login — every account now needs a real
+   address so it can be recovered. Kept because accounts created by earlier
+   versions still carry these addresses and isGeneratedLogin() detects them. */
 function memberEmail(fid, name){
   const slug = String(name).toLowerCase().replace(/[^a-z0-9]/g, "").slice(0, 12) || "member";
   const famPart = String(fid).toLowerCase().replace(/[^a-z0-9]/g, "").slice(3, 9) || "family";
@@ -2127,11 +2742,24 @@ async function addChild(){
   if(!name){ errEl.textContent="Please enter their name."; return; }
   if(!password || password.length<6){ errEl.textContent="Please set a password of at least 6 characters for their login."; return; }
   let recovery=(document.getElementById("newChildRecovery").value || "").trim();
-  if(recovery && !looksLikeEmail(recovery)){
-    errEl.textContent="That doesn't look like an email address. Leave it blank if you'd rather not use one.";
+  /* Required, not optional. A generated address has no mailbox, so a login made
+     without one can never be recovered by anybody — and the password is not
+     stored, so there is nothing to fall back on. */
+  if(!recovery){
+    errEl.textContent = role === "parent"
+      ? "A parent needs their own email address \u2014 it's the only way they can get back in if they forget their password."
+      : "Every login needs an email address. Leave the suggested one and any reset for them arrives in your inbox.";
     return;
   }
-  if(recovery){
+  if(!looksLikeEmail(recovery)){
+    errEl.textContent="That doesn't look like an email address.";
+    return;
+  }
+  if(role === "parent" && suggestRecoveryEmail(myEmailForSuggestions(), name) === recovery){
+    errEl.textContent="Another parent needs an address they can open themselves, not a variation of yours \u2014 they'll use it to reset their own password.";
+    return;
+  }
+  {
     // An address already signed in to the app cannot become a second account.
     // Rather than letting Firebase refuse it with a message about names, turn it
     // into a plus-suffixed variation, which lands in the same inbox.
@@ -2152,11 +2780,7 @@ async function addChild(){
     }
   }
   // A real address becomes the login itself, which is what makes the reset work.
-  const email = recovery || memberEmail(familyId, name);
-  if(!recovery && !isValidLoginEmail(email)){
-    errEl.textContent="That name couldn't be turned into a login. Try one with letters or numbers in it.";
-    return;
-  }
+  const email = recovery;
   const btn=document.getElementById("addMemberBtn");
   if(btn){ btn.disabled=true; btn.textContent="Adding "+name+" …"; }
   setSyncStatus("☁️ Adding "+name+" …");
@@ -2188,9 +2812,7 @@ async function addChild(){
   // the parent to discover it the day a password is forgotten.
   const note = document.getElementById("justAddedNote");
   if(note){
-    note.textContent = String(email).endsWith(".fpc.app")
-      ? "\u26a0\ufe0f Write the password down \u2014 this login has no mailbox, so a forgotten one can't be reset by email."
-      : "\u2709\ufe0f If they forget it, you can send a reset to that address from here.";
+    note.textContent = "\u2709\ufe0f If they forget it, send a reset to that address from here \u2014 no need to write the password down.";
   }
   setAddMemberState("confirmed");
 }
@@ -2275,26 +2897,34 @@ function cancelAddMember(){ setAddMemberState("idle"); }
 /* Offer the plus-suffixed address as they type, but never overwrite something
    the parent has typed themselves. */
 let recoveryTouched = false;
+function myEmailForSuggestions(){
+  const me = (typeof sessionMember === "function") ? sessionMember() : null;
+  return (me && me.email) ? me.email : (window.fpc ? window.fpc.email() : "");
+}
 function suggestRecoveryForName(){
   const rec=document.getElementById("newChildRecovery");
   const nameEl=document.getElementById("newChildName");
   if(!rec || !nameEl) return;
   if(recoveryTouched && rec.value) return;
-  const me=sessionMember();
-  const suggestion=suggestRecoveryEmail(me && me.email ? me.email : (window.fpc ? window.fpc.email() : ""), nameEl.value);
-  rec.value = suggestion;
+  /* Only a child's login is derived from the parent's inbox. Another adult needs
+     an address they can open themselves, so leave the field for them to fill. */
+  if((window.__newMemberRole || "child") === "parent"){ rec.value = ""; return; }
+  rec.value = suggestRecoveryEmail(myEmailForSuggestions(), nameEl.value);
 }
 async function selectChild(id){
   if(!isParentSession()) return;          // children can only ever see their own card
   if(id===sessionMemberId) return;        // your own card is your dashboard
   viewChildId=id;
   closeCatModal();
-  document.getElementById("overviewPanel").classList.add("hidden");
+  // Opening someone's card is a move to the home screen with them selected,
+  // so whichever panel was open closes through the router rather than by hand.
+  if(screenNow){ showScreen(null); renderAccounts(); return; }
   renderAccounts(); render();
 }
 function backToParentHome(){
   viewChildId=null;
   closeCatModal();
+  if(screenNow){ showScreen(null); renderAccounts(); return; }
   renderAccounts(); render();
 }
 async function editChildDetails(id){
@@ -2398,26 +3028,111 @@ function renderOverview(){
   const f=currentFamily();
   list.innerHTML="";
   if(!f || f.children.length===0){
-    list.innerHTML='<p class="small">No family members yet — add someone under "Family members" first.</p>';
+    list.innerHTML='<p class="small" style="grid-column:1/-1">No family members yet \u2014 add someone under "Family members" first.</p>';
     return;
   }
   const weekDates=getCurrentWeekDates();
-  f.children.slice().sort((a,b)=>(b.balance||0)-(a.balance||0)).forEach(ch=>{
-    const row=document.createElement("div"); row.className="overviewrow";
-    row.onclick=()=>{ selectChild(ch.id); document.getElementById("overviewPanel").classList.add("hidden"); };
-    const left=document.createElement("div"); left.className="memberhead";
-    left.innerHTML = (ch.photo
-        ? `<img class="avatar tappable" src="${ch.photo}" onclick="event.stopPropagation();openMemberPhoto('${ch.id}')">`
-        : `<div class="avatar-placeholder tappable" onclick="event.stopPropagation();openMemberPhoto('${ch.id}')">👤</div>`)
-      + `<strong>${ch.name}</strong>`;
-    const stats=document.createElement("div"); stats.className="overviewstats";
-    stats.innerHTML = `
-      <div><strong>${todayTotalFor(ch)}</strong><span>Today</span></div>
-      <div><strong>${weeklyTotalFor(ch,weekDates)}</strong><span>This week</span></div>
-      <div><strong>${ch.balance||0}</strong><span>Balance</span></div>`;
-    row.appendChild(left); row.appendChild(stats);
-    list.appendChild(row);
-  });
+  const kids=f.children.filter(c=>!isParentRole(c));
+  const people = kids.length ? kids : f.children.slice();
+  list.innerHTML = people
+    .sort((a,b)=>weeklyTotalFor(b,weekDates)-weeklyTotalFor(a,weekDates))
+    .map(ch=>{
+      const band=bandForChild(ch);
+      const av = ch.photo
+        ? `<img src="${ch.photo}" alt="">`
+        : '<span class="avatar-placeholder">\ud83d\udc64</span>';
+      return `<button class="ovtile" onclick="openChildStats('${ch.id}')">
+        <span class="ovhead">${av}<span class="ovname">${escapeHtml(ch.name)}</span></span>
+        ${behaviourChartSVG(behaviourSeries(ch), "ov"+svgKey(ch.id), true)}
+        <span class="ovfoot">
+          <span class="moodpill ${band.cls}">${band.label}</span>
+          <span class="ovweek">${weeklyTotalFor(ch,weekDates)} this week</span>
+        </span>
+      </button>`;
+    }).join("");
+}
+
+/* ---------- One child's full picture, opened from an Overview tile ---------- */
+let statsChildId=null;
+function openChildStats(id){
+  const c=memberById(id); if(!c) return;
+  statsChildId=id;
+  const body=document.getElementById("childStatsBody");
+  if(body) body.innerHTML=childStatsHTML(c);
+  const page=document.getElementById("childStatsPage");
+  if(page){ page.classList.remove("hidden"); page.scrollTop=0; }
+  document.body.style.overflow="hidden";
+  try{ history.pushState({ statsPage: true }, ""); }catch(e){}
+}
+function closeChildStats(){
+  statsChildId=null;
+  const page=document.getElementById("childStatsPage");
+  if(page) page.classList.add("hidden");
+  document.body.style.overflow="";
+}
+function refreshChildStats(){
+  if(!statsChildId) return;
+  const c=memberById(statsChildId);
+  const body=document.getElementById("childStatsBody");
+  if(c && body) body.innerHTML=childStatsHTML(c);
+}
+function giveFromStats(){
+  const id=statsChildId;
+  closeChildStats();
+  if(id) selectChild(id);
+}
+function childStatsHTML(c){
+  const weekDates=getCurrentWeekDates();
+  const series=behaviourSeries(c);
+  const latest=series[series.length-1];
+  const band=bandFor(latest.score, latest.noHistory);
+  const prev=series[series.length-4] || series[0];
+  const trend = latest.score>prev.score+4 ? "climbing \u2b06\ufe0f"
+              : latest.score<prev.score-4 ? "slipping \u2b07\ufe0f" : "steady \u27a1\ufe0f";
+  const quiet=series.slice(-5).filter(p=>p.pts===0).length;
+  const waiting=pendingRequests().filter(r=>r.childId===c.id);
+  const recent=(c.activityLog||[]).slice(0,3);
+  const av = c.photo
+    ? `<img class="avatar-lg" src="${c.photo}" alt="">`
+    : '<div class="avatar-placeholder-lg">\ud83d\udc64</div>';
+  const recentHtml = recent.length
+    ? recent.map(e=>{
+        const when=new Date(e.ts).toLocaleString([], {weekday:"short", hour:"2-digit", minute:"2-digit"});
+        return `<div class="logrow"><div><div>${escapeHtml(e.label)}</div>
+          <div class="logmeta">${e.points>=0?"+":""}${e.points} pts \u00b7 ${when}</div></div></div>`;
+      }).join("")
+    : '<p class="small">Nothing logged yet.</p>';
+  return `<div class="catpage-head">
+      ${av}
+      <div style="flex:1;min-width:0">
+        <h2 style="margin:0;font-size:21px">${escapeHtml(c.name)}</h2>
+        <p class="small" style="margin:4px 0 0">Last two weeks</p>
+        <span class="moodpill ${band.cls}" style="margin-top:6px;display:inline-block">${band.label} \u00b7 ${latest.score}/100</span>
+      </div>
+    </div>
+    <div class="graphcard">
+      ${latest.noHistory
+        ? '<p class="graphnote">No points logged yet, so there is nothing to chart. The trend starts with the first points you award.</p>'
+        : behaviourChartSVG(series, "full"+svgKey(c.id), false)
+          + `<p class="graphnote">${escapeHtml(c.name)} is currently <strong>${band.label.toLowerCase()}</strong> and ${trend}`
+          + (quiet>=3 ? ` \u2014 ${quiet} of the last 5 days had no points logged.` : ".")
+          + `</p>`}
+    </div>
+    ${isParentRole(c) ? "" : prayerWallHTML(c, 30, false)}
+    <div class="card">
+      <h2 style="margin:0 0 2px">Key details</h2>
+      <div class="statgrid">
+        <div><strong>${todayTotalFor(c)}</strong><span>Today</span></div>
+        <div><strong>${weeklyTotalFor(c, weekDates)}</strong><span>This week</span></div>
+        <div><strong>${c.balance||0}</strong><span>Balance</span></div>
+      </div>
+      <p class="small" style="margin:0 0 8px"><strong>Waiting on you:</strong> ${waiting.length
+        ? waiting.map(r=>escapeHtml(r.itemName)).join(", ")
+        : "nothing right now"}</p>
+      <p class="small" style="margin:14px 0 6px"><strong>Most recent points</strong></p>
+      <div style="display:grid;gap:7px">${recentHtml}</div>
+      <button class="primary" style="margin-top:16px;width:100%" onclick="giveFromStats()">\uff0b Give points to ${escapeHtml(c.name)}</button>
+    </div>`;
 }
 
 /* ---------- Activity log ---------- */
@@ -2869,6 +3584,7 @@ async function onbAddChild(){
   const nameEl = document.getElementById("onbChildName");
   const ageEl = document.getElementById("onbChildAge");
   const passEl = document.getElementById("onbChildPassword");
+  const recEl = document.getElementById("onbChildRecovery");
   const errEl = document.getElementById("onbAddError");
   const btn = document.getElementById("onbAddBtn");
   errEl.textContent = "";
@@ -2878,17 +3594,19 @@ async function onbAddChild(){
   if(!password || password.length < 6){ errEl.textContent = "Please set a password of at least 6 characters."; return; }
   const blocked=localFileBlock();
   if(blocked){ errEl.textContent=blocked; return; }
-  const email = memberEmail(familyId, name);
-  if(!isValidLoginEmail(email)){
-    errEl.textContent = "That name couldn't be turned into a login. Try one with letters or numbers in it.";
+  const email = (recEl && recEl.value || "").trim() || suggestRecoveryEmail(myEmailForSuggestions(), name);
+  if(!looksLikeEmail(email)){
+    errEl.textContent = "This one needs an email address so a forgotten password can be reset. A variation of yours is fine \u2014 it arrives in your inbox.";
     return;
   }
+  if(recEl) recEl.value = email;
   btn.disabled = true; btn.textContent = "Adding \u2026";
   try{
     const uid = await withTimeout(window.fpc.provisionMember(familyId, {email, password}), 20000, "Creating the login");
     await withTimeout(window.fpc.saveMember(familyId, uid, {name, role:"child", age: ageEl.value.trim(), photo:null, email}), 20000, "Saving their details");
     onbAddedMembers.push({name, email});
     nameEl.value = ""; ageEl.value = ""; passEl.value = "";
+    if(recEl) recEl.value = "";
     renderOnbAdded();
   }catch(e){
     console.error("Could not add child during setup:", e);
@@ -3129,20 +3847,38 @@ function renderWhoStrip(){
   if(!strip) return;
   const f=currentFamily();
   if(!isParentSession() || !f || editMode){ strip.classList.add("hidden"); strip.innerHTML=""; return; }
-  const me=sessionMember();
-  const others=f.children.filter(c=>c.id!==sessionMemberId);
-  // One other person is still a switch worth having — it is the fast way to
-  // open them, and the fast way back. Hiding it here was why a partner looked
-  // like they were missing.
-  if(!others.length){ strip.classList.add("hidden"); strip.innerHTML=""; return; }
   const openId=currentChildId();
+  const kids=f.children.filter(c=>!isParentRole(c));
+  const partners=f.children.filter(c=>isParentRole(c) && c.id!==sessionMemberId);
+  if(!kids.length && !partners.length){ strip.classList.add("hidden"); strip.innerHTML=""; return; }
+  const pend=pendingRequests();
+  const weekDates=getCurrentWeekDates();
+  const tile=(c,kind)=>{
+    const waiting = kind==="kid" ? pend.filter(r=>r.childId===c.id).length : 0;
+    const band=bandForChild(c);
+    const av = c.photo
+      ? `<img src="${c.photo}" alt="">`
+      : '<span class="avatar-placeholder">\ud83d\udc64</span>';
+    const body = kind==="kid"
+      ? `<span class="kidtile-meta">${todayTotalFor(c)} today \u00b7 ${weeklyTotalFor(c,weekDates)} this week</span>
+         <span class="moodpill ${band.cls}">${band.label}</span>`
+      : `<span class="kidtile-meta">${c.balance||0} points \u00b7 grown-up</span>`;
+    return `<button class="kidtile ${kind==="parent"?"grown":""} ${c.id===openId?"on":""}" onclick="selectChild('${c.id}')">
+        <span class="kidtile-av">${av}${waiting?`<span class="tilebadge">${waiting}</span>`:""}</span>
+        <span class="kidtile-name">${escapeHtml(c.name)}</span>
+        ${body}
+      </button>`;
+  };
   strip.classList.remove("hidden");
   strip.innerHTML =
-    `<button class="whochip ${!openId?"on":""}" onclick="backToParentHome()">\ud83c\udfe0 <span>Home</span></button>` +
-    others.map(c=>`<button class="whochip ${c.id===openId?"on":""}" onclick="selectChild('${c.id}')">
-        ${c.photo?`<img class="avatar" src="${c.photo}">`:'<div class="avatar-placeholder">\ud83d\udc64</div>'}
-        <span>${escapeHtml(c.name)}</span>
-      </button>`).join("");
+    (kids.length
+      ? `<p class="stripcap">Tap a child to give points</p>
+         <div class="kidtiles">${kids.map(c=>tile(c,"kid")).join("")}</div>`
+      : "")
+  + (partners.length
+      ? `<p class="stripcap grown">The grown-ups</p>
+         <div class="kidtiles">${partners.map(c=>tile(c,"parent")).join("")}</div>`
+      : "");
 }
 function renderUndoBar(){
   const bar=document.getElementById("undoBar");
@@ -3176,7 +3912,14 @@ async function add(c,a,p){
   const child=currentChild(); if(!child){alert("Open someone's card first.");return;}
   if(child.id===sessionMemberId){ alert("You can't award points to yourself."); return; }
   const cat=activeCats()[c]; if(!cat) return;
-  const ok=await writeLedger({childId:child.id, points:p, label:a, type:"award", catKey:catKeyFor(cat,a), actionName:a});
+  // A prayer is not a thing you can do twice. Tapping again used to pay again.
+  const entry=(cat.actions||[]).find(x=>x[0]===a);
+  if(actionOpts(entry).once && valueFor(stateForChild(child), cat, a) > 0){
+    alert("\u2713 "+a+" is already recorded for "+child.name+" today.");
+    return;
+  }
+  const ok=await writeLedger({childId:child.id, points:p, label:a, type:"award",
+    catKey:catKeyFor(cat,a), actionName:a, tag:actionOpts(entry).tag||null});
   if(ok) flashAction(catKeyFor(cat,a));
 }
 async function remove(c,a,p){
@@ -3202,6 +3945,19 @@ function roleLabel(ch){
 function applyRoleChrome(){
   const me=sessionMember();
   const kid = !!me && !isParentRole(me);
+  // Handing the device on must not leave the router pointing at a screen the
+  // new person cannot open — a child inheriting "accountPanel", say.
+  if(screenNow){
+    const kidScreen = screenNow.indexOf("kid")===0;
+    if(kid !== kidScreen){
+      // Reset in place rather than through showScreen(), which would re-enter
+      // render() from inside render().
+      screenNow=null;
+      SCREENS.forEach(s=>{const el=document.getElementById(s); if(el) el.classList.add("hidden");});
+      const home=document.getElementById("kidHomeScreen");
+      if(home) home.classList.remove("hidden");
+    }
+  }
   const set=(id,on)=>{const el=document.getElementById(id); if(el) el.classList.toggle("hidden", !on);};
   set("kidView", kid);
   set("summarySection", !kid);
@@ -3225,6 +3981,13 @@ function applyRoleChrome(){
     if(mb) mb.classList.remove("hidden");
     if(out && sheet && out.parentElement !== sheet) sheet.appendChild(out);
   }
+  if(!kid){
+    // A grown-up never has the child's tab bar, even after switching accounts
+    // on a shared device.
+    const bar=document.getElementById("kidTabBar");
+    if(bar) bar.classList.add("hidden");
+    document.body.classList.remove("haskidbar");
+  }
   if(kid){
     ["accountPanel","overviewPanel","activityPanel","requestsPanel","addCategoryWrap",
      "rewardSection","gameNightSection","parentRewardSection","requestsBanner","behaviourWrap","editModeNote","tipsCard","undoBar","whoStrip"]
@@ -3244,6 +4007,8 @@ function render(){
   showVersion();
   renderFamilyCover();
   renderFab();
+  renderChampionFloat();
+  renderChampionToggle();
   renderWhoStrip();
   renderUndoBar();
   checkForGifts();
@@ -3400,6 +4165,7 @@ function render(){
   if(overviewPanel && !overviewPanel.classList.contains("hidden")) renderOverview();
   const activityPanel=document.getElementById("activityPanel");
   if(activityPanel && !activityPanel.classList.contains("hidden")) renderActivityLog();
+  refreshChildStats();
 }
 function renderParentAdminView(parent){
   const cards=document.getElementById("cards");
@@ -3411,28 +4177,8 @@ function renderParentAdminView(parent){
   renderParentRewards();
   const f=currentFamily();
   const kids = f ? f.children.filter(c=>!isParentRole(c)) : [];
-  const pend=pendingRequests();
-  const kidsHtml = kids.length
-    ? kids.map(k=>{
-        const band=bandForChild(k);
-        const waiting=pend.filter(r=>r.childId===k.id).length;
-        return `<div class="overviewrow" onclick="selectChild('${k.id}')">
-          <div class="memberhead">
-            ${k.photo
-              ? `<img class="avatar tappable" src="${k.photo}" onclick="event.stopPropagation();openMemberPhoto('${k.id}')">`
-              : `<div class="avatar-placeholder tappable" onclick="event.stopPropagation();openMemberPhoto('${k.id}')">\ud83d\udc64</div>`}
-            <div>
-              <strong>${escapeHtml(k.name)}</strong>${waiting?`<span class="badge">${waiting} request${waiting>1?"s":""}</span>`:""}
-              <div class="small">Today ${todayTotalFor(k)} \u00b7 This week ${weeklyTotalFor(k, getCurrentWeekDates())}</div>
-            </div>
-          </div>
-          <div class="overviewstats" style="align-items:center">
-            <span class="moodpill ${band.cls}">${band.label}</span>
-            <div><strong>${k.balance||0}</strong><span>Balance</span></div>
-          </div>
-        </div>`;
-      }).join("")
-    : '<p class="small">No children added yet \u2014 use "Family members" above to add one.</p>';
+  // The children's profiles live in one place now \u2014 the tile row directly under
+  // the Give points button. Listing them again here was the same names, twice.
   const partners = f ? f.children.filter(c=>isParentRole(c) && c.id!==parent.id) : [];
   const myBalance = parent.balance || 0;
   const myPending = pendingSpendFor(parent.id);
@@ -3449,11 +4195,10 @@ function renderParentAdminView(parent){
         </div>`).join("")
     : '<p class="small">Add another parent under "Family members" and you can start noticing each other too.</p>';
   const spendable = Math.max(0, myBalance - myPending);
-  cards.innerHTML = `<div class="card" style="grid-column:1/-1">
+  cards.innerHTML = (kids.length ? "" : `<div class="card" style="grid-column:1/-1">
     <h2>\ud83d\udc4b Signed in as ${escapeHtml(parent.name)} (${roleLabel(parent)})</h2>
-    <p class="small">Tap a child to open their card, see their behaviour trend, and award points for something they\u2019ve done well.</p>
-    <div style="display:grid;gap:8px;margin-top:14px">${kidsHtml}</div>
-  </div>
+    <p class="small">No children added yet \u2014 open \u201cFamily members\u201d in the menu to add one. Their profiles will then appear under the Give points button.</p>
+  </div>`) + `
   <div class="card" style="grid-column:1/-1;border-top-color:#7c83ef">
     <div class="cardhead">
       <div><div class="icon">\ud83e\udd1d</div><h2>The grown-ups</h2>
@@ -3491,6 +4236,7 @@ function renderParentAdminView(parent){
   if(overviewPanel && !overviewPanel.classList.contains("hidden")) renderOverview();
   const activityPanel=document.getElementById("activityPanel");
   if(activityPanel && !activityPanel.classList.contains("hidden")) renderActivityLog();
+  refreshChildStats();
 }
 function updateRewardPacing(child){
   const buttons=document.querySelectorAll('#rewardManageList [data-pts]');
@@ -3506,11 +4252,11 @@ function updateRewardPacing(child){
     const pts=parseInt(b.dataset.pts);
     b.classList.remove("recommended","muted");
     if(isYounger){
-      if(pts<=30) b.classList.add("recommended"); else b.classList.add("muted");
+      if(pts<=60) b.classList.add("recommended"); else b.classList.add("muted");
     }
   });
   if(isYounger){
-    note.textContent = "✨ For "+child.name+" (age "+ageNum+"), rewards up to 30 pts are highlighted as the best fit — the loop stays quick and motivating. Bigger rewards are still there if they'd like to save up.";
+    note.textContent = "✨ For "+child.name+" (age "+ageNum+"), rewards up to 60 pts are highlighted as the best fit — the loop stays quick and motivating. Bigger rewards are still there if they'd like to save up.";
     note.classList.remove("hidden");
   }else{
     note.classList.add("hidden");
@@ -3575,7 +4321,11 @@ async function writeLedger(entry){
       byName: me ? me.name : "",
       byRole: me ? (roleLabel(me)||"") : "",
       ...(entry.catKey ? { catKey: entry.catKey } : {}),
-      ...(entry.actionName ? { actionName: entry.actionName } : {})
+      ...(entry.actionName ? { actionName: entry.actionName } : {}),
+      // The tag travels with the record. Without it the prayer board would have
+      // to find "Prayed Fajr" by its wording, and renaming the action would
+      // silently blank a child's history.
+      ...(entry.tag ? { tag: entry.tag } : {})
     });
     return true;
   }catch(e){
@@ -3593,6 +4343,8 @@ async function kidBuy(type, id){
     ? app.rewards.find(r=>r.id===id)
     : app.gameNightActivities.find(g=>g.id===id);
   if(!item) return;
+  const blocked=limitReachedMessage(child, item);
+  if(blocked){ alert(blocked); return; }
   const price=item.points||0;
   const spendable=availableFor(child);
   if(spendable<price){
@@ -3756,13 +4508,16 @@ function bandForChild(child){
   const last=s[s.length-1];
   return bandFor(last.score, last.noHistory);
 }
-function behaviourChartSVG(series, uid){
-  const W=600,H=180,L=10,R=10,T=12,B=26;
+/* Gradient ids must be unique per chart: with eight of them on one screen a
+   shared id makes every tile inherit the first chart's colour. */
+function svgKey(id){ return String(id||"").replace(/[^A-Za-z0-9]/g,""); }
+function behaviourChartSVG(series, uid, compact){
+  const W=600,H=compact?110:180,L=10,R=10,T=compact?8:12,B=compact?8:26;
   const n=series.length;
   const x=i=> L + i*((W-L-R)/(n-1));
   const y=v=> T + (100-v)/100*(H-T-B);
   const pts=series.map((p,i)=>({x:x(i), y:y(p.score), ...p}));
-  const bands=`
+  const bands = compact ? "" : `
     <rect x="0" y="${y(100)}" width="${W}" height="${y(66)-y(100)}" fill="#2e9b68" opacity="0.07"/>
     <rect x="0" y="${y(66)}" width="${W}" height="${y(36)-y(66)}" fill="#e08b28" opacity="0.07"/>
     <rect x="0" y="${y(36)}" width="${W}" height="${y(0)-y(36)}" fill="#d85b5b" opacity="0.07"/>`;
@@ -3771,15 +4526,17 @@ function behaviourChartSVG(series, uid){
   const segs=pts.slice(1).map((p,i)=>{
     const prev=pts[i];
     const c=bandFor(p.score).colour;
-    return `<line x1="${prev.x}" y1="${prev.y}" x2="${p.x}" y2="${p.y}" stroke="${c}" stroke-width="3.5" stroke-linecap="round"/>`;
+    return `<line x1="${prev.x}" y1="${prev.y}" x2="${p.x}" y2="${p.y}" stroke="${c}" stroke-width="${compact?5:3.5}" stroke-linecap="round"/>`;
   }).join("");
-  const dots=pts.map((p,i)=>{
+  const dots=compact ? (()=>{ const p=pts[n-1];
+      return `<circle cx="${p.x}" cy="${p.y}" r="7" fill="${bandFor(p.score).colour}" stroke="#fff" stroke-width="3"/>`;
+    })() : pts.map((p,i)=>{
     const c=bandFor(p.score).colour;
     const isLast=i===n-1;
     return `<circle cx="${p.x}" cy="${p.y}" r="${isLast?6:3.4}" fill="${c}" ${isLast?`stroke="#fff" stroke-width="2.5"`:""}>
       <title>${p.d.toLocaleDateString(undefined,{weekday:"long", day:"numeric", month:"short"})} \u2014 ${p.pts} points</title></circle>`;
   }).join("");
-  const labels=pts.map((p,i)=>{
+  const labels=compact ? "" : pts.map((p,i)=>{
     if(n>10 && i%2!==0 && i!==n-1) return "";
     const letter=p.d.toLocaleDateString(undefined,{weekday:"short"}).slice(0,1);
     return `<text x="${p.x}" y="${H-7}" text-anchor="middle" font-size="11" fill="#98a0b3">${letter}</text>`;
@@ -3877,6 +4634,8 @@ function kidTips(child){
   tips.push({icon:"\ud83d\udcb0", text:"You can always save your points instead of spending them"});
   return tips;
 }
+let spendTab = "rewards";
+function setSpendTab(t){ spendTab = t; render(); }
 let kidShowAllRewards = false;
 let kidShowAllGames = false;
 function toggleAllRewards(){ kidShowAllRewards = !kidShowAllRewards; render(); }
@@ -4011,6 +4770,9 @@ function renderKidView(child){
   }
   document.getElementById("kidSubline").textContent = subline;
   document.getElementById("kidBalance").textContent = child.balance||0;
+  const spendable=availableFor(child);
+  const sb=document.getElementById("kidSpendBal"); if(sb) sb.textContent=spendable;
+  const sb2=document.getElementById("kidSpendBal2"); if(sb2) sb2.textContent=spendable;
   const onHold=pendingSpendFor(child.id);
   const holdEl=document.getElementById("kidHold");
   if(holdEl){
@@ -4023,6 +4785,28 @@ function renderKidView(child){
   document.getElementById("kidWeek").textContent = week;
   document.getElementById("kidStreak").textContent = streakFor(child);
   document.getElementById("kidGraphWrap").innerHTML = behaviourCardHTML(child, true);
+  const pt=document.getElementById("prayerToday");
+  if(pt) pt.innerHTML = prayerTodayHTML(child);
+  const pw=document.getElementById("prayerWall");
+  if(pw) pw.innerHTML = prayerWallHTML(child, 7, true);
+
+  // Bottom tab bar: three destinations, so nothing needs scrolling to reach.
+  const bar=document.getElementById("kidTabBar");
+  if(bar){
+    bar.classList.remove("hidden");
+    document.body.classList.add("haskidbar");
+    [["kidTabHome",null],["kidTabSpend","kidSpendScreen"],["kidTabPoints","kidPointsScreen"]]
+      .forEach(([bid,scr])=>{
+        const b=document.getElementById(bid);
+        if(b) b.classList.toggle("on", screenNow===scr);
+      });
+  }
+  ["rewards","games","save"].forEach(t=>{
+    const btn=document.getElementById("spendTab"+t[0].toUpperCase()+t.slice(1));
+    if(btn) btn.classList.toggle("on", spendTab===t);
+    const pane=document.getElementById("spendPane"+t[0].toUpperCase()+t.slice(1));
+    if(pane) pane.classList.toggle("hidden", spendTab!==t);
+  });
 
   // Feed: what they got, from whom, for what
   const feed=document.getElementById("kidFeed");
@@ -4057,6 +4841,7 @@ function renderKidView(child){
         <span class="cname">${escapeHtml(item.name)}</span>
         <span class="cprice">${item.points} points</span>
         ${blurb?`<span class="ckind">${escapeHtml(blurb)}</span>`:""}
+        ${item.limit?`<span class="climit">${LIMIT_LABEL[item.limit]||""}</span>`:""}
       </span>
     </button>`;
   };
@@ -4092,7 +4877,7 @@ function renderKidView(child){
 
   // Their own requests
   const mine=(app.requests||[]).filter(r=>r.childId===child.id).slice(0,4);
-  document.getElementById("kidRequestStatus").innerHTML = mine.length
+  const mineHtml = mine.length
     ? mine.map(r=>{
         const cls = r.status==="pending"?"stat-pending":r.status==="approved"?"stat-approved":"stat-declined";
         const txt = r.status==="pending"?"\u23f3 Waiting for Mum or Dad"
@@ -4101,6 +4886,12 @@ function renderKidView(child){
         return `<div class="statusrow ${cls}"><span><strong>${escapeHtml(r.itemName)}</strong></span><span class="small">${txt}</span></div>`;
       }).join("")
     : "";
+  // "Am I still waiting?" is a glance question, so it sits on the home screen
+  // as well as inside Spend.
+  const reqHome=document.getElementById("kidRequestStatus");
+  if(reqHome) reqHome.innerHTML = mineHtml;
+  const reqSpend=document.getElementById("kidSpendRequests");
+  if(reqSpend) reqSpend.innerHTML = mineHtml;
 
   renderKidBoost();
   checkForCelebrations();
@@ -4115,7 +4906,11 @@ let deferredInstall = null;
 let swRegistration = null;
 
 document.addEventListener("keydown", (e)=>{ if(e.key === "Escape" && openCat) closeCatModal(); });
-window.addEventListener("popstate", ()=>{ if(openCat) closeCatModal(); });
+window.addEventListener("popstate", ()=>{
+  if(statsChildId){ closeChildStats(); return; }
+  if(openCat){ closeCatModal(); return; }
+  if(screenNow) showScreen(null);
+});
 if("serviceWorker" in navigator && location.protocol.startsWith("http")){
   window.addEventListener("load", () => {
     navigator.serviceWorker.register("sw.js").then((reg) => {
@@ -4215,17 +5010,57 @@ function stopEverything(){
   ready=false; familyId=null; sessionMemberId=null; viewChildId=null; editMode=false;
   app={families:[],currentFamily:null,currentChild:null,rewards:[],gameNightActivities:[],requests:[],settings:{showChampion:true},categories:[]};
 }
+/* A child cannot use a reset email and cannot be told to check an inbox. After a
+   couple of misses the useful instruction is not "try again" but "go and ask". */
+const SIGNIN_ATTEMPTS = {};
+function isGeneratedLogin(email){
+  return String(email||"").trim().toLowerCase().endsWith(".fpc.app");
+}
+function showAskParent(){
+  const el=document.getElementById("askParentPanel");
+  if(el) el.classList.remove("hidden");
+}
+function hideAskParent(){
+  const el=document.getElementById("askParentPanel");
+  if(el) el.classList.add("hidden");
+}
 async function submitAuthLogin(){
   const email=document.getElementById("authEmail").value.trim();
   const password=document.getElementById("authPassword").value;
   const errEl=document.getElementById("authError");
   const resetEl=document.getElementById("authResetMsg");
-  errEl.textContent=""; resetEl.textContent="";
+  errEl.textContent=""; resetEl.textContent=""; hideAskParent();
   if(!email||!password){ errEl.textContent="Please enter both email and password."; return; }
   try{
     await window.fpc.signIn(email,password);
+    delete SIGNIN_ATTEMPTS[email.toLowerCase()];
   }catch(e){
-    errEl.textContent="Sign-in failed. Check the email and password and try again.";
+    const key=email.toLowerCase();
+    const tries=(SIGNIN_ATTEMPTS[key]=(SIGNIN_ATTEMPTS[key]||0)+1);
+    const generated=isGeneratedLogin(email);
+    /* Firebase throttles the account, so trying again genuinely will not help.
+       Say so on the first occurrence rather than counting up to it. */
+    if(e && e.code==="auth/too-many-requests"){
+      errEl.textContent = generated
+        ? "Let's take a short break \u2014 the app needs about fifteen minutes before you can try again."
+        : "Too many attempts just now. Wait about fifteen minutes, then try again.";
+      if(generated) showAskParent();
+      return;
+    }
+    if(generated){
+      if(tries===1){
+        errEl.textContent="That didn't work \u2014 check the spelling and try again.";
+      }else if(tries===2){
+        errEl.textContent="Still not right. Passwords are small letters and numbers, with no spaces.";
+      }else{
+        errEl.textContent="";
+        showAskParent();
+      }
+    }else{
+      errEl.textContent = tries>=2
+        ? "That email or password wasn't right. Tap \"Forgot password?\" and we'll send you a link."
+        : "That email or password wasn't right.";
+    }
   }
 }
 async function submitForgotPassword(){
@@ -4234,8 +5069,8 @@ async function submitForgotPassword(){
   const resetEl=document.getElementById("authResetMsg");
   errEl.textContent=""; resetEl.textContent="";
   if(!email){ errEl.textContent="Enter your email above first, then tap \"Forgot password?\"."; return; }
-  if(email.endsWith(".fpc.app")){
-    errEl.textContent="That's a family login without a real mailbox, so nothing can be sent to it. Ask a parent \u2014 they can send a reset from Family members if the login has a recovery address.";
+  if(isGeneratedLogin(email)){
+    showAskParent();
     return;
   }
   try{
@@ -4307,6 +5142,67 @@ function toggleStartFamily(){
   document.getElementById("startFamilyBtn").textContent =
     open ? "Cancel" : "Or start a new family with this login";
 }
+/* No I, O, 0 or 1: this gets read aloud across a kitchen. */
+const INVITE_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+const INVITE_TTL_MS = 15 * 60 * 1000;
+function makeInviteCode(){
+  const buf = new Uint8Array(8);
+  crypto.getRandomValues(buf);
+  return Array.from(buf, b => INVITE_ALPHABET[b % INVITE_ALPHABET.length]).join("");
+}
+function normaliseInviteCode(v){
+  return String(v || "").toUpperCase().replace(/[^A-Z2-9]/g, "");
+}
+async function createParentInvite(){
+  if(!requireParent()) return;
+  const box=document.getElementById("inviteBox");
+  const codeEl=document.getElementById("inviteCode");
+  const expEl=document.getElementById("inviteExpiry");
+  const btn=document.getElementById("inviteParentBtn");
+  if(btn){ btn.disabled=true; btn.textContent="Making a code \u2026"; }
+  try{
+    const code=await withTimeout(window.fpc.createInvite(familyId, makeInviteCode(), INVITE_TTL_MS), 20000, "Creating the code");
+    codeEl.textContent = code.slice(0,4) + "-" + code.slice(4);
+    const until = new Date(Date.now() + INVITE_TTL_MS);
+    expEl.textContent = "Valid until " + until.toLocaleTimeString([], {hour:"2-digit", minute:"2-digit"}) + ".";
+    box.classList.remove("hidden");
+  }catch(e){
+    console.error("Could not create an invite:", e);
+    alert(authErrorMessage(e));
+  }
+  if(btn){ btn.disabled=false; btn.textContent="\u{1F517} Invite another parent"; }
+}
+function selectJoinRole(role){
+  window.__joinRole=role;
+  document.getElementById("joinRoleMum").classList.toggle("selected", role==="Mum");
+  document.getElementById("joinRoleDad").classList.toggle("selected", role==="Dad");
+}
+async function submitJoinCode(){
+  const errEl=document.getElementById("joinError");
+  const btn=document.getElementById("joinBtn");
+  errEl.textContent="";
+  const code=normaliseInviteCode(document.getElementById("joinCodeInput").value);
+  const personName=document.getElementById("joinPersonName").value.trim();
+  if(code.length!==8){ errEl.textContent="A code is eight characters. There's no letter I or O, and no 0 or 1."; return; }
+  if(!personName){ errEl.textContent="Please enter your name."; return; }
+  btn.disabled=true; btn.textContent="Joining \u2026";
+  try{
+    const invite=await withTimeout(window.fpc.lookupInvite(code), 20000, "Checking the code");
+    if(!invite){ errEl.textContent="That code isn't right. Check each character and try again."; return; }
+    if(invite.usedBy){ errEl.textContent="That code has already been used. Ask them for a fresh one."; return; }
+    if(!invite.expiresAtMs || invite.expiresAtMs < Date.now()){
+      errEl.textContent="That code has expired. Ask them to tap Invite another parent again \u2014 codes last fifteen minutes.";
+      return;
+    }
+    await withTimeout(window.fpc.redeemInvite(code, invite, personName, window.__joinRole||"Dad"), 20000, "Joining the family");
+    await loadApp();
+  }catch(e){
+    console.error("Could not join the family:", e);
+    errEl.textContent = authErrorMessage(e);
+  }finally{
+    btn.disabled=false; btn.textContent="Join the family";
+  }
+}
 async function startFamilyHere(){
   const familyName=document.getElementById("nfFamilyName").value.trim();
   const personName=document.getElementById("nfPersonName").value.trim();
@@ -4352,3 +5248,4 @@ async function signOutDevice(){
 </script>
 </body>
 </html>
+
