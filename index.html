@@ -152,6 +152,69 @@
        box-shadow:0 10px 26px rgba(91,99,216,.45)}
   .fab:hover{filter:brightness(1.05)}
   .fab.raised{bottom:88px}
+  .goalcard,.noticecard{background:#fff;border-radius:22px;padding:17px;box-shadow:var(--shadow);
+             margin-bottom:16px;border-top:6px solid #7c83ef}
+  .goalcard.reached{border-top-color:#2e9b68;background:linear-gradient(180deg,#f2fbf6,#fff)}
+  .noticecard{border-top-color:#e0b13c;background:linear-gradient(180deg,#fffaef,#fff)}
+  .goalhead{display:flex;align-items:baseline;justify-content:space-between;gap:8px;flex-wrap:wrap}
+  .goalhead h2{margin:0;font-size:17px}
+  .goalfrom{font-size:12px;font-weight:800;color:var(--muted)}
+  .goalmsg{margin:8px 0 0;font-style:italic;color:#4b4372;font-size:13.5px}
+  .goalbar{height:14px;border-radius:99px;background:#eef0ff;overflow:hidden;margin:12px 0 8px}
+  .goalbar span{display:block;height:100%;border-radius:99px;
+                background:linear-gradient(90deg,#7c83ef,#17a08a);transition:width .5s ease}
+  .goalnums{margin:0;font-size:13.5px;font-weight:700}
+  .goalshares{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+  .goalshare{display:flex;align-items:center;gap:6px;background:#f7f8fc;border-radius:99px;
+             padding:5px 11px 5px 5px;font-size:12.5px;font-weight:700}
+  .goalshare img,.goalshare .avatar-placeholder{width:26px;height:26px;border-radius:50%;
+             object-fit:cover;font-size:13px;display:flex;align-items:center;justify-content:center}
+  .goalshare strong{color:#3e46ad}
+  .strandcard{background:#fff;border-radius:20px;padding:15px;box-shadow:var(--shadow);
+              margin-bottom:14px;border-top:5px solid #7c83ef}
+  .strandcard summary{cursor:pointer;font-size:13px;font-weight:800;color:#3e46ad;padding:4px 0}
+  .objlist{display:grid;gap:6px;margin-top:8px}
+  .objrow{display:flex;align-items:flex-start;gap:9px;background:#f7f8fc;border-radius:12px;padding:9px 11px}
+  .objrow.done{background:#eefaf4}
+  .objrow.review{background:#fff6e8}
+  .objrow.covered{background:#f0f1ff}
+  .objmark{width:18px;font-size:14px;color:#19744a;flex-shrink:0}
+  .objtext{flex:1;min-width:0;font-size:13px;line-height:1.4}
+  .objby{display:block;font-size:11px;color:var(--muted);font-weight:700;margin-top:2px}
+  .objbtns{display:flex;gap:5px;flex-wrap:wrap}
+  .objbtns button{width:auto;padding:5px 9px;font-size:11.5px}
+  .outsidecard{background:#fff;border-radius:22px;padding:16px;box-shadow:var(--shadow);
+               margin-bottom:16px;border-top:6px solid #17a08a}
+  .outsidecard .feeditem{align-items:center}
+  .allowpill{font-size:11.5px;font-weight:800;background:#e4f7ed;color:#19744a;
+             padding:4px 10px;border-radius:99px;white-space:nowrap}
+  .allowpill.spent{background:#f3f4fa;color:#8d92ab}
+  .offerrow{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;
+            background:#f7f8fc;border:1px solid #e6e8f0;border-radius:16px;padding:13px 14px}
+  .coach{display:flex;align-items:flex-start;gap:11px;background:#fffaef;border:1px solid #f0e2bd;
+         border-radius:18px;padding:14px 15px;margin-bottom:16px}
+  .coach .cem{font-size:22px;line-height:1.1}
+  .coach .cbodytext{flex:1;min-width:0;font-size:13.5px;line-height:1.45;color:#5c4a15}
+  .coach .cbodytext strong{display:block;font-size:14.5px;color:#4a3a0d;margin-bottom:2px}
+  .coach .cx{width:auto;background:none;color:#a08a4a;font-size:18px;padding:0 2px}
+  .tourcard{background:#fff;border-radius:26px;padding:26px 22px;max-width:460px;width:100%;
+            box-shadow:0 24px 60px rgba(20,17,45,.28)}
+  .tourcard h1{font-size:23px;margin:0 0 6px}
+  .tourcard.kid h1{font-size:27px}
+  .tourcard.kid p.lede{font-size:17px;line-height:1.5}
+  .tourpoint{display:flex;gap:12px;align-items:flex-start;background:#f8f8fd;border-radius:16px;
+             padding:13px 14px;margin-top:10px}
+  .tourpoint .em{font-size:24px;line-height:1.1}
+  .tourpoint strong{display:block;font-size:14.5px;margin-bottom:2px}
+  .tourpoint span span{font-size:13px;color:var(--muted);line-height:1.45}
+  .tourcard.kid .tourpoint{background:#fff8ef;padding:15px}
+  .tourcard.kid .tourpoint strong{font-size:16.5px}
+  .tourcard.kid .tourpoint span span{font-size:15px;color:#5b4a2e}
+  .tournav{display:flex;gap:8px;margin-top:18px}
+  .tournav button{flex:1}
+  .helpline{text-align:center;margin:2px 0 14px}
+  .helpline button{width:auto;background:none;color:var(--muted);font-size:13px;
+                   text-decoration:underline;padding:6px 10px}
 
   /* --- This week's champion, floating top-right ------------------------- */
   .champfab{position:fixed;right:14px;z-index:120;width:auto;padding:0;background:none;
@@ -204,7 +267,7 @@
   .prayercard.allfive{border-top-color:#e0b13c;background:linear-gradient(180deg,#fffaef,#fff)}
   .prayerhead{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
   .prayerhead h2{margin:0;font-size:17px}
-  .prayercount{font-size:12px;font-weight:800;background:#eef0ff;color:#3e46ad;padding:4px 10px;border-radius:99px}
+  .prayercount,.countpill{font-size:12px;font-weight:800;background:#eef0ff;color:#3e46ad;padding:4px 10px;border-radius:99px}
   .pdots{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-top:12px}
   .pdot{display:flex;flex-direction:column;align-items:center;gap:4px}
   .pmark{width:44px;height:44px;border-radius:50%;border:2px dashed #d5d8e8;background:#fbfbff;
@@ -273,7 +336,7 @@
             box-shadow:0 12px 28px rgba(15,143,156,.32);margin-bottom:16px}
   .spendbtn small{display:block;font-size:13px;font-weight:600;opacity:.92;margin-top:3px}
   .spendbtn .spendbal{font-size:26px;font-weight:800;white-space:nowrap}
-  .tabbar{position:fixed;left:0;right:0;bottom:0;z-index:130;display:grid;grid-template-columns:repeat(3,1fr);
+  .tabbar{position:fixed;left:0;right:0;bottom:0;z-index:130;display:grid;grid-template-columns:repeat(4,1fr);
           gap:4px;background:#fff;border-top:1px solid #e6e8f0;padding:7px 8px calc(7px + env(safe-area-inset-bottom));
           box-shadow:0 -6px 20px rgba(24,22,60,.08)}
   .tabbar button{display:flex;flex-direction:column;align-items:center;gap:2px;background:none;
@@ -565,8 +628,9 @@
       <p class="small" id="authResetMsg" style="color:var(--good)"></p>
       <div id="askParentPanel" class="hidden" style="background:#f5f3ff;border:1px solid #cfc7f7;border-radius:16px;padding:14px;margin:4px 0;text-align:left">
         <p style="margin:0 0 6px;font-weight:800;font-size:15px">\u{1F511} Ask Mum or Dad</p>
-        <p class="small" style="margin:0 0 8px">Your password is safe \u2014 a parent can send you a new one.</p>
-        <p class="small" style="margin:0">Ask them to open Dougoun Kids on their phone, tap <strong>\u2630 Menu \u2192 \u{1F468}\u200D\u{1F469}\u200D\u{1F467} Family members</strong>, find your name and tap <strong>\u2709\uFE0F</strong>.</p>
+        <p class="small" style="margin:0 0 10px">Nothing is lost and nothing is broken. Your points are all still there. A parent can give you a new password in about ten seconds.</p>
+        <p class="small" style="margin:0 0 4px;font-weight:800">Show them this bit \u{1F447}</p>
+        <p class="small" style="margin:0">Open Dougoun Kids \u2192 <strong>\u2630 Menu</strong> \u2192 <strong>\u{1F468}\u200D\u{1F469}\u200D\u{1F467} Family members</strong> \u2192 tap <strong>\u2709\uFE0F</strong> next to their name. Then check your own email for the link.</p>
       </div>
       <p class="small"><a href="#" onclick="submitForgotPassword();return false;">Forgot password?</a></p>
       <p class="small" style="background:#f7f7ff;border:1px solid #e1e3f4;border-radius:12px;padding:9px 11px;margin:2px 0">
@@ -630,7 +694,7 @@
       <p class="lede">Your family is set up. Three things worth knowing before you start — it takes a minute.</p>
       <div class="onbpoint"><span class="em">⭐</span><div><strong>You notice, you award</strong><span>Only Mum and Dad accounts can give points. Children can see what they've earned, but never award any — to themselves or each other.</span></div></div>
       <div class="onbpoint"><span class="em">🎁</span><div><strong>They ask, you decide</strong><span>Children choose a reward or an activity and it comes to you as a request. Points are only spent when you approve it.</span></div></div>
-      <div class="onbpoint"><span class="em">📈</span><div><strong>You'll see the pattern</strong><span>Each child gets a behaviour trend that runs green when points are coming in regularly and fades as things go quiet.</span></div></div>
+      <div class="onbpoint"><span class="em">📈</span><div><strong>You'll see the pattern</strong><span>Each child gets a trend line that runs green while points are coming in, and fades when things go quiet. It’s the quiet weeks it’s there to show you.</span></div></div>
       <div class="onbnav"><button class="primary" onclick="onbGo(2)">Next</button></div>
     </div>
 
@@ -655,15 +719,35 @@
 
     <div class="onbstep hidden" id="onbStep3">
       <h1>Set up their rewards</h1>
-      <p class="lede">There's a starter list of rewards and activities ready to go — snacks, outings, screen time, games. They're yours to change.</p>
-      <div class="onbpoint"><span class="em">🍫</span><div><strong>Keep a few cheap ones</strong><span>Something reachable in a day or two matters as much as the big saver-goal, especially for younger children.</span></div></div>
-      <div class="onbpoint"><span class="em">🎲</span><div><strong>Price the activities</strong><span>Children pick which activity they'd like — or save their points for something the family agrees on together.</span></div></div>
+      <p class="lede">There's a starter list ready to go. Two things worth knowing about how it's priced.</p>
+      <div class="onbpoint"><span class="em">🍫</span><div><strong>Time together is cheap on purpose</strong><span>Twenty minutes one-to-one costs 25 points; a packet of crisps costs 250. That’s the whole idea — the good stuff should be the easy stuff.</span></div></div>
+      <div class="onbpoint"><span class="em">🎲</span><div><strong>Some rewards are limited, not dear</strong><span>A trip to the park is once a week. That way it stays affordable without costing you every Saturday.</span></div></div>
       <div class="onbpoint"><span class="em">💛</span><div><strong>Points aren't the point</strong><span>The app will nudge you now and then with ideas for connecting with your children — that's what makes the rest of it work.</span></div></div>
       <div class="onbnav">
         <button class="light" onclick="onbGo(2)">Back</button>
+        <button class="primary" onclick="onbGo(4)">Next</button>
+      </div>
+    </div>
+
+    <div class="onbstep hidden" id="onbStep4">
+      <h1>Just the first week</h1>
+      <p class="lede">You don’t have to use all of it. Do these three and the rest makes sense on its own.</p>
+      <div class="onbpoint"><span class="em">1️⃣</span><div><strong>Award something today</strong><span>Anything, however small. The first point is the one that makes it real for them.</span></div></div>
+      <div class="onbpoint"><span class="em">2️⃣</span><div><strong>Say what it was for, out loud</strong><span>“That was kind of you — three points.” The words do more work than the number.</span></div></div>
+      <div class="onbpoint"><span class="em">3️⃣</span><div><strong>Let a request come in, and answer it</strong><span>Yes or no both work. They learn how the loop runs either way.</span></div></div>
+      <div class="onbnav">
+        <button class="light" onclick="onbGo(3)">Back</button>
         <button class="primary" onclick="finishOnboarding()">Start using the app</button>
       </div>
     </div>
+  </div>
+</div>
+
+<div id="tourGate" class="gatewrap hidden">
+  <div class="tourcard" id="tourCard">
+    <div class="onbdots" id="tourDots"></div>
+    <div id="tourBody"></div>
+    <div class="tournav" id="tourNav"></div>
   </div>
 </div>
 
@@ -800,9 +884,11 @@
       <button class="light" id="btnFamily" onclick="showAccountPanel()">👨‍👩‍👧 Family members</button>
       <button class="light" id="btnRequests" onclick="showRequestsPanel()">🔔 Requests</button>
       <button class="light" id="btnOverview" onclick="showOverviewPanel()">📊 Overview</button>
+      <button class="light" id="btnProgress" onclick="showProgressPanel()">📖 Progress</button>
       <button class="light" id="btnActivity" onclick="showActivityPanel()">📋 History</button>
       <button class="light" onclick="toggleEditMode()" id="editModeBtn">✏️ Edit Categories</button>
       <button class="light" id="btnRefreshLists" onclick="applyRecommendedLists()">✨ Update to recommended lists</button>
+      <button class="light" id="btnHowItWorks" onclick="openHowItWorks()">❓ How this works</button>
       <button class="light" id="btnResetDay" onclick="resetDay()">↻ Reset today</button>
       <button class="light" id="btnSignOut" onclick="signOutDevice()">🔒 Sign out</button>
     </div>
@@ -852,7 +938,14 @@
         </div>
 
         <button class="primary" id="revealAddBtn" style="margin-top:14px;width:100%" onclick="openAddMember()">＋ Add someone new</button>
-        <button class="light" id="inviteParentBtn" style="margin-top:8px;width:100%" onclick="createParentInvite()">\u{1F517} Invite another parent</button>
+        <div style="display:grid;gap:6px;margin-top:10px">
+          <p class="small" style="margin:0">Invite someone to this family:</p>
+          <button class="light" id="inviteParentBtn" style="width:100%" onclick="createParentInvite('parent')">\u{1F517} Invite another parent</button>
+          <button class="light" id="inviteFamilyBtn" style="width:100%" onclick="createParentInvite('family')">\u{1F46A} Invite a grandparent, uncle or aunty</button>
+          <button class="light" id="inviteTutorBtn" style="width:100%" onclick="createParentInvite('tutor')">\u{1F4DA} Invite a tutor</button>
+          <p class="small" style="margin:0">A grandparent, uncle or aunty can see the children\u2019s names and weekly points, give each child up to 10 points a week, and offer them a shared goal or a gift. They can\u2019t take points away, change rewards, or see your own list.</p>
+          <p class="small" style="margin:0">A tutor sees only the children you assign them \u2014 no photos, no behaviour graphs, no prayer board. They can record up to 5 points once a day for a lesson, and you can undo anything they record.</p>
+        </div>
         <div id="inviteBox" class="hidden" style="margin-top:12px;background:#eef0ff;border:1px solid #c9cdf5;border-radius:16px;padding:14px;text-align:center">
           <p class="small" style="margin:0 0 6px">Read this out to them. It works once, and lasts fifteen minutes.</p>
           <p id="inviteCode" style="margin:0;font-size:30px;font-weight:800;letter-spacing:.12em;color:#3e46ad"></p>
@@ -880,10 +973,19 @@
     <div id="overviewList" class="overviewgrid"></div>
   </div>
 
+  <div id="progressPanel" class="panel hidden">
+    <h2>\u{1f4d6} Progress</h2>
+    <p class="small">What each child has covered and what they can do unaided. Every mark shows who made it.</p>
+    <div id="progressBody" style="margin-top:10px"></div>
+  </div>
+
   <div id="requestsPanel" class="panel hidden">
     <h2>🔔 Requests from the children</h2>
     <p class="small">When a child asks for a reward or an activity, it shows up here for you to approve.</p>
     <div id="requestsPanelList" style="display:grid;gap:8px;margin-top:10px"></div>
+    <h2 style="margin:18px 0 0">\u{1f91d} Offers from the family</h2>
+    <p class="small">Grandparents, uncles and aunties can offer the children something. Nothing reaches them until you say yes.</p>
+    <div id="offersList" style="display:grid;gap:8px;margin-top:10px"></div>
   </div>
 
   <div id="activityPanel" class="panel hidden">
@@ -905,6 +1007,10 @@
     <button class="light" style="width:auto;padding:7px 12px;font-size:13px" onclick="dismissUndo()">Dismiss</button>
   </span>
 </div>
+<div id="coachNudge"></div>
+<div id="parentGoal"></div>
+<div id="outsideFeed"></div>
+
 <section id="summarySection" class="summary hidden">
   <div class="stat"><strong id="total">0</strong><span>Today's points</span></div>
   <div class="stat"><strong id="actionsDone">0</strong><span>Actions completed</span></div>
@@ -925,6 +1031,8 @@
 
 <section id="tipsCard" class="tips hidden"></section>
 
+
+<div id="familyView" class="hidden"><div id="familyViewBody"></div></div>
 
 <div id="kidView" class="hidden">
 
@@ -958,6 +1066,9 @@
 
     <div id="championToggleRow"></div>
 
+    <div id="familyNotices"></div>
+    <div id="kidGoal"></div>
+
     <div id="prayerToday"></div>
 
     <div id="kidRequestStatus"></div>
@@ -968,6 +1079,8 @@
       <div id="kidBoostList"></div>
       <button class="boostmore" onclick="nextKidTips()">Show me different ideas</button>
     </section>
+
+    <div class="helpline"><button onclick="startTour(kidTourKey(sessionMember()))">❓ How this works</button></div>
 
     <p class="kidfooter">Only Mum and Dad can give points — keep doing kind things and they'll notice! 💛</p>
     <div style="text-align:center;margin:0 0 24px">
@@ -1001,6 +1114,10 @@
     </section>
   </div>
 
+  <div id="kidLearnScreen" class="hidden">
+    <div id="kidLearnBody"></div>
+  </div>
+
   <div id="kidPointsScreen" class="hidden">
     <div id="prayerWall"></div>
     <div id="kidGraphWrap" class="graphcard"></div>
@@ -1014,6 +1131,7 @@
   <nav id="kidTabBar" class="tabbar hidden">
     <button id="kidTabHome" onclick="showScreen(null)"><span class="tabemoji">🏠</span>Home</button>
     <button id="kidTabSpend" onclick="showScreen('kidSpendScreen')"><span class="tabemoji">🎁</span>Spend</button>
+    <button id="kidTabLearn" onclick="showScreen('kidLearnScreen')"><span class="tabemoji">📖</span>Learn</button>
     <button id="kidTabPoints" onclick="showScreen('kidPointsScreen')"><span class="tabemoji">⭐</span>My points</button>
   </nav>
 </div>
@@ -1222,9 +1340,9 @@
     /* An invitation is a short-lived, single-use pointer to a family. It lets an
        adult who ALREADY has an account join one — which provisionMember cannot
        do, because createUser refuses an address that is already registered. */
-    async createInvite(fid, code, ttlMs){
+    async createInvite(fid, code, ttlMs, role){
       await setDoc(doc(db, "invites", code), {
-        familyId: fid, role: "parent",
+        familyId: fid, role: ((role === "family" || role === "tutor") ? role : "parent"),
         createdBy: auth.currentUser ? auth.currentUser.uid : null,
         createdAt: serverTimestamp(),
         expiresAtMs: Date.now() + ttlMs,
@@ -1242,7 +1360,11 @@
       const uid = auth.currentUser.uid;
       const batch = writeBatch(db);
       batch.set(doc(db, "families", invite.familyId, "members", uid), {
-        name: personName, role: "parent", age: roleLabel, photo: null,
+        name: personName,
+        role: ((invite.role === "family" || invite.role === "tutor") ? invite.role : "parent"),
+        age: roleLabel, photo: null,
+        // A tutor starts with nobody. A parent chooses who they work with.
+        forChildren: (invite.role === "tutor" ? [] : null),
         email: auth.currentUser.email || null
       });
       batch.set(doc(db, "userIndex", uid), { familyId: invite.familyId });
@@ -1269,7 +1391,7 @@
         raw.members = snap.docs.map(d => ({ id: d.id, ...d.data() })); push();
       }, fail("members")));
 
-      ["categories","rewards","games","settings","parentCategories","parentRewards"].forEach(name => {
+      ["categories","rewards","games","settings","parentCategories","parentRewards","goals","announcements"].forEach(name => {
         unsubs.push(onSnapshot(configRef(fid, name), snap => {
           raw.config[name] = snap.exists() ? snap.data().payload : null; push();
         }, fail("config/" + name)));
@@ -1342,6 +1464,9 @@
       await updateDoc(doc(reqsRef(fid), reqId), { status:"declined", handledBy, handledTs: serverTimestamp() });
     },
     /* A gift costs the recipient nothing, so it is not a points movement. */
+    async setRequestStatus(fid, reqId, status){
+      await updateDoc(doc(reqsRef(fid), reqId), { status, handledTs: serverTimestamp() });
+    },
     async sendGift(fid, gift){
       await addDoc(giftsRef(fid), { ...gift, ts: serverTimestamp() });
     }
@@ -1354,11 +1479,120 @@
 </script>
 
 <script>
+/* ---------- Programmes of study ----------
+   Objectives are shipped with the app, not typed in by a family: the content is
+   public, and asking a parent to enter six hundred lines before the feature does
+   anything would kill it. What a family supplies is the marking.
+
+   Two states, deliberately. "Covered" means we did this and anyone may set it,
+   including the child — it is worth nothing, which is what makes self-marking
+   safe. "Secure" means an adult has seen it done unaided, and only a parent or
+   the assigned tutor may set it. Keeping money away from the assessment is what
+   keeps the assessment honest. */
+const CURRICULUM = [
+  { subject:"quran", icon:"\u{1f4d6}", name:"Qur'an",
+    strands:[
+      { id:"qaida", name:"Qaida \u2014 learning to read",
+        blurb:"The reading primer. Letters, sounds, and the rules that make them join up.",
+        milestone:"Finished the Qaida",
+        objectives:[
+      ["Recognise and pronounce the 28 letters on their own"],
+      ["Say each letter from its correct makhraj"],
+      ["Recognise letters joined — at the start, middle and end of a word"],
+      ["Read letters with fatha, kasra and damma"],
+      ["Read tanween"],
+      ["Read the letters of madd"],
+      ["Read standing vowels and the letters of leen"],
+      ["Read sukoon and join letters smoothly"],
+      ["Apply qalqalah on the five qalqalah letters"],
+      ["Read shaddah, including with tanween and madd"],
+      ["Apply the rules of noon sakinah and tanween"],
+      ["Apply the rules of meem sakinah"],
+      ["Tell heavy and light letters apart"],
+      ["Read the rules of raa and laam"],
+      ["Read joined words fluently from the Qaida exercises"],
+      ["Read a short passage from Juz Amma with basic tajweed"]
+        ]},
+      { id:"nazra", name:"Nazra \u2014 reading from the mushaf",
+        blurb:"Reading the Qur'an aloud from the page, juz by juz.",
+        milestone:"Read the whole Qur'an",
+        objectives:[
+          ["Read Surah al-Fatiha fluently"],
+          ["Read Juz 30 \u2014 Amma"],
+          ["Read Juz 29 \u2014 Tabarak"],
+          ["Read Juz 28 \u2014 Qad Sami'"]
+        ].concat(Array.from({length:27}, (_,i)=>["Read Juz "+(i+1)])) },
+      { id:"hifz", name:"Hifz \u2014 Juz Amma",
+        blurb:"Memorising the short surahs, shortest first.",
+        milestone:"Memorised Juz Amma",
+        // Memorisation is the one thing that goes backwards on its own, so
+        // secure decays into review here and nowhere else.
+        review:[14, 42, 90],
+        objectives:[
+      ["An-Nas"],
+      ["Al-Falaq"],
+      ["Al-Ikhlas"],
+      ["Al-Masad"],
+      ["An-Nasr"],
+      ["Al-Kafirun"],
+      ["Al-Kawthar"],
+      ["Al-Ma'un"],
+      ["Quraysh"],
+      ["Al-Fil"],
+      ["Al-Humazah"],
+      ["Al-'Asr"],
+      ["At-Takathur"],
+      ["Al-Qari'ah"],
+      ["Al-'Adiyat"],
+      ["Az-Zalzalah"],
+      ["Al-Bayyinah"],
+      ["Al-Qadr"],
+      ["Al-'Alaq"],
+      ["At-Tin"],
+      ["Ash-Sharh"],
+      ["Ad-Duha"],
+      ["Al-Layl"],
+      ["Ash-Shams"],
+      ["Al-Balad"],
+      ["Al-Fajr"],
+      ["Al-Ghashiyah"],
+      ["Al-A'la"],
+      ["At-Tariq"],
+      ["Al-Buruj"],
+      ["Al-Inshiqaq"],
+      ["Al-Mutaffifin"],
+      ["Al-Infitar"],
+      ["At-Takwir"],
+      ["'Abasa"],
+      ["An-Nazi'at"],
+      ["An-Naba'"]
+        ]}
+    ]}
+];
+const MILESTONE_BONUS = 50;
+function allStrands(){
+  const out=[];
+  CURRICULUM.forEach(s=>s.strands.forEach(st=>out.push({subject:s, strand:st})));
+  return out;
+}
+function objectiveId(subject, strand, i){ return subject.subject+"."+strand.id+"."+(i+1); }
+function objectiveText(subject, strand, i){
+  const o=strand.objectives[i];
+  return strand.id==="hifz" ? "Memorise Surah "+o[0] : o[0];
+}
+function strandById(id){
+  return allStrands().find(x=>x.strand.id===id) || null;
+}
+
 const DEFAULT_CATEGORIES = [
  {icon:"\u{1f54c}",name:"Salah & Duas",desc:"We remember Allah and say our duas.",
-  actions:[["Prayed Fajr",5,{tag:"fajr",once:true}],["Prayed Dhuhr",5,{tag:"dhuhr",once:true}],
-           ["Prayed Asr",5,{tag:"asr",once:true}],["Prayed Maghrib",5,{tag:"maghrib",once:true}],
-           ["Prayed Isha",5,{tag:"isha",once:true}],
+  // Named as the thing to do, not as a thing already done: these labels are
+  // reused as suggestions on the children's screen, where "Prayed Fajr" read
+  // as nonsense. The tag is what the prayer board keys off, so the wording is
+  // free to change.
+  actions:[["Pray Fajr on time",5,{tag:"fajr",once:true}],["Pray Dhuhr on time",5,{tag:"dhuhr",once:true}],
+           ["Pray Asr on time",5,{tag:"asr",once:true}],["Pray Maghrib on time",5,{tag:"maghrib",once:true}],
+           ["Pray Isha on time",5,{tag:"isha",once:true}],
            ["Said a dua before eating",1],["Said a dua before bed",1]]},
  {icon:"\u{1f4d6}",name:"Learning & Qur'an",desc:"We enjoy learning new things, including the Qur'an.",
   actions:[["Read or listen to Qur'an",3],["Learn a new short surah",4],["Complete homework",3],
@@ -1366,7 +1600,7 @@ const DEFAULT_CATEGORIES = [
  {icon:"\u2764\ufe0f",name:"Kind Hearts",desc:"We are kind, gentle and caring to others.",
   actions:[["Use kind words",2],["Help someone in the family",3],["Show care when someone is upset",3],["Share or take turns",2]]},
  {icon:"\u{1f442}",name:"Listening & Respect",desc:"We listen well and show respect to parents and elders.",
-  actions:[["Took an answer of no calmly",5],["Listen the first time",3],["Speak politely to Mum and Dad",3],["Follow an instruction",2]]},
+  actions:[["Take a no calmly",5],["Listen the first time",3],["Speak politely to Mum and Dad",3],["Follow an instruction",2]]},
  {icon:"\u{1f5e3}\ufe0f",name:"Good Manners",desc:"We use good manners, at home and with Allah in mind.",
   actions:[["Say sorry and make up after a mistake",4],["Say salaam and show respect to elders",2],
            ["Say Bismillah before eating",1],["Say Alhamdulillah after eating",1],["Say please and thank you",1]]},
@@ -1374,7 +1608,7 @@ const DEFAULT_CATEGORIES = [
   actions:[["Help without being asked",4],["Do a job carefully",3],["Put toys away",2],["Put clothes in the right place",2]]},
  {icon:"\u{1f9d8}",name:"Big Feelings",desc:"We use patience (sabr) to handle big feelings calmly.",
   actions:[["Try again after becoming frustrated",4],["Use words to explain a feeling",3],["Ask for help instead of shouting",3],
-           ["Sat quietly while others prayed",2],["Take a calm-down break",2]]},
+           ["Sit quietly while others pray",2],["Take a calm-down break",2]]},
  {icon:"\u{1f9fc}",name:"Looking After Myself",desc:"Cleanliness is part of our faith and part of looking after ourselves.",
   actions:[["Get dressed and ready",2],["Put belongings away safely",2],["Brush teeth",1],["Wash hands",1]]},
  {icon:"\u{1f319}",name:"Daily Routines",desc:"We follow good routines, morning and night.",
@@ -1624,7 +1858,7 @@ const TIP_CATS = [
   {key:"behaviour", label:"Behaviour"}
 ];
 
-const APP_VERSION = "v51";
+const APP_VERSION = "v56";
 const today = new Date().toISOString().slice(0,10);
 let app = {families:[],currentFamily:null,currentChild:null};
 let categories = [];
@@ -1996,9 +2230,20 @@ function projectApp(raw){
       const entries = (byChild[m.id] || []).slice().sort((a,b) => a.ts - b.ts);
       const pointsByDate = {};
       const prayerByDate = {};
+      // Progress marks ride on the ledger. It is append-only and already live on
+      // every device, so a mark carries who set it and when for nothing — which
+      // is exactly what a parent needs when they disagree with a tutor.
+      const progress = {};
       let balance = 0;
       entries.forEach(e => {
         balance += e.points;
+        if(e.type === "progress" && e.objectiveId){
+          const at=progress[e.objectiveId] || (progress[e.objectiveId]={});
+          if(e.status === "secure"){ at.status="secure"; at.securedBy=e.byUid||null; at.securedTs=e.ts; }
+          else if(e.status === "covered"){
+            if(at.status !== "secure"){ at.status="covered"; at.coveredBy=e.byUid||null; at.coveredTs=e.ts; }
+          }else if(e.status === "clear"){ delete progress[e.objectiveId]; }
+        }
         // Only category-tagged movements count towards a day's tally; spending
         // reduces the balance without rewriting the day it was earned.
         if(e.catKey && (e.type === "award" || e.type === "adjust")){
@@ -2015,13 +2260,15 @@ function projectApp(raw){
       });
       const activityLog = entries.slice().reverse().slice(0, 40).map(e => ({
         id: e.id, ts: e.ts, type: e.type, points: e.points, label: e.label,
-        by: e.byName || "", byRole: e.byRole || "",
+        by: e.byName || "", byRole: e.byRole || "", byUid: e.byUid || null,
         catKey: e.catKey || null, actionName: e.actionName || null
       }));
       return {
         id: m.id, name: m.name, age: m.age || "", role: m.role, photo: m.photo || null,
         email: m.email || null,
         prefs: m.prefs || {},
+        progress,
+        forChildren: Array.isArray(m.forChildren) ? m.forChildren : [],
         balance, pointsByDate, prayerByDate, activityLog
       };
     });
@@ -2040,7 +2287,9 @@ function projectApp(raw){
     requests: raw.requests.slice().sort((a,b) => b.ts - a.ts),
     gifts: (raw.gifts || []).slice().sort((a,b) => b.ts - a.ts),
     parentCategories: parentCats,
-    parentRewards
+    parentRewards,
+    goals: parseConfig(raw.config.goals, []) || [],
+    announcements: parseConfig(raw.config.announcements, []) || []
   };
   categories = app.categories;
   normaliseCatalogues();
@@ -2120,7 +2369,7 @@ function availableFor(child){
    able to fall through every branch and leave a blank page, which hides the
    real error instead of reporting it. */
 function showGate(which){
-  ["bootGate","errorGate","noFamilyGate","authGate","welcomeScreen","onboarding","mainApp"].forEach(id=>{
+  ["bootGate","errorGate","noFamilyGate","authGate","welcomeScreen","onboarding","tourGate","mainApp"].forEach(id=>{
     const el=document.getElementById(id);
     if(el) el.classList.toggle("hidden", id!==which);
   });
@@ -2175,6 +2424,10 @@ async function loadApp(){
     if(!ready){
       ready = true;
       showGate("mainApp");
+      // Anyone who has not been shown their tour is shown it now — including a
+      // parent who joined by code, and every child.
+      ensureNudgeClock();
+      if(maybeStartTour()){ setSyncStatus("\u2601\ufe0f Synced across devices"); return; }
     }
     setSyncStatus("☁️ Synced across devices");
     renderAccounts();
@@ -2197,7 +2450,9 @@ async function saveApp(){
     games: app.gameNightActivities,
     settings: app.settings,
     parentCategories: app.parentCategories,
-    parentRewards: app.parentRewards
+    parentRewards: app.parentRewards,
+    goals: app.goals || [],
+    announcements: app.announcements || []
   };
   try{
     await Promise.all([
@@ -2206,7 +2461,9 @@ async function saveApp(){
       window.fpc.saveConfig(familyId, "games", pending.games),
       window.fpc.saveConfig(familyId, "settings", pending.settings),
       window.fpc.saveConfig(familyId, "parentCategories", pending.parentCategories),
-      window.fpc.saveConfig(familyId, "parentRewards", pending.parentRewards)
+      window.fpc.saveConfig(familyId, "parentRewards", pending.parentRewards),
+      window.fpc.saveConfig(familyId, "goals", pending.goals),
+      window.fpc.saveConfig(familyId, "announcements", pending.announcements)
     ]);
     setSyncStatus("☁️ Synced across devices");
   }catch(e){
@@ -2288,6 +2545,843 @@ function todayTotalFor(child){
   const day=child.pointsByDate && child.pointsByDate[today];
   return day ? Object.values(day).reduce((a,b)=>a+b,0) : 0;
 }
+/* Which children a tutor works with. Stored on the tutor's own row, but a
+   parent is the only one who may set it — the rules pin the field against
+   self-edits, or a tutor could quietly add the rest of the family. */
+async function assignTutorChildren(tutorId){
+  if(!requireParent()) return;
+  const tutor=memberById(tutorId); if(!tutor || !isTutorRole(tutor)) return;
+  const f=currentFamily(); if(!f) return;
+  const kids=f.children.filter(isChildRole);
+  if(!kids.length){ alert("Add a child first."); return; }
+  const current=assignedChildIds(tutor);
+  const listing=kids.map((c,i)=>(i+1)+". "+c.name+(current.indexOf(c.id)>=0?"  \u2713":"")).join("\n");
+  const raw=prompt("Which children does "+tutor.name+" work with?\n\n"+listing
+    +"\n\nType the numbers, separated by commas (or leave empty for none).",
+    current.map(id=>kids.findIndex(c=>c.id===id)+1).filter(n=>n>0).join(","));
+  if(raw===null) return;
+  const picked=String(raw).split(",").map(s=>parseInt(s.trim(),10))
+    .filter(n=>!Number.isNaN(n) && n>=1 && n<=kids.length)
+    .map(n=>kids[n-1].id);
+  const unique=picked.filter((id,i)=>picked.indexOf(id)===i);
+  try{
+    await window.fpc.saveMember(familyId, tutor.id, {
+      name:tutor.name, role:"tutor", age:tutor.age||"", photo:tutor.photo||null,
+      email:tutor.email||null, forChildren:unique, prefs:tutor.prefs||{}
+    });
+    alert(unique.length
+      ? tutor.name+" now works with: "+unique.map(id=>memberById(id).name).join(", ")
+      : tutor.name+" is no longer assigned to anyone.");
+  }catch(e){ console.error(e); alert("That couldn't be saved."); }
+}
+
+/* ---------- The child's own view of their programme ---------- */
+function ladderHTML(child, subject, strand, canSecure){
+  const rows=strand.objectives.map((o,i)=>{
+    const id=objectiveId(subject, strand, i);
+    const st=objectiveState(child, strand, id);
+    const cls = st.status==="secure" ? "done" : st.status==="review" ? "review"
+              : st.status==="covered" ? "covered" : "";
+    const mark = st.status==="secure" ? "\u2713" : st.status==="review" ? "\u{1f501}"
+               : st.status==="covered" ? "\u25cf" : "";
+    const by = st.securedBy ? (memberById(st.securedBy)||{}).name : null;
+    return `<div class="objrow ${cls}">
+        <span class="objmark">${mark}</span>
+        <span class="objtext">${escapeHtml(objectiveText(subject, strand, i))}
+          ${by?`<span class="objby">secure \u00b7 ${escapeHtml(by)}</span>`:""}
+          ${st.status==="review"?`<span class="objby">due for revision</span>`:""}</span>
+        <span class="objbtns">
+          ${st.status==="none"||st.status==="covered"
+            ? `<button class="light" onclick="onMark('${child.id}','${id}','covered')">Practised</button>`:""}
+          ${canSecure && st.status!=="secure"
+            ? `<button class="confirm" onclick="onMark('${child.id}','${id}','secure')">Secure</button>`:""}
+          ${canSecure && (st.status==="secure"||st.status==="review")
+            ? `<button class="light" onclick="onMark('${child.id}','${id}','clear')">Undo</button>`:""}
+        </span>
+      </div>`;
+  }).join("");
+  const p=strandProgress(child, subject, strand);
+  return `<section class="strandcard">
+      <div class="goalhead"><h2>${escapeHtml(strand.name)}</h2>
+        <span class="countpill">${p.secure} of ${p.total}</span></div>
+      <p class="small" style="margin:4px 0 0">${escapeHtml(strand.blurb)}</p>
+      <div class="goalbar"><span style="width:${p.pct}%"></span></div>
+      ${p.review?`<p class="small" style="margin:0 0 8px">\u{1f501} ${p.review} due for revision</p>`:""}
+      <details><summary>${p.complete?"All done \u2014 see the list":"See the whole list"}</summary>
+        <div class="objlist">${rows}</div>
+      </details>
+    </section>`;
+}
+async function onMark(childId, objId, status){
+  const ok=await markObjective(childId, objId, status);
+  if(!ok) return;
+  render();
+  const child=memberById(childId);
+  if(status==="secure" && child){
+    CURRICULUM.forEach(s=>s.strands.forEach(st=>{
+      if(objId.indexOf(s.subject+"."+st.id+".")===0) checkMilestone(child, s, st);
+    }));
+  }
+}
+function learnScreenHTML(child){
+  if(!child) return "";
+  const me=sessionMember();
+  const canSecure=mayMarkSecure(me, child);
+  return CURRICULUM.map(subject=>{
+    const done=subject.strands.reduce((a,st)=>a+strandProgress(child,subject,st).secure,0);
+    const total=subject.strands.reduce((a,st)=>a+st.objectives.length,0);
+    return `<section class="kidhero"><div class="kidherorow"><div>
+        <p class="kidhi">${subject.icon} ${escapeHtml(subject.name)}</p>
+        <p class="kidsub">${done} of ${total} secure</p>
+      </div></div></section>`
+      + subject.strands.map(st=>ladderHTML(child, subject, st, canSecure)).join("");
+  }).join("")
+  + `<p class="kidfooter">Tap <strong>Practised</strong> when you\u2019ve worked on something. Only a grown-up can mark it secure.</p>`;
+}
+
+/* ---------- Programme of study: reading and marking ---------- */
+function progressOf(child, objId){
+  return (child && child.progress && child.progress[objId]) || null;
+}
+/* Secure that has aged past its review interval is not a lie, but it is not
+   current either. A map that only ever goes greener would be. */
+function objectiveState(child, strand, objId){
+  const p=progressOf(child, objId);
+  if(!p) return {status:"none"};
+  if(p.status==="secure" && Array.isArray(strand.review) && p.securedTs){
+    const days=(Date.now()-p.securedTs)/86400000;
+    const due=strand.review.find(d=>days>=d && days<d+9999);
+    const last=strand.review[strand.review.length-1];
+    if(days >= strand.review[0]) return Object.assign({}, p, {status:"review", daysSince:Math.floor(days)});
+  }
+  return p;
+}
+function strandProgress(child, subject, strand){
+  let secure=0, covered=0, review=0;
+  strand.objectives.forEach((o,i)=>{
+    const st=objectiveState(child, strand, objectiveId(subject, strand, i)).status;
+    if(st==="secure") secure++;
+    else if(st==="review"){ review++; secure++; }
+    else if(st==="covered") covered++;
+  });
+  const total=strand.objectives.length;
+  return {secure, covered, review, total, pct: total?Math.round(secure/total*100):0,
+          complete: secure===total};
+}
+function mayMarkSecure(me, child){
+  if(!me || !child) return false;
+  if(isParentRole(me)) return true;
+  if(isTutorRole(me)) return assignedChildIds(me).indexOf(child.id)>=0;
+  return false;
+}
+function nextObjective(child, subject, strand){
+  for(let i=0;i<strand.objectives.length;i++){
+    const st=objectiveState(child, strand, objectiveId(subject, strand, i)).status;
+    if(st!=="secure") return i;
+  }
+  return -1;
+}
+async function markObjective(childId, objId, status){
+  const me=sessionMember();
+  const child=memberById(childId);
+  if(!me || !child) return false;
+  if(status==="secure" && !mayMarkSecure(me, child)){
+    alert("Only Mum, Dad or their teacher can mark something secure.");
+    return false;
+  }
+  if(status==="covered" && !isParentRole(me) && !isTutorRole(me) && me.id!==child.id){
+    return false;
+  }
+  try{
+    await window.fpc.addLedgerEntry(familyId, {
+      childId: child.id, points: 0, type: "progress",
+      label: (status==="secure"?"Secure: ":status==="covered"?"Covered: ":"Cleared: ")+objId,
+      objectiveId: objId, status,
+      byUid: window.fpc.uid(), byName: me.name, byRole: relationLabel(me)
+    });
+    return true;
+  }catch(e){
+    console.error("Progress mark refused:", e);
+    alert("That couldn\u2019t be saved. If it keeps happening the security rules may not be published yet.");
+    return false;
+  }
+}
+/* Finishing a strand is rare and unambiguous, so it is the one place learning
+   pays. A handful a year cannot move an economy; a progress bar filling up is
+   thin reward for finishing the Qaida. */
+async function checkMilestone(child, subject, strand){
+  if(!isParentRole(sessionMember())) return;
+  if(!strand.milestone) return;
+  const p=strandProgress(child, subject, strand);
+  if(!p.complete) return;
+  const already=(child.activityLog||[]).some(e=>e.type==="award" && e.label===strand.milestone);
+  if(already) return;
+  if(!confirm("\u{1f389} "+child.name+" has finished \u201c"+strand.name+"\u201d.\n\nAward the milestone bonus of "+MILESTONE_BONUS+" points?")) return;
+  await writeLedger({childId:child.id, points:MILESTONE_BONUS, label:strand.milestone,
+    type:"award", catKey:"milestone|"+strand.id, actionName:strand.milestone});
+}
+
+/* ---------- What other people did ----------
+   Anything a grandparent or tutor records lands here, on the parent dashboard,
+   with one tap to reverse it. Not because they are not trusted — because
+   someone else guessing at your scale will drift from it, and you want to
+   correct that without having a conversation about it. */
+function outsideAwards(days){
+  const f=currentFamily();
+  if(!f) return [];
+  const since=Date.now() - (days||7)*86400000;
+  const out=[];
+  f.children.filter(isChildRole).forEach(c=>(c.activityLog||[]).forEach(e=>{
+    if(e.type!=="award" || e.ts<since || !e.byUid) return;
+    const giver=memberById(e.byUid);
+    if(!giver || !isHelperRole(giver)) return;
+    out.push({child:c, entry:e, giver});
+  }));
+  return out.sort((a,b)=>b.entry.ts-a.entry.ts);
+}
+function renderOutsideFeed(){
+  const slot=document.getElementById("outsideFeed");
+  if(!slot) return;
+  if(!isParentSession() || editMode){ slot.innerHTML=""; return; }
+  const rows=outsideAwards(7);
+  if(!rows.length){ slot.innerHTML=""; return; }
+  slot.innerHTML=`<section class="outsidecard">
+      <div class="goalhead"><h2>\u{1f465} Points from other people</h2>
+        <span class="goalfrom">last 7 days</span></div>
+      <div class="feed">${rows.slice(0,8).map(r=>`<div class="feeditem">
+          <div class="feedemoji">\u2b50</div>
+          <div class="feedmain"><div class="what">${escapeHtml(r.entry.label)}</div>
+            <div class="who">${escapeHtml(r.child.name)} \u00b7 from ${escapeHtml(r.giver.name)}${
+              r.entry.byRole?" ("+escapeHtml(r.entry.byRole)+")":""} \u00b7 ${
+              new Date(r.entry.ts).toLocaleDateString([], {weekday:"short", day:"numeric", month:"short"})}</div></div>
+          <div class="feedpts">+${r.entry.points}</div>
+          <button class="light" style="width:auto;padding:6px 10px;font-size:12px"
+            onclick="undoActivityEntry('${r.child.id}','${r.entry.id}')">Undo</button>
+        </div>`).join("")}</div>
+    </section>`;
+}
+
+/* ---------- Family goals and gifts ----------
+   A family dinner is for every child, but points belong to one. Rather than
+   make one child pay for a meal all four eat, a goal measures what the children
+   EARN together from the moment it is set — nobody's balance is touched, the
+   free-rider problem disappears, and it pulls the other way from the champion
+   badge: Aisha now wants Musa to pray Fajr. */
+function familyGoals(){ return Array.isArray(app.goals) ? app.goals : []; }
+function familyNotices(){ return Array.isArray(app.announcements) ? app.announcements : []; }
+function activeGoal(){
+  return familyGoals().filter(g=>g.status==="open")
+    .sort((a,b)=>b.createdTs-a.createdTs)[0] || null;
+}
+function goalProgress(goal){
+  const f=currentFamily();
+  if(!goal || !f) return {total:0, shares:[], pct:0, reached:false};
+  const from=goal.fromDate;
+  const shares=f.children.filter(isChildRole).map(c=>{
+    let sum=0;
+    Object.keys(c.pointsByDate||{}).forEach(ds=>{
+      if(ds>=from) Object.keys(c.pointsByDate[ds]).forEach(k=>{
+        const v=c.pointsByDate[ds][k];
+        if(v>0) sum+=v;
+      });
+    });
+    return {child:c, sum};
+  }).sort((a,b)=>b.sum-a.sum);
+  const total=shares.reduce((a,b)=>a+b.sum,0);
+  const pct=goal.points>0 ? Math.min(100, Math.round(total/goal.points*100)) : 0;
+  return {total, shares, pct, reached: total>=goal.points};
+}
+function goalCardHTML(goal, forChild){
+  if(!goal) return "";
+  const p=goalProgress(goal);
+  const left=Math.max(0, goal.points-p.total);
+  return `<section class="goalcard ${p.reached?"reached":""}">
+      <div class="goalhead">
+        <h2>\u{1f3af} ${escapeHtml(goal.title)}</h2>
+        <span class="goalfrom">from ${escapeHtml(goal.sponsorName)}</span>
+      </div>
+      ${goal.message?`<p class="goalmsg">\u201c${escapeHtml(goal.message)}\u201d</p>`:""}
+      <div class="goalbar"><span style="width:${p.pct}%"></span></div>
+      <p class="goalnums"><strong>${p.total}</strong> of ${goal.points} points \u00b7 ${
+        p.reached ? "reached \u2014 MashaAllah!" : left+" to go, together"}</p>
+      <div class="goalshares">${p.shares.map(s=>`<span class="goalshare">
+          ${s.child.photo?`<img src="${s.child.photo}" alt="">`:'<span class="avatar-placeholder">\ud83d\udc64</span>'}
+          <span>${escapeHtml(s.child.name)}</span><strong>${s.sum}</strong></span>`).join("")}</div>
+      ${goal.byDate?`<p class="small" style="margin:10px 0 0">By ${escapeHtml(goal.byDate)}</p>`:""}
+      ${forChild
+        ? `<p class="small" style="margin:10px 0 0">Every point any of you earns counts. Nothing is taken from your own points.</p>`
+        : `<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px">
+             <button class="confirm" style="width:auto" onclick="completeGoal('${goal.id}')">\u2713 It happened</button>
+             <button class="light" style="width:auto" onclick="cancelGoal('${goal.id}')">Cancel</button>
+           </div>`}
+    </section>`;
+}
+function noticeCardHTML(){
+  const live=familyNotices().filter(n=>!n.dismissed).slice(-2);
+  if(!live.length) return "";
+  return live.map(n=>`<section class="noticecard">
+      <div class="goalhead"><h2>\u{1f381} ${escapeHtml(n.title)}</h2>
+        <span class="goalfrom">from ${escapeHtml(n.sponsorName)}</span></div>
+      ${n.message?`<p class="goalmsg">\u201c${escapeHtml(n.message)}\u201d</p>`:""}
+      ${n.byDate?`<p class="small" style="margin:8px 0 0">${escapeHtml(n.byDate)}</p>`:""}
+      <p class="small" style="margin:8px 0 0">Nothing to pay \u2014 this one is a present.</p>
+    </section>`).join("");
+}
+async function completeGoal(id){
+  if(!requireParent()) return;
+  const g=familyGoals().find(x=>x.id===id); if(!g) return;
+  if(!confirm("Mark \u201c"+g.title+"\u201d as done?\n\nIt comes off the children\u2019s screen and goes into the family\u2019s history.")) return;
+  g.status="done"; g.doneTs=Date.now();
+  await saveApp(); render();
+}
+async function cancelGoal(id){
+  if(!requireParent()) return;
+  const g=familyGoals().find(x=>x.id===id); if(!g) return;
+  if(!confirm("Cancel \u201c"+g.title+"\u201d?\n\nNo points were ever taken, so nothing needs refunding.")) return;
+  g.status="cancelled";
+  await saveApp(); render();
+}
+async function dismissNotice(id){
+  if(!requireParent()) return;
+  const n=familyNotices().find(x=>x.id===id); if(!n) return;
+  n.dismissed=true;
+  await saveApp(); render();
+}
+
+/* ---------- Offers from the wider family ----------
+   An offer is a request, because the requests collection is the one thing any
+   member may write to. Nothing an uncle offers reaches the children until a
+   parent approves it — not out of distrust, but so "Uncle promised us a
+   PlayStation" never appears on four screens unannounced. */
+function pendingOffers(){
+  return (app.requests||[]).filter(r=>r.type==="offer" && r.status==="pending");
+}
+async function sendOffer(kind){
+  const me=sessionMember();
+  if(!me || !isFamilyRole(me)){ alert("Only invited family members can offer this."); return; }
+  const what=prompt(kind==="goal"
+    ? "What are you offering the children?\n\nExample: A family dinner out, a day at the farm."
+    : "What are you giving them?\n\nExample: A family dinner out \u2014 no points needed.");
+  if(!what || !what.trim()) return;
+  let points=0;
+  if(kind==="goal"){
+    const raw=prompt("How many points should they reach together?\n\nAll the children earn towards it \u2014 nobody spends anything.\n\n800 is roughly a fortnight for four children.", "800");
+    points=parseInt(raw,10);
+    if(Number.isNaN(points) || points<50){ alert("Give it a target of at least 50 points."); return; }
+  }
+  const message=prompt("Add a message for them (optional):", "") || "";
+  const byDate=prompt("By when? (optional \u2014 e.g. before Eid, end of March)", "") || "";
+  try{
+    await window.fpc.createRequest(familyId, {
+      childId:"", childName:"", type:"offer", kind,
+      itemId:"", itemName:what.trim(), points: points||0,
+      sponsorId: me.id, sponsorName: me.name + " (" + relationLabel(me) + ")",
+      message: message.trim(), byDate: byDate.trim()
+    });
+    alert("Sent \u2014 a parent will see it and let the children know. \u{1f60a}");
+  }catch(e){
+    console.error("Offer refused:", e);
+    alert("That couldn\u2019t be sent \u2014 check your connection and try again.");
+  }
+}
+async function approveOffer(id){
+  if(!requireParent()) return;
+  const r=(app.requests||[]).find(x=>x.id===id); if(!r || r.status!=="pending") return;
+  const item={
+    id:"g"+Math.abs(hashString(r.itemName+r.id)).toString(16),
+    title:r.itemName, points:r.points||0, message:r.message||"",
+    sponsorName:r.sponsorName||"family", byDate:r.byDate||"",
+    createdTs:Date.now(), fromDate:dateStr(new Date()), status:"open"
+  };
+  if(r.kind==="goal"){ app.goals=familyGoals().concat([item]); }
+  else { app.announcements=familyNotices().concat([item]); }
+  try{
+    await window.fpc.setRequestStatus(familyId, id, "approved");
+    await saveApp();
+    render();
+  }catch(e){ console.error("Couldn't approve that offer:", e); alert("That couldn't be saved."); }
+}
+async function declineOffer(id){
+  if(!requireParent()) return;
+  if(!confirm("Turn this down?\n\nThe children never saw it, so nothing needs explaining to them.")) return;
+  try{ await window.fpc.setRequestStatus(familyId, id, "declined"); render(); }
+  catch(e){ console.error(e); alert("That couldn't be saved."); }
+}
+function renderOffersPanel(){
+  const slot=document.getElementById("offersList");
+  if(!slot) return;
+  const offers=pendingOffers();
+  if(!offers.length){
+    slot.innerHTML='<p class="small">\u{1f91d} Nothing offered right now. Grandparents, uncles and aunties you invite can offer the children a shared goal or an outright gift \u2014 it lands here first, and they only see it if you say yes.</p>';
+    return;
+  }
+  slot.innerHTML=offers.map(r=>`<div class="offerrow">
+      <div>
+        <strong>${escapeHtml(r.itemName)}</strong>
+        <div class="small">${r.kind==="goal"
+          ? "A shared goal \u00b7 "+(r.points||0)+" points, earned together"
+          : "A gift \u00b7 nothing to pay"} \u00b7 from ${escapeHtml(r.sponsorName||"family")}</div>
+        ${r.message?`<div class="small">\u201c${escapeHtml(r.message)}\u201d</div>`:""}
+        ${r.byDate?`<div class="small">By ${escapeHtml(r.byDate)}</div>`:""}
+      </div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap">
+        <button class="confirm" style="width:auto" onclick="approveOffer('${r.id}')">Yes</button>
+        <button class="light" style="width:auto" onclick="declineOffer('${r.id}')">No</button>
+      </div>
+    </div>`).join("");
+}
+
+/* ---------- What a grandparent, uncle or aunty may give ----------
+   Ten points per child per week, refilling on Monday. Not because they are not
+   trusted, but because a doting grandmother with unlimited points gives them
+   for existing — and ten makes the question worth asking: what did I actually
+   notice this week? The per-entry ceiling is enforced in the security rules;
+   the weekly total is counted here, in the app. */
+const FAMILY_WEEKLY_ALLOWANCE = 10;
+/* One award per child per day, capped at 5 — a proxy for "once a lesson".
+   The point isn't distrust: a tutor guessing at what's worth 4 rather than 2
+   will drift from how a parent scores, and a ceiling keeps that drift small. */
+const TUTOR_MAX_PER_AWARD = 5;
+function tutorAwardedToday(giverId, child){
+  const today=dateStr(new Date());
+  return (child.activityLog||[])
+    .filter(e=>e.type==="award" && e.byUid===giverId && e.points>0 && tsToDateStr(e.ts)===today)
+    .length;
+}
+function familyGivenThisWeek(giverId, child){
+  const week=getCurrentWeekDates();
+  const from=week[0];
+  return (child.activityLog||[])
+    .filter(e=>e.type==="award" && e.byUid===giverId && e.points>0 && tsToDateStr(e.ts)>=from)
+    .reduce((a,e)=>a+e.points, 0);
+}
+function familyAllowanceLeft(giverId, child){
+  return Math.max(0, FAMILY_WEEKLY_ALLOWANCE - familyGivenThisWeek(giverId, child));
+}
+async function tutorGivePoints(childId){
+  const me=sessionMember();
+  if(!me || !isTutorRole(me)){ alert("Only an invited tutor can do that."); return; }
+  const child=memberById(childId);
+  if(!child || !isChildRole(child)) return;
+  if(assignedChildIds(me).indexOf(child.id)<0){ alert("You haven\u2019t been given access to that child."); return; }
+  if(tutorAwardedToday(me.id, child)>0){
+    alert("You\u2019ve already recorded today\u2019s lesson for "+child.name+".\n\nOne a day \u2014 it comes round again tomorrow.");
+    return;
+  }
+  const raw=prompt("How did today\u2019s lesson go with "+child.name+"?\n\nPoints from 1 to "+TUTOR_MAX_PER_AWARD+".", "3");
+  if(raw===null) return;
+  const pts=parseInt(raw,10);
+  if(Number.isNaN(pts) || pts<1){ alert("Give at least one point."); return; }
+  if(pts>TUTOR_MAX_PER_AWARD){ alert("Up to "+TUTOR_MAX_PER_AWARD+" points for a lesson."); return; }
+  const why=prompt("What did they do well?\n\n"+child.name+" and their parents will both read this.", "");
+  if(why===null) return;
+  const label=why.trim() ? why.trim() : "Worked well in today\u2019s lesson";
+  try{
+    await window.fpc.addLedgerEntry(familyId, {
+      childId: child.id, points: pts, label, type: "award",
+      byUid: window.fpc.uid(), byName: me.name, byRole: relationLabel(me),
+      catKey: "tutor|"+me.id, actionName: label
+    });
+    alert("Recorded \u2014 "+child.name+"\u2019s parents will see it too. \u{1f44f}");
+  }catch(e){
+    console.error("Tutor award refused:", e);
+    alert("That couldn\u2019t be sent. If it keeps happening the security rules may not be published yet.");
+  }
+}
+async function familyGivePoints(childId){
+  const me=sessionMember();
+  if(!me || !isFamilyRole(me)){ alert("Only an invited family member can do that."); return; }
+  const child=memberById(childId);
+  if(!child || !isChildRole(child)) return;
+  const left=familyAllowanceLeft(me.id, child);
+  if(left<=0){
+    alert("You\u2019ve given "+child.name+" all "+FAMILY_WEEKLY_ALLOWANCE+" of your points this week.\n\nIt fills up again on Monday \u2014 and a kind word costs nothing in the meantime.");
+    return;
+  }
+  const raw=prompt("How many points for "+child.name+"?\n\nYou have "+left+" left for them this week (out of "+FAMILY_WEEKLY_ALLOWANCE+").", String(Math.min(3,left)));
+  if(raw===null) return;
+  const pts=parseInt(raw,10);
+  if(Number.isNaN(pts) || pts<1){ alert("Give at least one point."); return; }
+  if(pts>left){ alert("That\u2019s more than you have left for "+child.name+" this week. You can give up to "+left+"."); return; }
+  const why=prompt("What did you notice?\n\nThis is what "+child.name+" will read, so it matters more than the number.", "");
+  if(why===null) return;
+  const label=why.trim() ? why.trim() : "A little something from "+relationLabel(me);
+  try{
+    await window.fpc.addLedgerEntry(familyId, {
+      childId: child.id, points: pts, label, type: "award",
+      byUid: window.fpc.uid(), byName: me.name, byRole: relationLabel(me),
+      catKey: "family|"+me.id, actionName: label
+    });
+    alert("Sent \u2014 "+child.name+" will see it with your name on it. \u{1f49b}");
+  }catch(e){
+    console.error("Family award refused:", e);
+    alert("That couldn\u2019t be sent. If it keeps happening the security rules may not be published yet.");
+  }
+}
+
+/* ---------- The wider family's own screen ---------- */
+function renderTutorView(me){
+  const kids=childrenVisibleTo(me);
+  const mine=[];
+  kids.forEach(c=>(c.activityLog||[]).forEach(e=>{
+    if(e.byUid===me.id && e.type==="award") mine.push({child:c, e});
+  }));
+  mine.sort((a,b)=>b.e.ts-a.e.ts);
+  document.getElementById("familyViewBody").innerHTML = `
+    <section class="kidhero">
+      <div class="kidherorow"><div>
+        <p class="kidhi">Asalamualaikum, ${escapeHtml(me.name)}! \u{1f44b}</p>
+        <p class="kidsub">${escapeHtml(relationLabel(me))}</p>
+      </div></div>
+    </section>
+    <section class="kidcard teal">
+      <h2>\u{1f4da} After the lesson</h2>
+      <p class="lede">Record how it went. Up to ${TUTOR_MAX_PER_AWARD} points, once a day each \u2014 their parents see everything you record.</p>
+      <div style="display:grid;gap:8px">${kids.length ? kids.map(c=>{
+        const done=tutorAwardedToday(me.id, c)>0;
+        return `<div class="overviewrow" style="cursor:default;flex-wrap:wrap">
+          <div class="memberhead"><div class="avatar-placeholder">\u{1f4d8}</div>
+            <div><strong>${escapeHtml(c.name)}</strong>
+              <div class="small">${done?"Today\u2019s lesson recorded":"Nothing recorded today"}</div></div>
+          </div>
+          <button class="confirm" style="width:auto" ${done?"disabled":""} onclick="tutorGivePoints('${c.id}')">${
+            done?"\u2713 Done":"\uff0b Record"}</button>
+        </div>`;}).join("")
+        : '<p class="small">\u{1f4cb} No children assigned to you yet. A parent chooses who you work with, under Family members on their own device.</p>'}</div>
+    </section>
+    ${kids.length ? `<section class="kidcard teal">
+      <h2>\u{1f4d6} Their programme</h2>
+      <p class="lede">Mark what they can do unaided. Nothing here awards points \u2014 it records what they know.</p>
+      ${kids.map(c=>`<div style="margin-top:14px"><strong>${escapeHtml(c.name)}</strong>
+        ${learnScreenHTML(c)}</div>`).join("")}
+    </section>` : ""}
+    <section class="kidcard pink">
+      <h2>\u{1f5d3}\ufe0f What you\u2019ve recorded</h2>
+      <div class="feed">${mine.length ? mine.slice(0,10).map(m=>`<div class="feeditem">
+          <div class="feedemoji">\u2b50</div>
+          <div class="feedmain"><div class="what">${escapeHtml(m.e.label)}</div>
+            <div class="who">${escapeHtml(m.child.name)} \u00b7 ${new Date(m.e.ts).toLocaleDateString([], {weekday:"short", day:"numeric", month:"short"})}</div></div>
+          <div class="feedpts">+${m.e.points}</div>
+        </div>`).join("") : '<p class="small">Nothing yet.</p>'}</div>
+    </section>
+    <p class="kidfooter">You can add points for your own lessons only. You can\u2019t take points away, see other children, or change anything else.</p>
+    <div style="text-align:center;margin:0 0 24px">
+      <button class="light" style="width:auto" onclick="signOutDevice()">\u{1f512} Sign out</button>
+    </div>`;
+}
+function renderFamilyView(me){
+  if(isTutorRole(me)) return renderTutorView(me);
+  const f=currentFamily();
+  const kids=f ? f.children.filter(isChildRole) : [];
+  const weekDates=getCurrentWeekDates();
+  const mine=(app.requests||[]).filter(r=>r.type==="offer" && r.sponsorId===me.id).slice(0,5);
+  const goal=activeGoal();
+  document.getElementById("familyViewBody").innerHTML = `
+    <section class="kidhero">
+      <div class="kidherorow">
+        <div>
+          <p class="kidhi">Asalamualaikum, ${escapeHtml(me.name)}! \u{1f44b}</p>
+          <p class="kidsub">${escapeHtml(relationLabel(me))} \u00b7 ${escapeHtml((f&&f.name)||"the family")}</p>
+        </div>
+      </div>
+    </section>
+    <section class="kidcard teal">
+      <h2>\u{1f465} The children this week</h2>
+      <p class="lede">What they\u2019ve earned since Monday.</p>
+      <div style="display:grid;gap:8px">${kids.length ? kids.map(c=>{
+        const left=familyAllowanceLeft(me.id, c);
+        return `<div class="overviewrow" style="cursor:default;flex-wrap:wrap">
+        <div class="memberhead">
+          ${c.photo?`<img class="avatar" src="${c.photo}" alt="">`:'<div class="avatar-placeholder">\ud83d\udc64</div>'}
+          <div><strong>${escapeHtml(c.name)}</strong>
+            <div class="small">${weeklyTotalFor(c, weekDates)} points this week</div></div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <span class="allowpill ${left?"":"spent"}">${left} of ${FAMILY_WEEKLY_ALLOWANCE} left</span>
+          <button class="confirm" style="width:auto" ${left?"":"disabled"} onclick="familyGivePoints('${c.id}')">\uff0b Give</button>
+        </div>
+      </div>`;}).join("") : '<p class="small">No children on the list yet.</p>'}</div>
+      <p class="small" style="margin:12px 0 0">You have ${FAMILY_WEEKLY_ALLOWANCE} points a week for each child. It fills up again every Monday \u2014 so they\u2019re worth spending on something you actually noticed.</p>
+    </section>
+    ${goal ? goalCardHTML(goal, true) : ""}
+    <section class="kidcard pink">
+      <h2>\u{1f381} Do something for them</h2>
+      <p class="lede">A parent sees it first, then the children do.</p>
+      <div style="display:grid;gap:8px;margin-top:10px">
+        <button class="primary" onclick="sendOffer('goal')">\u{1f3af} Offer a family goal</button>
+        <button class="light" onclick="sendOffer('gift')">\u{1f381} Give them something \u2014 no points needed</button>
+      </div>
+      <div style="margin-top:14px">${mine.length ? mine.map(r=>`<div class="statusrow ${
+          r.status==="pending"?"stat-pending":r.status==="approved"?"stat-approved":"stat-declined"}">
+          <span><strong>${escapeHtml(r.itemName)}</strong></span>
+          <span class="small">${r.status==="pending"?"\u23f3 With a parent"
+            :r.status==="approved"?"\u{1f389} They know!":"Not this time"}</span></div>`).join("") : ""}</div>
+    </section>
+    <p class="kidfooter">You can\u2019t take points away, change rewards, or see anyone\u2019s private lists \u2014 that stays with Mum and Dad.</p>
+    <div style="text-align:center;margin:0 0 24px">
+      <button class="light" style="width:auto" onclick="signOutDevice()">\u{1f512} Sign out</button>
+    </div>`;
+}
+
+/* ---------- Coaching nudges ----------
+   One on screen at a time, at most one NEW one a week, and dismissing silences
+   that one for a fortnight. The library can therefore be reasonably large
+   without ever feeling like nagging: what a parent experiences is roughly one
+   suggestion a week. None of these is ever shown to a child. */
+const NUDGE_COOLDOWN_MS = 7*24*3600*1000;    // between one nudge and the next
+const NUDGE_DISMISS_MS  = 14*24*3600*1000;   // how long a dismissal lasts
+function nudgeState(me){
+  const p=memberPrefs(me);
+  const s=p.nudges && typeof p.nudges==="object" ? p.nudges : {};
+  return {activeId:s.activeId||null, activeTs:s.activeTs||0, lastTs:s.lastTs||0,
+          dismissed:s.dismissed||{}, startedTs:s.startedTs||0};
+}
+/* Named apart from the older daysSince() further down the file, which returns
+   null rather than Infinity and floors the result. Two declarations of the same
+   name meant the later one silently won for both callers. */
+function daysAgo(ts){ return ts ? (Date.now()-ts)/86400000 : Infinity; }
+function lastAwardTs(){
+  const f=currentFamily(); if(!f) return 0;
+  let best=0;
+  f.children.forEach(c=>(c.activityLog||[]).forEach(e=>{
+    if(e.type==="award" && e.ts>best) best=e.ts;
+  }));
+  return best;
+}
+function nudgeContext(me){
+  const f=currentFamily();
+  const kids=f ? f.children.filter(c=>isChildRole(c)) : [];
+  const parents=f ? f.children.filter(c=>isParentRole(c)) : [];
+  const pend=pendingRequests();
+  const st=nudgeState(me);
+  return {f, kids, parents, pend, me, st,
+          sinceStart:daysAgo(st.startedTs),
+          sinceAward:daysAgo(lastAwardTs()),
+          everAwarded:lastAwardTs()>0};
+}
+const NUDGES = [
+  {id:"first-award", rank:1,
+   when:c=>!c.everAwarded && c.sinceStart>=2 && c.kids.length>0,
+   text:()=>["\u{1f331}","Nothing awarded yet","Start with one thing today \u2014 even a small one. The first point is the one that makes it real."]},
+  {id:"gone-quiet", rank:2,
+   when:c=>c.everAwarded && c.sinceAward>=4,
+   text:c=>["\u{1f440}","It\u2019s been quiet for "+Math.floor(c.sinceAward)+" days","The children can see the gap on their line too. One small thing today pulls it back."]},
+  {id:"requests-waiting", rank:3,
+   when:c=>c.pend.length>=3 && c.pend.every(r=>daysAgo(r.ts)>=3),
+   text:c=>["\u{1f514}",c.pend.length+" requests are waiting","A no is fine \u2014 it\u2019s the waiting that stops them asking again."]},
+  {id:"second-parent", rank:6,
+   when:c=>c.parents.length<2 && c.sinceStart>=7,
+   text:()=>["\u{1f91d}","It works better with two of you","A second parent can award points, answer requests, and earn points from you. Family members \u2192 Invite another parent."]},
+  {id:"prayer-board", rank:4,
+   when:c=>prayerBoardEnabled() && c.kids.length>0 &&
+     c.kids.every(k=>prayerGrid(k,3).every(g=>g.count===0)),
+   text:()=>["\u{1f54c}","The prayer board is empty this week","Recording each prayer takes a second, and gives them a streak worth keeping."]},
+  {id:"stale-rewards", rank:8,
+   when:c=>c.sinceStart>=30 && daysAgo((app.settings&&app.settings.rewardsEditedTs)||0)>=30,
+   text:()=>["\u{1f381}","Same rewards for a month","Swapping one or two keeps it interesting. The list is yours to change."]},
+  {id:"big-saver", rank:7,
+   when:c=>{
+     const cheapest=(app.rewards||[]).slice().sort((a,b)=>a.points-b.points)[0];
+     if(!cheapest) return false;
+     return c.kids.some(k=>(k.balance||0) >= cheapest.points*3 &&
+       !(k.activityLog||[]).some(e=>e.type==="purchase" && daysAgo(e.ts)<14));
+   },
+   text:c=>{
+     const cheapest=(app.rewards||[]).slice().sort((a,b)=>a.points-b.points)[0];
+     const k=c.kids.find(x=>(x.balance||0)>=cheapest.points*3);
+     return ["\u{1f4b0}",k.name+" is saving hard \u2014 "+(k.balance||0)+" points","Worth asking what they\u2019re saving for. It might be something you could help with."];
+   }},
+  {id:"red-line", rank:5,
+   when:c=>c.kids.some(k=>{
+     const s=behaviourSeries(k);
+     return !s[s.length-1].noHistory && bandForChild(k).key==="red" && s[s.length-5] && s[s.length-5].score<36;
+   }),
+   text:c=>{
+     const k=c.kids.find(x=>bandForChild(x).key==="red");
+     return ["\u{1f4c9}",k.name+"\u2019s line has been red a while","Often it isn\u2019t behaviour \u2014 it\u2019s that nobody\u2019s been recording. Worth a look either way."];
+   }},
+  {id:"try-overview", rank:9,
+   when:c=>c.sinceStart>=14 && c.kids.length>=2 && memberPrefs(c.me).openedOverview!==true,
+   text:()=>["\u{1f4ca}","You haven\u2019t opened Overview yet","It\u2019s the fastest way to see everyone at once \u2014 and which prayer keeps slipping."]},
+  {id:"grownup-list", rank:10,
+   when:c=>c.sinceStart>=14 && c.parents.length>=2 && (app.parentRewards||[]).length===0,
+   text:()=>["\u{1f49b}","Your own list is empty","Partners rarely thank each other out loud. This is the part most families say they didn\u2019t expect to like."]}
+];
+function pickNudge(me){
+  const c=nudgeContext(me);
+  const st=c.st;
+  const live=id=>{
+    const n=NUDGES.find(x=>x.id===id);
+    return n && n.when(c) ? n : null;
+  };
+  // Whatever is already showing stays showing until it is dismissed or stops
+  // being true — swapping under a parent's eyes would feel like nagging.
+  if(st.activeId){
+    const still=live(st.activeId);
+    if(still) return {nudge:still, ctx:c, fresh:false};
+  }
+  if(Date.now() - (st.lastTs||0) < NUDGE_COOLDOWN_MS) return null;
+  const eligible=NUDGES
+    .filter(n=>!(st.dismissed[n.id] && Date.now()-st.dismissed[n.id] < NUDGE_DISMISS_MS))
+    .filter(n=>{ try{ return n.when(c); }catch(e){ return false; } })
+    .sort((a,b)=>a.rank-b.rank);
+  return eligible.length ? {nudge:eligible[0], ctx:c, fresh:true} : null;
+}
+function renderCoachNudge(){
+  const slot=document.getElementById("coachNudge");
+  if(!slot) return;
+  const me=sessionMember();
+  if(!me || !isParentRole(me) || editMode || !ready){ slot.innerHTML=""; return; }
+  const picked=pickNudge(me);
+  if(!picked){ slot.innerHTML=""; return; }
+  const [em, head, body]=picked.nudge.text(picked.ctx);
+  slot.innerHTML=`<div class="coach"><span class="cem">${em}</span>
+      <span class="cbodytext"><strong>${escapeHtml(head)}</strong>${escapeHtml(body)}</span>
+      <button class="cx" title="Not now" onclick="dismissNudge('${picked.nudge.id}')">\u2715</button></div>`;
+  if(picked.fresh) recordNudgeShown(me, picked.nudge.id);
+}
+async function saveNudgeState(me, next){
+  const prefs=Object.assign({}, memberPrefs(me), {nudges:next});
+  me.prefs=prefs;
+  try{ await window.fpc.saveMemberPrefs(familyId, me.id, prefs); }
+  catch(e){ console.error("Couldn't save nudge state:", e); }
+}
+function recordNudgeShown(me, id){
+  const st=nudgeState(me);
+  saveNudgeState(me, Object.assign({}, st, {activeId:id, activeTs:Date.now(), lastTs:Date.now()}));
+}
+async function dismissNudge(id){
+  const me=sessionMember(); if(!me) return;
+  const st=nudgeState(me);
+  const dismissed=Object.assign({}, st.dismissed); dismissed[id]=Date.now();
+  await saveNudgeState(me, Object.assign({}, st, {activeId:null, dismissed}));
+  renderCoachNudge();
+}
+/* The clock these nudges are measured against starts the first time a parent
+   opens the app, not when the family document happened to be written. */
+function ensureNudgeClock(){
+  const me=sessionMember();
+  if(!me || !isParentRole(me)) return;
+  const st=nudgeState(me);
+  if(!st.startedTs) saveNudgeState(me, Object.assign({}, st, {startedTs:Date.now()}));
+}
+
+/* ---------- Tours ----------
+   startOnboarding() used to be called from the two family-creation paths only,
+   so a parent who joined by invite and every child on every device were shown
+   nothing at all. Whether someone has been shown the tour is a fact about that
+   person, so it lives on their own member row and the tour runs for anyone who
+   has not seen it — on any device, at any time, and re-openable afterwards. */
+const TOURS = {
+  join: [
+    {title:"You\u2019re in, {name} \u{1f389}", lede:"{family} is already set up \u2014 nothing here needs building. Three things and you\u2019re going.",
+     points:[["\u2b50","You can award points too","Tap a child\u2019s photo, then tap \uff0b on anything they\u2019ve done well. Same as {partner}."],
+             ["\u{1f91d}","There\u2019s a list just for the two of you","Grown-ups earn points from each other. The children never see it \u2014 and neither of you can approve your own."],
+             ["\u{1f514}","Requests come to both of you","When a child asks for something, whichever of you gets there first answers it."]]},
+    {title:"How the points work", lede:"Actions are scored 1 to 5 by how hard they are. Five is reserved for the hardest \u2014 each of the five daily prayers, and a handful that take real self-control.",
+     points:[["\u{1f381}","They ask, you decide","Nothing leaves a child\u2019s points until one of you says yes."],
+             ["\u{1f570}","Time together is cheap on purpose","Twenty minutes one-to-one costs 25 points. A packet of crisps costs 250. That\u2019s the whole idea."],
+             ["\u23f3","Some rewards are limited, not dear","A trip to the park is once a week \u2014 affordable, without costing you every Saturday."]]},
+    {title:"Just the first week", lede:"You don\u2019t have to use all of it. Do these and the rest explains itself.",
+     points:[["1\ufe0f\u20e3","Award something today","Anything. The first point is the one that makes it real."],
+             ["2\ufe0f\u20e3","Say what it was for, out loud","\u201cThat was kind of you \u2014 three points.\u201d The words do more than the number."],
+             ["3\ufe0f\u20e3","Answer one request","Yes or no both work. They learn the loop either way."]]}
+  ],
+  /* Same three ideas, two registers. A five-year-old drowns in the longer
+     wording and a ten-year-old feels talked down to by the shorter one, and the
+     app already knows each child's age. */
+  kidYoung: [
+    {title:"Asalamualaikum, {name}! \u{1f44b}", lede:"This is your points card.",
+     points:[["\u2b50","Points are yours","Mum and Dad give you points when you do good things. You keep them all."]]},
+    {title:"Where points come from \u2b50", lede:"Praying. Being kind. Helping. Telling the truth.",
+     points:[["\u{1f440}","They notice you","You can\u2019t give yourself points. But you can be the reason someone notices."],
+             ["\u{1f4d6}","See what you got","Tap \u2b50 My points to see who gave you points, and what for."]]},
+    {title:"Spending them \u{1f381}", lede:"Tap the big Spend my points button.",
+     points:[["\u{1f64b}","You ask first","Then Mum or Dad say yes or no. Nothing is taken until they say yes."],
+             ["\u{1f4b0}","Or save up","Keep your points for something bigger. That is allowed too!"]]}
+  ],
+  kidOlder: [
+    {title:"Asalamualaikum, {name}! \u{1f44b}", lede:"This is your points card. Everything you earn lives here, and it\u2019s yours.",
+     points:[["\u2b50","How points are earned","Your parents award points for the things worth noticing \u2014 prayer, kindness, helping, telling the truth."],
+             ["\u{1f4c8}","The harder it is, the more it\u2019s worth","Actions are scored 1 to 5. Each of the five daily prayers is worth 5 \u2014 the top of the scale."]]},
+    {title:"Keeping track \u{1f54c}", lede:"Tap \u2b50 My points at the bottom of the screen.",
+     points:[["\u{1f54c}","Your prayer board","Every prayer that gets recorded fills a square. Five in one day lights the whole column."],
+             ["\u{1f4ca}","Your line","It runs green while points are coming in, and fades when things go quiet. It\u2019s yours \u2014 nobody else sees it."]]},
+    {title:"Spending and saving \u{1f381}", lede:"Tap Spend my points to see everything you could get.",
+     points:[["\u{1f64b}","You ask, they decide","A request goes to your parents. Nothing leaves your points until they say yes."],
+             ["\u{1f4b0}","Saving is a real choice","The bigger things take a few weeks. Some rewards are limited to once a week, so plan a little."]]}
+  ]
+};
+let tourNow=null, tourStep=1;
+function ageBandOf(child){
+  const n=parseInt((child && child.age) || "", 10);
+  return (!Number.isNaN(n) && n < 8) ? "young" : "older";
+}
+function kidTourKey(child){ return ageBandOf(child)==="young" ? "kidYoung" : "kidOlder"; }
+function tourFill(text, me){
+  const f=currentFamily();
+  const partner=f ? f.children.find(c=>isParentRole(c) && c.id!==(me&&me.id)) : null;
+  return String(text)
+    .replace(/\{name\}/g, escapeHtml((me&&me.name)||"there"))
+    .replace(/\{family\}/g, escapeHtml((f&&f.name)||"Your family"))
+    .replace(/\{partner\}/g, escapeHtml(partner?partner.name:"your partner"));
+}
+function startTour(key){
+  if(!TOURS[key]) return;
+  tourNow=key; tourStep=1;
+  const card=document.getElementById("tourCard");
+  if(card) card.classList.toggle("kid", key.indexOf("kid")===0);
+  showGate("tourGate");
+  tourGo(1);
+}
+function tourGo(step){
+  const steps=TOURS[tourNow]; if(!steps) return;
+  tourStep=Math.min(Math.max(1,step), steps.length);
+  const me=sessionMember();
+  const s=steps[tourStep-1];
+  document.getElementById("tourDots").innerHTML =
+    steps.map((_,i)=>`<span class="onbdot ${i===tourStep-1?"on":""}"></span>`).join("");
+  document.getElementById("tourBody").innerHTML =
+    `<h1>${tourFill(s.title, me)}</h1><p class="lede">${tourFill(s.lede, me)}</p>` +
+    s.points.map(p=>`<div class="tourpoint"><span class="em">${p[0]}</span>
+        <span><strong>${tourFill(p[1], me)}</strong><span>${tourFill(p[2], me)}</span></span></div>`).join("");
+  const last=tourStep===steps.length;
+  const kid=tourNow.indexOf("kid")===0;
+  document.getElementById("tourNav").innerHTML =
+    (tourStep>1?`<button class="light" onclick="tourGo(${tourStep-1})">Back</button>`:"") +
+    `<button class="primary" onclick="${last?"finishTour()":"tourGo("+(tourStep+1)+")"}">${
+      last ? (kid?"Let\u2019s go!":"Start using the app") : "Next"}</button>`;
+}
+async function finishTour(){
+  tourNow=null;
+  showGate("mainApp");
+  renderAccounts(); render();
+  await markTourSeen();
+}
+async function markTourSeen(){
+  const me=sessionMember(); if(!me) return;
+  const prefs=Object.assign({}, memberPrefs(me), {tourSeen:true});
+  me.prefs=prefs;
+  try{ await window.fpc.saveMemberPrefs(familyId, me.id, prefs); }
+  catch(e){ console.error("Couldn't record that the tour was seen:", e); }
+}
+function openHowItWorks(){
+  closeMenu();
+  const me=sessionMember(); if(!me) return;
+  startTour(isParentRole(me) ? "join" : kidTourKey(me));
+}
+/* Called once the family has loaded. The creator still gets the setup flow with
+   the add-a-child form; everyone else gets the tour that fits them. */
+function maybeStartTour(){
+  const me=sessionMember(); if(!me) return false;
+  if(memberPrefs(me).tourSeen === true) return false;
+  const f=currentFamily();
+  const isOwner = !!(f && f.ownerUid && window.fpc && window.fpc.uid && f.ownerUid===window.fpc.uid());
+  if(isParentRole(me) && isOwner) return false;   // the setup flow covers them
+  startTour(isParentRole(me) ? "join" : kidTourKey(me));
+  return true;
+}
+
 /* ---------- This week's champion ----------
    One winner a week is three "not me"s in a four-child family, so a child who
    is not the champion does not get someone else's face pinned to their screen.
@@ -2296,7 +3390,7 @@ function todayTotalFor(child){
 function championNow(){
   const f=currentFamily();
   if(!f) return null;
-  const kids=f.children.filter(c=>!isParentRole(c));
+  const kids=f.children.filter(c=>isChildRole(c));
   if(!kids.length) return null;
   const weekDates=getCurrentWeekDates();
   const totals=kids.map(c=>({child:c, sum:weeklyTotalFor(c, weekDates)}));
@@ -2333,10 +3427,11 @@ function renderChampionFloat(){
   if(!ready || !me || !champ || !championVisibleFor(me, champ)){
     fab.classList.add("hidden"); fab.innerHTML=""; return;
   }
-  const amChampion = !isParentRole(me) && champ.leaders.some(c=>c.id===me.id);
+  const amChampion = isChildRole(me) && champ.leaders.some(c=>c.id===me.id);
   const face=champ.leaders[0];
-  fab.classList.toggle("quiet", !amChampion && !isParentRole(me));
-  fab.innerHTML=championFaceHTML(face, !amChampion && !isParentRole(me));
+  const quiet = !amChampion && !isParentRole(me);
+  fab.classList.toggle("quiet", quiet);
+  fab.innerHTML=championFaceHTML(face, quiet);
   fab.classList.remove("hidden");
 }
 /* The offer to look, for a child who is not the champion. Deliberately a plain
@@ -2369,7 +3464,7 @@ async function toggleChampionVisible(){
 function openChampionCard(){
   const champ=championNow(); if(!champ) return;
   const me=sessionMember();
-  const amChampion = me && !isParentRole(me) && champ.leaders.some(c=>c.id===me.id);
+  const amChampion = me && isChildRole(me) && champ.leaders.some(c=>c.id===me.id);
   const names=champ.leaders.map(c=>escapeHtml(c.name)).join(" &amp; ");
   const body=document.getElementById("championCardBody");
   if(body) body.innerHTML=`${championFaceHTML(champ.leaders[0], false)}
@@ -2443,7 +3538,12 @@ async function applyRecommendedLists(){
     }
     cat.actions=cat.actions||[];
     def.actions.forEach(da=>{
-      const found=cat.actions.find(a=>normKey(a[0])===normKey(da[0]));
+      const daTag=actionOpts(da).tag;
+      // Match on the tag first: a prayer renamed from "Prayed Fajr" to
+      // "Pray Fajr on time" is the same action, not a second one.
+      const found=(daTag && cat.actions.find(a=>actionOpts(a).tag===daTag))
+               || cat.actions.find(a=>normKey(a[0])===normKey(da[0]));
+      if(found && daTag && normKey(found[0])!==normKey(da[0])) found[0]=da[0];
       if(!found){ cat.actions.push(JSON.parse(JSON.stringify(da))); added++; }
       else{
         if(found[1]!==da[1]){ found[1]=da[1]; rescored++; }
@@ -2468,6 +3568,7 @@ async function applyRecommendedLists(){
     }
   });
   app.rewards.sort((a,b)=>a.points-b.points);
+  app.settings=app.settings||{}; app.settings.rewardsEditedTs=Date.now();
   await saveApp();
   render();
   alert("Done.\n\n"+added+" actions added\n"+rescored+" rescored\n"+repriced+" rewards added or repriced\n\nAnything you wrote yourself was left as it was.");
@@ -2596,8 +3697,8 @@ async function toggleExcusedToday(childId){
    Before this, visibility was decided in five different functions and no single
    place could tell you what was open. screenNow === null means the home screen
    for whoever is signed in: the parent dashboard, or the child's own card. */
-const SCREENS = ["accountPanel","overviewPanel","activityPanel","requestsPanel",
-                 "kidSpendScreen","kidPointsScreen"];
+const SCREENS = ["accountPanel","overviewPanel","activityPanel","requestsPanel","progressPanel",
+                 "kidSpendScreen","kidLearnScreen","kidPointsScreen"];
 let screenNow = null;
 function showScreen(id){
   screenNow = id || null;
@@ -2607,7 +3708,7 @@ function showScreen(id){
   });
   const home=document.getElementById("kidHomeScreen");
   if(home) home.classList.toggle("hidden",
-    screenNow==="kidSpendScreen" || screenNow==="kidPointsScreen");
+    screenNow==="kidSpendScreen" || screenNow==="kidPointsScreen" || screenNow==="kidLearnScreen");
   window.scrollTo({top:0,behavior:"smooth"});
   render();
 }
@@ -2630,9 +3731,30 @@ function openPanel(id){
   showScreen(screenNow===id ? null : id);
 }
 function showAccountPanel(){ resetAddMemberPanel(); openPanel("accountPanel"); renderAccounts(); }
-function showOverviewPanel(){ openPanel("overviewPanel"); renderOverview(); }
+function showOverviewPanel(){
+  const me=sessionMember();
+  if(me && isParentRole(me) && memberPrefs(me).openedOverview!==true){
+    const prefs=Object.assign({}, memberPrefs(me), {openedOverview:true});
+    me.prefs=prefs;
+    if(window.fpc && window.fpc.saveMemberPrefs) window.fpc.saveMemberPrefs(familyId, me.id, prefs).catch(()=>{});
+  }
+  openPanel("overviewPanel"); renderOverview();
+}
 function showActivityPanel(){ openPanel("activityPanel"); renderActivityLog(); }
-function showRequestsPanel(){ openPanel("requestsPanel"); renderRequests(); }
+function showRequestsPanel(){ openPanel("requestsPanel"); renderRequests(); renderOffersPanel(); }
+function showProgressPanel(){ openPanel("progressPanel"); renderProgressPanel(); }
+function renderProgressPanel(){
+  const body=document.getElementById("progressBody");
+  if(!body) return;
+  const f=currentFamily();
+  const kids=f ? f.children.filter(isChildRole) : [];
+  if(!kids.length){ body.innerHTML='<p class="small">No children added yet.</p>'; return; }
+  const who=currentChild() && isChildRole(currentChild()) ? currentChild() : kids[0];
+  body.innerHTML =
+    `<div class="chiprow" style="margin-bottom:12px">${kids.map(c=>`<button class="whochip ${
+      c.id===who.id?"on":""}" onclick="selectChild('${c.id}');showProgressPanel()">${escapeHtml(c.name)}</button>`).join("")}</div>`
+    + learnScreenHTML(who);
+}
 /* Firebase's failure modes are indistinguishable to a user unless you name
    them. "Check your connection" was hiding a configuration problem. */
 function authErrorMessage(e){
@@ -2648,10 +3770,12 @@ function authErrorMessage(e){
   if(code === "auth/network-request-failed"){
     return location.protocol === "file:"
       ? "Accounts can't be created when the file is opened directly from your computer. Open the app from its web address instead."
-      : "Couldn't reach the account system — check your connection and try again.";
+      : "\ud83d\udcf6 No internet. Nothing is lost \u2014 your points are safe and waiting. Try again when you're back online.";
   }
   if(code === "permission-denied")
-    return "The database refused that. The security rules may not be deployed yet.";
+    return isParentSession()
+      ? "The database refused that. The security rules may not be deployed yet."
+      : "\ud83d\udd12 Only Mum and Dad can do that. Nothing is broken \u2014 that button just isn't yours.";
   // Use the timeout's own wording only when it actually says something useful.
   if(code === "timeout")
     return (e.message && e.message.length > 15)
@@ -3006,7 +4130,7 @@ function renderAccounts(){
         ? `<img class="avatar tappable" src="${ch.photo}" onclick="event.stopPropagation();openMemberPhoto('${ch.id}')">`
         : `<div class="avatar-placeholder tappable" onclick="event.stopPropagation();openMemberPhoto('${ch.id}')">👤</div>`)
       + `<div><span>${escapeHtml(ch.name)}${ch.age?" · "+escapeHtml(ch.age):""}</span>`
-      + `<div class="small">${isParentRole(ch)?"Parent":"Child"}${ch.email?" · "+escapeHtml(ch.email):""}</div></div>`;
+      + `<div class="small">${isParentRole(ch)?"Parent":isTutorRole(ch)?("Tutor \u00b7 "+(assignedChildIds(ch).length||"no")+" child"+(assignedChildIds(ch).length===1?"":"ren")):isFamilyRole(ch)?"Family":"Child"}${ch.email?" · "+escapeHtml(ch.email):""}</div></div>`;
     row.appendChild(left);
     const btns=document.createElement("div"); btns.style.display="flex"; btns.style.gap="6px"; btns.style.flexWrap="wrap";
     const mk=(cls,txt,title,fn)=>{const b=document.createElement("button");b.className=cls;b.textContent=txt;b.title=title;b.onclick=fn;return b;};
@@ -3016,7 +4140,8 @@ function renderAccounts(){
     if(canResetByEmail(ch)) btns.appendChild(mk("photobtn","✉️","Send them a password reset",()=>sendMemberReset(ch.id)));
     btns.appendChild(mk("photobtn",isParentRole(ch)?"↓ Child":"↑ Parent","Change what they're allowed to do",()=>changeMemberRole(ch.id)));
     if(ch.id!==sessionMemberId) btns.appendChild(mk("xbtn","✕","Remove from the family",()=>removeMember(ch.id)));
-    if(!isParentRole(ch)) btns.appendChild(mk("light", ch.id===currentChildId()?"Selected":"Open", "Open their card", ()=>selectChild(ch.id)));
+    if(isChildRole(ch)) btns.appendChild(mk("light", ch.id===currentChildId()?"Selected":"Open", "Open their card", ()=>selectChild(ch.id)));
+    if(isTutorRole(ch)) btns.appendChild(mk("light", "\ud83d\udcda Their children", "Choose which children this tutor works with", ()=>assignTutorChildren(ch.id)));
     row.appendChild(btns);
     list.appendChild(row);
   });
@@ -3032,7 +4157,7 @@ function renderOverview(){
     return;
   }
   const weekDates=getCurrentWeekDates();
-  const kids=f.children.filter(c=>!isParentRole(c));
+  const kids=f.children.filter(c=>isChildRole(c));
   const people = kids.length ? kids : f.children.slice();
   list.innerHTML = people
     .sort((a,b)=>weeklyTotalFor(b,weekDates)-weeklyTotalFor(a,weekDates))
@@ -3167,6 +4292,7 @@ async function undoActivityEntry(childId, entryId){
     type: "adjust", catKey: entry.catKey || undefined, actionName: entry.actionName || undefined
   });
   renderActivityLog();
+  renderOutsideFeed();
 }
 
 
@@ -3461,7 +4587,7 @@ function shareTextFor(memberId){
   lines.push("Today: "+todayTotalFor(m)+" points");
   lines.push("This week: "+weeklyTotalFor(m, getCurrentWeekDates())+" points");
   lines.push("Saved up: "+(m.balance||0)+" points");
-  if(!isParentRole(m)) lines.push("How it\u2019s going: "+bandForChild(m).label);
+  if(isChildRole(m)) lines.push("How it\u2019s going: "+bandForChild(m).label);
   const won=(app.requests||[]).filter(r=>r.childId===m.id && r.status==="approved").slice(0,3);
   if(won.length){
     lines.push("");
@@ -3512,7 +4638,7 @@ function tipPool(){
 function anyChildStruggling(){
   const f = currentFamily();
   if(!f) return false;
-  return f.children.filter(c => !isParentRole(c)).some(c => bandForChild(c).key === "red");
+  return f.children.filter(c => isChildRole(c)).some(c => bandForChild(c).key === "red");
 }
 function currentTip(){
   const pool = tipPool();
@@ -3558,12 +4684,12 @@ let onbStep = 1;
 let onbAddedMembers = [];
 function onbGo(step){
   onbStep = step;
-  [1,2,3].forEach(i => {
+  [1,2,3,4].forEach(i => {
     const el = document.getElementById("onbStep"+i);
     if(el) el.classList.toggle("hidden", i !== step);
   });
   document.getElementById("onbDots").innerHTML =
-    [1,2,3].map(i => `<span class="onbdot ${i===step?"on":""}"></span>`).join("");
+    [1,2,3,4].map(i => `<span class="onbdot ${i===step?"on":""}"></span>`).join("");
   const me = sessionMember();
   const nameEl = document.getElementById("onbName");
   if(nameEl && me) nameEl.textContent = me.name;
@@ -3620,6 +4746,7 @@ function startOnboarding(){
   onbGo(1);
 }
 function finishOnboarding(){
+  markTourSeen();
   const added = onbAddedMembers.slice();
   onbAddedMembers = [];
   showGate("mainApp");
@@ -3848,7 +4975,7 @@ function renderWhoStrip(){
   const f=currentFamily();
   if(!isParentSession() || !f || editMode){ strip.classList.add("hidden"); strip.innerHTML=""; return; }
   const openId=currentChildId();
-  const kids=f.children.filter(c=>!isParentRole(c));
+  const kids=f.children.filter(c=>isChildRole(c));
   const partners=f.children.filter(c=>isParentRole(c) && c.id!==sessionMemberId);
   if(!kids.length && !partners.length){ strip.classList.add("hidden"); strip.innerHTML=""; return; }
   const pend=pendingRequests();
@@ -3938,13 +5065,38 @@ function isParentRole(ch){
   const v=String(ch.age||"").trim().toLowerCase();   // legacy families
   return v==="mum" || v==="dad";
 }
+/* Three roles now, so "not a parent" no longer means "a child". Every place
+   that meant a child says so explicitly — otherwise a grandmother signing in
+   would have been handed the child's own points card. */
+function isFamilyRole(m){ return !!m && m.role === "family"; }
+function isTutorRole(m){ return !!m && m.role === "tutor"; }
+/* A tutor and a grandparent share a screen and a shape: they may add points and
+   nothing else. What differs is scope — a tutor only ever sees the children a
+   parent has handed them. */
+function isHelperRole(m){ return isFamilyRole(m) || isTutorRole(m); }
+function isChildRole(m){ return !!m && !isParentRole(m) && !isHelperRole(m); }
+function isFamilySession(){ return isHelperRole(sessionMember()); }
+function assignedChildIds(m){
+  return Array.isArray(m && m.forChildren) ? m.forChildren : [];
+}
+function childrenVisibleTo(m){
+  const f=currentFamily();
+  const kids=f ? f.children.filter(isChildRole) : [];
+  if(!isTutorRole(m)) return kids;
+  const ids=assignedChildIds(m);
+  return kids.filter(c=>ids.indexOf(c.id)>=0);
+}
+function relationLabel(m){
+  const v=String((m&&m.age)||"").trim();
+  return v || "Family";
+}
 function roleLabel(ch){
   const v=String((ch&&ch.age)||"").trim();
   return v ? v.charAt(0).toUpperCase()+v.slice(1).toLowerCase() : v;
 }
 function applyRoleChrome(){
   const me=sessionMember();
-  const kid = !!me && !isParentRole(me);
+  const kid = isChildRole(me);
   // Handing the device on must not leave the router pointing at a screen the
   // new person cannot open — a child inheriting "accountPanel", say.
   if(screenNow){
@@ -3958,13 +5110,15 @@ function applyRoleChrome(){
       if(home) home.classList.remove("hidden");
     }
   }
+  const fam=isHelperRole(me);
   const set=(id,on)=>{const el=document.getElementById(id); if(el) el.classList.toggle("hidden", !on);};
+  set("familyView", fam);
   set("kidView", kid);
   set("summarySection", !kid);
   set("cards", !kid);
   set("championBanner", !kid && app.settings && app.settings.showChampion);
   // Parent-only controls and sections
-  ["btnFamily","btnOverview","btnActivity","btnRequests","editModeBtn","btnGivePoints","btnResetDay"]
+  ["btnFamily","btnOverview","btnActivity","btnRequests","btnProgress","editModeBtn","btnGivePoints","btnResetDay"]
     .forEach(id=>set(id, !kid));
   set("btnSignOut", true);   // anyone signed in can hand the device on
   const sheet=document.getElementById("menuSheet");
@@ -3988,6 +5142,19 @@ function applyRoleChrome(){
     if(bar) bar.classList.add("hidden");
     document.body.classList.remove("haskidbar");
   }
+  // Last, so nothing above can re-show something an invited relative
+  // should never see.
+  if(fam){
+    // A grandparent gets one screen and no machinery: no menu, no panels, no
+    // category tiles, and nothing that could move a point.
+    ["accountPanel","overviewPanel","activityPanel","requestsPanel","progressPanel","addCategoryWrap","summarySection",
+     "cards","rewardSection","gameNightSection","parentRewardSection","requestsBanner","behaviourWrap",
+     "editModeNote","tipsCard","undoBar","whoStrip","championBanner","coachNudge","parentGoal","kidTabBar","championFab"]
+      .forEach(id=>set(id, false));
+    const mb=document.getElementById("btnMenu"); if(mb) mb.classList.add("hidden");
+    const gp=document.getElementById("btnGivePoints"); if(gp) gp.classList.add("hidden");
+    document.body.classList.remove("haskidbar");
+  }
   if(kid){
     ["accountPanel","overviewPanel","activityPanel","requestsPanel","addCategoryWrap",
      "rewardSection","gameNightSection","parentRewardSection","requestsBanner","behaviourWrap","editModeNote","tipsCard","undoBar","whoStrip"]
@@ -4007,6 +5174,10 @@ function render(){
   showVersion();
   renderFamilyCover();
   renderFab();
+  renderOutsideFeed();
+  const pg=document.getElementById("parentGoal");
+  if(pg) pg.innerHTML = (isParentSession() && !editMode) ? goalCardHTML(activeGoal(), false) : "";
+  renderCoachNudge();
   renderChampionFloat();
   renderChampionToggle();
   renderWhoStrip();
@@ -4014,10 +5185,15 @@ function render(){
   checkForGifts();
   checkForCelebrations();
   renderRequests();
+  renderOffersPanel();
   renderEyebrows();
   renderTips();
   const me=sessionMember();
-  if(me && !isParentRole(me)){
+  if(me && isHelperRole(me)){
+    renderFamilyView(me);
+    return;
+  }
+  if(me && isChildRole(me)){
     renderKidView(me);
     renderAccounts();
     return;
@@ -4054,7 +5230,7 @@ function render(){
   document.getElementById("parentRewardSection").classList.add("hidden");
   // Behaviour trend sits directly above the category cards, so a parent sees the
   // fortnight's shape before deciding what to award today.
-  if(child && !isParentRole(child) && !editMode){
+  if(child && isChildRole(child) && !editMode){
     bw.classList.remove("hidden");
     bw.innerHTML = behaviourCardHTML(child, false);
   }else{
@@ -4156,7 +5332,7 @@ function render(){
     document.getElementById("best").textContent=scores[0] && scores[0][0]>0?scores[0][1]:"—";
   }
   document.getElementById("balance").textContent=(child && child.balance)||0;
-  updateRewardPacing(child && !isParentRole(child) ? child : null);
+  updateRewardPacing(child && isChildRole(child) ? child : null);
   renderChampionBanner();
   renderAccounts();
   renderRewardManageList();
@@ -4176,7 +5352,7 @@ function renderParentAdminView(parent){
   document.getElementById("parentRewardSection").classList.remove("hidden");
   renderParentRewards();
   const f=currentFamily();
-  const kids = f ? f.children.filter(c=>!isParentRole(c)) : [];
+  const kids = f ? f.children.filter(c=>isChildRole(c)) : [];
   // The children's profiles live in one place now \u2014 the tile row directly under
   // the Give points button. Listing them again here was the same names, twice.
   const partners = f ? f.children.filter(c=>isParentRole(c) && c.id!==parent.id) : [];
@@ -4197,7 +5373,7 @@ function renderParentAdminView(parent){
   const spendable = Math.max(0, myBalance - myPending);
   cards.innerHTML = (kids.length ? "" : `<div class="card" style="grid-column:1/-1">
     <h2>\ud83d\udc4b Signed in as ${escapeHtml(parent.name)} (${roleLabel(parent)})</h2>
-    <p class="small">No children added yet \u2014 open \u201cFamily members\u201d in the menu to add one. Their profiles will then appear under the Give points button.</p>
+    <p class="small">\ud83d\udc68\u200d\ud83d\udc69\u200d\ud83d\udc67 <strong>Nobody\u2019s been added yet.</strong> Each child gets their own login, so they see their own card on their own device \u2014 it takes about a minute. Open \u201cFamily members\u201d in the menu to add the first.</p>
   </div>`) + `
   <div class="card" style="grid-column:1/-1;border-top-color:#7c83ef">
     <div class="cardhead">
@@ -4218,7 +5394,7 @@ function renderParentAdminView(parent){
               <span class="cprice">${r.points} points</span>
               ${r.kind?`<span class="ckind">${escapeHtml(r.kind)}</span>`:""}</span></button>`;
           }).join("")
-        : '<p class="small">No grown-up rewards set yet.</p>'}</div>
+        : '<p class="small">\ud83d\udc9b No grown-up rewards yet \u2014 add two or three. Partners rarely thank each other out loud.</p>'}</div>
       <p class="small" style="margin:10px 0 0">Your partner decides \u2014 you can\u2019t approve your own.</p>
       <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">
         <button class="light" style="width:auto" onclick="jumpToParentRewards()">\u2699\ufe0f Edit grown-ups\u2019 rewards</button>
@@ -4291,7 +5467,7 @@ async function addPointPrompt(){
     // With a single child there is no ambiguity — open them rather than
     // sending the parent back to the dashboard for no reason.
     const f=currentFamily();
-    const kids=f ? f.children.filter(c=>!isParentRole(c)) : [];
+    const kids=f ? f.children.filter(c=>isChildRole(c)) : [];
     if(kids.length===1){ viewChildId=kids[0].id; child=kids[0]; renderAccounts(); render(); }
     else { alert(kids.length
       ? "Open a child's card first — tap their name on your dashboard, then give points."
@@ -4371,7 +5547,8 @@ async function kidBuy(type, id){
   alert(msg);
 }
 function pendingRequests(){
-  return (app.requests||[]).filter(r=>r.status==="pending");
+  // Offers from the wider family have their own list and their own buttons.
+  return (app.requests||[]).filter(r=>r.status==="pending" && r.type!=="offer");
 }
 async function approveRequest(id){
   if(!requireParent()) return;
@@ -4608,9 +5785,9 @@ function kidTips(child){
   const balance=availableFor(child);
   // Closest thing they could actually get — the strongest motivator there is.
   const next=app.rewards.filter(r=>r.points>balance).sort((a,b)=>a.points-b.points)[0];
-  if(next) tips.push({icon:"\ud83c\udfaf", text:"Only "+(next.points-balance)+" more points until \u201c"+next.name+"\u201d", badge:next.points+" pts"});
+  if(next) tips.push({icon:"\ud83c\udfaf", text:"Only "+(next.points-balance)+" more point"+((next.points-balance)===1?"":"s")+" until \u201c"+next.name+"\u201d", badge:next.points+" pts"});
   const nextGame=app.gameNightActivities.filter(g=>g.points>balance).sort((a,b)=>a.points-b.points)[0];
-  if(nextGame) tips.push({icon:"\ud83c\udfb2", text:(nextGame.points-balance)+" points to go for "+nextGame.name, badge:nextGame.points+" pts"});
+  if(nextGame) tips.push({icon:"\ud83c\udfb2", text:"Only "+(nextGame.points-balance)+" more points until \u201c"+nextGame.name+"\u201d", badge:nextGame.points+" pts"});
   // Anything untouched this week — the areas worth a nudge.
   categories.map(cat=>{
     let sum=0;
@@ -4621,13 +5798,18 @@ function kidTips(child){
     return {cat, sum};
   }).filter(c=>c.sum===0).slice(0,4).forEach(c=>{
     const best=c.cat.actions.slice().sort((a,b)=>b[1]-a[1])[0];
-    if(best) tips.push({icon:c.cat.icon, text:"Try \u201c"+best[0]+"\u201d \u2014 nothing yet this week in "+c.cat.name, badge:"+"+best[1]});
+    // Naming the action rather than commanding it, so the sentence still reads
+    // whether the label is written as an instruction ("Pray Fajr on time") or
+    // as something noticed after the fact ("Owned up before being found out").
+    if(best) tips.push({icon:c.cat.icon,
+      text:"Nothing in "+c.cat.name+" yet this week \u2014 \u201c"+best[0]+"\u201d earns "+best[1]+" point"+(best[1]===1?"":"s"),
+      badge:"+"+best[1]});
   });
   // The biggest single wins on the board.
   const bigWins=[];
   categories.forEach(cat=>cat.actions.forEach(([name,p])=>bigWins.push({name,p,icon:cat.icon})));
   bigWins.sort((a,b)=>b.p-a.p).slice(0,3).forEach(w=>{
-    tips.push({icon:w.icon, text:w.name, badge:"+"+w.p});
+    tips.push({icon:w.icon, text:"Worth the most right now: \u201c"+w.name+"\u201d", badge:"+"+w.p});
   });
   tips.push({icon:"\ud83d\ude4c", text:"Ask Mum or Dad if there\u2019s a job you can help with"});
   tips.push({icon:"\ud83d\udca1", text:"Doing something kind without being asked earns the most"});
@@ -4754,9 +5936,7 @@ function renderKidView(child){
     ? `<img class="avatar-lg tappable" src="${child.photo}">`
     : '<div class="avatar-placeholder-lg tappable">\ud83d\udc64</div>';
   kidAv.onclick = () => openMemberPhoto(child.id);
-  const hour=new Date().getHours();
-  const greet = hour<12 ? "Good morning" : hour<18 ? "Good afternoon" : "Good evening";
-  document.getElementById("kidGreeting").textContent = greet+", "+child.name+"! \ud83c\udf1f";
+  document.getElementById("kidGreeting").textContent = "Asalamualaikum, "+child.name+"! \ud83c\udf1f";
   const weekDates=getCurrentWeekDates();
   const week=weeklyTotalFor(child, weekDates);
   const todayPts=todayTotalFor(child);
@@ -4785,6 +5965,12 @@ function renderKidView(child){
   document.getElementById("kidWeek").textContent = week;
   document.getElementById("kidStreak").textContent = streakFor(child);
   document.getElementById("kidGraphWrap").innerHTML = behaviourCardHTML(child, true);
+  const kl=document.getElementById("kidLearnBody");
+  if(kl) kl.innerHTML = learnScreenHTML(child);
+  const kg=document.getElementById("kidGoal");
+  if(kg) kg.innerHTML = goalCardHTML(activeGoal(), true);
+  const fn=document.getElementById("familyNotices");
+  if(fn) fn.innerHTML = noticeCardHTML();
   const pt=document.getElementById("prayerToday");
   if(pt) pt.innerHTML = prayerTodayHTML(child);
   const pw=document.getElementById("prayerWall");
@@ -4795,7 +5981,8 @@ function renderKidView(child){
   if(bar){
     bar.classList.remove("hidden");
     document.body.classList.add("haskidbar");
-    [["kidTabHome",null],["kidTabSpend","kidSpendScreen"],["kidTabPoints","kidPointsScreen"]]
+    [["kidTabHome",null],["kidTabSpend","kidSpendScreen"],
+     ["kidTabLearn","kidLearnScreen"],["kidTabPoints","kidPointsScreen"]]
       .forEach(([bid,scr])=>{
         const b=document.getElementById(bid);
         if(b) b.classList.toggle("on", screenNow===scr);
@@ -4812,7 +5999,7 @@ function renderKidView(child){
   const feed=document.getElementById("kidFeed");
   const entries=(child.activityLog||[]).slice(0,14);
   if(!entries.length){
-    feed.innerHTML='<p class="small">Nothing yet \u2014 when Mum or Dad gives you points, they\u2019ll show up here with what they were for. \u2b50</p>';
+    feed.innerHTML='<p class="small">\u2b50 <strong>Nothing here yet!</strong> When Mum or Dad give you points, they show up here \u2014 with who gave them and what they were for.</p>';
   }else{
     feed.innerHTML=entries.map(e=>{
       const when=new Date(e.ts).toLocaleString([], {weekday:"short", hour:"2-digit", minute:"2-digit"});
@@ -4870,10 +6057,10 @@ function renderKidView(child){
   }
   document.getElementById("kidRewardChips").innerHTML =
     chipList(app.rewards, "reward", kidShowAllRewards, "toggleAllRewards()",
-             "Mum or Dad hasn\u2019t added any rewards yet.");
+             "\ud83c\udf81 Nothing on the list yet \u2014 ask Mum or Dad to add some rewards!");
   document.getElementById("kidGameChips").innerHTML =
     chipList(app.gameNightActivities, "game", kidShowAllGames, "toggleAllGames()",
-             "No activities added yet.");
+             "\ud83c\udfb2 No activities yet \u2014 ask Mum or Dad what you could do together.");
 
   // Their own requests
   const mine=(app.requests||[]).filter(r=>r.childId===child.id).slice(0,4);
@@ -5016,6 +6203,13 @@ const SIGNIN_ATTEMPTS = {};
 function isGeneratedLogin(email){
   return String(email||"").trim().toLowerCase().endsWith(".fpc.app");
 }
+/* Since v48 a child's login is a plus-address off a parent's inbox, so keying
+   the gentle wording off the old generated addresses alone meant every child
+   added since then was getting the grown-up copy. */
+function isChildLikeLogin(email){
+  const v=String(email||"").trim().toLowerCase();
+  return isGeneratedLogin(v) || v.indexOf("+") > 0;
+}
 function showAskParent(){
   const el=document.getElementById("askParentPanel");
   if(el) el.classList.remove("hidden");
@@ -5037,21 +6231,21 @@ async function submitAuthLogin(){
   }catch(e){
     const key=email.toLowerCase();
     const tries=(SIGNIN_ATTEMPTS[key]=(SIGNIN_ATTEMPTS[key]||0)+1);
-    const generated=isGeneratedLogin(email);
+    const generated=isChildLikeLogin(email);
     /* Firebase throttles the account, so trying again genuinely will not help.
        Say so on the first occurrence rather than counting up to it. */
     if(e && e.code==="auth/too-many-requests"){
       errEl.textContent = generated
-        ? "Let's take a short break \u2014 the app needs about fifteen minutes before you can try again."
+        ? "\u23f3 Let's take a short break. The app needs about fifteen minutes \u2014 trying again now won't work, but it will soon."
         : "Too many attempts just now. Wait about fifteen minutes, then try again.";
       if(generated) showAskParent();
       return;
     }
     if(generated){
       if(tries===1){
-        errEl.textContent="That didn't work \u2014 check the spelling and try again.";
+        errEl.textContent="\ud83e\udd14 That didn't work. Have another go \u2014 check for a capital letter or a missing dot.";
       }else if(tries===2){
-        errEl.textContent="Still not right. Passwords are small letters and numbers, with no spaces.";
+        errEl.textContent="\ud83d\udd11 Still not working. Your password is the one a parent gave you \u2014 it's easy to mix up a 1 and an l.";
       }else{
         errEl.textContent="";
         showAskParent();
@@ -5153,15 +6347,16 @@ function makeInviteCode(){
 function normaliseInviteCode(v){
   return String(v || "").toUpperCase().replace(/[^A-Z2-9]/g, "");
 }
-async function createParentInvite(){
+async function createParentInvite(role){
   if(!requireParent()) return;
+  const inviteRole = (role==="family" || role==="tutor") ? role : "parent";
   const box=document.getElementById("inviteBox");
   const codeEl=document.getElementById("inviteCode");
   const expEl=document.getElementById("inviteExpiry");
   const btn=document.getElementById("inviteParentBtn");
   if(btn){ btn.disabled=true; btn.textContent="Making a code \u2026"; }
   try{
-    const code=await withTimeout(window.fpc.createInvite(familyId, makeInviteCode(), INVITE_TTL_MS), 20000, "Creating the code");
+    const code=await withTimeout(window.fpc.createInvite(familyId, makeInviteCode(), INVITE_TTL_MS, inviteRole), 20000, "Creating the code");
     codeEl.textContent = code.slice(0,4) + "-" + code.slice(4);
     const until = new Date(Date.now() + INVITE_TTL_MS);
     expEl.textContent = "Valid until " + until.toLocaleTimeString([], {hour:"2-digit", minute:"2-digit"}) + ".";
@@ -5248,4 +6443,3 @@ async function signOutDevice(){
 </script>
 </body>
 </html>
-
