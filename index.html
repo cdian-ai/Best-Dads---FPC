@@ -68,7 +68,7 @@
   .tpts.earned{background:#e4f7ed;color:#19744a}
   /* A category opens as its own screen rather than a panel inside the list:
      the actions get the full width, and Back is the only way out. */
-  .catpage{position:fixed;inset:0;z-index:200;overflow-y:auto;
+  .catpage{overscroll-behavior:contain;position:fixed;inset:0;z-index:200;overflow-y:auto;
            background:linear-gradient(180deg,#eef0ff 0,#f8f9fc 42%,#fff 100%)}
   .catpage-inner{max-width:760px;margin:auto;padding:20px 18px 40px}
   .catpage-head{display:flex;align-items:center;gap:14px;background:white;border-radius:22px;
@@ -170,6 +170,49 @@
   .goalshare img,.goalshare .avatar-placeholder{width:26px;height:26px;border-radius:50%;
              object-fit:cover;font-size:13px;display:flex;align-items:center;justify-content:center}
   .goalshare strong{color:#3e46ad}
+  /* One tile, used by children, grown-ups and the manage list. Colour says what
+     kind of thing it is before the name is read. */
+  .tilelist{display:grid;gap:9px;margin-top:10px}
+  .tile{display:flex;align-items:center;gap:12px;text-align:left;width:auto;
+        background:#fff;border:1px solid #e6e8f0;border-left:7px solid #b9bed6;
+        border-radius:18px;padding:13px 15px;min-height:70px;color:var(--ink);
+        box-shadow:0 3px 10px rgba(24,22,60,.06);
+        animation:tilein .34s cubic-bezier(.2,.8,.3,1) both}
+  .tile:active{transform:scale(.975)}
+  .tile .tileicon{font-size:27px;line-height:1;flex-shrink:0}
+  .tile .tilebody{flex:1;min-width:0}
+  .tile .tilename{display:block;font-size:15px;font-weight:800;line-height:1.25;overflow-wrap:anywhere}
+  .tile .tilemeta{display:block;font-size:11.5px;color:var(--muted);font-weight:700;margin-top:2px}
+  .tile .tileblock{display:block;font-size:11px;font-weight:800;color:#a63e3e;margin-top:3px}
+  .tile .tilepts{font-size:19px;font-weight:800;flex-shrink:0}
+  .tile.locked{opacity:.55;box-shadow:none}
+  .tile.locked .tilepts{color:var(--muted)}
+  .c-teal{border-left-color:#17a08a}    .c-teal .tilepts{color:#12796a}
+  .c-green{border-left-color:#2e9b68}   .c-green .tilepts{color:#237a51}
+  .c-indigo{border-left-color:#5b62e8}  .c-indigo .tilepts{color:#4148c9}
+  .c-amber{border-left-color:#e0b13c}   .c-amber .tilepts{color:#a8801f}
+  .c-red{border-left-color:#d85b5b}     .c-red .tilepts{color:#a63e3e}
+  .c-purple{border-left-color:#8b7cf6}  .c-purple .tilepts{color:#6a58e0}
+  .c-blue{border-left-color:#3d8bd6}    .c-blue .tilepts{color:#2c6ca8}
+  .c-rose{border-left-color:#e06f9c}    .c-rose .tilepts{color:#b64e78}
+  .c-violet{border-left-color:#a05fd6}  .c-violet .tilepts{color:#7c42ab}
+  .c-slate{border-left-color:#8d92ab}   .c-slate .tilepts{color:#6b6f88}
+  @keyframes tilein{from{opacity:0;transform:translateY(10px) scale(.98)}to{opacity:1;transform:none}}
+  @media (prefers-reduced-motion: reduce){ .tile{animation:none} }
+
+  /* Quick points: a little heat on the buttons that matter most. */
+  .quickact{position:relative;overflow:hidden}
+  .qflame{position:absolute;inset:0;border-radius:14px;pointer-events:none;
+          background:linear-gradient(120deg,rgba(255,166,0,0) 30%,rgba(255,166,0,.30) 50%,rgba(255,86,0,0) 70%);
+          background-size:220% 100%;opacity:0}
+  @media (prefers-reduced-motion: no-preference){
+    .quickact:not(.ticked) .qflame{opacity:1;animation:qflame 2.6s linear infinite}
+    .quickact:nth-child(2n):not(.ticked) .qflame{animation-delay:.7s}
+    .quickact:nth-child(3n):not(.ticked) .qflame{animation-delay:1.4s}
+  }
+  @keyframes qflame{from{background-position:220% 0}to{background-position:-120% 0}}
+  .quickact:not(.ticked){border-color:#f3d6a4}
+  .quickact:active{transform:scale(.97)}
   .notebox{background:#fffaef;border:1px solid #f0e2bd;border-radius:16px;padding:12px 13px;margin-bottom:14px}
   .notebox input{width:100%;font-size:15px}
   .quickcard{background:#fff;border-radius:20px;padding:14px;box-shadow:var(--shadow);margin-bottom:12px}
@@ -311,15 +354,17 @@
   .prayernote{margin:12px 0 0;font-weight:800;color:#8a6d1f;text-align:center}
   .prayerwall{background:#fff;border-radius:22px;padding:16px;box-shadow:var(--shadow);margin-bottom:16px}
   .pwgrid{margin-top:12px;display:grid;gap:5px}
-  .pwrow{display:grid;grid-template-columns:58px 1fr 18px;align-items:center;gap:7px}
+  .prayerwall{overflow:hidden}
+  .pwrow{display:grid;grid-template-columns:54px minmax(0,1fr) 16px;align-items:center;gap:6px}
   .pwname{font-size:12px;font-weight:800;color:var(--ink)}
-  .pwcells{display:flex;gap:3px}
-  .pwcell{flex:1;aspect-ratio:1;min-width:0;border-radius:4px;background:#f1f2f8;border:1px solid #e6e8f0}
+  .pwcells{display:flex;gap:2px;min-width:0;overflow:hidden}
+  .pwcell{flex:1 1 0;min-width:0;height:14px;border-radius:3px;background:#f1f2f8;border:1px solid #e6e8f0}
   .pwcell.on{background:#17a08a;border-color:#17a08a}
   .pwcell.exc{background:repeating-linear-gradient(45deg,#e8e9f2,#e8e9f2 2px,#f6f7fb 2px,#f6f7fb 4px)}
   .pwstreak{font-size:11px;font-weight:800;color:#e08b28;text-align:right}
   .pwrow.head .pwcells{gap:3px}
-  .pwd{flex:1;min-width:0;text-align:center;font-size:9.5px;font-weight:700;color:var(--muted)}
+  .pwd{flex:1 1 0;min-width:0;overflow:hidden;text-align:center;font-size:9px;font-weight:700;
+       color:var(--muted);white-space:nowrap}
   .pwd.gold{color:#c9971f}
 
   /* --- Profile tiles under the Give points button ------------------------ */
@@ -395,7 +440,8 @@
   /* A menu item used to unfold a panel halfway down the page, so choosing one
      meant scrolling to find what you had just opened. Each is now its own
      screen with a way back at the top. */
-  .panel{position:fixed;inset:0;z-index:150;overflow-y:auto;background:#f6f7fb;
+  .panel{position:fixed;inset:0;z-index:150;overflow-y:auto;overscroll-behavior:contain;
+         -webkit-overflow-scrolling:touch;background:#f6f7fb;
          padding:16px 16px calc(30px + env(safe-area-inset-bottom));
          padding-top:calc(16px + env(safe-area-inset-top))}
   .panel > h2:first-of-type{margin-top:0}
@@ -978,6 +1024,7 @@
       <button class="light" id="btnActivity" onclick="showActivityPanel()">📋 History</button>
       <button class="light" onclick="toggleEditMode()" id="editModeBtn">✏️ Edit Categories</button>
       <button class="light" id="btnRefreshLists" onclick="applyRecommendedLists()">✨ Update to recommended lists</button>
+      <button class="light" id="btnTutors" onclick="showTutorPanel()">📚 Tutors</button>
       <button class="light" id="btnRules" onclick="showRulesPanel()">📜 House rules</button>
       <button class="light" id="btnHowItWorks" onclick="openHowItWorks()">❓ How this works</button>
       <button class="light" id="btnResetDay" onclick="resetDay()">↻ Reset today</button>
@@ -1034,9 +1081,8 @@
           <p class="small" style="margin:0">Invite someone to this family:</p>
           <button class="light" id="inviteParentBtn" style="width:100%" onclick="createParentInvite('parent')">🔗 Invite another parent</button>
           <button class="light" id="inviteFamilyBtn" style="width:100%" onclick="createParentInvite('family')">👪 Invite a grandparent, uncle or aunty</button>
-          <button class="light" id="inviteTutorBtn" style="width:100%" onclick="createParentInvite('tutor')">📚 Invite a tutor</button>
           <p class="small" style="margin:0">A grandparent, uncle or aunty can see the children’s names and weekly points, give each child up to 10 points a week, and offer them a shared goal or a gift. They can’t take points away, change rewards, or see your own list.</p>
-          <p class="small" style="margin:0">A tutor sees only the children you assign them — no photos, no behaviour graphs, no prayer board. They can record up to 5 points once a day for a lesson, and you can undo anything they record.</p>
+          <p class="small" style="margin:0">Tutors have their own tab — 📚 Tutors in the menu.</p>
         </div>
         <div id="inviteBox" class="hidden" style="margin-top:12px;background:#eef0ff;border:1px solid #c9cdf5;border-radius:16px;padding:14px;text-align:center">
           <p class="small" style="margin:0 0 6px">Read this out to them. It works once, and lasts fifteen minutes.</p>
@@ -1073,9 +1119,17 @@
     <div id="progressBody" style="margin-top:10px"></div>
   </div>
 
+  <div id="tutorPanel" class="panel hidden">
+    <button class="panelback" onclick="goHome()">← Home</button>
+    <h2>📚 Tutors</h2>
+    <p class="small">Anyone who teaches one of your children. They see only the children you assign them, record up to 5 points once a day, and everything they record shows on your home screen with an undo.</p>
+    <button class="light" style="width:100%;margin-top:12px" onclick="createParentInvite('tutor')">🔗 Invite a tutor</button>
+    <div id="tutorList" style="display:grid;gap:10px;margin-top:16px"></div>
+  </div>
+
   <div id="quickPanel" class="panel hidden">
     <button class="panelback" onclick="goHome()">← Home</button>
-    <h2>⚡ Quick award</h2>
+    <h2>🔥 Quick points</h2>
     <p class="small">Everyone on one screen. Tap and it’s recorded — no need to open anyone’s card.</p>
     <div class="notebox">
       <input id="quickNote" placeholder="What did you notice? (optional — they’ll read this)" oninput="renderQuickPanel()">
@@ -2299,6 +2353,33 @@ const KIND_TO_GROUP = {
   "sometimes":"sweets", "screen time":"screen",
   "rest":"rest", "time":"time", "small":"small", "romance":"justus"
 };
+/* A colour per section, so the list can be read at arm's length. Sugary things
+   are red on purpose: a child should be able to see what kind of thing they are
+   choosing before they read the name. */
+const GROUP_COLOUR = {
+  together:"teal", choices:"indigo", healthy:"green", treats:"amber",
+  sweets:"red", screen:"purple", outings:"blue", other:"slate",
+  justus:"rose", rest:"indigo", time:"teal", small:"amber", food:"green",
+  activity:"violet"
+};
+function tileColour(item, parentList){
+  if(item && item.__isGame) return "violet";
+  return GROUP_COLOUR[groupOf(item, parentList)] || "slate";
+}
+/* Most-reached-for first. A list ordered only by price makes a parent scroll
+   past the same four things every evening. */
+function usageCount(name){
+  const f=currentFamily();
+  let n=0;
+  (f?f.children:[]).forEach(c=>(c.activityLog||[]).forEach(e=>{
+    if(e.type==="purchase" && String(e.label||"").endsWith(String(name||""))) n++;
+  }));
+  return n;
+}
+function sortForDisplay(items){
+  return items.slice().map(i=>Object.assign({}, i, {__used:usageCount(i.name)}))
+    .sort((a,b)=> b.__used-a.__used || a.points-b.points);
+}
 function groupsFor(parentList){ return parentList ? PARENT_GROUPS : REWARD_GROUPS; }
 function groupOf(item, parentList){
   const groups=groupsFor(parentList);
@@ -2554,7 +2635,7 @@ const TIP_CATS = [
   {key:"behaviour", label:"Behaviour"}
 ];
 
-const APP_VERSION = "v64";
+const APP_VERSION = "v65";
 const today = new Date().toISOString().slice(0,10);
 let app = {families:[],currentFamily:null,currentChild:null};
 let categories = [];
@@ -3386,6 +3467,49 @@ function topActionsForFamily(limit){
   }
   return picked;
 }
+function showTutorPanel(){ openPanel("tutorPanel"); renderTutorPanel(); }
+function renderTutorPanel(){
+  const list=document.getElementById("tutorList");
+  if(!list) return;
+  const f=currentFamily();
+  const tutors=f ? f.children.filter(isTutorRole) : [];
+  if(!tutors.length){
+    list.innerHTML='<p class="small">No tutors yet. Invite one above \u2014 they make their own account with the code, so you never hold their password.</p>';
+    return;
+  }
+  const weekDates=getCurrentWeekDates();
+  list.innerHTML = tutors.map(t=>{
+    const mine=assignedChildIds(t).map(id=>memberById(id)).filter(Boolean);
+    const recent=[];
+    (f.children.filter(isChildRole)||[]).forEach(c=>(c.activityLog||[]).forEach(e=>{
+      if(e.byUid===t.id && e.type==="award") recent.push({c, e});
+    }));
+    recent.sort((a,b)=>b.e.ts-a.e.ts);
+    const thisWeek=recent.filter(r=>tsToDateStr(r.e.ts)>=weekDates[0]).length;
+    return `<section class="card">
+      <div class="cardhead"><div>
+        <div class="icon">\ud83d\udcda</div>
+        <h2 style="margin:0">${escapeHtml(t.name)}</h2>
+        <p style="margin:2px 0 0">${escapeHtml(relationLabel(t))}${t.email?" \u00b7 "+escapeHtml(t.email):""}</p>
+      </div><div class="points">${thisWeek} this week</div></div>
+      <p class="small" style="margin:12px 0 6px"><strong>Teaches:</strong> ${mine.length
+        ? mine.map(c=>escapeHtml(c.name)).join(", ")
+        : "nobody yet \u2014 assign a child below"}</p>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">
+        <button class="light" style="width:auto" onclick="assignTutorChildren('${t.id}')">\ud83d\udc65 Choose their children</button>
+        <button class="xbtn" style="width:auto" onclick="removeMember('${t.id}')">\u2715 Remove</button>
+      </div>
+      <p class="small" style="margin:14px 0 6px"><strong>Lately</strong></p>
+      <div style="display:grid;gap:7px">${recent.length
+        ? recent.slice(0,5).map(r=>`<div class="logrow"><div>
+            <div>${escapeHtml(r.e.label)}</div>
+            <div class="logmeta">${escapeHtml(r.c.name)} \u00b7 +${r.e.points} \u00b7 ${
+              new Date(r.e.ts).toLocaleDateString(undefined,{weekday:"short",day:"numeric",month:"short"})}</div>
+          </div></div>`).join("")
+        : '<p class="small">Nothing recorded yet.</p>'}</div>
+    </section>`;
+  }).join("");
+}
 function showQuickPanel(){ openPanel("quickPanel"); renderQuickPanel(); }
 function renderQuickPanel(){
   const body=document.getElementById("quickBody");
@@ -3408,6 +3532,7 @@ function renderQuickPanel(){
         const done = a.opts.once && valueFor(s, a.cat, a.name) > 0;
         return `<button class="quickact ${done?"ticked":""}" ${done?"disabled":""}
           onclick="quickAward('${c.id}',${a.ci},'${String(a.name).replace(/'/g,"\\'")}',${a.points})">
+          <span class="qflame"></span>
           <span class="qname">${escapeHtml(a.name)}</span>
           <span class="qpts">${done?"\u2713":"+"+a.points}</span></button>`;
       }).join("")}</div>
@@ -3479,7 +3604,7 @@ function renderReviewPanel(){
      <section class="card" style="border-top-color:#e0b13c">
        <h2 style="margin:0 0 4px">\u{1f64b} Anything I missed?</h2>
        <p class="small" style="margin:0">Ask them now. This is the moment for it \u2014 not when you\u2019re awarding. If they\u2019re right, add it while you\u2019re sitting together.</p>
-       <button class="primary" style="margin-top:12px;width:100%" onclick="showQuickPanel()">\u26a1 Add something now</button>
+       <button class="primary" style="margin-top:12px;width:100%" onclick="showQuickPanel()">\ud83d\udd25 Add something now</button>
      </section>`;
 }
 
@@ -3538,7 +3663,7 @@ const RULES_GROWN = `
     <div class="rule"><span class="rn">4</span><div><strong>Use the note.</strong>
       \u201cUse kind words +2\u201d is a scoreboard. \u201cFor how you were with your sister when she was upset\u201d is being noticed. It takes five seconds and does most of the work.</div></div>
     <div class="rule"><span class="rn">5</span><div><strong>One pass a day, on one screen.</strong>
-      Quick award has every child and your most-used actions together. Do the day in thirty seconds rather than four separate journeys.</div></div>
+      Quick points has every child and your most-used actions together. Do the day in thirty seconds rather than four separate journeys.</div></div>
     <div class="rule"><span class="rn">6</span><div><strong>Hold a weekly review.</strong>
       Go through the week together and end with \u201canything I missed?\u201d. It gives the arguing a legitimate home, once, instead of at every award.</div></div>
     <div class="rule"><span class="rn">7</span><div><strong>Be boringly consistent.</strong>
@@ -4581,8 +4706,11 @@ function prayerTodayHTML(child){
 function prayerWallHTML(child, days, forChild){
   if(!prayerBoardEnabled()) return "";
   const grid=prayerGrid(child, days);
-  const head=grid.map(g=>`<span class="pwd ${g.complete?"gold":""}">${
-    days>10 ? g.d.getDate() : g.d.toLocaleDateString(undefined,{weekday:"short"}).slice(0,2)}</span>`).join("");
+  // At a month's width there is no room for thirty labels, so only the Mondays
+  // are named \u2014 enough to place a column without overflowing the card.
+  const head=grid.map((g,i)=>`<span class="pwd ${g.complete?"gold":""}">${
+    days>10 ? (g.d.getDay()===1 ? g.d.getDate() : "")
+            : g.d.toLocaleDateString(undefined,{weekday:"short"}).slice(0,2)}</span>`).join("");
   const rows=PRAYERS.map((p,i)=>`<div class="pwrow"><span class="pwname">${p.label}</span>
       <div class="pwcells">${grid.map(g=>`<span class="pwcell ${g.excused?"exc":(g.done[i]?"on":"")}" title="${
         g.d.toLocaleDateString(undefined,{weekday:"long",day:"numeric",month:"short"})} \u2014 ${
@@ -4621,7 +4749,7 @@ async function toggleExcusedToday(childId){
    Before this, visibility was decided in five different functions and no single
    place could tell you what was open. screenNow === null means the home screen
    for whoever is signed in: the parent dashboard, or the child's own card. */
-const SCREENS = ["accountPanel","overviewPanel","activityPanel","requestsPanel","progressPanel","rewardsPanel","grownupsPanel","pickPanel","quickPanel","reviewPanel","rulesPanel",
+const SCREENS = ["accountPanel","overviewPanel","activityPanel","requestsPanel","progressPanel","rewardsPanel","grownupsPanel","pickPanel","quickPanel","reviewPanel","rulesPanel","tutorPanel",
                  "kidSpendScreen","kidLearnScreen","kidPointsScreen"];
 let screenNow = null;
 function showScreen(id){
@@ -5345,6 +5473,31 @@ function renderGameNight(){
 }
 
 /* ---------- Rewards (data-driven, editable) ---------- */
+/* Changing a price used to mean removing the reward and adding it again, which
+   also lost its section and its limit. */
+async function setRewardPoints(id, value){
+  if(!requireParent()) return;
+  const n=parseInt(value,10);
+  const r=(app.rewards||[]).find(x=>x.id===id);
+  if(!r) return;
+  if(Number.isNaN(n) || n<1){ alert("Give it at least one point."); renderRewardManageList(); return; }
+  if(r.points===n) return;
+  r.points=n;
+  app.settings=app.settings||{}; app.settings.rewardsEditedTs=Date.now();
+  await saveApp();
+  renderRewardManageList();
+}
+async function setGamePoints(id, value){
+  if(!requireParent()) return;
+  const n=parseInt(value,10);
+  const g=(app.gameNightActivities||[]).find(x=>x.id===id);
+  if(!g) return;
+  if(Number.isNaN(n) || n<1){ alert("Give it at least one point."); renderGameNight(); return; }
+  if(g.points===n) return;
+  g.points=n;
+  await saveApp();
+  renderGameNight();
+}
 function renderRewardManageList(){
   const wrap=document.getElementById("rewardManageList");
   if(!wrap) return;
@@ -5364,8 +5517,13 @@ function renderRewardManageList(){
         <div><strong>${escapeHtml(r.name)}</strong> <span class="points" style="font-size:12px">${r.points} pts</span></div>
         ${r.kind?`<div class="small" style="margin-top:2px">${escapeHtml(r.kind)}</div>`:""}
       </div>`;
+    const pts=document.createElement("input");
+    pts.type="number"; pts.min="1"; pts.value=r.points; pts.className="ptsinput";
+    pts.title="Change the points";
+    pts.onchange=()=>setRewardPoints(r.id, pts.value);
+    row.appendChild(pts);
     const btn=document.createElement("button");
-    btn.className="xbtn"; btn.textContent="✕ Remove";
+    btn.className="xbtn"; btn.textContent="✕";
     btn.title="Take this off the list";
     btn.onclick=()=>removeRewardById(r.id);
     row.appendChild(btn);
@@ -5913,6 +6071,8 @@ function gameEyebrowText(){
   const games=app.gameNightActivities||[];
   const reqs=(app.requests||[]).filter(r=>r.type==="game");
   const lastBuy=reqs.length?daysSince(reqs[0].ts):null;
+  if(!games.length)
+    return "0 activities here. Add a few \u2014 an activity costs you time rather than money, which makes it the cheapest thing on the list.";
   if(games.length<3)
     return "Only "+games.length+" activit"+(games.length===1?"y":"ies")+" here. A few more choices makes the pick feel like a real decision.";
   if(games.every(g=>g.points===games[0].points))
@@ -6246,7 +6406,7 @@ function applyRoleChrome(){
   set("cards", !kid);
   set("championBanner", !kid && app.settings && app.settings.showChampion);
   // Parent-only controls and sections
-  ["btnFamily","btnOverview","btnActivity","btnRequests","btnProgress","btnRewardsMenu","btnGrownups","editModeBtn","btnResetDay"]
+  ["btnFamily","btnOverview","btnActivity","btnRequests","btnProgress","btnRewardsMenu","btnGrownups","btnTutors","btnRules","editModeBtn","btnResetDay"]
     .forEach(id=>set(id, !kid));
   // One Give points and one menu: the wide tile on the home screen, and the
   // fixed button. The pair inside the old account bar were the duplicates.
@@ -6283,7 +6443,7 @@ function applyRoleChrome(){
   if(fam){
     // A grandparent gets one screen and no machinery: no menu, no panels, no
     // category tiles, and nothing that could move a point.
-    ["accountPanel","overviewPanel","activityPanel","requestsPanel","progressPanel","quickPanel","reviewPanel","addCategoryWrap","summarySection",
+    ["accountPanel","overviewPanel","activityPanel","requestsPanel","progressPanel","quickPanel","reviewPanel","tutorPanel","rulesPanel","addCategoryWrap","summarySection",
      "cards","rewardSection","gameNightSection","parentRewardSection","requestsBanner","behaviourWrap",
      "editModeNote","tipsCard","undoBar","whoStrip","championBanner","coachNudge","parentGoal","kidTabBar","championFab"]
       .forEach(id=>set(id, false));
@@ -6512,20 +6672,18 @@ function grownupsCardHTML(parent){
     <div style="margin-top:14px;padding-top:14px;border-top:1px solid #e6e8f0">
       <p class="small" style="margin:0 0 8px"><strong>What you can ask for</strong>${
         myPending?` \u00b7 ${myPending} pts already awaiting a decision`:""}</p>
-      <div class="chiprow">${app.parentRewards.length
-        ? PARENT_GROUPS.map(g=>{
-            const mine=app.parentRewards.filter(r=>groupOf(r,true)===g.id).sort((a,b)=>a.points-b.points);
-            if(!mine.length) return "";
-            return `<p class="chipgroup secthead">${g.icon} ${g.name}</p>`
-              + (g.blurb?`<p class="sectblurb">${g.blurb}</p>`:"")
-              + mine.map(r=>{
-                  const can = spendable >= r.points;
-                  return `<button class="chip ${can?"afford":""}" ${can?"":"disabled"} onclick="parentRequestReward('${r.id}')">
-                    ${can?"":'<span class="lock">\ud83d\udd12</span>'}
-                    <span class="cicon">${iconFor(r,"\ud83c\udf81")}</span>
-                    <span class="cbody"><span class="cname">${escapeHtml(r.name)}</span>
-                    <span class="cprice">${r.points} points</span></span></button>`;
-                }).join("");
+      <div class="tilelist">${app.parentRewards.length
+        ? sortForDisplay(app.parentRewards).map((r,idx)=>{
+            const can = spendable >= r.points;
+            const g = groupById(groupOf(r,true), true);
+            return `<button class="tile c-${tileColour(r,true)} ${can?"afford":"locked"}"
+                style="animation-delay:${Math.min(idx,12)*28}ms"
+                ${can?"":"disabled"} onclick="parentRequestReward('${r.id}')">
+              <span class="tileicon">${iconFor(r,"\ud83c\udf81")}</span>
+              <span class="tilebody"><span class="tilename">${escapeHtml(r.name)}</span>
+                <span class="tilemeta">${escapeHtml(g?g.name:(r.kind||""))}</span></span>
+              <span class="tilepts">${r.points}</span>
+            </button>`;
           }).join("")
         : '<p class="small">\ud83d\udc9b No grown-up rewards yet \u2014 add two or three. Partners rarely thank each other out loud.</p>'}</div>
       <p class="small" style="margin:10px 0 0">Your partner decides \u2014 you can\u2019t approve your own.</p>
@@ -6540,9 +6698,15 @@ function grownupsCardHTML(parent){
 function renderParentAdminView(parent){
   const cards=document.getElementById("cards");
   document.getElementById("behaviourWrap").classList.add("hidden");
+  // These live inside their own screens now. Hiding them on every render meant
+  // that adding a reward \u2014 which re-renders \u2014 made the editor vanish mid-edit.
+  const openPanelNow = screenNow;
   ["rewardSection","gameNightSection","parentRewardSection"].forEach(id=>{
     const el=document.getElementById(id);
-    if(el) el.classList.add("hidden");
+    if(!el) return;
+    const inOpenPanel = openPanelNow && el.closest && el.closest(".panel")
+      && el.closest(".panel").id === openPanelNow;
+    el.classList.toggle("hidden", !inOpenPanel);
   });
   const f=currentFamily();
   const kids = f ? f.children.filter(c=>isChildRole(c)) : [];
@@ -6564,7 +6728,7 @@ function renderParentAdminView(parent){
               ? kids.length+" child"+(kids.length===1?"":"ren")+" \u00b7 "+weekTotal+" points this week"
               : "Add a child to get started"}</span></span>
         </button>
-        ${tile("\u26a1","Quick award","Everyone on one screen","showQuickPanel()")}
+        ${tile("\ud83d\udd25","Quick points","Everyone on one screen","showQuickPanel()")}
         ${tile("\ud83d\udde3\ufe0f","Review together","Go through the week with them","showReviewPanel()")}
         ${tile("\ud83d\udd14","Requests", pend.length?pend.length+" waiting on you":"Nothing waiting","showRequestsPanel()", pend.length||0)}
         ${tile("\ud83d\udcd6","Progress","Qur\u2019an and what they can do","showProgressPanel()")}
@@ -7186,18 +7350,22 @@ function renderKidView(child){
 
   // Reward + activity chips
   const bal=availableFor(child);
-  const chip=(item,type)=>{
-    const can=bal>=item.points;
-    const blurb = item.desc || item.kind || "";
-    return `<button class="chip ${can?"afford":""}" ${can?"":"disabled"} onclick="kidBuy('${type}','${item.id}')">
-      ${can?"":'<span class="lock">\ud83d\udd12</span>'}
-      <span class="cicon">${iconFor(item, type==="game" ? "\ud83c\udfb2" : "\ud83c\udf81")}</span>
-      <span class="cbody">
-        <span class="cname">${escapeHtml(item.name)}</span>
-        <span class="cprice">${item.points} points</span>
-        ${blurb?`<span class="ckind">${escapeHtml(blurb)}</span>`:""}
-        ${item.limit?`<span class="climit">${LIMIT_LABEL[item.limit]||""}</span>`:""}
+  function chip(item, type, idx){
+    const can = bal >= item.points;
+    const g = item.__isGame ? null : groupById(groupOf(item,false), false);
+    const capLeft = g && g.cap ? Math.max(0, g.cap.max-groupTakenRecently(child, g)) : null;
+    const blocked = capLeft===0;
+    const label = item.__isGame ? "Activity" : (g ? g.name : (item.kind||""));
+    return `<button class="tile c-${tileColour(item,false)} ${can&&!blocked?"afford":"locked"}"
+        style="animation-delay:${Math.min(idx,12)*28}ms"
+        ${can&&!blocked?"":"disabled"} onclick="kidBuy('${type}','${item.id}')">
+      <span class="tileicon">${iconFor(item, item.__isGame?"\ud83c\udfb2":"\ud83c\udf81")}</span>
+      <span class="tilebody">
+        <span class="tilename">${escapeHtml(item.name)}</span>
+        <span class="tilemeta">${escapeHtml(label)}${item.limit?" \u00b7 "+(LIMIT_LABEL[item.limit]||""):""}</span>
+        ${blocked?`<span class="tileblock">none left this ${g.cap.kind}</span>`:""}
       </span>
+      <span class="tilepts">${item.points}</span>
     </button>`;
   };
   /* Lead with what they can actually have. Twenty-two locked cards to scroll
@@ -7206,27 +7374,13 @@ function renderKidView(child){
   /* Sections rather than one long list. A child looking for something sweet
      goes to the sweet section and finds out it is once a week, instead of
      scrolling past thirty things to discover it. */
+  /* One list rather than a page of sections: everything a child can ask for,
+     colour-coded by what kind of thing it is, and ordered by what actually gets
+     chosen. Each one is a button, not a row in a table. */
   function chipList(items, type, showAll, toggleFn, emptyMsg){
     if(!items.length) return '<p class="small">' + emptyMsg + '</p>';
-    if(type !== "reward"){
-      return items.slice().sort((a,b)=>a.points-b.points).map(i=>chip(i,type)).join("");
-    }
-    return REWARD_GROUPS.map(g=>{
-      const mine=items.filter(i=>groupOf(i,false)===g.id).sort((a,b)=>a.points-b.points);
-      if(!mine.length) return "";
-      let note="";
-      if(g.cap){
-        const used=groupTakenRecently(child, g);
-        const left=Math.max(0, g.cap.max-used);
-        const per=g.cap.kind==="week" ? "this week" : "this month";
-        note=`<span class="capnote ${left?"":"spent"}">${left
-          ? left+" of "+g.cap.max+" left "+per
-          : "none left "+per}</span>`;
-      }
-      return `<p class="chipgroup secthead">${g.icon} ${g.name}${note}</p>`
-        + (g.blurb?`<p class="sectblurb">${g.blurb}</p>`:"")
-        + mine.map(i=>chip(i,type)).join("");
-    }).join("");
+    const marked=items.map(i=>type==="game" ? Object.assign({}, i, {__isGame:true}) : i);
+    return sortForDisplay(marked).map((i,idx)=>chip(i,type,idx)).join("");
   }
   document.getElementById("kidRewardChips").innerHTML =
     chipList(app.rewards, "reward", kidShowAllRewards, "toggleAllRewards()",
