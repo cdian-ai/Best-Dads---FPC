@@ -593,6 +593,12 @@
   .chip.afford .cprice{color:#19744a}
   .chip:disabled{opacity:.55;cursor:not-allowed}
   .chipgroup{grid-column:1/-1;margin:6px 0 -2px;font-size:13px;font-weight:800;color:#4b4372}
+  .secthead{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;
+            margin-top:18px;font-size:15px;padding-bottom:6px;border-bottom:2px solid #ececfb}
+  .sectblurb{grid-column:1/-1;margin:2px 0 4px;font-size:12px;color:var(--muted)}
+  .capnote{font-size:11px;font-weight:800;background:#e4f7ed;color:#19744a;
+           padding:3px 9px;border-radius:99px;white-space:nowrap}
+  .capnote.spent{background:#fff0f0;color:#a63e3e}
   .showall{grid-column:1/-1;background:rgba(255,255,255,.7);border:2px dashed #cfc7f7;color:#5b4fc4;
            border-radius:16px;padding:12px;font-weight:700;font-size:14px}
   .showall:hover{background:#fff}
@@ -1706,42 +1712,120 @@ function actionOpts(a){ return (a && typeof a[2] === "object" && a[2]) || {}; }
 const DEFAULT_REWARDS = [
   // Connection — deliberately cheap. These are what we want chosen most often,
   // so the brake on them is a limit, not a price.
-  {name:"Choose what we listen to in the car", points:15, kind:"Time together"},
-  {name:"Choose the bedtime dua and story", points:20, kind:"Bedtime", limit:"day"},
-  {name:"Go to the masjid with Dad", points:25, kind:"Time together"},
-  {name:"Pick the family walk route after Maghrib", points:25, kind:"Outing"},
-  {name:"20 minutes one-to-one with Mum or Dad", points:25, kind:"Time together", limit:"day"},
-  {name:"Choose the family board game", points:30, kind:"Time together"},
-  {name:"Help cook dinner with Mum or Dad", points:30, kind:"Time together"},
-  {name:"Stay up 15 minutes later to talk", points:30, kind:"Bedtime", limit:"week"},
-  {name:"Pick the fruit for the week's shop", points:40, kind:"Food", limit:"week"},
-  {name:"A trip to the park", points:60, kind:"Outing", limit:"week"},
-  {name:"Choose the family meal", points:60, kind:"Food", limit:"week"},
-  {name:"Bake something together \u2014 cookies or cupcakes", points:60, kind:"Food", limit:"week"},
-  {name:"A full hour one-to-one, your choice of what", points:90, kind:"Time together", limit:"week"},
+  {name:"Choose what we listen to in the car", points:15, kind:"Time together", group:"choices"},
+  {name:"Choose the bedtime dua and story", points:20, kind:"Bedtime", limit:"day", group:"together"},
+  {name:"Go to the masjid with Dad", points:25, kind:"Time together", group:"together"},
+  {name:"Pick the family walk route after Maghrib", points:25, kind:"Outing", group:"together"},
+  {name:"20 minutes one-to-one with Mum or Dad", points:25, kind:"Time together", limit:"day", group:"together"},
+  {name:"Choose the family board game", points:30, kind:"Time together", group:"choices"},
+  {name:"Help cook dinner with Mum or Dad", points:30, kind:"Time together", group:"together"},
+  {name:"Stay up 15 minutes later to talk", points:30, kind:"Bedtime", limit:"week", group:"together"},
+  {name:"Pick the fruit for the week's shop", points:40, kind:"Food", limit:"week", group:"healthy"},
+  {name:"A trip to the park", points:60, kind:"Outing", limit:"week", group:"together"},
+  {name:"Choose the family meal", points:60, kind:"Food", limit:"week", group:"choices"},
+  {name:"Bake something together \u2014 cookies or cupcakes", points:60, kind:"Food", limit:"week", group:"together"},
+  {name:"A full hour one-to-one, your choice of what", points:90, kind:"Time together", limit:"week", group:"together"},
   // Everyday treats
-  {name:"Hot chocolate with marshmallows", points:100, kind:"Snack"},
-  {name:"Popcorn for a family film night", points:120, kind:"Snack", limit:"week"},
-  {name:"Pick the pudding for everyone on Friday", points:120, kind:"Food", limit:"week"},
-  {name:"Ice cream or a milkshake after dinner", points:150, kind:"Snack"},
+  {name:"Hot chocolate with marshmallows", points:100, kind:"Snack", group:"treats"},
+  {name:"Popcorn for a family film night", points:120, kind:"Snack", limit:"week", group:"treats"},
+  {name:"Pick the pudding for everyone on Friday", points:120, kind:"Food", limit:"week", group:"treats"},
+  {name:"Ice cream or a milkshake after dinner", points:150, kind:"Snack", group:"treats"},
   // Sometimes food — about a week of consistent effort each, on purpose
-  {name:"A packet of crisps", points:250, kind:"Sometimes"},
-  {name:"A lollipop or a handful of sweets", points:250, kind:"Sometimes"},
-  {name:"A chocolate bar of your choice", points:300, kind:"Sometimes"},
-  {name:"A fizzy drink", points:350, kind:"Sometimes"},
-  {name:"A takeaway or eat-out of your choice", points:400, kind:"Sometimes"},
+  {name:"A packet of crisps", points:250, kind:"Sometimes", group:"sweets"},
+  {name:"A lollipop or a handful of sweets", points:250, kind:"Sometimes", group:"sweets"},
+  {name:"A chocolate bar of your choice", points:300, kind:"Sometimes", group:"sweets"},
+  {name:"A fizzy drink", points:350, kind:"Sometimes", group:"sweets"},
+  {name:"A takeaway or eat-out of your choice", points:400, kind:"Sometimes", group:"treats"},
   // Big things
-  {name:"A film night, you choose the film", points:200, kind:"Time together", limit:"week"},
-  {name:"Extra 30 minutes of screen time", points:300, kind:"Screen time"},
-  {name:"Soft play or a trampoline park", points:500, kind:"Event"},
-  {name:"A day out of your choosing", points:750, kind:"Event"},
-  {name:"A small gift you've chosen", points:1000, kind:"Event"}
+  {name:"A film night, you choose the film", points:200, kind:"Time together", limit:"week", group:"screen"},
+  {name:"Extra 30 minutes of screen time", points:300, kind:"Screen time", group:"screen"},
+  {name:"Soft play or a trampoline park", points:500, kind:"Event", group:"outings"},
+  {name:"A day out of your choosing", points:750, kind:"Event", group:"outings"},
+  {name:"A small gift you've chosen", points:1000, kind:"Event", group:"outings"}
 ];
 
 /* How often a reward may be taken. The price says how much it is worth; the
    limit says how often you can face doing it. Cheap-and-limited is a different
    thing from expensive, and for anything that costs a parent an afternoon it is
    the one that is actually meant. */
+/* Rewards in sections, with a ceiling on each one. A per-item limit stops a
+   child asking for the same thing daily; a per-section cap stops them working
+   round it by asking for a different sweet thing every day instead. The caps
+   sit exactly where the health argument does. */
+const REWARD_GROUPS = [
+  { id:"together", icon:"\u{1f90d}", name:"Time together",
+    blurb:"The best things on the list, and the cheapest.", cap:null },
+  { id:"choices", icon:"\u{1f3b2}", name:"Your choice",
+    blurb:"Picking what the family does.", cap:null },
+  { id:"healthy", icon:"\u{1f34e}", name:"Good picks",
+    blurb:"Nothing to feel bad about.", cap:null },
+  { id:"treats", icon:"\u{1f368}", name:"Treats",
+    blurb:"Puddings, popcorn, hot chocolate.", cap:{max:2, kind:"week"} },
+  { id:"sweets", icon:"\u{1f36b}", name:"Sweet things",
+    blurb:"The rare ones. Worth saving for.", cap:{max:1, kind:"week"} },
+  { id:"screen", icon:"\u{1f4fa}", name:"Screen and games",
+    blurb:"Extra time, and film nights.", cap:{max:1, kind:"week"} },
+  { id:"outings", icon:"\u{1f3aa}", name:"Days out",
+    blurb:"The big ones. These take a while to save for.", cap:{max:1, kind:"month"} },
+  { id:"other", icon:"\u2b50", name:"Everything else", blurb:"", cap:null }
+];
+const PARENT_GROUPS = [
+  { id:"justus", icon:"\u2764\ufe0f", name:"Just us",
+    blurb:"The two of you, with nobody else needing anything.", cap:null },
+  { id:"rest", icon:"\u{1f634}", name:"Rest",
+    blurb:"Sleep, and being off duty.", cap:null },
+  { id:"time", icon:"\u23f3", name:"Time to yourself",
+    blurb:"Hours that are yours alone.", cap:null },
+  { id:"small", icon:"\u{1f49b}", name:"Small kindnesses",
+    blurb:"Cheap, and worth more than they cost.", cap:null },
+  { id:"food", icon:"\u{1f37d}\ufe0f", name:"Food",
+    blurb:"Someone else deciding, or cooking.", cap:null },
+  { id:"other", icon:"\u2b50", name:"Everything else", blurb:"", cap:null }
+];
+/* A reward a family wrote themselves has no section, so one is inferred from
+   its description rather than dropping it into "everything else". */
+const KIND_TO_GROUP = {
+  "time together":"together", "bedtime":"together", "outing":"outings",
+  "event":"outings", "snack":"treats", "food":"healthy", "treat":"treats",
+  "sometimes":"sweets", "screen time":"screen",
+  "rest":"rest", "time":"time", "small":"small", "romance":"justus"
+};
+function groupsFor(parentList){ return parentList ? PARENT_GROUPS : REWARD_GROUPS; }
+function groupOf(item, parentList){
+  const groups=groupsFor(parentList);
+  const direct=item && item.group;
+  if(direct && groups.some(g=>g.id===direct)) return direct;
+  const k=String((item&&item.kind)||"").trim().toLowerCase();
+  const mapped=KIND_TO_GROUP[k];
+  if(mapped && groups.some(g=>g.id===mapped)) return mapped;
+  return "other";
+}
+function groupById(id, parentList){
+  return groupsFor(parentList).find(g=>g.id===id) || null;
+}
+/* How many from this section have already gone this week or month. Counted from
+   the ledger, same as the per-item limit, so a pending request counts too. */
+function groupTakenRecently(child, group){
+  if(!group || !group.cap || !child) return 0;
+  const since=limitWindowStart(group.cap.kind);
+  const names=(app.rewards||[]).filter(r=>groupOf(r,false)===group.id).map(r=>String(r.name||""));
+  if(!names.length) return 0;
+  const taken=(child.activityLog||[]).filter(e =>
+    e.type==="purchase" && e.ts>=since && names.some(n=>String(e.label||"").endsWith(n))).length;
+  const pending=(app.requests||[]).filter(r =>
+    r.childId===child.id && r.status==="pending" && names.indexOf(r.itemName)>=0).length;
+  return taken + pending;
+}
+function groupCapMessage(child, item){
+  const g=groupById(groupOf(item,false), false);
+  if(!g || !g.cap) return null;
+  const used=groupTakenRecently(child, g);
+  if(used < g.cap.max) return null;
+  const per = g.cap.kind==="week" ? "a week" : g.cap.kind==="month" ? "a month" : "a day";
+  return g.cap.max===1
+    ? "\u201c"+g.name+"\u201d is one "+per+", and you\u2019ve had yours. It comes round again soon \u2014 have a look at the other sections in the meantime."
+    : "You\u2019ve had your "+g.cap.max+" from \u201c"+g.name+"\u201d this "+(g.cap.kind==="week"?"week":"month")+". Plenty left in the other sections!";
+}
 const LIMIT_LABEL = { day:"once a day", week:"once a week", month:"once a month" };
 function limitWindowStart(kind){
   const d=new Date();
@@ -1773,7 +1857,7 @@ function limitReachedMessage(child, item){
 /* Food and snack treats parents can add with one tap./* Food and snack treats parents can add with one tap. Deliberately small,
    cheap and everyday — the point is a quick, frequent win, not an expense. */
 const SNACK_EXAMPLES = [
-  {name:"Pick the fruit for the week's shop", points:40, kind:"Food", limit:"week"},
+  {name:"Pick the fruit for the week's shop", points:40, kind:"Food", limit:"week", group:"healthy"},
   {name:"Hot chocolate with marshmallows", points:100, kind:"Snack"},
   {name:"Popcorn for a family film night", points:120, kind:"Snack", limit:"week"},
   {name:"Pick the pudding for everyone on Friday", points:120, kind:"Food", limit:"week"},
@@ -1798,12 +1882,34 @@ const DEFAULT_PARENT_CATEGORIES = [
    actions:[["Backed the other's decision in the moment",3],["Disagreed privately, not in front of them",4],["Praised the other where the children could hear",3]]}
 ];
 const DEFAULT_PARENT_REWARDS = [
-  {name:"A lie-in this weekend", points:30, kind:"Rest"},
-  {name:"An evening entirely off duty", points:40, kind:"Rest"},
-  {name:"Pick the takeaway, no debate", points:25, kind:"Food"},
-  {name:"Two hours out on your own", points:45, kind:"Time"},
-  {name:"They do bedtime all week", points:70, kind:"Rest"},
-  {name:"A night out with friends, no logistics to sort", points:90, kind:"Time"}
+  // Just us \u2014 the section most couples never get round to asking for out loud.
+  {name:"A handwritten note about something you appreciate", points:15, kind:"Romance", group:"justus"},
+  {name:"Tea together once they\u2019re asleep \u2014 no admin talk", points:20, kind:"Romance", group:"justus"},
+  {name:"A long walk together after Isha", points:25, kind:"Romance", group:"justus"},
+  {name:"You pick the film, we watch it properly", points:25, kind:"Romance", group:"justus"},
+  {name:"An evening with both phones in another room", points:30, kind:"Romance", group:"justus"},
+  {name:"A shoulder rub, no rushing", points:30, kind:"Romance", group:"justus"},
+  {name:"Flowers, unprompted", points:35, kind:"Romance", group:"justus"},
+  {name:"Breakfast in bed, together", points:40, kind:"Romance", group:"justus"},
+  {name:"Look through old photos together", points:25, kind:"Romance", group:"justus"},
+  {name:"Plan something for us and surprise me", points:80, kind:"Romance", group:"justus"},
+  {name:"A proper date night \u2014 just the two of us", points:90, kind:"Romance", group:"justus"},
+  {name:"Dinner out, no children, no phones", points:110, kind:"Romance", group:"justus"},
+  {name:"Get dressed up and go somewhere nice", points:120, kind:"Romance", group:"justus"},
+  {name:"A night away, just us", points:250, kind:"Romance", group:"justus"},
+  // Rest
+  {name:"A lie-in this weekend", points:30, kind:"Rest", group:"rest"},
+  {name:"An evening entirely off duty", points:40, kind:"Rest", group:"rest"},
+  {name:"They do bedtime all week", points:70, kind:"Rest", group:"rest"},
+  // Time to yourself
+  {name:"Two hours out on your own", points:45, kind:"Time", group:"time"},
+  {name:"A whole Saturday morning to yourself", points:60, kind:"Time", group:"time"},
+  {name:"A night out with friends, no logistics to sort", points:90, kind:"Time", group:"time"},
+  // Small kindnesses
+  {name:"Control of the remote for the night", points:15, kind:"Small", group:"small"},
+  {name:"Breakfast made for you", points:20, kind:"Food", group:"small"},
+  // Food
+  {name:"Pick the takeaway, no debate", points:25, kind:"Food", group:"food"}
 ];
 
 /* Rewards mean more to a child as a picture than as a line of text. Rather than
@@ -1939,7 +2045,7 @@ const TIP_CATS = [
   {key:"behaviour", label:"Behaviour"}
 ];
 
-const APP_VERSION = "v59";
+const APP_VERSION = "v60";
 const today = new Date().toISOString().slice(0,10);
 let app = {families:[],currentFamily:null,currentChild:null};
 let categories = [];
@@ -3649,9 +3755,23 @@ async function applyRecommendedLists(){
       if(found.points!==dr.points){ found.points=dr.points; repriced++; }
       if(dr.limit) found.limit=dr.limit;
       if(dr.kind) found.kind=dr.kind;
+      if(dr.group) found.group=dr.group;
     }
   });
   app.rewards.sort((a,b)=>a.points-b.points);
+  // The grown-ups' list gains its sections too, and the "just us" ones a family
+  // never thought to write down.
+  DEFAULT_PARENT_REWARDS.forEach(dp=>{
+    const found=(app.parentRewards||[]).find(r=>normKey(r.name)===normKey(dp.name));
+    if(!found){
+      app.parentRewards.push(Object.assign({id:"pr"+Math.abs(hashString(dp.name)).toString(16)}, dp));
+      repriced++;
+    }else{
+      if(dp.group) found.group=dp.group;
+      if(dp.kind) found.kind=dp.kind;
+    }
+  });
+  app.parentRewards.sort((a,b)=>a.points-b.points);
   app.settings=app.settings||{}; app.settings.rewardsEditedTs=Date.now();
   await saveApp();
   render();
@@ -4566,17 +4686,13 @@ async function parentRequestReward(id){
 }
 /* Ideas a parent can add with one tap, so the list never starts empty and
    nobody has to invent rewards on the spot. */
-const PARENT_REWARD_IDEAS = [
-  {name:"A lie-in this weekend", points:30, kind:"Rest"},
-  {name:"An evening entirely off duty", points:40, kind:"Rest"},
-  {name:"Pick the takeaway, no debate", points:25, kind:"Food"},
-  {name:"Two hours out on your own", points:45, kind:"Time"},
-  {name:"They do bedtime all week", points:70, kind:"Rest"},
-  {name:"A night out with friends, no logistics to sort", points:90, kind:"Time"},
-  {name:"Control of the remote for the night", points:15, kind:"Small"},
-  {name:"Breakfast made for you", points:20, kind:"Food"},
-  {name:"A whole Saturday morning to yourself", points:60, kind:"Time"}
-];
+const PARENT_REWARD_IDEAS = JSON.parse(JSON.stringify(DEFAULT_PARENT_REWARDS)).concat([
+  {name:"Pray Fajr together and stay up for a bit", points:35, kind:"Romance", group:"justus"},
+  {name:"Cook something together, properly, not in a rush", points:45, kind:"Romance", group:"justus"},
+  {name:"A morning off with no plans at all", points:55, kind:"Time", group:"time"},
+  {name:"You handle every message and appointment this week", points:65, kind:"Small", group:"small"},
+  {name:"A whole night\u2019s unbroken sleep \u2014 I\u2019ll do the night", points:80, kind:"Rest", group:"rest"}
+]);
 function renderParentRewards(){
   const wrap=document.getElementById("parentRewardList");
   if(!wrap) return;
@@ -5531,14 +5647,19 @@ function grownupsCardHTML(parent){
       <p class="small" style="margin:0 0 8px"><strong>What you can ask for</strong>${
         myPending?` \u00b7 ${myPending} pts already awaiting a decision`:""}</p>
       <div class="chiprow">${app.parentRewards.length
-        ? app.parentRewards.slice().sort((a,b)=>a.points-b.points).map(r=>{
-            const can = spendable >= r.points;
-            return `<button class="chip ${can?"afford":""}" ${can?"":"disabled"} onclick="parentRequestReward('${r.id}')">
-              ${can?"":'<span class="lock">\ud83d\udd12</span>'}
-              <span class="cicon">${iconFor(r,"\ud83c\udf81")}</span>
-              <span class="cbody"><span class="cname">${escapeHtml(r.name)}</span>
-              <span class="cprice">${r.points} points</span>
-              ${r.kind?`<span class="ckind">${escapeHtml(r.kind)}</span>`:""}</span></button>`;
+        ? PARENT_GROUPS.map(g=>{
+            const mine=app.parentRewards.filter(r=>groupOf(r,true)===g.id).sort((a,b)=>a.points-b.points);
+            if(!mine.length) return "";
+            return `<p class="chipgroup secthead">${g.icon} ${g.name}</p>`
+              + (g.blurb?`<p class="sectblurb">${g.blurb}</p>`:"")
+              + mine.map(r=>{
+                  const can = spendable >= r.points;
+                  return `<button class="chip ${can?"afford":""}" ${can?"":"disabled"} onclick="parentRequestReward('${r.id}')">
+                    ${can?"":'<span class="lock">\ud83d\udd12</span>'}
+                    <span class="cicon">${iconFor(r,"\ud83c\udf81")}</span>
+                    <span class="cbody"><span class="cname">${escapeHtml(r.name)}</span>
+                    <span class="cprice">${r.points} points</span></span></button>`;
+                }).join("");
           }).join("")
         : '<p class="small">\ud83d\udc9b No grown-up rewards yet \u2014 add two or three. Partners rarely thank each other out loud.</p>'}</div>
       <p class="small" style="margin:10px 0 0">Your partner decides \u2014 you can\u2019t approve your own.</p>
@@ -5702,7 +5823,7 @@ async function kidBuy(type, id){
     ? app.rewards.find(r=>r.id===id)
     : app.gameNightActivities.find(g=>g.id===id);
   if(!item) return;
-  const blocked=limitReachedMessage(child, item);
+  const blocked=limitReachedMessage(child, item) || (type==="reward" ? groupCapMessage(child, item) : null);
   if(blocked){ alert(blocked); return; }
   const price=item.points||0;
   const spendable=availableFor(child);
@@ -6213,25 +6334,30 @@ function renderKidView(child){
   /* Lead with what they can actually have. Twenty-two locked cards to scroll
      through is discouraging; what they can get now, plus the next few to aim
      for, is the useful view. Everything else is one tap away. */
+  /* Sections rather than one long list. A child looking for something sweet
+     goes to the sweet section and finds out it is once a week, instead of
+     scrolling past thirty things to discover it. */
   function chipList(items, type, showAll, toggleFn, emptyMsg){
     if(!items.length) return '<p class="small">' + emptyMsg + '</p>';
-    const sorted = items.slice().sort((a,b)=>a.points-b.points);
-    const afford = sorted.filter(i=>bal >= i.points);
-    const locked = sorted.filter(i=>bal < i.points);
-    if(showAll) return sorted.map(i=>chip(i,type)).join("")
-      + `<button class="showall" onclick="${toggleFn}">Show fewer</button>`;
-    const nextUp = locked.slice(0, afford.length ? 2 : 3);
-    const hidden = sorted.length - afford.length - nextUp.length;
-    let html = "";
-    if(afford.length){
-      html += `<p class="chipgroup">\u2705 You can get these now</p>` + afford.map(i=>chip(i,type)).join("");
+    if(type !== "reward"){
+      return items.slice().sort((a,b)=>a.points-b.points).map(i=>chip(i,type)).join("");
     }
-    if(nextUp.length){
-      html += `<p class="chipgroup">\ud83c\udfaf ${afford.length ? "Next to aim for" : "Closest to reach"}</p>`
-            + nextUp.map(i=>chip(i,type)).join("");
-    }
-    if(hidden > 0) html += `<button class="showall" onclick="${toggleFn}">Show all ${sorted.length}</button>`;
-    return html;
+    return REWARD_GROUPS.map(g=>{
+      const mine=items.filter(i=>groupOf(i,false)===g.id).sort((a,b)=>a.points-b.points);
+      if(!mine.length) return "";
+      let note="";
+      if(g.cap){
+        const used=groupTakenRecently(child, g);
+        const left=Math.max(0, g.cap.max-used);
+        const per=g.cap.kind==="week" ? "this week" : "this month";
+        note=`<span class="capnote ${left?"":"spent"}">${left
+          ? left+" of "+g.cap.max+" left "+per
+          : "none left "+per}</span>`;
+      }
+      return `<p class="chipgroup secthead">${g.icon} ${g.name}${note}</p>`
+        + (g.blurb?`<p class="sectblurb">${g.blurb}</p>`:"")
+        + mine.map(i=>chip(i,type)).join("");
+    }).join("");
   }
   document.getElementById("kidRewardChips").innerHTML =
     chipList(app.rewards, "reward", kidShowAllRewards, "toggleAllRewards()",
