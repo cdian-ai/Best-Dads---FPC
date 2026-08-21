@@ -170,6 +170,12 @@
   .goalshare img,.goalshare .avatar-placeholder{width:26px;height:26px;border-radius:50%;
              object-fit:cover;font-size:13px;display:flex;align-items:center;justify-content:center}
   .goalshare strong{color:#3e46ad}
+  .yearpick{display:flex;gap:5px;flex-wrap:wrap;margin-top:10px}
+  .yearpick button{width:auto;padding:6px 12px;font-size:12.5px;font-weight:800;
+                   background:rgba(255,255,255,.55);color:#4b4372}
+  .yearpick button.on{background:var(--accent);color:#fff}
+  .objdom{display:inline-block;font-size:10.5px;font-weight:800;color:#6b6f88;
+          background:#eceefa;border-radius:99px;padding:2px 8px;margin-top:4px}
   .strandcard{background:#fff;border-radius:20px;padding:15px;box-shadow:var(--shadow);
               margin-bottom:14px;border-top:5px solid #7c83ef}
   .strandcard summary{cursor:pointer;font-size:13px;font-weight:800;color:#3e46ad;padding:4px 0}
@@ -694,12 +700,16 @@
     </div>
 
     <div id="signUpForm" class="hidden" style="text-align:left;display:grid;gap:8px;margin-top:16px">
-      <p class="small" style="margin:0">This creates a new family and makes you its first parent. Everyone else gets their own login afterwards.</p>
+      <div style="display:flex;gap:8px">
+        <button type="button" id="signupModeNew" class="light selected" style="width:auto;flex:1" onclick="setSignupMode('new')">Start a new family</button>
+        <button type="button" id="signupModeJoin" class="light" style="width:auto;flex:1" onclick="setSignupMode('join')">I have a code</button>
+      </div>
+      <p class="small" id="signupModeNote" style="margin:0">This creates a new family and makes you its first parent. Everyone else gets their own login afterwards.</p>
       <input id="signupFamilyName" type="text" placeholder="Family name (e.g. The Ahmeds)">
       <input id="signupName" type="text" placeholder="Your name (e.g. Sarah)">
       <input id="signupEmail" type="email" placeholder="Email" autocomplete="username">
       <input id="signupPassword" type="password" placeholder="Password" autocomplete="new-password">
-      <div>
+      <div id="signupRoleBox">
         <p class="small" style="margin:0 0 6px">You are...</p>
         <div style="display:flex;gap:8px">
           <button type="button" id="roleMumBtn" class="light" style="width:auto;flex:1" onclick="selectSignupRole('Mum')">Mum</button>
@@ -812,17 +822,12 @@
     <p class="sub">You're signed in as <strong id="noFamilyEmail">—</strong>, but this account isn't in any family yet.</p>
 
     <div style="text-align:left;background:#f7f7ff;border:1px solid #e1e3f4;border-radius:16px;padding:14px;margin-top:16px">
-      <p class="small" style="margin:0 0 6px"><strong>Joining your partner's family?</strong></p>
-      <p class="small" style="margin:0 0 8px">Ask them to open the app, go to <strong>Family members</strong> and tap <strong>Invite another parent</strong>. Type the code they read out below.</p>
+      <p class="small" style="margin:0 0 6px"><strong>Got an invitation code?</strong></p>
+      <p class="small" style="margin:0 0 8px">Parents, grandparents, uncles, aunties and tutors all join this way. The code itself decides which \u2014 a parent generates it under <strong>Family members</strong>, and what they choose there is what you become.</p>
       <input id="joinCodeInput" type="text" placeholder="Code — e.g. K7PM4RQX" autocapitalize="characters" style="text-transform:uppercase;letter-spacing:.1em;font-weight:700">
       <input id="joinPersonName" type="text" placeholder="Your name (e.g. Yusuf)" style="margin-top:8px">
-      <div style="margin-top:8px">
-        <p class="small" style="margin:0 0 6px">You are...</p>
-        <div style="display:flex;gap:8px">
-          <button type="button" id="joinRoleMum" class="light" style="width:auto;flex:1" onclick="selectJoinRole('Mum')">Mum</button>
-          <button type="button" id="joinRoleDad" class="light selected" style="width:auto;flex:1" onclick="selectJoinRole('Dad')">Dad</button>
-        </div>
-      </div>
+      <input id="joinRoleLabel" type="text" placeholder="What should they call you? (e.g. Dad, Grandma, Uncle Yusuf, Qur\u2019an tutor)" style="margin-top:8px">
+      <p class="small" style="margin:6px 0 0">This is the label the family sees next to your name. What you can actually do comes from the code.</p>
       <button class="confirm" style="margin-top:10px;width:100%" id="joinBtn" onclick="submitJoinCode()">Join the family</button>
       <p class="small" id="joinError" style="color:#a63e3e;margin:8px 0 0"></p>
       <p class="small" style="margin:8px 0 0"><strong>Are you a child?</strong> You don't join from here. A parent adds you on their own device and gives you an email and password — sign in with those.</p>
@@ -981,16 +986,16 @@
 
         <div class="catedit hidden" id="addMemberBox" style="margin-top:14px">
           <p class="small" style="margin:0 0 8px"><strong>Add someone new</strong></p>
-          <p class="small" style="margin:0 0 10px">Adding someone here creates their own login, so the app knows who is who. Choose <strong>Child</strong> for anyone who should earn points, and <strong>Parent</strong> for another adult who can award them.</p>
+          <p class="small" style="margin:0 0 10px">This creates a login for a <strong>child</strong> \u2014 someone who earns points. Every other grown-up joins by invitation instead, so they set their own password and you never hold it.</p>
           <input id="newChildName" placeholder="Name (e.g. Emma, Grandma)" oninput="suggestRecoveryForName()">
           <input id="newChildAge" placeholder="Age or role — optional (e.g. 7, or Grandma)" style="margin-top:8px">
-          <div style="display:flex;gap:8px;margin-top:8px">
+          <div style="display:flex;gap:8px;margin-top:8px" class="hidden">
             <button type="button" id="newRoleChild" class="light selected" style="width:auto;flex:1" onclick="selectNewMemberRole('child')">Child</button>
             <button type="button" id="newRoleParent" class="light" style="width:auto;flex:1" onclick="selectNewMemberRole('parent')">Parent</button>
           </div>
           <input id="newChildPassword" type="text" placeholder="Password for their login (6+ characters)" style="margin-top:8px">
           <input id="newChildRecovery" type="email" placeholder="Email for their login (required)" style="margin-top:8px" oninput="recoveryTouched=true">
-          <p class="small" id="recoveryHint" style="margin:6px 0 0">For a child, this is filled in for you as a variation of your own address — resets land in your inbox. For another parent, put in their own address: they'll need it to get back in, and you won't be able to reset it for them.</p>
+          <p class="small" id="recoveryHint" style="margin:6px 0 0">This is filled in for you as a variation of your own address, so their password resets land in your inbox. Change it if they have an address of their own.</p>
           <p class="small" style="margin:6px 0 0">Check the details above, then press Add. Their login is created straight away and shown to you.</p>
           <div class="memberhead" style="margin-top:8px">
             <div id="newMemberPreview"><div class="avatar-placeholder">📷</div></div>
@@ -1225,7 +1230,7 @@
 
 <section id="rewardSection" class="reward hidden">
   <div class="eyebrow" id="rewardEyebrow"></div>
-  <h2>🏆 Family rewards <span class="small" style="font-weight:400">— parents only</span></h2>
+  <h2>🏆 Rewards <span class="small" style="font-weight:400">— parents only</span></h2>
   <p>These are what your children can buy with their points. They can see and choose them, but can't add, edit or remove any.</p>
 
   <p class="small" style="margin:14px 0 6px"><strong>Available to buy right now</strong> — <span id="rewardCount">0</span> on the list</p>
@@ -1516,6 +1521,11 @@
     async saveConfig(fid, name, value){
       await setDoc(configRef(fid, name), { payload: JSON.stringify(value) });
     },
+    /* An account with no family attached. Whoever invited them decides what
+       they become when the code is redeemed. */
+    async createAccountOnly(email, password){
+      await createUserWithEmailAndPassword(auth, email, password);
+    },
     async saveMember(fid, id, data){ await setDoc(memberRef(fid, id), data); },
     /* A child may write their own row but not the family config, so a personal
        view preference lives here. update, not set, so nothing else is touched
@@ -1655,12 +1665,456 @@ const CURRICULUM = [
       ["An-Naba'"]
         ]}
     ]}
+,
+  { subject:"maths", icon:"\u{1f522}", name:"Maths", byYear:true, framework:"en-2014",
+    strands:[
+      { id:"y1", name:"Year 1", year:1,
+        blurb:"The maths a child covers in Year 1.",
+        milestone:"Finished Year 1 maths",
+        objectives:[
+          ["Count to and across 100, forwards and backwards, from any number","Number"],
+          ["Count, read and write numbers to 100 in numerals","Number"],
+          ["Count in twos, fives and tens","Number"],
+          ["Say one more and one less than any number to 100","Number"],
+          ["Use the language of equal to, more than, less than, most and least","Number"],
+          ["Read, write and interpret +, − and =","Addition and subtraction"],
+          ["Know number bonds and related subtraction facts within 20","Addition and subtraction"],
+          ["Add and subtract one- and two-digit numbers to 20","Addition and subtraction"],
+          ["Solve missing number problems such as 7 = ? − 9","Addition and subtraction"],
+          ["Solve multiplication and division problems using objects, pictures and arrays","Multiplication and division"],
+          ["Find and name a half of an object, shape or quantity","Fractions"],
+          ["Find and name a quarter of an object, shape or quantity","Fractions"],
+          ["Compare and describe lengths and heights","Measurement"],
+          ["Compare and describe mass, capacity and volume","Measurement"],
+          ["Recognise and know the value of coins and notes","Measurement"],
+          ["Sequence events in order, and use days, weeks, months and years","Measurement"],
+          ["Tell the time to the hour and half past","Measurement"],
+          ["Recognise and name common 2-D shapes","Geometry"],
+          ["Recognise and name common 3-D shapes","Geometry"],
+          ["Describe position, direction and movement, including turns","Geometry"]
+        ]},
+      { id:"y2", name:"Year 2", year:2,
+        blurb:"The maths a child covers in Year 2.",
+        milestone:"Finished Year 2 maths",
+        objectives:[
+          ["Count in steps of 2, 3 and 5, and in tens from any number","Number"],
+          ["Read, write and compare numbers to 100, and use < > =","Number"],
+          ["Understand tens and ones, and partition numbers in different ways","Number"],
+          ["Recall and use addition and subtraction facts to 20 fluently","Addition and subtraction"],
+          ["Add and subtract two-digit numbers and tens","Addition and subtraction"],
+          ["Add three one-digit numbers","Addition and subtraction"],
+          ["Show that addition can be done in any order but subtraction cannot","Addition and subtraction"],
+          ["Recall the 2, 5 and 10 times tables","Multiplication and division"],
+          ["Use ×, ÷ and = to write and solve calculations","Multiplication and division"],
+          ["Know that multiplication can be done in any order but division cannot","Multiplication and division"],
+          ["Find and write 1/3, 1/4, 2/4 and 3/4 of a shape or quantity","Fractions"],
+          ["Know that 2/4 and 1/2 are the same","Fractions"],
+          ["Choose and use the right units to measure length, mass, capacity and temperature","Measurement"],
+          ["Combine amounts of money and give change","Measurement"],
+          ["Tell the time to five minutes, including quarter past and to","Measurement"],
+          ["Identify 2-D shapes by their sides and lines of symmetry","Geometry"],
+          ["Identify 3-D shapes by their edges, vertices and faces","Geometry"],
+          ["Order and arrange shapes in patterns, and describe turns","Geometry"],
+          ["Make and read tally charts, pictograms and simple tables","Statistics"]
+        ]},
+      { id:"y3", name:"Year 3", year:3,
+        blurb:"The maths a child covers in Year 3.",
+        milestone:"Finished Year 3 maths",
+        objectives:[
+          ["Count in multiples of 4, 8, 50 and 100","Number"],
+          ["Read, write, compare and order numbers to 1000","Number"],
+          ["Recognise the place value of each digit in a three-digit number","Number"],
+          ["Add and subtract three-digit numbers using written columns","Addition and subtraction"],
+          ["Estimate an answer and use the inverse to check it","Addition and subtraction"],
+          ["Recall the 3, 4 and 8 times tables","Multiplication and division"],
+          ["Multiply and divide two-digit by one-digit numbers","Multiplication and division"],
+          ["Count up and down in tenths","Fractions"],
+          ["Find and write fractions of a set of objects","Fractions"],
+          ["Recognise and use equivalent fractions with small denominators","Fractions"],
+          ["Add and subtract fractions with the same denominator","Fractions"],
+          ["Measure, compare, add and subtract lengths, mass and volume","Measurement"],
+          ["Measure the perimeter of simple 2-D shapes","Measurement"],
+          ["Add and subtract amounts of money, giving change","Measurement"],
+          ["Tell and write the time to the nearest minute, on 12- and 24-hour clocks","Measurement"],
+          ["Draw 2-D shapes and make 3-D shapes","Geometry"],
+          ["Recognise right angles, and horizontal, vertical, parallel and perpendicular lines","Geometry"],
+          ["Interpret and present data in bar charts, pictograms and tables","Statistics"]
+        ]},
+      { id:"y4", name:"Year 4", year:4,
+        blurb:"The maths a child covers in Year 4.",
+        milestone:"Finished Year 4 maths",
+        objectives:[
+          ["Count in multiples of 6, 7, 9, 25 and 1000","Number"],
+          ["Order and compare numbers beyond 1000, and round to the nearest 10, 100 or 1000","Number"],
+          ["Count backwards through zero to include negative numbers","Number"],
+          ["Read Roman numerals to 100","Number"],
+          ["Add and subtract numbers with up to four digits using written columns","Addition and subtraction"],
+          ["Recall all times tables up to 12 × 12","Multiplication and division"],
+          ["Multiply two- and three-digit numbers by a one-digit number","Multiplication and division"],
+          ["Multiply and divide by 10, 100 and 1000","Multiplication and division"],
+          ["Recognise and write equivalent fractions, including hundredths","Fractions"],
+          ["Add and subtract fractions with the same denominator","Fractions"],
+          ["Recognise and write decimal equivalents of a half, a quarter and tenths","Decimals"],
+          ["Round decimals with one decimal place to the nearest whole number","Decimals"],
+          ["Convert between units of measure, such as km to m and hour to minute","Measurement"],
+          ["Find the area of shapes by counting squares","Measurement"],
+          ["Compare and classify shapes, including quadrilaterals and triangles","Geometry"],
+          ["Identify lines of symmetry and complete a symmetric figure","Geometry"],
+          ["Describe positions on a grid as coordinates, and translate shapes","Geometry"],
+          ["Interpret and present data in bar charts and time graphs","Statistics"]
+        ]},
+      { id:"y5", name:"Year 5", year:5,
+        blurb:"The maths a child covers in Year 5.",
+        milestone:"Finished Year 5 maths",
+        objectives:[
+          ["Read, write, order and compare numbers to at least 1,000,000","Number"],
+          ["Round any number to the nearest 10, 100, 1000, 10,000 or 100,000","Number"],
+          ["Count forwards and backwards through zero with negative numbers","Number"],
+          ["Read Roman numerals to 1000","Number"],
+          ["Add and subtract numbers with more than four digits using written columns","Addition and subtraction"],
+          ["Identify multiples, factors, primes, squares and cubes","Multiplication and division"],
+          ["Multiply four-digit numbers by a two-digit number using long multiplication","Multiplication and division"],
+          ["Divide four-digit numbers by a one-digit number, interpreting remainders","Multiplication and division"],
+          ["Compare and order fractions whose denominators are multiples of the same number","Fractions"],
+          ["Add and subtract fractions with denominators that are multiples of each other","Fractions"],
+          ["Multiply proper fractions and mixed numbers by whole numbers","Fractions"],
+          ["Read, write, order and compare numbers with up to three decimal places","Decimals"],
+          ["Recognise the per cent symbol and link percentages, decimals and fractions","Percentages"],
+          ["Convert between metric units, and understand common imperial equivalents","Measurement"],
+          ["Calculate the perimeter and area of rectangles","Measurement"],
+          ["Estimate volume and capacity","Measurement"],
+          ["Identify 3-D shapes from 2-D representations, and know angles at a point","Geometry"],
+          ["Identify, describe and represent reflections and translations","Geometry"],
+          ["Solve problems using information in a line graph, and complete timetables","Statistics"]
+        ]},
+      { id:"y6", name:"Year 6", year:6,
+        blurb:"The maths a child covers in Year 6.",
+        milestone:"Finished Year 6 maths",
+        objectives:[
+          ["Read, write, order and compare numbers up to 10,000,000","Number"],
+          ["Round any whole number to a required degree of accuracy","Number"],
+          ["Use negative numbers in context and calculate across zero","Number"],
+          ["Multiply four-digit numbers by two-digit numbers using long multiplication","Multiplication and division"],
+          ["Divide four-digit numbers by two-digit numbers using long division","Multiplication and division"],
+          ["Use the order of operations to carry out calculations","Multiplication and division"],
+          ["Identify common factors, common multiples and prime numbers","Multiplication and division"],
+          ["Simplify fractions and compare fractions with any denominator","Fractions"],
+          ["Add and subtract fractions with different denominators and mixed numbers","Fractions"],
+          ["Multiply pairs of proper fractions, and divide fractions by whole numbers","Fractions"],
+          ["Multiply and divide numbers with up to two decimal places","Decimals"],
+          ["Recall and use equivalences between fractions, decimals and percentages","Percentages"],
+          ["Solve problems involving the relative sizes of two quantities","Ratio and proportion"],
+          ["Solve problems involving unequal sharing and grouping","Ratio and proportion"],
+          ["Use simple formulae, and express missing numbers algebraically","Algebra"],
+          ["Generate and describe linear number sequences","Algebra"],
+          ["Calculate the area of triangles and parallelograms, and volume of cuboids","Measurement"],
+          ["Draw and classify shapes by their angles and properties, and find unknown angles","Geometry"],
+          ["Describe positions in all four quadrants","Geometry"],
+          ["Interpret and construct pie charts and line graphs, and calculate the mean","Statistics"]
+        ]}
+    ]},
+  { subject:"english", icon:"\u{270f}\u{fe0f}", name:"English", byYear:true, framework:"en-2014",
+    strands:[
+      { id:"y1", name:"Year 1", year:1,
+        blurb:"The English a child covers in Year 1.",
+        milestone:"Finished Year 1 English",
+        objectives:[
+          ["Sound out all 40+ phonemes speedily and accurately","Word reading"],
+          ["Blend sounds to read unfamiliar words","Word reading"],
+          ["Read common exception words","Word reading"],
+          ["Read words with -s, -es, -ing, -ed, -er and -est endings","Word reading"],
+          ["Read aloud books matched to their phonic knowledge","Word reading"],
+          ["Join in with predictable phrases, rhymes and poems","Comprehension"],
+          ["Discuss word meanings and link them to words already known","Comprehension"],
+          ["Check that what they read makes sense, and correct themselves","Comprehension"],
+          ["Make inferences and predictions about what has been read","Comprehension"],
+          ["Spell words using the phonemes already taught","Spelling"],
+          ["Spell the days of the week and common exception words","Spelling"],
+          ["Add prefixes and suffixes such as un-, -ing, -ed and -est","Spelling"],
+          ["Form lower-case and capital letters correctly, and sit them on the line","Handwriting"],
+          ["Say a sentence out loud before writing it down","Composition"],
+          ["Sequence sentences to form a short narrative","Composition"],
+          ["Re-read writing to check it makes sense, and read it aloud clearly","Composition"],
+          ["Leave spaces between words and use capital letters and full stops","Grammar and punctuation"],
+          ["Use a capital letter for names, places, days and the word I","Grammar and punctuation"],
+          ["Join words and clauses using 'and'","Grammar and punctuation"]
+        ]},
+      { id:"y2", name:"Year 2", year:2,
+        blurb:"The English a child covers in Year 2.",
+        milestone:"Finished Year 2 English",
+        objectives:[
+          ["Read words of two or more syllables accurately and fluently","Word reading"],
+          ["Read most common exception words on sight","Word reading"],
+          ["Read aloud books closely matched to their phonic knowledge, sounding out unfamiliar words","Word reading"],
+          ["Discuss the sequence of events in a book and how items relate","Comprehension"],
+          ["Answer and ask questions about what has been read","Comprehension"],
+          ["Explain and discuss their understanding of books, poems and other material","Comprehension"],
+          ["Recite some poems by heart with appropriate intonation","Comprehension"],
+          ["Segment spoken words into phonemes and represent them with graphemes","Spelling"],
+          ["Learn to spell common homophones and words with contracted forms","Spelling"],
+          ["Add suffixes to spell longer words, such as -ment, -ness, -ful and -less","Spelling"],
+          ["Use the possessive apostrophe for singular nouns","Spelling"],
+          ["Form letters of the correct size relative to one another, and start to join","Handwriting"],
+          ["Write for a real purpose: narratives, real events, poetry","Composition"],
+          ["Plan by writing down ideas and key vocabulary first","Composition"],
+          ["Re-read to check verbs and tense are used correctly and consistently","Composition"],
+          ["Read aloud what they have written with appropriate intonation","Composition"],
+          ["Use sentences with different forms: statement, question, exclamation, command","Grammar and punctuation"],
+          ["Use expanded noun phrases to describe and specify","Grammar and punctuation"],
+          ["Use commas in lists, and apostrophes for contractions","Grammar and punctuation"],
+          ["Use subordination (when, if, that, because) and co-ordination (or, and, but)","Grammar and punctuation"]
+        ]},
+      { id:"y3", name:"Year 3", year:3,
+        blurb:"The English a child covers in Year 3.",
+        milestone:"Finished Year 3 English",
+        objectives:[
+          ["Apply knowledge of prefixes and suffixes to read aloud and understand new words","Word reading"],
+          ["Read a wide range of fiction, poetry, plays and non-fiction","Comprehension"],
+          ["Identify themes and conventions in a wide range of books","Comprehension"],
+          ["Ask questions to improve understanding of a text","Comprehension"],
+          ["Draw inferences and justify them with evidence","Comprehension"],
+          ["Retrieve and record information from non-fiction","Comprehension"],
+          ["Use dictionaries to check the meaning of words","Comprehension"],
+          ["Spell words with prefixes and suffixes, and further homophones","Spelling"],
+          ["Spell words from the Year 3 and 4 word list","Spelling"],
+          ["Use the diagonal and horizontal strokes needed to join letters","Handwriting"],
+          ["Discuss and record ideas when planning writing","Composition"],
+          ["Organise paragraphs around a theme","Composition"],
+          ["Create settings, characters and plot in narrative writing","Composition"],
+          ["Use headings and sub-headings in non-fiction","Composition"],
+          ["Assess and improve their own and others' writing","Composition"],
+          ["Extend sentences with a wider range of conjunctions","Grammar and punctuation"],
+          ["Use the present perfect form of verbs","Grammar and punctuation"],
+          ["Use conjunctions, adverbs and prepositions to express time and cause","Grammar and punctuation"],
+          ["Use inverted commas to punctuate direct speech","Grammar and punctuation"]
+        ]},
+      { id:"y4", name:"Year 4", year:4,
+        blurb:"The English a child covers in Year 4.",
+        milestone:"Finished Year 4 English",
+        objectives:[
+          ["Read further exception words, noting unusual spelling and sound","Word reading"],
+          ["Prepare poems and play scripts to read aloud and perform","Comprehension"],
+          ["Discuss words and phrases that capture the reader's interest","Comprehension"],
+          ["Identify main ideas across paragraphs and summarise them","Comprehension"],
+          ["Predict what might happen from details stated and implied","Comprehension"],
+          ["Retrieve and record information from non-fiction, using dictionaries","Comprehension"],
+          ["Spell words with prefixes and suffixes, and further homophones","Spelling"],
+          ["Spell words from the Year 3 and 4 word list","Spelling"],
+          ["Use the possessive apostrophe with plural nouns","Spelling"],
+          ["Write with increasingly legible, consistent and joined handwriting","Handwriting"],
+          ["Plan writing by discussing and recording ideas, and by reading similar texts","Composition"],
+          ["Organise paragraphs, and use headings and sub-headings","Composition"],
+          ["Build a varied and rich vocabulary and range of sentence structures","Composition"],
+          ["Proof-read for spelling and punctuation errors","Composition"],
+          ["Use fronted adverbials, with a comma after them","Grammar and punctuation"],
+          ["Use expanded noun phrases with modifying adjectives and prepositions","Grammar and punctuation"],
+          ["Use commas after fronted adverbials and to mark clauses","Grammar and punctuation"],
+          ["Use nouns and pronouns for clarity and to avoid repetition","Grammar and punctuation"],
+          ["Punctuate direct speech accurately, including new speaker new line","Grammar and punctuation"]
+        ]},
+      { id:"y5", name:"Year 5", year:5,
+        blurb:"The English a child covers in Year 5.",
+        milestone:"Finished Year 5 English",
+        objectives:[
+          ["Apply knowledge of morphology and etymology to read new words","Word reading"],
+          ["Read and discuss a wide range of fiction, poetry, plays, non-fiction and reference books","Comprehension"],
+          ["Identify and discuss themes and conventions across a wide range of writing","Comprehension"],
+          ["Draw inferences, and justify them with evidence from the text","Comprehension"],
+          ["Summarise the main ideas drawn from more than one paragraph","Comprehension"],
+          ["Discuss how authors use language, including figurative language","Comprehension"],
+          ["Distinguish between fact and opinion","Comprehension"],
+          ["Spell words with silent letters and further homophones","Spelling"],
+          ["Spell words from the Year 5 and 6 word list","Spelling"],
+          ["Use a thesaurus, and a dictionary to check spelling and meaning","Spelling"],
+          ["Choose the handwriting style best suited to the task","Handwriting"],
+          ["Plan writing by identifying the audience and purpose","Composition"],
+          ["Use organisational and presentational devices to structure text","Composition"],
+          ["Describe settings, characters and atmosphere, and integrate dialogue","Composition"],
+          ["Propose changes to vocabulary, grammar and punctuation to enhance meaning","Composition"],
+          ["Use relative clauses beginning with who, which, where, when, whose or that","Grammar and punctuation"],
+          ["Indicate degrees of possibility using adverbs or modal verbs","Grammar and punctuation"],
+          ["Use commas to clarify meaning or avoid ambiguity","Grammar and punctuation"],
+          ["Use brackets, dashes or commas to indicate parenthesis","Grammar and punctuation"]
+        ]},
+      { id:"y6", name:"Year 6", year:6,
+        blurb:"The English a child covers in Year 6.",
+        milestone:"Finished Year 6 English",
+        objectives:[
+          ["Read age-appropriate books with confidence and fluency","Word reading"],
+          ["Read books structured in different ways, including myths, legends and modern fiction","Comprehension"],
+          ["Learn a wider range of poetry by heart and perform it","Comprehension"],
+          ["Discuss and evaluate how authors use language to affect the reader","Comprehension"],
+          ["Distinguish between statements of fact and opinion, and challenge views courteously","Comprehension"],
+          ["Retrieve, record and present information from non-fiction","Comprehension"],
+          ["Provide reasoned justifications for their views about a text","Comprehension"],
+          ["Spell words from the Year 5 and 6 word list, and further homophones","Spelling"],
+          ["Use hyphens to avoid ambiguity","Spelling"],
+          ["Write legibly, fluently and with increasing speed","Handwriting"],
+          ["Identify the audience and purpose, and select the appropriate form","Composition"],
+          ["Use a wide range of devices to build cohesion within and across paragraphs","Composition"],
+          ["Select grammar and vocabulary that fit the formality of the writing","Composition"],
+          ["Précis longer passages","Composition"],
+          ["Proof-read and edit their own and others' writing effectively","Composition"],
+          ["Use the passive voice, and the subjunctive in formal writing","Grammar and punctuation"],
+          ["Use semi-colons, colons and dashes to mark independent clauses","Grammar and punctuation"],
+          ["Use bullet points and colons to punctuate lists","Grammar and punctuation"],
+          ["Recognise and use formal and informal vocabulary and structures","Grammar and punctuation"]
+        ]}
+    ]},
+  { subject:"science", icon:"\u{1f52c}", name:"Science", byYear:true, framework:"en-2014",
+    strands:[
+      { id:"y1", name:"Year 1", year:1,
+        blurb:"The science a child covers in Year 1.",
+        milestone:"Finished Year 1 science",
+        objectives:[
+          ["Ask simple questions and recognise they can be answered in different ways","Working scientifically"],
+          ["Observe closely, using simple equipment","Working scientifically"],
+          ["Gather and record data to help answer questions","Working scientifically"],
+          ["Identify and name common wild and garden plants, and deciduous and evergreen trees","Plants"],
+          ["Identify and describe the basic structure of a flowering plant and a tree","Plants"],
+          ["Identify and name common animals, including fish, birds, reptiles and mammals","Animals including humans"],
+          ["Sort animals into carnivores, herbivores and omnivores","Animals including humans"],
+          ["Name the parts of the human body and say which sense each is for","Animals including humans"],
+          ["Distinguish an object from the material it is made from","Everyday materials"],
+          ["Identify and name everyday materials such as wood, plastic, glass, metal and rock","Everyday materials"],
+          ["Describe and group materials by their simple physical properties","Everyday materials"],
+          ["Observe changes across the four seasons","Seasonal changes"],
+          ["Describe how day length varies through the year","Seasonal changes"]
+        ]},
+      { id:"y2", name:"Year 2", year:2,
+        blurb:"The science a child covers in Year 2.",
+        milestone:"Finished Year 2 science",
+        objectives:[
+          ["Perform simple tests and use observations to suggest answers","Working scientifically"],
+          ["Identify and classify, and use simple scientific language","Working scientifically"],
+          ["Explore the differences between things that are living, dead, or never alive","Living things and habitats"],
+          ["Identify how a habitat provides for the animals and plants that live there","Living things and habitats"],
+          ["Describe a simple food chain, and name sources of food","Living things and habitats"],
+          ["Observe how seeds and bulbs grow into mature plants","Plants"],
+          ["Find out what plants need to stay healthy: water, light and warmth","Plants"],
+          ["Notice that animals, including humans, have offspring which grow into adults","Animals including humans"],
+          ["Describe the basic needs of animals for survival: water, food and air","Animals including humans"],
+          ["Describe why exercise, the right food and hygiene matter for humans","Animals including humans"],
+          ["Identify the uses of everyday materials, and compare their suitability","Uses of everyday materials"],
+          ["Find out how the shape of some solids can be changed by squashing or bending","Uses of everyday materials"]
+        ]},
+      { id:"y3", name:"Year 3", year:3,
+        blurb:"The science a child covers in Year 3.",
+        milestone:"Finished Year 3 science",
+        objectives:[
+          ["Set up simple practical enquiries and comparative tests","Working scientifically"],
+          ["Make systematic and careful observations, taking accurate measurements","Working scientifically"],
+          ["Record findings using drawings, labelled diagrams, keys, tables and bar charts","Working scientifically"],
+          ["Identify the functions of roots, stem, leaves and flowers","Plants"],
+          ["Explore what plants need for life and growth, and how it varies","Plants"],
+          ["Investigate how water is transported within plants","Plants"],
+          ["Explore the part flowers play in the life cycle of flowering plants","Plants"],
+          ["Explain that animals need the right nutrition, which they cannot make themselves","Animals including humans"],
+          ["Identify that humans and some animals have skeletons and muscles for support and movement","Animals including humans"],
+          ["Compare and group rocks by their appearance and physical properties","Rocks"],
+          ["Describe how fossils are formed, and recognise that soils are made from rock","Rocks"],
+          ["Recognise that they need light to see, and that dark is the absence of light","Light"],
+          ["Notice that light is reflected from surfaces, and that the sun can damage eyes","Light"],
+          ["Recognise that shadows form when light is blocked, and find patterns in their size","Light"],
+          ["Compare how things move on different surfaces","Forces and magnets"],
+          ["Observe how magnets attract or repel, and group materials by whether they are magnetic","Forces and magnets"]
+        ]},
+      { id:"y4", name:"Year 4", year:4,
+        blurb:"The science a child covers in Year 4.",
+        milestone:"Finished Year 4 science",
+        objectives:[
+          ["Ask relevant questions and set up different types of enquiry to answer them","Working scientifically"],
+          ["Use results to draw simple conclusions and suggest improvements","Working scientifically"],
+          ["Group living things in a variety of ways, and use classification keys","Living things and habitats"],
+          ["Recognise that environments can change, and that this can pose dangers","Living things and habitats"],
+          ["Describe the simple functions of the digestive system in humans","Animals including humans"],
+          ["Identify the different types of teeth in humans and their functions","Animals including humans"],
+          ["Construct and interpret food chains, identifying producers, predators and prey","Animals including humans"],
+          ["Compare and group materials as solids, liquids or gases","States of matter"],
+          ["Observe that some materials change state when heated or cooled","States of matter"],
+          ["Identify the part evaporation and condensation play in the water cycle","States of matter"],
+          ["Identify how sounds are made, and that they travel to the ear through a medium","Sound"],
+          ["Find patterns between the pitch of a sound and the object producing it","Sound"],
+          ["Recognise that sound gets fainter as the distance from the source increases","Sound"],
+          ["Identify common appliances that run on electricity","Electricity"],
+          ["Construct a simple series circuit, and identify whether a lamp will light","Electricity"],
+          ["Recognise that a switch opens and closes a circuit, and identify conductors and insulators","Electricity"]
+        ]},
+      { id:"y5", name:"Year 5", year:5,
+        blurb:"The science a child covers in Year 5.",
+        milestone:"Finished Year 5 science",
+        objectives:[
+          ["Plan enquiries, including recognising and controlling variables where necessary","Working scientifically"],
+          ["Record data and results using scientific diagrams, tables and line graphs","Working scientifically"],
+          ["Report findings, including conclusions and a degree of trust in results","Working scientifically"],
+          ["Describe the differences in the life cycles of a mammal, amphibian, insect and bird","Living things and habitats"],
+          ["Describe the life process of reproduction in some plants and animals","Living things and habitats"],
+          ["Describe the changes as humans develop to old age","Animals including humans"],
+          ["Compare and group materials by properties including hardness, solubility and conductivity","Properties and changes of materials"],
+          ["Use knowledge of solids, liquids and gases to separate mixtures","Properties and changes of materials"],
+          ["Demonstrate that dissolving, mixing and changes of state are reversible","Properties and changes of materials"],
+          ["Explain that some changes form new materials and are not reversible","Properties and changes of materials"],
+          ["Describe the movement of the Earth and other planets relative to the sun","Earth and space"],
+          ["Describe the movement of the moon relative to the Earth","Earth and space"],
+          ["Use the Earth's rotation to explain day and night","Earth and space"],
+          ["Explain that unsupported objects fall because of gravity","Forces"],
+          ["Identify the effects of air resistance, water resistance and friction","Forces"],
+          ["Recognise that levers, pulleys and gears allow a smaller force to have a greater effect","Forces"]
+        ]},
+      { id:"y6", name:"Year 6", year:6,
+        blurb:"The science a child covers in Year 6.",
+        milestone:"Finished Year 6 science",
+        objectives:[
+          ["Plan different types of enquiry, including fair tests, to answer questions","Working scientifically"],
+          ["Take accurate and precise measurements, repeating readings where needed","Working scientifically"],
+          ["Report findings in written form, using evidence to support or refute ideas","Working scientifically"],
+          ["Classify living things into broad groups by observable characteristics","Living things and habitats"],
+          ["Give reasons for classifying plants and animals as they do","Living things and habitats"],
+          ["Identify and name the main parts of the human circulatory system","Animals including humans"],
+          ["Recognise the impact of diet, exercise, drugs and lifestyle on the body","Animals including humans"],
+          ["Describe how nutrients and water are transported within animals, including humans","Animals including humans"],
+          ["Recognise that living things have changed over time, and that fossils give information","Evolution and inheritance"],
+          ["Recognise that offspring vary and are not identical to their parents","Evolution and inheritance"],
+          ["Identify how animals and plants are adapted, and that this may lead to evolution","Evolution and inheritance"],
+          ["Recognise that light appears to travel in straight lines","Light"],
+          ["Explain that objects are seen because they give out or reflect light into the eye","Light"],
+          ["Use the idea that light travels in straight lines to explain shadows","Light"],
+          ["Associate the brightness of a lamp with the number and voltage of cells","Electricity"],
+          ["Compare and give reasons for variations in how components function","Electricity"],
+          ["Use recognised symbols when representing a simple circuit in a diagram","Electricity"]
+        ]}
+    ]}
 ];
 const MILESTONE_BONUS = 50;
 function allStrands(){
   const out=[];
   CURRICULUM.forEach(s=>s.strands.forEach(st=>out.push({subject:s, strand:st})));
   return out;
+}
+/* Maths, English and science are taught by year group, so a child sees their
+   own year rather than 190 objectives at once. The year comes from the age a
+   parent already recorded; where that is missing, or a child is working outside
+   it, the year can be changed by hand. */
+const YEAR_BY_AGE = {5:"y1",6:"y2",7:"y3",8:"y4",9:"y5",10:"y6",11:"y6"};
+let learnYear = {};
+function defaultYearFor(child){
+  const n=parseInt((child && child.age) || "", 10);
+  return (!Number.isNaN(n) && YEAR_BY_AGE[n]) || "y1";
+}
+function yearShown(subject, child){
+  const key=(child?child.id:"")+"|"+subject.subject;
+  return learnYear[key] || defaultYearFor(child);
+}
+function setLearnYear(childId, subjectId, yid){
+  learnYear[childId+"|"+subjectId]=yid;
+  render();
+  const body=document.getElementById("progressBody");
+  if(body && !document.getElementById("progressPanel").classList.contains("hidden")) renderProgressPanel();
+}
+function strandsShown(subject, child){
+  if(!subject.byYear) return subject.strands;
+  const yid=yearShown(subject, child);
+  return subject.strands.filter(st=>st.id===yid);
 }
 function objectiveId(subject, strand, i){ return subject.subject+"."+strand.id+"."+(i+1); }
 function objectiveText(subject, strand, i){
@@ -2045,7 +2499,7 @@ const TIP_CATS = [
   {key:"behaviour", label:"Behaviour"}
 ];
 
-const APP_VERSION = "v60";
+const APP_VERSION = "v62";
 const today = new Date().toISOString().slice(0,10);
 let app = {families:[],currentFamily:null,currentChild:null};
 let categories = [];
@@ -2588,6 +3042,7 @@ async function loadApp(){
   if(!familyId){
     const emailEl=document.getElementById("noFamilyEmail");
     if(emailEl) emailEl.textContent = window.fpc.email() || "this account";
+    prefillJoinName();
     showGate("noFamilyGate");
     return;
   }
@@ -2775,6 +3230,7 @@ function ladderHTML(child, subject, strand, canSecure){
     return `<div class="objrow ${cls}">
         <span class="objmark">${mark}</span>
         <span class="objtext">${escapeHtml(objectiveText(subject, strand, i))}
+          ${o[1]?`<span class="objdom">${escapeHtml(o[1])}</span>`:""}
           ${by?`<span class="objby">secure \u00b7 ${escapeHtml(by)}</span>`:""}
           ${st.status==="review"?`<span class="objby">due for revision</span>`:""}</span>
         <span class="objbtns">
@@ -2815,13 +3271,19 @@ function learnScreenHTML(child){
   const me=sessionMember();
   const canSecure=mayMarkSecure(me, child);
   return CURRICULUM.map(subject=>{
-    const done=subject.strands.reduce((a,st)=>a+strandProgress(child,subject,st).secure,0);
-    const total=subject.strands.reduce((a,st)=>a+st.objectives.length,0);
+    const shown=strandsShown(subject, child);
+    const done=shown.reduce((a,st)=>a+strandProgress(child,subject,st).secure,0);
+    const total=shown.reduce((a,st)=>a+st.objectives.length,0);
+    const picker=subject.byYear
+      ? `<div class="yearpick">${subject.strands.map(st=>`<button class="${
+          st.id===yearShown(subject,child)?"on":""}" onclick="setLearnYear('${child.id}','${subject.subject}','${st.id}')">${
+          st.name.replace("Year ","Y")}</button>`).join("")}</div>`
+      : "";
     return `<section class="kidhero"><div class="kidherorow"><div>
         <p class="kidhi">${subject.icon} ${escapeHtml(subject.name)}</p>
         <p class="kidsub">${done} of ${total} secure</p>
-      </div></div></section>`
-      + subject.strands.map(st=>ladderHTML(child, subject, st, canSecure)).join("");
+      </div></div>${picker}</section>`
+      + shown.map(st=>ladderHTML(child, subject, st, canSecure)).join("");
   }).join("")
   + `<p class="kidfooter">Tap <strong>Practised</strong> when you\u2019ve worked on something. Only a grown-up can mark it secure.</p>`;
 }
@@ -4085,7 +4547,11 @@ function canResetByEmail(member){
 function isValidLoginEmail(email){
   return /^[a-z0-9]+@[a-z0-9]+(\.[a-z0-9]+)+$/.test(String(email));
 }
+/* Adding another adult by hand meant a parent choosing their password and
+   seeing it. An invitation lets them set their own, and it is the same code
+   mechanism that already carries the role. */
 function selectNewMemberRole(role){
+  if(role!=="child") role="child";
   window.__newMemberRole=role;
   document.getElementById("newRoleChild").classList.toggle("selected", role==="child");
   document.getElementById("newRoleParent").classList.toggle("selected", role==="parent");
@@ -4124,7 +4590,7 @@ async function addChild(){
   const name=document.getElementById("newChildName").value.trim();
   const age=document.getElementById("newChildAge").value.trim();
   const password=document.getElementById("newChildPassword").value;
-  const role=window.__newMemberRole||"child";
+  const role="child";   // grown-ups arrive by invitation, never by hand
   if(!name){ errEl.textContent="Please enter their name."; return; }
   if(!password || password.length<6){ errEl.textContent="Please set a password of at least 6 characters for their login."; return; }
   let recovery=(document.getElementById("newChildRecovery").value || "").trim();
@@ -4862,18 +5328,155 @@ function shareTextFor(memberId){
   }
   return lines.join("\n");
 }
+/* A parent shares this when they are proud, so it should look like something
+   worth being proud of. The plain text version stays as the fallback for
+   anywhere that cannot take an image. */
+function shareCardCanvas(m){
+  /* Deliberately not the app's system-ui stack: a canvas font shorthand
+     beginning with system-ui is rejected outright by some implementations,
+     which silently drops every size to 10px and produces a broken card. */
+  const W=1080, H=1350, c=document.createElement("canvas");
+  c.width=W; c.height=H;
+  const x=c.getContext("2d");
+  if(!x) return null;
+  const weekDates=getCurrentWeekDates();
+  const band=isChildRole(m) ? bandForChild(m) : null;
+  const today=todayTotalFor(m), week=weeklyTotalFor(m, weekDates), saved=m.balance||0;
+
+  const bg=x.createLinearGradient(0,0,W,H);
+  bg.addColorStop(0,"#5b62e8"); bg.addColorStop(.55,"#7c83ef"); bg.addColorStop(1,"#17a08a");
+  x.fillStyle=bg; x.fillRect(0,0,W,H);
+  // Soft confetti, seeded off the name so the same card looks the same twice.
+  let seed=Math.abs(hashString(m.name||"x"));
+  const rnd=()=>{ seed=(seed*1103515245+12345)&0x7fffffff; return seed/0x7fffffff; };
+  const dots=["#ffd970","#ffffff","#ffb3c8","#9ff5df","#ffe9a8"];
+  for(let i=0;i<70;i++){
+    x.globalAlpha=0.10+rnd()*0.28;
+    x.fillStyle=dots[Math.floor(rnd()*dots.length)];
+    const r=6+rnd()*16;
+    x.beginPath(); x.arc(rnd()*W, rnd()*H, r, 0, Math.PI*2); x.fill();
+  }
+  x.globalAlpha=1;
+
+  const card=(cx,cy,cw,ch,r)=>{
+    x.beginPath();
+    x.moveTo(cx+r,cy); x.arcTo(cx+cw,cy,cx+cw,cy+ch,r); x.arcTo(cx+cw,cy+ch,cx,cy+ch,r);
+    x.arcTo(cx,cy+ch,cx,cy,r); x.arcTo(cx,cy,cx+cw,cy,r); x.closePath();
+  };
+  x.fillStyle="rgba(255,255,255,.96)";
+  card(70,300,W-140,H-430,52); x.fill();
+
+  x.textAlign="center";
+  x.fillStyle="#fff";
+  x.font="700 40px \"Helvetica Neue\", Helvetica, Arial, sans-serif";
+  x.fillText("\u2b50 POINTS CARD", W/2, 120);
+  x.font="800 76px \"Helvetica Neue\", Helvetica, Arial, sans-serif";
+  x.fillText(m.name, W/2, 220);
+  x.font="500 34px \"Helvetica Neue\", Helvetica, Arial, sans-serif";
+  x.globalAlpha=.92;
+  const fam=currentFamily();
+  x.fillText((fam?fam.name+" \u00b7 ":"") + new Date().toLocaleDateString(undefined,{day:"numeric",month:"long"}), W/2, 268);
+  x.globalAlpha=1;
+
+  const stats=[["Today",today,"#7c83ef"],["This week",week,"#17a08a"],["Saved up",saved,"#e0b13c"]];
+  stats.forEach((s,i)=>{
+    const bx=120+i*((W-240)/3), bw=(W-240)/3-24;
+    x.fillStyle="#f4f5fb"; card(bx,360,bw,190,32); x.fill();
+    x.fillStyle=s[2];
+    x.font="800 80px \"Helvetica Neue\", Helvetica, Arial, sans-serif";
+    x.fillText(String(s[1]), bx+bw/2, 465);
+    x.fillStyle="#6b6f88";
+    x.font="700 28px \"Helvetica Neue\", Helvetica, Arial, sans-serif";
+    x.fillText(s[0], bx+bw/2, 512);
+  });
+
+  let y=630;
+  if(band){
+    x.fillStyle=band.colour||"#2e9b68";
+    card(W/2-230,y-52,460,74,37); x.fill();
+    x.fillStyle="#fff";
+    x.font="800 34px \"Helvetica Neue\", Helvetica, Arial, sans-serif";
+    x.fillText(band.label, W/2, y-3);
+    y+=110;
+  }
+
+  x.textAlign="left";
+  const recent=(m.activityLog||[]).filter(e=>e.type==="award").slice(0,4);
+  if(recent.length){
+    x.fillStyle="#2f2a55";
+    x.font="800 36px \"Helvetica Neue\", Helvetica, Arial, sans-serif";
+    x.fillText("Lately", 130, y); y+=28;
+    recent.forEach(e=>{
+      x.fillStyle="#f4f5fb"; card(120,y,W-240,104,28); x.fill();
+      x.fillStyle="#2f2a55";
+      x.font="600 32px \"Helvetica Neue\", Helvetica, Arial, sans-serif";
+      let label=String(e.label||"");
+      if(label.length>34) label=label.slice(0,33)+"\u2026";
+      x.fillText(label, 152, y+50);
+      x.fillStyle="#6b6f88";
+      x.font="500 24px \"Helvetica Neue\", Helvetica, Arial, sans-serif";
+      x.fillText((e.byRole||e.by||"")+"", 152, y+82);
+      x.textAlign="right";
+      x.fillStyle="#17a08a";
+      x.font="800 40px \"Helvetica Neue\", Helvetica, Arial, sans-serif";
+      x.fillText((e.points>=0?"+":"")+e.points, W-152, y+66);
+      x.textAlign="left";
+      y+=120;
+    });
+  }
+
+  x.textAlign="center";
+  x.fillStyle="rgba(255,255,255,.85)";
+  x.font="600 28px \"Helvetica Neue\", Helvetica, Arial, sans-serif";
+  x.fillText("MashaAllah \u2014 keep going \u{1f31f}", W/2, H-52);
+  return c;
+}
+function canvasToBlob(c){
+  return new Promise(res=>{
+    if(c.toBlob) c.toBlob(res, "image/png");
+    else res(null);
+  });
+}
 async function shareStatus(memberId){
   if(!requireParent()) return;
   const m=memberById(memberId); if(!m) return;
   const text=shareTextFor(memberId);
   const title=isParentRole(m) ? m.name : m.name+"\u2019s points";
   try{
+    const c=shareCardCanvas(m);
+    const blob=c ? await canvasToBlob(c) : null;
+    if(blob && navigator.canShare){
+      const file=new File([blob], (m.name||"points")+"-card.png", {type:"image/png"});
+      if(navigator.canShare({files:[file]})){
+        await navigator.share({ title, text, files:[file] });
+        return;
+      }
+    }
     if(navigator.share){ await navigator.share({ title, text }); return; }
   }catch(e){
     if(e && e.name === "AbortError") return;   // they changed their mind
     console.error("Share sheet unavailable:", e);
   }
   shareFallback(text);
+}
+async function submitSignUpJoin(){
+  const name=document.getElementById("signupName").value.trim();
+  const email=document.getElementById("signupEmail").value.trim();
+  const password=document.getElementById("signupPassword").value;
+  const errEl=document.getElementById("signupError");
+  errEl.textContent="";
+  if(!name||!email||!password){ errEl.textContent="Please fill in every field."; return; }
+  if(password.length<6){ errEl.textContent="Password should be at least 6 characters."; return; }
+  try{
+    await window.fpc.createAccountOnly(email, password);
+    window.__pendingJoinName = name;
+    await loadApp();     // no family yet, so this lands on the code screen
+  }catch(e){
+    console.error("Sign-up failed:", e);
+    errEl.textContent = (e && e.code==="auth/email-already-in-use")
+      ? "That email is already registered \u2014 sign in instead, and you\u2019ll be asked for the code."
+      : "Sign-up failed. Please check your details and try again.";
+  }
 }
 function shareFallback(text){
   if(confirm("Share this?\n\n"+text+"\n\nOK opens WhatsApp. Cancel copies it instead.")){
@@ -5889,7 +6492,7 @@ async function declineRequest(id){
 }
 function requestRowHTML(r){
   const when=new Date(r.ts).toLocaleString([], {weekday:"short", hour:"2-digit", minute:"2-digit"});
-  const what = r.type==="game" ? "\ud83c\udfb2 Activity" : "\ud83c\udf81 Family reward";
+  const what = r.type==="game" ? "\ud83c\udfb2 Activity" : "\ud83c\udf81 Reward";
   return `<div class="requestrow">
     <div style="flex:1;min-width:180px">
       <div><strong>${escapeHtml(r.childName)}</strong> would like <strong>${escapeHtml(r.itemName)}</strong></div>
@@ -6595,7 +7198,27 @@ function selectSignupRole(role){
   document.getElementById("roleMumBtn").classList.toggle("selected", role==="Mum");
   document.getElementById("roleDadBtn").classList.toggle("selected", role==="Dad");
 }
+/* An invited grandparent or tutor used to be stuck: the only sign-up path
+   created a brand new family, so they never reached the screen that takes a
+   code. They now make an account with no family and land straight on it. */
+function setSignupMode(mode){
+  window.__signupMode = mode==="join" ? "join" : "new";
+  const join = window.__signupMode==="join";
+  const set=(id,on)=>{const el=document.getElementById(id); if(el) el.classList.toggle("hidden", !on);};
+  set("signupFamilyName", !join);
+  set("signupRoleBox", !join);
+  const nb=document.getElementById("signupModeNew");
+  const jb=document.getElementById("signupModeJoin");
+  if(nb) nb.classList.toggle("selected", !join);
+  if(jb) jb.classList.toggle("selected", join);
+  const note=document.getElementById("signupModeNote");
+  if(note) note.textContent = join
+    ? "For a grandparent, uncle, aunty or tutor who has been given an invitation code. Make your account here, then type the code on the next screen \u2014 it decides what you can see and do."
+    : "This creates a new family and makes you its first parent. Everyone else gets their own login afterwards.";
+  const err=document.getElementById("signupError"); if(err) err.textContent="";
+}
 async function submitSignUp(){
+  if(window.__signupMode==="join") return submitSignUpJoin();
   const familyName=document.getElementById("signupFamilyName").value.trim();
   const name=document.getElementById("signupName").value.trim();
   const email=document.getElementById("signupEmail").value.trim();
@@ -6671,6 +7294,10 @@ async function createParentInvite(role){
   }
   if(btn){ btn.disabled=false; btn.textContent="\u{1F517} Invite another parent"; }
 }
+function prefillJoinName(){
+  const el=document.getElementById("joinPersonName");
+  if(el && window.__pendingJoinName && !el.value) el.value=window.__pendingJoinName;
+}
 function selectJoinRole(role){
   window.__joinRole=role;
   document.getElementById("joinRoleMum").classList.toggle("selected", role==="Mum");
@@ -6693,7 +7320,10 @@ async function submitJoinCode(){
       errEl.textContent="That code has expired. Ask them to tap Invite another parent again \u2014 codes last fifteen minutes.";
       return;
     }
-    await withTimeout(window.fpc.redeemInvite(code, invite, personName, window.__joinRole||"Dad"), 20000, "Joining the family");
+    const labelEl=document.getElementById("joinRoleLabel");
+    const label=(labelEl && labelEl.value.trim())
+      || (invite.role==="tutor" ? "Tutor" : invite.role==="family" ? "Family" : "Parent");
+    await withTimeout(window.fpc.redeemInvite(code, invite, personName, label), 20000, "Joining the family");
     await loadApp();
   }catch(e){
     console.error("Could not join the family:", e);
