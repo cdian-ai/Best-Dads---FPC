@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Dougoun Kids — Family Points Card</title>
+<title>Dougoun Kids — Points Card</title>
 <link rel="icon" href='data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><rect width="24" height="24" rx="5" fill="%235b63d8"/><g fill="%23fff"><path d="M8 15l-3 8 4-2 3 2.4 3-2.4 4 2-3-8z" opacity=".72"/><circle cx="12" cy="9" r="7" fill="none" stroke="%23fff" stroke-width="1.7"/><path d="M12 5l1.2 2.5 2.7.4-2 1.9.5 2.8-2.4-1.3-2.4 1.3.5-2.8-2-1.9 2.7-.4z"/></g></svg>'>
 <meta name="theme-color" content="#5b63d8">
 <link rel="manifest" href="manifest.json">
@@ -355,6 +355,7 @@
   .spendtabs button{background:#eef0ff;color:#3e46ad;font-size:13px;padding:13px 6px;width:auto}
   .spendtabs button.on{background:var(--accent);color:#fff}
   @media(max-width:760px){ .familycover{height:112px} }
+  .accountbar:empty,.accountbar.bare{background:none;border:0;box-shadow:none;padding:0;margin:0}
   .accountbuttons{display:flex;gap:8px;flex-wrap:wrap}.small{font-size:12px;color:var(--muted);margin-top:3px}
   /* Everything except the one action a parent actually came here to do lives
      behind the menu. Eight buttons filled the whole first screen on a phone. */
@@ -664,7 +665,7 @@
 <div id="authGate" class="gatewrap hidden">
   <div class="gatecard">
     <div class="logo"><svg class="mark" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M8 15l-3 8 4-2 3 2.4 3-2.4 4 2-3-8z" fill="currentColor" opacity=".72"/><circle cx="12" cy="9" r="7" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M12 5l1.2 2.5 2.7.4-2 1.9.5 2.8-2.4-1.3-2.4 1.3.5-2.8-2-1.9 2.7-.4z" fill="currentColor"/></svg><span>Dougoun Kids</span></div>
-    <h1 style="font-size:22px;margin:0 0 4px">Family Points Card</h1>
+    <h1 style="font-size:22px;margin:0 0 4px">Points Card</h1>
     <p class="sub">A positive points system for celebrating kindness, good manners, and Islamic values — together, from any device.</p>
 
     <div id="signInForm" style="text-align:left;display:grid;gap:8px;margin-top:16px">
@@ -708,7 +709,7 @@
 <div id="welcomeScreen" class="gatewrap hidden">
   <div class="gatecard">
     <div class="logo"><svg class="mark" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M8 15l-3 8 4-2 3 2.4 3-2.4 4 2-3-8z" fill="currentColor" opacity=".72"/><circle cx="12" cy="9" r="7" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M12 5l1.2 2.5 2.7.4-2 1.9.5 2.8-2.4-1.3-2.4 1.3.5-2.8-2-1.9 2.7-.4z" fill="currentColor"/></svg><span>Dougoun Kids</span></div>
-    <h1 style="font-size:22px;margin:0 0 4px">Welcome to Family Points Card</h1>
+    <h1 style="font-size:22px;margin:0 0 4px">Welcome to Points Card</h1>
     <p class="sub">A simple, positive way to celebrate kindness, good manners, and Islamic values as a family — wherever everyone is.</p>
     <button class="primary" style="margin-top:16px" onclick="dismissWelcome()">Get started</button>
   </div>
@@ -910,7 +911,7 @@
 <div id="mainApp" class="wrap hidden">
 <header>
   <div class="logo"><svg class="mark" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M8 15l-3 8 4-2 3 2.4 3-2.4 4 2-3-8z" fill="currentColor" opacity=".72"/><circle cx="12" cy="9" r="7" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M12 5l1.2 2.5 2.7.4-2 1.9.5 2.8-2.4-1.3-2.4 1.3.5-2.8-2-1.9 2.7-.4z" fill="currentColor"/></svg><span>Dougoun Kids</span></div>
-  <h1>Family Points Card</h1>
+  <h1>Points Card</h1>
   <p class="sub">A positive system blending Islamic values and everyday good manners — helping children grow into kind, responsible people.</p>
 
   <div id="familyCover" class="familycover hidden" onclick="onCoverClick()">
@@ -921,18 +922,21 @@
   <div id="coverEmpty" class="coverempty hidden" onclick="triggerCoverUpload()">📷 Add a family photo</div>
   <input type="file" id="coverFileInput" accept="image/*" class="hidden" onchange="handleCoverUpload(this.files[0])">
   <div id="accountBar" class="accountbar">
-    <div class="memberhead">
+    <!-- Who you are signed in as matters on a shared device, but not enough to
+         hold the top of every screen. It lives at the head of the menu now. -->
+    <div class="memberhead hidden" id="identityHead">
       <div id="avatarWrap"><div class="avatar-placeholder-lg">👤</div></div>
       <div>
         <strong id="familyDisplay">No family account</strong>
         <div class="small" id="childDisplay">No child selected</div>
       </div>
     </div>
-    <div class="accountbuttons" id="quickActions">
-      <button class="primary" id="btnGivePoints" onclick="addPointPrompt()">＋ Give points</button>
-      <button class="light" id="btnMenu" onclick="toggleMenu()">☰ Menu <span id="menuBadge"></span></button>
+    <div class="accountbuttons hidden" id="quickActions">
+      <button class="primary hidden" id="btnGivePoints" onclick="addPointPrompt()">＋ Give points</button>
+      <button class="light hidden" id="btnMenu" onclick="toggleMenu()">☰ Menu <span id="menuBadge"></span></button>
     </div>
     <div class="menusheet hidden" id="menuSheet">
+      <p class="small" id="menuWho" style="margin:0 0 2px;padding:0 4px"></p>
       <button class="light" id="btnFamily" onclick="showAccountPanel()">👨‍👩‍👧 Family members</button>
       <button class="light" id="btnRequests" onclick="showRequestsPanel()">🔔 Requests</button>
       <button class="light" id="btnOverview" onclick="showOverviewPanel()">📊 Overview</button>
@@ -1935,7 +1939,7 @@ const TIP_CATS = [
   {key:"behaviour", label:"Behaviour"}
 ];
 
-const APP_VERSION = "v58";
+const APP_VERSION = "v59";
 const today = new Date().toISOString().slice(0,10);
 let app = {families:[],currentFamily:null,currentChild:null};
 let categories = [];
@@ -3243,9 +3247,12 @@ const NUDGES = [
   {id:"gone-quiet", rank:2,
    when:c=>c.everAwarded && c.sinceAward>=4,
    text:c=>["\u{1f440}","It\u2019s been quiet for "+Math.floor(c.sinceAward)+" days","The children can see the gap on their line too. One small thing today pulls it back."]},
-  {id:"requests-waiting", rank:3,
-   when:c=>c.pend.length>=3 && c.pend.every(r=>daysAgo(r.ts)>=3),
-   text:c=>["\u{1f514}",c.pend.length+" requests are waiting","A no is fine \u2014 it\u2019s the waiting that stops them asking again."]},
+  {id:"requests-waiting", rank:2,
+   when:c=>c.pend.length>=1 && c.pend.every(r=>daysAgo(r.ts)>=2),
+   text:c=>[ "\u{1f514}",
+     c.pend.length===1 ? "A request has been waiting two days"
+                       : c.pend.length+" requests are waiting",
+     "A no is fine \u2014 it\u2019s the waiting that stops them asking again."]},
   {id:"second-parent", rank:6,
    when:c=>c.parents.length<2 && c.sinceStart>=7,
    text:()=>["\u{1f91d}","It works better with two of you","A second parent can award points, answer requests, and earn points from you. Family members \u2192 Invite another parent."]},
@@ -4232,6 +4239,12 @@ function renderAccounts(){
   // banner it controls was on screen.
   const champ=document.getElementById("championToggle");
   if(champ) champ.checked = !!(app.settings && app.settings.showChampion);
+  const who=document.getElementById("menuWho");
+  const meNow=sessionMember();
+  if(who) who.textContent = f
+    ? (f.name + " \u00b7 signed in as " + (meNow?meNow.name:"\u2014")
+       + (meNow && isParentRole(meNow) ? " ("+(roleLabel(meNow)||"Parent")+")" : ""))
+    : "";
   document.getElementById("familyDisplay").textContent=f?("👨‍👩‍👧 "+f.name):"No family account";
   const c=currentChild();
   const me=sessionMember();
@@ -5253,8 +5266,15 @@ function applyRoleChrome(){
   set("cards", !kid);
   set("championBanner", !kid && app.settings && app.settings.showChampion);
   // Parent-only controls and sections
-  ["btnFamily","btnOverview","btnActivity","btnRequests","btnProgress","editModeBtn","btnGivePoints","btnResetDay"]
+  ["btnFamily","btnOverview","btnActivity","btnRequests","btnProgress","editModeBtn","btnResetDay"]
     .forEach(id=>set(id, !kid));
+  // One Give points and one menu: the wide tile on the home screen, and the
+  // fixed button. The pair inside the old account bar were the duplicates.
+  set("btnGivePoints", false);
+  set("btnMenu", false);
+  set("identityHead", false);
+  const ab=document.getElementById("accountBar");
+  if(ab) ab.classList.toggle("bare", !kid);
   set("btnSignOut", true);   // anyone signed in can hand the device on
   const sheet=document.getElementById("menuSheet");
   const quick=document.getElementById("quickActions");
@@ -5267,7 +5287,8 @@ function applyRoleChrome(){
     if(mb) mb.classList.add("hidden");
     if(out && quick && out.parentElement !== quick) quick.appendChild(out);
   }else{
-    if(mb) mb.classList.remove("hidden");
+    // The menu lives in the fixed button now; this one stays retired.
+    if(mb) mb.classList.add("hidden");
     if(out && sheet && out.parentElement !== sheet) sheet.appendChild(out);
   }
   if(!kid){
@@ -5767,16 +5788,11 @@ function renderRequests(){
   if(btn) btn.innerHTML = "\ud83d\udd14 Requests" + (pend.length?`<span class="badge">${pend.length}</span>`:"");
   const mb=document.getElementById("menuBadge");
   if(mb) mb.innerHTML = (isParentSession() && pend.length) ? `<span class="badge">${pend.length}</span>` : "";
-  if(banner){
-    if(isParentSession() && pend.length){
-      banner.classList.remove("hidden");
-      banner.innerHTML = `<h2>\ud83d\udd14 ${pend.length} request${pend.length>1?"s":""} waiting for you</h2>
-        <p class="small" style="margin:0">Your children have asked for these. Points are only taken when you approve \u2014 turning one down costs them nothing.</p>
-        ${pend.map(requestRowHTML).join("")}`;
-    }else{
-      banner.classList.add("hidden"); banner.innerHTML="";
-    }
-  }
+  // The home screen already carries a Requests tile with a count on it. The
+  // banner underneath it was the same fact, twice, and it grew with every
+  // request until it owned the whole screen. What is left is the tile, plus a
+  // nudge if a request has been sitting unanswered.
+  if(banner){ banner.classList.add("hidden"); banner.innerHTML=""; }
   if(panelList){
     const recent=(app.requests||[]).slice(0,12);
     if(!recent.length){
