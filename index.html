@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Dougoun Kids — Points Card</title>
+<title>Points Card</title>
 <link rel="icon" href='data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><rect width="24" height="24" rx="5" fill="%235b63d8"/><g fill="%23fff"><path d="M8 15l-3 8 4-2 3 2.4 3-2.4 4 2-3-8z" opacity=".72"/><circle cx="12" cy="9" r="7" fill="none" stroke="%23fff" stroke-width="1.7"/><path d="M12 5l1.2 2.5 2.7.4-2 1.9.5 2.8-2.4-1.3-2.4 1.3.5-2.8-2-1.9 2.7-.4z"/></g></svg>'>
 <meta name="theme-color" content="#5b63d8">
 <link rel="manifest" href="manifest.json">
@@ -11,7 +11,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="Dougoun Kids">
+<meta name="apple-mobile-web-app-title" content="Points Card">
 <meta name="description" content="A positive points system for celebrating kindness, good manners and everyday effort, together as a family.">
 <style>
   :root {
@@ -176,8 +176,7 @@
   .tile{display:flex;align-items:center;gap:12px;text-align:left;width:auto;
         background:#fff;border:1px solid #e6e8f0;border-left:7px solid #b9bed6;
         border-radius:18px;padding:13px 15px;min-height:70px;color:var(--ink);
-        box-shadow:0 3px 10px rgba(24,22,60,.06);
-        animation:tilein .34s cubic-bezier(.2,.8,.3,1) both}
+        box-shadow:0 3px 10px rgba(24,22,60,.06);transition:transform .12s ease}
   .tile:active{transform:scale(.975)}
   .tile .tileicon{font-size:27px;line-height:1;flex-shrink:0}
   .tile .tilebody{flex:1;min-width:0}
@@ -197,22 +196,19 @@
   .c-rose{border-left-color:#e06f9c}    .c-rose .tilepts{color:#b64e78}
   .c-violet{border-left-color:#a05fd6}  .c-violet .tilepts{color:#7c42ab}
   .c-slate{border-left-color:#8d92ab}   .c-slate .tilepts{color:#6b6f88}
-  @keyframes tilein{from{opacity:0;transform:translateY(10px) scale(.98)}to{opacity:1;transform:none}}
-  @media (prefers-reduced-motion: reduce){ .tile{animation:none} }
 
-  /* Quick points: a little heat on the buttons that matter most. */
-  .quickact{position:relative;overflow:hidden}
-  .qflame{position:absolute;inset:0;border-radius:14px;pointer-events:none;
-          background:linear-gradient(120deg,rgba(255,166,0,0) 30%,rgba(255,166,0,.30) 50%,rgba(255,86,0,0) 70%);
-          background-size:220% 100%;opacity:0}
-  @media (prefers-reduced-motion: no-preference){
-    .quickact:not(.ticked) .qflame{opacity:1;animation:qflame 2.6s linear infinite}
-    .quickact:nth-child(2n):not(.ticked) .qflame{animation-delay:.7s}
-    .quickact:nth-child(3n):not(.ticked) .qflame{animation-delay:1.4s}
-  }
-  @keyframes qflame{from{background-position:220% 0}to{background-position:-120% 0}}
+  /* Motion answers a tap; it does not run on its own. A loop nobody asked for
+     is just something moving in the corner of your eye. */
+  .quickact{position:relative}
   .quickact:not(.ticked){border-color:#f3d6a4}
   .quickact:active{transform:scale(.97)}
+  .pop{animation:pop .42s cubic-bezier(.2,.9,.3,1.2)}
+  @keyframes pop{
+    0%{transform:scale(1)}
+    35%{transform:scale(1.045);background:#e4f7ed;border-color:#8fd9b4}
+    100%{transform:scale(1)}
+  }
+  @media (prefers-reduced-motion: reduce){ .pop{animation:none} }
   .notebox{background:#fffaef;border:1px solid #f0e2bd;border-radius:16px;padding:12px 13px;margin-bottom:14px}
   .notebox input{width:100%;font-size:15px}
   .quickcard{background:#fff;border-radius:20px;padding:14px;box-shadow:var(--shadow);margin-bottom:12px}
@@ -431,6 +427,9 @@
   .accountbuttons{display:flex;gap:8px;flex-wrap:wrap}.small{font-size:12px;color:var(--muted);margin-top:3px}
   /* Everything except the one action a parent actually came here to do lives
      behind the menu. Eight buttons filled the whole first screen on a phone. */
+  .menugroup{margin:10px 4px 2px;font-size:11px;font-weight:800;letter-spacing:.06em;
+             text-transform:uppercase;color:var(--muted)}
+  .menugroup:first-of-type{margin-top:4px}
   .menusheet{position:fixed;left:12px;right:12px;top:calc(62px + env(safe-area-inset-top));
              z-index:145;display:grid;gap:7px;max-width:420px;margin:0;padding:12px;max-height:72vh;overflow-y:auto;
              background:#fff;border:1px solid #e1e3f4;border-radius:18px;box-shadow:0 18px 44px rgba(24,22,60,.22)}
@@ -485,6 +484,10 @@
   .childrow button{padding:6px 9px;width:auto}.selected{outline:2px solid var(--accent)}
   .loading{text-align:center;padding:40px;color:var(--muted)}
   .logo .mark{width:17px;height:17px;flex-shrink:0;display:block}
+  /* One line: the menu button sits left as a fixed control, so the wordmark
+     goes right and the header stops being three deep. */
+  header{padding-top:calc(6px + env(safe-area-inset-top))}
+  header .logo{justify-content:flex-end;margin:0 0 10px}
   .logo{display:inline-flex;align-items:center;gap:7px;background:linear-gradient(90deg,var(--accent),var(--accent2));
         color:white;font-weight:800;font-size:13px;letter-spacing:.06em;text-transform:uppercase;
         padding:7px 14px;border-radius:999px;margin-bottom:12px}
@@ -743,8 +746,7 @@
 <body>
 <div id="authGate" class="gatewrap hidden">
   <div class="gatecard">
-    <div class="logo"><svg class="mark" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M8 15l-3 8 4-2 3 2.4 3-2.4 4 2-3-8z" fill="currentColor" opacity=".72"/><circle cx="12" cy="9" r="7" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M12 5l1.2 2.5 2.7.4-2 1.9.5 2.8-2.4-1.3-2.4 1.3.5-2.8-2-1.9 2.7-.4z" fill="currentColor"/></svg><span>Dougoun Kids</span></div>
-    <h1 style="font-size:22px;margin:0 0 4px">Points Card</h1>
+    <div class="logo"><svg class="mark" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M8 15l-3 8 4-2 3 2.4 3-2.4 4 2-3-8z" fill="currentColor" opacity=".72"/><circle cx="12" cy="9" r="7" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M12 5l1.2 2.5 2.7.4-2 1.9.5 2.8-2.4-1.3-2.4 1.3.5-2.8-2-1.9 2.7-.4z" fill="currentColor"/></svg><span>Points Card</span></div>
     <p class="sub">A positive points system for celebrating kindness, good manners, and Islamic values — together, from any device.</p>
 
     <div id="signInForm" style="text-align:left;display:grid;gap:8px;margin-top:16px">
@@ -757,7 +759,7 @@
         <p style="margin:0 0 6px;font-weight:800;font-size:15px">🔑 Ask Mum or Dad</p>
         <p class="small" style="margin:0 0 10px">Nothing is lost and nothing is broken. Your points are all still there. A parent can give you a new password in about ten seconds.</p>
         <p class="small" style="margin:0 0 4px;font-weight:800">Show them this bit 👇</p>
-        <p class="small" style="margin:0">Open Dougoun Kids → <strong>☰ Menu</strong> → <strong>👨‍👩‍👧 Family members</strong> → tap <strong>✉️</strong> next to their name. Then check your own email for the link.</p>
+        <p class="small" style="margin:0">Open Points Card → <strong>☰ Menu</strong> → <strong>👨‍👩‍👧 Family members</strong> → tap <strong>✉️</strong> next to their name. Then check your own email for the link.</p>
       </div>
       <p class="small"><a href="#" onclick="submitForgotPassword();return false;">Forgot password?</a></p>
       <p class="small" style="background:#f7f7ff;border:1px solid #e1e3f4;border-radius:12px;padding:9px 11px;margin:2px 0">
@@ -791,21 +793,20 @@
 </div>
 <div id="welcomeScreen" class="gatewrap hidden">
   <div class="gatecard">
-    <div class="logo"><svg class="mark" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M8 15l-3 8 4-2 3 2.4 3-2.4 4 2-3-8z" fill="currentColor" opacity=".72"/><circle cx="12" cy="9" r="7" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M12 5l1.2 2.5 2.7.4-2 1.9.5 2.8-2.4-1.3-2.4 1.3.5-2.8-2-1.9 2.7-.4z" fill="currentColor"/></svg><span>Dougoun Kids</span></div>
-    <h1 style="font-size:22px;margin:0 0 4px">Welcome to Points Card</h1>
+    <div class="logo"><svg class="mark" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M8 15l-3 8 4-2 3 2.4 3-2.4 4 2-3-8z" fill="currentColor" opacity=".72"/><circle cx="12" cy="9" r="7" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M12 5l1.2 2.5 2.7.4-2 1.9.5 2.8-2.4-1.3-2.4 1.3.5-2.8-2-1.9 2.7-.4z" fill="currentColor"/></svg><span>Points Card</span></div>
     <p class="sub">A simple, positive way to celebrate kindness, good manners, and Islamic values as a family — wherever everyone is.</p>
     <button class="primary" style="margin-top:16px" onclick="dismissWelcome()">Get started</button>
   </div>
 </div>
 <div id="bootGate" class="gatewrap hidden">
   <div class="gatecard">
-    <div class="logo"><svg class="mark" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M8 15l-3 8 4-2 3 2.4 3-2.4 4 2-3-8z" fill="currentColor" opacity=".72"/><circle cx="12" cy="9" r="7" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M12 5l1.2 2.5 2.7.4-2 1.9.5 2.8-2.4-1.3-2.4 1.3.5-2.8-2-1.9 2.7-.4z" fill="currentColor"/></svg><span>Dougoun Kids</span></div>
+    <div class="logo"><svg class="mark" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M8 15l-3 8 4-2 3 2.4 3-2.4 4 2-3-8z" fill="currentColor" opacity=".72"/><circle cx="12" cy="9" r="7" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M12 5l1.2 2.5 2.7.4-2 1.9.5 2.8-2.4-1.3-2.4 1.3.5-2.8-2-1.9 2.7-.4z" fill="currentColor"/></svg><span>Points Card</span></div>
     <p class="sub" style="margin-top:12px">Loading your family…</p>
   </div>
 </div>
 <div id="errorGate" class="gatewrap hidden">
   <div class="gatecard">
-    <div class="logo"><svg class="mark" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M8 15l-3 8 4-2 3 2.4 3-2.4 4 2-3-8z" fill="currentColor" opacity=".72"/><circle cx="12" cy="9" r="7" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M12 5l1.2 2.5 2.7.4-2 1.9.5 2.8-2.4-1.3-2.4 1.3.5-2.8-2-1.9 2.7-.4z" fill="currentColor"/></svg><span>Dougoun Kids</span></div>
+    <div class="logo"><svg class="mark" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M8 15l-3 8 4-2 3 2.4 3-2.4 4 2-3-8z" fill="currentColor" opacity=".72"/><circle cx="12" cy="9" r="7" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M12 5l1.2 2.5 2.7.4-2 1.9.5 2.8-2.4-1.3-2.4 1.3.5-2.8-2-1.9 2.7-.4z" fill="currentColor"/></svg><span>Points Card</span></div>
     <h1 style="font-size:20px;margin:12px 0 4px">Couldn't load your family</h1>
     <p class="sub" id="errorText"></p>
     <p class="small" id="errorDetail" style="color:#a63e3e;word-break:break-word"></p>
@@ -817,7 +818,7 @@
 </div>
 <div id="onboarding" class="gatewrap hidden">
   <div class="onbcard">
-    <div style="text-align:center"><div class="logo"><svg class="mark" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M8 15l-3 8 4-2 3 2.4 3-2.4 4 2-3-8z" fill="currentColor" opacity=".72"/><circle cx="12" cy="9" r="7" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M12 5l1.2 2.5 2.7.4-2 1.9.5 2.8-2.4-1.3-2.4 1.3.5-2.8-2-1.9 2.7-.4z" fill="currentColor"/></svg><span>Dougoun Kids</span></div></div>
+    <div style="text-align:center"><div class="logo"><svg class="mark" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M8 15l-3 8 4-2 3 2.4 3-2.4 4 2-3-8z" fill="currentColor" opacity=".72"/><circle cx="12" cy="9" r="7" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M12 5l1.2 2.5 2.7.4-2 1.9.5 2.8-2.4-1.3-2.4 1.3.5-2.8-2-1.9 2.7-.4z" fill="currentColor"/></svg><span>Points Card</span></div></div>
     <div class="onbdots" id="onbDots"></div>
 
     <div class="onbstep" id="onbStep1">
@@ -884,7 +885,7 @@
 
 <div id="noFamilyGate" class="gatewrap hidden">
   <div class="gatecard">
-    <div class="logo"><svg class="mark" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M8 15l-3 8 4-2 3 2.4 3-2.4 4 2-3-8z" fill="currentColor" opacity=".72"/><circle cx="12" cy="9" r="7" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M12 5l1.2 2.5 2.7.4-2 1.9.5 2.8-2.4-1.3-2.4 1.3.5-2.8-2-1.9 2.7-.4z" fill="currentColor"/></svg><span>Dougoun Kids</span></div>
+    <div class="logo"><svg class="mark" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M8 15l-3 8 4-2 3 2.4 3-2.4 4 2-3-8z" fill="currentColor" opacity=".72"/><circle cx="12" cy="9" r="7" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M12 5l1.2 2.5 2.7.4-2 1.9.5 2.8-2.4-1.3-2.4 1.3.5-2.8-2-1.9 2.7-.4z" fill="currentColor"/></svg><span>Points Card</span></div>
     <h1 style="font-size:20px;margin:12px 0 4px">This login isn't part of a family</h1>
     <p class="sub">You're signed in as <strong id="noFamilyEmail">—</strong>, but this account isn't in any family yet.</p>
 
@@ -988,9 +989,7 @@
 </div>
 <div id="mainApp" class="wrap hidden">
 <header>
-  <div class="logo"><svg class="mark" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M8 15l-3 8 4-2 3 2.4 3-2.4 4 2-3-8z" fill="currentColor" opacity=".72"/><circle cx="12" cy="9" r="7" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M12 5l1.2 2.5 2.7.4-2 1.9.5 2.8-2.4-1.3-2.4 1.3.5-2.8-2-1.9 2.7-.4z" fill="currentColor"/></svg><span>Dougoun Kids</span></div>
-  <h1>Points Card</h1>
-  <p class="sub">A positive system blending Islamic values and everyday good manners — helping children grow into kind, responsible people.</p>
+  <div class="logo"><svg class="mark" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M8 15l-3 8 4-2 3 2.4 3-2.4 4 2-3-8z" fill="currentColor" opacity=".72"/><circle cx="12" cy="9" r="7" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M12 5l1.2 2.5 2.7.4-2 1.9.5 2.8-2.4-1.3-2.4 1.3.5-2.8-2-1.9 2.7-.4z" fill="currentColor"/></svg><span>Points Card</span></div>
 
   <div id="familyCover" class="familycover hidden" onclick="onCoverClick()">
     <div class="coverfade"></div>
@@ -1015,16 +1014,28 @@
     </div>
     <div class="menusheet hidden" id="menuSheet">
       <p class="small" id="menuWho" style="margin:0 0 2px;padding:0 4px"></p>
-      <button class="light" id="btnFamily" onclick="showAccountPanel()">👨‍👩‍👧 Family members</button>
+
+      <p class="menugroup">Today</p>
+      <button class="light" id="btnQuickMenu" onclick="showQuickPanel()">🔥 Quick points</button>
       <button class="light" id="btnRequests" onclick="showRequestsPanel()">🔔 Requests</button>
+      <button class="light" id="btnReviewMenu" onclick="showReviewPanel()">🗣️ Review together</button>
+      <button class="light" id="btnActivity" onclick="showActivityPanel()">📋 History</button>
+
+      <p class="menugroup">How they’re doing</p>
       <button class="light" id="btnOverview" onclick="showOverviewPanel()">📊 Overview</button>
       <button class="light" id="btnProgress" onclick="showProgressPanel()">📖 Progress</button>
-      <button class="light" id="btnRewardsMenu" onclick="showRewardsPanel()">🎁 Rewards &amp; activities</button>
-      <button class="light" id="btnGrownups" onclick="showGrownupsPanel()">🤝 The grown-ups</button>
-      <button class="light" id="btnActivity" onclick="showActivityPanel()">📋 History</button>
-      <button class="light" onclick="toggleEditMode()" id="editModeBtn">✏️ Edit Categories</button>
-      <button class="light" id="btnRefreshLists" onclick="applyRecommendedLists()">✨ Update to recommended lists</button>
+
+      <p class="menugroup">People</p>
+      <button class="light" id="btnFamily" onclick="showAccountPanel()">👨‍👩‍👧 Family members</button>
       <button class="light" id="btnTutors" onclick="showTutorPanel()">📚 Tutors</button>
+      <button class="light" id="btnGrownups" onclick="showGrownupsPanel()">🤝 The grown-ups</button>
+
+      <p class="menugroup">Set up</p>
+      <button class="light" id="btnRewardsMenu" onclick="showRewardsPanel()">🎁 Rewards &amp; activities</button>
+      <button class="light" onclick="toggleEditMode()" id="editModeBtn">✏️ Edit categories</button>
+      <button class="light" id="btnRefreshLists" onclick="applyRecommendedLists()">✨ Update to recommended lists</button>
+
+      <p class="menugroup">Help</p>
       <button class="light" id="btnRules" onclick="showRulesPanel()">📜 House rules</button>
       <button class="light" id="btnHowItWorks" onclick="openHowItWorks()">❓ How this works</button>
       <button class="light" id="btnResetDay" onclick="resetDay()">↻ Reset today</button>
@@ -1422,7 +1433,7 @@
 <p class="footer" id="syncStatus">☁️ Connecting…</p>
 <p class="footer" id="versionTag" style="opacity:.6"></p>
 <p class="footer hidden" id="installRow">
-  <button class="light" style="width:auto" onclick="promptInstall()">📲 Add Dougoun Kids to your home screen</button>
+  <button class="light" style="width:auto" onclick="promptInstall()">📲 Add Points Card to your home screen</button>
 </p>
 </div>
 
@@ -2635,7 +2646,7 @@ const TIP_CATS = [
   {key:"behaviour", label:"Behaviour"}
 ];
 
-const APP_VERSION = "v65";
+const APP_VERSION = "v66";
 const today = new Date().toISOString().slice(0,10);
 let app = {families:[],currentFamily:null,currentChild:null};
 let categories = [];
@@ -2962,7 +2973,7 @@ if(typeof window.addEventListener === "function"){
 
 function showVersion(){
   const el=document.getElementById("versionTag");
-  if(el) el.textContent = "Dougoun Kids " + APP_VERSION;
+  if(el) el.textContent = "Points Card " + APP_VERSION;
 }
 function setSyncStatus(text){
   const el=document.getElementById("syncStatus");
@@ -3510,6 +3521,14 @@ function renderTutorPanel(){
     </section>`;
   }).join("");
 }
+/* A single confirmation on the thing that was tapped. Nothing loops. */
+function popThen(el){
+  if(!el || !el.classList) return;
+  el.classList.remove("pop");
+  void el.offsetWidth;          // restart the animation on a repeated tap
+  el.classList.add("pop");
+  setTimeout(()=>el.classList.remove("pop"), 500);
+}
 function showQuickPanel(){ openPanel("quickPanel"); renderQuickPanel(); }
 function renderQuickPanel(){
   const body=document.getElementById("quickBody");
@@ -3531,8 +3550,7 @@ function renderQuickPanel(){
       <div class="quickacts">${actions.map(a=>{
         const done = a.opts.once && valueFor(s, a.cat, a.name) > 0;
         return `<button class="quickact ${done?"ticked":""}" ${done?"disabled":""}
-          onclick="quickAward('${c.id}',${a.ci},'${String(a.name).replace(/'/g,"\\'")}',${a.points})">
-          <span class="qflame"></span>
+          onclick="popThen(this);quickAward('${c.id}',${a.ci},'${String(a.name).replace(/'/g,"\\'")}',${a.points})">
           <span class="qname">${escapeHtml(a.name)}</span>
           <span class="qpts">${done?"\u2713":"+"+a.points}</span></button>`;
       }).join("")}</div>
@@ -6406,7 +6424,8 @@ function applyRoleChrome(){
   set("cards", !kid);
   set("championBanner", !kid && app.settings && app.settings.showChampion);
   // Parent-only controls and sections
-  ["btnFamily","btnOverview","btnActivity","btnRequests","btnProgress","btnRewardsMenu","btnGrownups","btnTutors","btnRules","editModeBtn","btnResetDay"]
+  ["btnFamily","btnOverview","btnActivity","btnRequests","btnProgress","btnRewardsMenu","btnGrownups",
+   "btnTutors","btnRules","btnQuickMenu","btnReviewMenu","editModeBtn","btnResetDay"]
     .forEach(id=>set(id, !kid));
   // One Give points and one menu: the wide tile on the home screen, and the
   // fixed button. The pair inside the old account bar were the duplicates.
@@ -6677,8 +6696,7 @@ function grownupsCardHTML(parent){
             const can = spendable >= r.points;
             const g = groupById(groupOf(r,true), true);
             return `<button class="tile c-${tileColour(r,true)} ${can?"afford":"locked"}"
-                style="animation-delay:${Math.min(idx,12)*28}ms"
-                ${can?"":"disabled"} onclick="parentRequestReward('${r.id}')">
+                ${can?"":"disabled"} onclick="popThen(this);parentRequestReward('${r.id}')">
               <span class="tileicon">${iconFor(r,"\ud83c\udf81")}</span>
               <span class="tilebody"><span class="tilename">${escapeHtml(r.name)}</span>
                 <span class="tilemeta">${escapeHtml(g?g.name:(r.kind||""))}</span></span>
@@ -7357,8 +7375,7 @@ function renderKidView(child){
     const blocked = capLeft===0;
     const label = item.__isGame ? "Activity" : (g ? g.name : (item.kind||""));
     return `<button class="tile c-${tileColour(item,false)} ${can&&!blocked?"afford":"locked"}"
-        style="animation-delay:${Math.min(idx,12)*28}ms"
-        ${can&&!blocked?"":"disabled"} onclick="kidBuy('${type}','${item.id}')">
+        ${can&&!blocked?"":"disabled"} onclick="popThen(this);kidBuy('${type}','${item.id}')">
       <span class="tileicon">${iconFor(item, item.__isGame?"\ud83c\udfb2":"\ud83c\udf81")}</span>
       <span class="tilebody">
         <span class="tilename">${escapeHtml(item.name)}</span>
