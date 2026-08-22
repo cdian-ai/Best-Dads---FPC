@@ -427,6 +427,30 @@
   .accountbuttons{display:flex;gap:8px;flex-wrap:wrap}.small{font-size:12px;color:var(--muted);margin-top:3px}
   /* Everything except the one action a parent actually came here to do lives
      behind the menu. Eight buttons filled the whole first screen on a phone. */
+  .treegroup{margin-top:20px}
+  .treegroup h3{margin:0 0 8px;font-size:12px;font-weight:800;letter-spacing:.06em;
+                text-transform:uppercase;color:var(--muted)}
+  .treeperson{display:flex;align-items:flex-start;gap:12px;background:#fff;border:1px solid #e6e8f0;
+              border-radius:18px;padding:13px 14px;margin-bottom:8px}
+  .treeav img,.treeav .avatar-placeholder{width:46px;height:46px;border-radius:50%;object-fit:cover;
+              font-size:22px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+  .treebody{flex:1;min-width:0}
+  .treename{display:block;font-size:15.5px;font-weight:800;line-height:1.25}
+  .treerole{display:block;font-size:12px;font-weight:700;color:var(--muted);margin-top:1px}
+  .treeabout{display:block;font-size:12.5px;color:#4b4372;margin-top:5px;line-height:1.45}
+  .treenote{display:block;margin-top:6px;font-size:11.5px;color:var(--muted);font-weight:700}
+  .treepill{display:inline-block;font-size:10.5px;font-weight:800;background:#f3f4fa;color:#6b6f88;
+            padding:3px 9px;border-radius:99px}
+  .treepill.on{background:#e4f7ed;color:#19744a}
+  .treechildren{margin:0 0 8px 30px;padding-left:14px;border-left:2px solid #e6e8f0}
+  .treechildren .treeperson{background:#f7f8fc;margin-bottom:6px}
+  .choosecard{display:flex;align-items:flex-start;gap:12px;text-align:left;width:auto;
+              background:#fff;border:1px solid #e1e3f4;border-radius:18px;padding:15px;
+              color:var(--ink);box-shadow:0 3px 10px rgba(24,22,60,.06)}
+  .choosecard:active{transform:scale(.985)}
+  .choosecard .chooseicon{font-size:26px;line-height:1}
+  .choosecard strong{display:block;font-size:15.5px;margin-bottom:3px}
+  .choosecard span span{font-size:12.5px;color:var(--muted);line-height:1.45}
   .signupwhat{background:#f7f7ff;border:1px solid #e1e3f4;border-radius:16px;padding:13px 14px;
               margin:4px 0;text-align:left}
   .signupwhat p{margin:0 0 9px;font-size:12.5px;line-height:1.5;color:var(--ink)}
@@ -786,10 +810,21 @@
     </div>
 
     <div id="signUpForm" class="hidden" style="text-align:left;display:grid;gap:8px;margin-top:16px">
-      <div style="display:flex;gap:8px">
-        <button type="button" id="signupModeNew" class="light selected" style="width:auto;flex:1" onclick="setSignupMode('new')">Start a new family</button>
-        <button type="button" id="signupModeJoin" class="light" style="width:auto;flex:1" onclick="setSignupMode('join')">I have a code</button>
+      <div id="signupChoose" style="display:grid;gap:10px">
+        <p class="small" style="margin:0">Which of these are you doing?</p>
+        <button type="button" class="choosecard" onclick="setSignupMode('new')">
+          <span class="chooseicon">🏠</span>
+          <span><strong>Start a new family</strong>
+            <span>Nobody has invited you. You&rsquo;ll be its first parent, and everyone else joins afterwards.</span></span>
+        </button>
+        <button type="button" class="choosecard" onclick="setSignupMode('join')">
+          <span class="chooseicon">🔗</span>
+          <span><strong>I have an invitation code</strong>
+            <span>Someone in the family sent you eight characters. Parents, grandparents, uncles, aunties and tutors all join this way.</span></span>
+        </button>
       </div>
+      <div id="signupFields" class="hidden" style="display:grid;gap:8px">
+      <button type="button" class="light" style="width:auto;justify-self:start" onclick="setSignupMode(null)">← Back</button>
       <p class="small" id="signupModeNote" style="margin:0">This creates a new family and makes you its first parent. Everyone else — the other parent, each child, grandparents, tutors — gets their own login afterwards.</p>
       <div class="signupwhat">
         <p><strong>What you get</strong></p>
@@ -812,6 +847,7 @@
       </div>
       <button class="primary" onclick="submitSignUp()">Create account</button>
       <p class="small" id="signupError" style="color:#a63e3e"></p>
+      </div>
       <p class="small">Already have an account? <a href="#" onclick="switchToSignIn();return false;">Sign in</a></p>
     </div>
   </div>
@@ -915,7 +951,7 @@
     <h1 style="font-size:20px;margin:12px 0 4px">This login isn't part of a family</h1>
     <p class="sub">You're signed in as <strong id="noFamilyEmail">—</strong>, but this account isn't in any family yet.</p>
 
-    <div style="text-align:left;background:#f7f7ff;border:1px solid #e1e3f4;border-radius:16px;padding:14px;margin-top:16px">
+    <div id="joinBlock" style="text-align:left;background:#f7f7ff;border:1px solid #e1e3f4;border-radius:16px;padding:14px;margin-top:16px">
       <p class="small" style="margin:0 0 6px"><strong>Got an invitation code?</strong></p>
       <p class="small" style="margin:0 0 8px">Parents, grandparents, uncles, aunties and tutors all join this way. The code itself decides which — a parent generates it under <strong>Family members</strong>, and what they choose there is what you become.</p>
       <input id="joinCodeInput" type="text" placeholder="Code — e.g. K7PM4RQX" autocapitalize="characters" style="text-transform:uppercase;letter-spacing:.1em;font-weight:700">
@@ -928,8 +964,10 @@
     </div>
 
     <div style="display:grid;gap:8px;margin-top:14px">
-      <button class="primary" onclick="signOutDevice()">Sign in with a family login</button>
-      <button class="light" onclick="toggleStartFamily()" id="startFamilyBtn">Or start a new family with this login</button>
+      <p class="small" style="text-align:center;margin:4px 0 0">
+        No code? <a href="#" onclick="toggleStartFamily();return false;">Start a new family instead</a>
+        &middot; <a href="#" onclick="signOutDevice();return false;">Use a different login</a>
+      </p>
     </div>
 
     <div id="startFamilyForm" class="hidden" style="text-align:left;display:grid;gap:8px;margin-top:14px">
@@ -1055,6 +1093,7 @@
 
       <p class="menugroup">People</p>
       <button class="light" id="btnFamily" onclick="showAccountPanel()">👨‍👩‍👧 Family members</button>
+      <button class="light" id="btnTree" onclick="showTreePanel()">🌳 Family tree</button>
       <button class="light" id="btnTutors" onclick="showTutorPanel()">📚 Tutors</button>
       <button class="light" id="btnGrownups" onclick="showGrownupsPanel()">🤝 The grown-ups</button>
 
@@ -1165,6 +1204,11 @@
     <h2>📖 Progress</h2>
     <p class="small">What each child has covered and what they can do unaided. Every mark shows who made it.</p>
     <div id="progressBody" style="margin-top:10px"></div>
+  </div>
+
+  <div id="treePanel" class="panel hidden">
+    <button class="panelback" onclick="goHome()">← Home</button>
+    <div id="treeBody"></div>
   </div>
 
   <div id="tutorPanel" class="panel hidden">
@@ -1327,6 +1371,7 @@
     </section>
 
     <div class="helpline">
+      <button onclick="showTreePanel()">🌳 My family</button>
       <button onclick="showRulesPanel()">📜 House rules</button>
       <button onclick="startTour(kidTourKey(sessionMember()))">❓ How this works</button>
     </div>
@@ -2711,7 +2756,7 @@ const TIP_CATS = [
   {key:"behaviour", label:"Behaviour"}
 ];
 
-const APP_VERSION = "v70";
+const APP_VERSION = "v71";
 const today = new Date().toISOString().slice(0,10);
 let app = {families:[],currentFamily:null,currentChild:null};
 let categories = [];
@@ -3122,6 +3167,8 @@ function projectApp(raw){
         prefs: m.prefs || {},
         progress,
         forChildren: Array.isArray(m.forChildren) ? m.forChildren : [],
+        relation: m.relation || null, side: m.side || null,
+        about: m.about || "", noLogin: m.noLogin === true,
         balance, pointsByDate, prayerByDate, activityLog
       };
     });
@@ -4832,7 +4879,7 @@ async function toggleExcusedToday(childId){
    Before this, visibility was decided in five different functions and no single
    place could tell you what was open. screenNow === null means the home screen
    for whoever is signed in: the parent dashboard, or the child's own card. */
-const SCREENS = ["accountPanel","overviewPanel","activityPanel","requestsPanel","progressPanel","rewardsPanel","grownupsPanel","pickPanel","quickPanel","reviewPanel","rulesPanel","tutorPanel",
+const SCREENS = ["accountPanel","overviewPanel","activityPanel","requestsPanel","progressPanel","rewardsPanel","grownupsPanel","pickPanel","quickPanel","reviewPanel","rulesPanel","tutorPanel","treePanel",
                  "kidSpendScreen","kidLearnScreen","kidPointsScreen"];
 let screenNow = null;
 function showScreen(id){
@@ -4927,7 +4974,7 @@ function showPicker(mode){
   closeMenu();
   const f=currentFamily(); if(!f) return;
   const kids=f.children.filter(isChildRole);
-  const others=f.children.filter(c=>!isChildRole(c) && c.id!==sessionMemberId);
+  const others=f.children.filter(c=>!isChildRole(c) && c.id!==sessionMemberId && hasLogin(c));
   const list=document.getElementById("pickList");
   const pend=pendingRequests();
   const weekDates=getCurrentWeekDates();
@@ -5336,6 +5383,8 @@ async function setShowChampion(on){
   await saveApp();
   render();
 }
+/* A relative with no account has no password to reset, no card to open and no
+   points to receive. They belong on the tree and nowhere else. */
 function renderAccounts(){
   const f=currentFamily();
   // Keep the settings checkbox honest — it used to render unchecked while the
@@ -5695,6 +5744,137 @@ async function removeRewardById(id){
   if(i<0) return;
   await removeReward(i);
 }
+/* ---------- The family tree ----------
+   Two things at once: the children seeing who their grandparents are, and a
+   parent seeing who is who without reading a flat list. The people on it are
+   ordinary member rows \u2014 the only new idea is a relative who has no login at
+   all, so a grandmother who will never install anything is still on the tree. */
+const RELATIONS = [
+  {id:"grandmother", label:"Grandmother"}, {id:"grandfather", label:"Grandfather"},
+  {id:"aunt", label:"Aunt"}, {id:"uncle", label:"Uncle"},
+  {id:"cousin", label:"Cousin"}, {id:"other", label:"Other relative"}
+];
+function hasLogin(m){ return !!m && m.noLogin !== true; }
+function relationLabelOf(m){
+  const r=RELATIONS.find(x=>x.id===(m&&m.relation));
+  const base=r ? r.label : (relationLabel(m) || "Family");
+  const side=m && m.side;
+  return side ? base+" \u00b7 "+(side==="mum" ? "Mum\u2019s side" : "Dad\u2019s side") : base;
+}
+function relatives(){
+  const f=currentFamily();
+  return f ? f.children.filter(c=>!hasLogin(c) || (isFamilyRole(c) && c.relation)) : [];
+}
+async function addRelative(){
+  if(!requireParent()) return;
+  const name=prompt("Who are you adding?\n\nTheir name as the children would say it \u2014 e.g. Grandma Fatou.");
+  if(!name || !name.trim()) return;
+  const list=RELATIONS.map((r,i)=>(i+1)+". "+r.label).join("\n");
+  const pick=prompt("What are they to the children?\n\n"+list, "1");
+  const rel=RELATIONS[parseInt(pick,10)-1];
+  if(!rel) return;
+  const sidePick=prompt("Whose side?\n\n1. Mum\u2019s side\n2. Dad\u2019s side\n3. Neither / not sure", "1");
+  const side={1:"mum",2:"dad"}[parseInt(sidePick,10)] || null;
+  const about=prompt("A line about them, for the children to read (optional)\n\ne.g. Mum\u2019s mother. Lives in Conakry and makes the best jollof.", "") || "";
+  const id="rel_"+Math.abs(hashString(name+rel.id+Date.now())).toString(16);
+  try{
+    await window.fpc.saveMember(familyId, id, {
+      name:name.trim(), role:"family", relation:rel.id, side, about:about.trim(),
+      noLogin:true, age:rel.label, photo:null, email:null
+    });
+    renderTreePanel();
+  }catch(e){ console.error("Couldn't add a relative:", e); alert("That couldn\u2019t be saved."); }
+}
+async function removeRelative(id){
+  if(!requireParent()) return;
+  const m=memberById(id); if(!m) return;
+  if(!confirm("Take "+m.name+" off the family tree?")) return;
+  try{ await window.fpc.deleteMember(familyId, id); renderTreePanel(); }
+  catch(e){ console.error(e); alert("That couldn\u2019t be saved."); }
+}
+function personCardHTML(m, opts){
+  const o=opts||{};
+  const av=m.photo ? `<img src="${m.photo}" alt="">` : '<span class="avatar-placeholder">\ud83d\udc64</span>';
+  return `<div class="treeperson">
+      <span class="treeav">${av}</span>
+      <span class="treebody">
+        <span class="treename">${escapeHtml(m.name)}</span>
+        <span class="treerole">${escapeHtml(o.role || relationLabelOf(m))}</span>
+        ${m.about?`<span class="treeabout">${escapeHtml(m.about)}</span>`:""}
+        ${o.note?`<span class="treenote">${o.note}</span>`:""}
+      </span>
+      ${o.action||""}
+    </div>`;
+}
+function showTreePanel(){
+  const me=sessionMember();
+  if(me && isChildRole(me)){ showScreen("treePanel"); renderTreePanel(); return; }
+  openPanel("treePanel"); renderTreePanel();
+}
+function renderTreePanel(){
+  const body=document.getElementById("treeBody");
+  if(!body) return;
+  const me=sessionMember();
+  const f=currentFamily();
+  if(!f){ body.innerHTML='<p class="small">No family loaded.</p>'; return; }
+  const kids=f.children.filter(isChildRole);
+  const parents=f.children.filter(isParentRole);
+  const tutors=f.children.filter(isTutorRole);
+  const wider=f.children.filter(c=>isFamilyRole(c) && !isTutorRole(c));
+  const forChild = me && isChildRole(me);
+
+  if(forChild){
+    const others=kids.filter(c=>c.id!==me.id);
+    const bySide=(s)=>wider.filter(c=>c.side===s);
+    const noSide=wider.filter(c=>!c.side);
+    body.innerHTML = `<h2>\ud83c\udf33 My family</h2>
+      <p class="small">Everyone who\u2019s part of your family.</p>
+      <section class="treegroup"><h3>Mum and Dad</h3>
+        ${parents.map(p=>personCardHTML(p,{role:relationLabel(p)||"Parent"})).join("") || '<p class="small">Nobody yet.</p>'}</section>
+      ${others.length?`<section class="treegroup"><h3>Brothers and sisters</h3>
+        ${others.map(c=>personCardHTML(c,{role:"Age "+escapeHtml(c.age||"\u2014")})).join("")}</section>`:""}
+      ${bySide("mum").length?`<section class="treegroup"><h3>Mum\u2019s side</h3>
+        ${bySide("mum").map(c=>personCardHTML(c)).join("")}</section>`:""}
+      ${bySide("dad").length?`<section class="treegroup"><h3>Dad\u2019s side</h3>
+        ${bySide("dad").map(c=>personCardHTML(c)).join("")}</section>`:""}
+      ${noSide.length?`<section class="treegroup"><h3>Family</h3>
+        ${noSide.map(c=>personCardHTML(c)).join("")}</section>`:""}
+      ${wider.length?"":'<p class="small">Your grandparents, aunts and uncles will appear here once a parent adds them.</p>'}`;
+    return;
+  }
+
+  const pill=(m)=>hasLogin(m)
+    ? '<span class="treepill on">Has a login</span>'
+    : '<span class="treepill">No login needed</span>';
+  const del=(m)=>hasLogin(m) ? "" :
+    `<button class="xbtn" style="width:auto" onclick="removeRelative('${m.id}')">\u2715</button>`;
+  body.innerHTML = `<h2>\ud83c\udf33 Family tree</h2>
+    <p class="small">Everyone in this family, and who they are to each other. Adding a grandparent here doesn\u2019t create a login \u2014 it just puts them on the tree for the children to see.</p>
+    <button class="light" style="width:100%;margin-top:12px" onclick="addRelative()">\uff0b Add a grandparent, aunt or uncle</button>
+
+    <section class="treegroup"><h3>Grown-ups</h3>
+      ${parents.map(p=>personCardHTML(p,{role:relationLabel(p)||"Parent", note:pill(p)})).join("")}</section>
+
+    <section class="treegroup"><h3>Children</h3>
+      ${kids.length ? kids.map(c=>{
+        const theirs=tutors.filter(t=>assignedChildIds(t).indexOf(c.id)>=0);
+        return personCardHTML(c,{role:"Age "+escapeHtml(c.age||"\u2014"), note:pill(c)})
+          + (theirs.length?`<div class="treechildren">${theirs.map(t=>
+              personCardHTML(t,{role:"\ud83d\udcda "+escapeHtml(relationLabel(t))})).join("")}</div>`:"");
+      }).join("") : '<p class="small">No children added yet.</p>'}</section>
+
+    <section class="treegroup"><h3>Wider family</h3>
+      ${wider.length ? wider.map(c=>personCardHTML(c,{note:pill(c), action:del(c)})).join("")
+        : '<p class="small">Nobody yet. Add the grandparents \u2014 the children see them on their own screen.</p>'}</section>
+
+    ${tutors.length?`<section class="treegroup"><h3>Tutors</h3>
+      ${tutors.map(t=>{
+        const theirs=assignedChildIds(t).map(id=>memberById(id)).filter(Boolean);
+        return personCardHTML(t,{role:escapeHtml(relationLabel(t)),
+          note: theirs.length ? "Teaches "+theirs.map(c=>escapeHtml(c.name)).join(", ") : "No children assigned yet"});
+      }).join("")}</section>`:""}`;
+}
+
 /* ---------- Getting out of the wrong family ----------
    Creating a family when you meant to join one is an easy mistake and used to
    be permanent: there was no way to leave and no way to remove what you made.
@@ -6479,7 +6659,7 @@ function renderWhoStrip(){
   if(!isParentSession() || !f || editMode){ strip.classList.add("hidden"); strip.innerHTML=""; return; }
   const openId=currentChildId();
   const kids=f.children.filter(c=>isChildRole(c));
-  const partners=f.children.filter(c=>isParentRole(c) && c.id!==sessionMemberId);
+  const partners=f.children.filter(c=>isParentRole(c) && c.id!==sessionMemberId && hasLogin(c));
   if(!kids.length && !partners.length){ strip.classList.add("hidden"); strip.innerHTML=""; return; }
   const pend=pendingRequests();
   const weekDates=getCurrentWeekDates();
@@ -6625,7 +6805,7 @@ function applyRoleChrome(){
   set("championBanner", !kid && app.settings && app.settings.showChampion);
   // Parent-only controls and sections
   ["btnFamily","btnOverview","btnActivity","btnRequests","btnProgress","btnRewardsMenu","btnGrownups",
-   "btnTutors","btnRules","btnQuickMenu","btnReviewMenu","editModeBtn","btnResetDay"]
+   "btnTutors","btnTree","btnRules","btnQuickMenu","btnReviewMenu","editModeBtn","btnResetDay"]
     .forEach(id=>set(id, !kid));
   // One Give points and one menu: the wide tile on the home screen, and the
   // fixed button. The pair inside the old account bar were the duplicates.
@@ -6662,7 +6842,7 @@ function applyRoleChrome(){
   if(fam){
     // A grandparent gets one screen and no machinery: no menu, no panels, no
     // category tiles, and nothing that could move a point.
-    ["accountPanel","overviewPanel","activityPanel","requestsPanel","progressPanel","quickPanel","reviewPanel","tutorPanel","rulesPanel","addCategoryWrap","summarySection",
+    ["accountPanel","overviewPanel","activityPanel","requestsPanel","progressPanel","quickPanel","reviewPanel","tutorPanel","rulesPanel","treePanel","addCategoryWrap","summarySection",
      "cards","rewardSection","gameNightSection","parentRewardSection","requestsBanner","behaviourWrap",
      "editModeNote","tipsCard","undoBar","whoStrip","championBanner","coachNudge","parentGoal","kidTabBar","championFab"]
       .forEach(id=>set(id, false));
@@ -7820,6 +8000,7 @@ async function submitForgotPassword(){
   }
 }
 function switchToSignUp(){
+  setSignupMode(null);
   document.getElementById("signInForm").classList.add("hidden");
   document.getElementById("signUpForm").classList.remove("hidden");
   document.getElementById("authError").textContent="";
@@ -7839,16 +8020,23 @@ function selectSignupRole(role){
 /* An invited grandparent or tutor used to be stuck: the only sign-up path
    created a brand new family, so they never reached the screen that takes a
    code. They now make an account with no family and land straight on it. */
+/* Two questions, in order: what are you doing, and then only the fields that
+   question needs. Showing both sets at once was the confusion. */
 function setSignupMode(mode){
+  const set=(id,on)=>{const el=document.getElementById(id); if(el) el.classList.toggle("hidden", !on);};
+  if(!mode){
+    window.__signupMode = null;
+    set("signupChoose", true);
+    set("signupFields", false);
+    const err=document.getElementById("signupError"); if(err) err.textContent="";
+    return;
+  }
   window.__signupMode = mode==="join" ? "join" : "new";
   const join = window.__signupMode==="join";
-  const set=(id,on)=>{const el=document.getElementById(id); if(el) el.classList.toggle("hidden", !on);};
+  set("signupChoose", false);
+  set("signupFields", true);
   set("signupFamilyName", !join);
   set("signupRoleBox", !join);
-  const nb=document.getElementById("signupModeNew");
-  const jb=document.getElementById("signupModeJoin");
-  if(nb) nb.classList.toggle("selected", !join);
-  if(jb) jb.classList.toggle("selected", join);
   const note=document.getElementById("signupModeNote");
   if(note) note.textContent = join
     ? "For a grandparent, uncle, aunty or tutor who has been given an invitation code. Make your account here, then type the code on the next screen \u2014 it decides what you can see and do."
@@ -7894,12 +8082,18 @@ function selectNoFamilyRole(role){
   document.getElementById("nfRoleMum").classList.toggle("selected", role==="Mum");
   document.getElementById("nfRoleDad").classList.toggle("selected", role==="Dad");
 }
+/* Opening one route closes the other, so there is never a screen with two sets
+   of fields waiting for an answer. */
+function toggleStartFamilyPane(open){
+  const join=document.getElementById("joinBlock");
+  if(join) join.classList.toggle("hidden", !!open);
+}
 function toggleStartFamily(){
   const form=document.getElementById("startFamilyForm");
   const open=form.classList.contains("hidden");
   form.classList.toggle("hidden", !open);
-  document.getElementById("startFamilyBtn").textContent =
-    open ? "Cancel" : "Or start a new family with this login";
+  // One set of fields at a time: opening this closes the code block.
+  toggleStartFamilyPane(open);
 }
 /* No I, O, 0 or 1: this gets read aloud across a kitchen. */
 const INVITE_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
