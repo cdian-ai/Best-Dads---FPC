@@ -3,15 +3,15 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Points Card</title>
-<link rel="icon" href='data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><rect width="24" height="24" rx="5" fill="%235b63d8"/><g fill="%23fff"><path d="M8 15l-3 8 4-2 3 2.4 3-2.4 4 2-3-8z" opacity=".72"/><circle cx="12" cy="9" r="7" fill="none" stroke="%23fff" stroke-width="1.7"/><path d="M12 5l1.2 2.5 2.7.4-2 1.9.5 2.8-2.4-1.3-2.4 1.3.5-2.8-2-1.9 2.7-.4z"/></g></svg>'>
+<title>Notice Me — the good things, and say so</title>
+<link rel="icon" href='data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52"><rect width="52" height="52" rx="12" fill="%235b63d8"/><path d="M26 8 L31.5 23 L47 25 L34.5 35 L39 50 L26 41 L13 50 L17.5 35 L5 25 L20.5 23 Z" fill="%23ffd970"/><circle cx="21.5" cy="28" r="2.4" fill="%232f2a55"/><circle cx="30.5" cy="28" r="2.4" fill="%232f2a55"/><path d="M21.5 34 q4.5 4.5 9 0" fill="none" stroke="%232f2a55" stroke-width="2.2" stroke-linecap="round"/></svg>'>
 <meta name="theme-color" content="#5b63d8">
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="Points Card">
+<meta name="apple-mobile-web-app-title" content="Notice Me">
 <meta name="description" content="One place to notice what your children do well — prayers, kindness, homework and effort — and to keep track of what they are learning. Points they earn, rewards they choose, and a record you can share.">
 <style>
   :root {
@@ -589,6 +589,13 @@
   /* Centred, so it sits clear of the fixed menu button on the left rather than
      underneath it. */
   header .logo{justify-content:center;margin:0 0 10px;padding:0 84px}
+  .lockup{display:inline-flex;align-items:center;gap:9px;flex-wrap:nowrap;
+          margin:0 0 14px;color:var(--accent)}
+  .lockup .qm{width:16px;height:23px;flex-shrink:0}
+  .lockup .lw{font-size:30px;font-weight:800;letter-spacing:-.01em;color:var(--ink);white-space:nowrap}
+  .lockup .lstar{width:34px;height:34px;flex-shrink:0;margin-left:2px}
+  @media(max-width:380px){ .lockup .lw{font-size:25px} .lockup .lstar{width:28px;height:28px} }
+  .logo .mark{width:19px;height:19px}
   .logo{display:inline-flex;align-items:center;gap:7px;background:linear-gradient(90deg,var(--accent),var(--accent2));
         color:white;font-weight:800;font-size:13px;letter-spacing:.06em;text-transform:uppercase;
         padding:7px 14px;border-radius:999px;margin-bottom:12px}
@@ -847,7 +854,16 @@
 <body>
 <div id="authGate" class="gatewrap hidden">
   <div class="gatecard">
-    <div class="logo"><svg class="mark" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M8 15l-3 8 4-2 3 2.4 3-2.4 4 2-3-8z" fill="currentColor" opacity=".72"/><circle cx="12" cy="9" r="7" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M12 5l1.2 2.5 2.7.4-2 1.9.5 2.8-2.4-1.3-2.4 1.3.5-2.8-2-1.9 2.7-.4z" fill="currentColor"/></svg><span>Points Card</span></div>
+    <div class="lockup" role="img" aria-label="Notice Me">
+  <svg class="qm" viewBox="0 0 32 46" aria-hidden="true" focusable="false"><path d="M14 8 C2 15 0 31 11 38 C20 43 31 38 31 28 C31 20 25 16 17 17 C18 11 22 7 27 4 Z" fill="currentColor"/></svg>
+  <span class="lw">Notice Me</span>
+  <svg class="qm" viewBox="0 0 32 46" aria-hidden="true" focusable="false"><path d="M18 38 C30 31 32 15 21 8 C12 3 1 8 1 18 C1 26 7 30 15 29 C14 35 10 39 5 42 Z" fill="currentColor"/></svg>
+  <svg class="lstar" viewBox="0 0 52 52" aria-hidden="true" focusable="false">
+    <path d="M26 3 L32 21 L51 23 L36 35 L41 53 L26 43 L11 53 L16 35 L1 23 L20 21 Z" fill="#e0b13c"/>
+    <circle cx="21" cy="27" r="2.8" fill="#2f2a55"/><circle cx="31" cy="27" r="2.8" fill="#2f2a55"/>
+    <path d="M21 34 q5 5 10 0" fill="none" stroke="#2f2a55" stroke-width="2.6" stroke-linecap="round"/>
+  </svg>
+</div>
     <p class="sub">Notice the good things, and keep track of the learning.</p>
     <p class="sub" style="margin-top:6px">Prayers, kindness, manners, homework and effort — you award the points, they choose what to spend them on. With a Qur&rsquo;an and school progress tracker built in, so you can see what they can actually do.</p>
 
@@ -861,7 +877,7 @@
         <p style="margin:0 0 6px;font-weight:800;font-size:15px">🔑 Ask Mum or Dad</p>
         <p class="small" style="margin:0 0 10px">Nothing is lost and nothing is broken. Your points are all still there. A parent can give you a new password in about ten seconds.</p>
         <p class="small" style="margin:0 0 4px;font-weight:800">Show them this bit 👇</p>
-        <p class="small" style="margin:0">Open Points Card → <strong>☰ Menu</strong> → <strong>👨‍👩‍👧 Family members</strong> → tap <strong>✉️</strong> next to their name. Then check your own email for the link.</p>
+        <p class="small" style="margin:0">Open Notice Me → <strong>☰ Menu</strong> → <strong>👨‍👩‍👧 Family members</strong> → tap <strong>✉️</strong> next to their name. Then check your own email for the link.</p>
       </div>
       <p class="small"><a href="#" onclick="submitForgotPassword();return false;">Forgot password?</a></p>
       <p class="small" style="background:#f7f7ff;border:1px solid #e1e3f4;border-radius:12px;padding:9px 11px;margin:2px 0">
@@ -915,7 +931,16 @@
 </div>
 <div id="welcomeScreen" class="gatewrap hidden">
   <div class="gatecard">
-    <div class="logo"><svg class="mark" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M8 15l-3 8 4-2 3 2.4 3-2.4 4 2-3-8z" fill="currentColor" opacity=".72"/><circle cx="12" cy="9" r="7" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M12 5l1.2 2.5 2.7.4-2 1.9.5 2.8-2.4-1.3-2.4 1.3.5-2.8-2-1.9 2.7-.4z" fill="currentColor"/></svg><span>Points Card</span></div>
+    <div class="lockup" role="img" aria-label="Notice Me">
+  <svg class="qm" viewBox="0 0 32 46" aria-hidden="true" focusable="false"><path d="M14 8 C2 15 0 31 11 38 C20 43 31 38 31 28 C31 20 25 16 17 17 C18 11 22 7 27 4 Z" fill="currentColor"/></svg>
+  <span class="lw">Notice Me</span>
+  <svg class="qm" viewBox="0 0 32 46" aria-hidden="true" focusable="false"><path d="M18 38 C30 31 32 15 21 8 C12 3 1 8 1 18 C1 26 7 30 15 29 C14 35 10 39 5 42 Z" fill="currentColor"/></svg>
+  <svg class="lstar" viewBox="0 0 52 52" aria-hidden="true" focusable="false">
+    <path d="M26 3 L32 21 L51 23 L36 35 L41 53 L26 43 L11 53 L16 35 L1 23 L20 21 Z" fill="#e0b13c"/>
+    <circle cx="21" cy="27" r="2.8" fill="#2f2a55"/><circle cx="31" cy="27" r="2.8" fill="#2f2a55"/>
+    <path d="M21 34 q5 5 10 0" fill="none" stroke="#2f2a55" stroke-width="2.6" stroke-linecap="round"/>
+  </svg>
+</div>
     <p class="sub">Notice the good things, and keep track of the learning.</p>
     <p class="sub" style="margin-top:6px">Everyone on their own device: you award, they see what they&rsquo;ve earned, and grandparents and tutors can join in too.</p>
     <button class="primary" style="margin-top:16px" onclick="dismissWelcome()">Get started</button>
@@ -923,13 +948,31 @@
 </div>
 <div id="bootGate" class="gatewrap hidden">
   <div class="gatecard">
-    <div class="logo"><svg class="mark" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M8 15l-3 8 4-2 3 2.4 3-2.4 4 2-3-8z" fill="currentColor" opacity=".72"/><circle cx="12" cy="9" r="7" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M12 5l1.2 2.5 2.7.4-2 1.9.5 2.8-2.4-1.3-2.4 1.3.5-2.8-2-1.9 2.7-.4z" fill="currentColor"/></svg><span>Points Card</span></div>
+    <div class="lockup" role="img" aria-label="Notice Me">
+  <svg class="qm" viewBox="0 0 32 46" aria-hidden="true" focusable="false"><path d="M14 8 C2 15 0 31 11 38 C20 43 31 38 31 28 C31 20 25 16 17 17 C18 11 22 7 27 4 Z" fill="currentColor"/></svg>
+  <span class="lw">Notice Me</span>
+  <svg class="qm" viewBox="0 0 32 46" aria-hidden="true" focusable="false"><path d="M18 38 C30 31 32 15 21 8 C12 3 1 8 1 18 C1 26 7 30 15 29 C14 35 10 39 5 42 Z" fill="currentColor"/></svg>
+  <svg class="lstar" viewBox="0 0 52 52" aria-hidden="true" focusable="false">
+    <path d="M26 3 L32 21 L51 23 L36 35 L41 53 L26 43 L11 53 L16 35 L1 23 L20 21 Z" fill="#e0b13c"/>
+    <circle cx="21" cy="27" r="2.8" fill="#2f2a55"/><circle cx="31" cy="27" r="2.8" fill="#2f2a55"/>
+    <path d="M21 34 q5 5 10 0" fill="none" stroke="#2f2a55" stroke-width="2.6" stroke-linecap="round"/>
+  </svg>
+</div>
     <p class="sub" style="margin-top:12px">Loading your family…</p>
   </div>
 </div>
 <div id="errorGate" class="gatewrap hidden">
   <div class="gatecard">
-    <div class="logo"><svg class="mark" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M8 15l-3 8 4-2 3 2.4 3-2.4 4 2-3-8z" fill="currentColor" opacity=".72"/><circle cx="12" cy="9" r="7" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M12 5l1.2 2.5 2.7.4-2 1.9.5 2.8-2.4-1.3-2.4 1.3.5-2.8-2-1.9 2.7-.4z" fill="currentColor"/></svg><span>Points Card</span></div>
+    <div class="lockup" role="img" aria-label="Notice Me">
+  <svg class="qm" viewBox="0 0 32 46" aria-hidden="true" focusable="false"><path d="M14 8 C2 15 0 31 11 38 C20 43 31 38 31 28 C31 20 25 16 17 17 C18 11 22 7 27 4 Z" fill="currentColor"/></svg>
+  <span class="lw">Notice Me</span>
+  <svg class="qm" viewBox="0 0 32 46" aria-hidden="true" focusable="false"><path d="M18 38 C30 31 32 15 21 8 C12 3 1 8 1 18 C1 26 7 30 15 29 C14 35 10 39 5 42 Z" fill="currentColor"/></svg>
+  <svg class="lstar" viewBox="0 0 52 52" aria-hidden="true" focusable="false">
+    <path d="M26 3 L32 21 L51 23 L36 35 L41 53 L26 43 L11 53 L16 35 L1 23 L20 21 Z" fill="#e0b13c"/>
+    <circle cx="21" cy="27" r="2.8" fill="#2f2a55"/><circle cx="31" cy="27" r="2.8" fill="#2f2a55"/>
+    <path d="M21 34 q5 5 10 0" fill="none" stroke="#2f2a55" stroke-width="2.6" stroke-linecap="round"/>
+  </svg>
+</div>
     <h1 style="font-size:20px;margin:12px 0 4px">Couldn't load your family</h1>
     <p class="sub" id="errorText"></p>
     <p class="small" id="errorDetail" style="color:#a63e3e;word-break:break-word"></p>
@@ -941,7 +984,16 @@
 </div>
 <div id="onboarding" class="gatewrap hidden">
   <div class="onbcard">
-    <div style="text-align:center"><div class="logo"><svg class="mark" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M8 15l-3 8 4-2 3 2.4 3-2.4 4 2-3-8z" fill="currentColor" opacity=".72"/><circle cx="12" cy="9" r="7" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M12 5l1.2 2.5 2.7.4-2 1.9.5 2.8-2.4-1.3-2.4 1.3.5-2.8-2-1.9 2.7-.4z" fill="currentColor"/></svg><span>Points Card</span></div></div>
+    <div style="text-align:center"><div class="lockup" role="img" aria-label="Notice Me">
+  <svg class="qm" viewBox="0 0 32 46" aria-hidden="true" focusable="false"><path d="M14 8 C2 15 0 31 11 38 C20 43 31 38 31 28 C31 20 25 16 17 17 C18 11 22 7 27 4 Z" fill="currentColor"/></svg>
+  <span class="lw">Notice Me</span>
+  <svg class="qm" viewBox="0 0 32 46" aria-hidden="true" focusable="false"><path d="M18 38 C30 31 32 15 21 8 C12 3 1 8 1 18 C1 26 7 30 15 29 C14 35 10 39 5 42 Z" fill="currentColor"/></svg>
+  <svg class="lstar" viewBox="0 0 52 52" aria-hidden="true" focusable="false">
+    <path d="M26 3 L32 21 L51 23 L36 35 L41 53 L26 43 L11 53 L16 35 L1 23 L20 21 Z" fill="#e0b13c"/>
+    <circle cx="21" cy="27" r="2.8" fill="#2f2a55"/><circle cx="31" cy="27" r="2.8" fill="#2f2a55"/>
+    <path d="M21 34 q5 5 10 0" fill="none" stroke="#2f2a55" stroke-width="2.6" stroke-linecap="round"/>
+  </svg>
+</div></div>
     <div class="onbdots" id="onbDots"></div>
 
     <div class="onbstep" id="onbStep1">
@@ -1008,7 +1060,16 @@
 
 <div id="noFamilyGate" class="gatewrap hidden">
   <div class="gatecard">
-    <div class="logo"><svg class="mark" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M8 15l-3 8 4-2 3 2.4 3-2.4 4 2-3-8z" fill="currentColor" opacity=".72"/><circle cx="12" cy="9" r="7" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M12 5l1.2 2.5 2.7.4-2 1.9.5 2.8-2.4-1.3-2.4 1.3.5-2.8-2-1.9 2.7-.4z" fill="currentColor"/></svg><span>Points Card</span></div>
+    <div class="lockup" role="img" aria-label="Notice Me">
+  <svg class="qm" viewBox="0 0 32 46" aria-hidden="true" focusable="false"><path d="M14 8 C2 15 0 31 11 38 C20 43 31 38 31 28 C31 20 25 16 17 17 C18 11 22 7 27 4 Z" fill="currentColor"/></svg>
+  <span class="lw">Notice Me</span>
+  <svg class="qm" viewBox="0 0 32 46" aria-hidden="true" focusable="false"><path d="M18 38 C30 31 32 15 21 8 C12 3 1 8 1 18 C1 26 7 30 15 29 C14 35 10 39 5 42 Z" fill="currentColor"/></svg>
+  <svg class="lstar" viewBox="0 0 52 52" aria-hidden="true" focusable="false">
+    <path d="M26 3 L32 21 L51 23 L36 35 L41 53 L26 43 L11 53 L16 35 L1 23 L20 21 Z" fill="#e0b13c"/>
+    <circle cx="21" cy="27" r="2.8" fill="#2f2a55"/><circle cx="31" cy="27" r="2.8" fill="#2f2a55"/>
+    <path d="M21 34 q5 5 10 0" fill="none" stroke="#2f2a55" stroke-width="2.6" stroke-linecap="round"/>
+  </svg>
+</div>
     <h1 style="font-size:20px;margin:12px 0 4px">This login isn't part of a family</h1>
     <p class="sub">You're signed in as <strong id="noFamilyEmail">—</strong>, but this account isn't in any family yet.</p>
 
@@ -1116,7 +1177,12 @@
 </div>
 <div id="mainApp" class="wrap hidden">
 <header>
-  <div class="logo"><svg class="mark" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M8 15l-3 8 4-2 3 2.4 3-2.4 4 2-3-8z" fill="currentColor" opacity=".72"/><circle cx="12" cy="9" r="7" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M12 5l1.2 2.5 2.7.4-2 1.9.5 2.8-2.4-1.3-2.4 1.3.5-2.8-2-1.9 2.7-.4z" fill="currentColor"/></svg><span>Points Card</span></div>
+  <div class="logo" role="img" aria-label="Notice Me">
+  <svg class="mark" viewBox="0 0 52 52" aria-hidden="true" focusable="false">
+    <path d="M26 3 L32 21 L51 23 L36 35 L41 53 L26 43 L11 53 L16 35 L1 23 L20 21 Z" fill="#ffd970"/>
+    <circle cx="21" cy="27" r="2.8" fill="#2f2a55"/><circle cx="31" cy="27" r="2.8" fill="#2f2a55"/>
+    <path d="M21 34 q5 5 10 0" fill="none" stroke="#2f2a55" stroke-width="2.6" stroke-linecap="round"/>
+  </svg><span>Notice Me</span></div>
 
   <div id="familyCover" class="familycover hidden" onclick="onCoverClick()">
     <div class="coverfade"></div>
@@ -1609,7 +1675,7 @@
 <p class="footer" id="syncStatus">☁️ Connecting…</p>
 <p class="footer" id="versionTag" style="opacity:.6"></p>
 <p class="footer hidden" id="installRow">
-  <button class="light" style="width:auto" onclick="promptInstall()">📲 Add Points Card to your home screen</button>
+  <button class="light" style="width:auto" onclick="promptInstall()">📲 Add Notice Me to your home screen</button>
 </p>
 </div>
 
@@ -3044,7 +3110,7 @@ const TIP_CATS = [
   {key:"behaviour", label:"Behaviour"}
 ];
 
-const APP_VERSION = "v75";
+const APP_VERSION = "v76";
 const today = new Date().toISOString().slice(0,10);
 let app = {families:[],currentFamily:null,currentChild:null};
 let categories = [];
@@ -3371,7 +3437,7 @@ if(typeof window.addEventListener === "function"){
 
 function showVersion(){
   const el=document.getElementById("versionTag");
-  if(el) el.textContent = "Points Card " + APP_VERSION;
+  if(el) el.textContent = "Notice Me " + APP_VERSION;
 }
 function setSyncStatus(text){
   const el=document.getElementById("syncStatus");
@@ -6634,7 +6700,7 @@ function shareCardCanvas(m){
   x.textAlign="center";
   x.fillStyle="#fff";
   x.font="700 40px \"Helvetica Neue\", Helvetica, Arial, sans-serif";
-  x.fillText("\u2b50 POINTS CARD", W/2, 120);
+  x.fillText("NOTICE ME", W/2, 120);
   x.font="800 76px \"Helvetica Neue\", Helvetica, Arial, sans-serif";
   x.fillText(m.name, W/2, 220);
   x.font="500 34px \"Helvetica Neue\", Helvetica, Arial, sans-serif";
