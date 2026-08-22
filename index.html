@@ -427,6 +427,25 @@
   .accountbuttons{display:flex;gap:8px;flex-wrap:wrap}.small{font-size:12px;color:var(--muted);margin-top:3px}
   /* Everything except the one action a parent actually came here to do lives
      behind the menu. Eight buttons filled the whole first screen on a phone. */
+  .buddyrow{display:flex;align-items:center;gap:14px;margin:14px 0 4px}
+  .buddy{width:78px;height:70px;flex-shrink:0}
+  .buddytalk{flex:1;min-width:0}
+  .buddytalk p{margin:0 0 8px;font-size:17px;font-weight:700;line-height:1.3;color:var(--kink,#2a2350)}
+  .kidstats.mini{margin:0;grid-template-columns:1fr 1fr;gap:8px}
+  .kidstats.mini .kidstat{padding:9px 10px}
+  .kidstats.mini .kidstat strong{font-size:22px}
+  .kidstats.mini .kidstat span{font-size:11.5px}
+  .bestcard{display:flex;align-items:center;gap:12px;background:#fff;border:1px solid #e6e8f0;
+            border-left:7px solid #e0b13c;border-radius:18px;padding:14px 15px;margin-bottom:14px}
+  .bestcard.best{background:linear-gradient(180deg,#fffaef,#fff);border-left-color:#2e9b68}
+  .bestcard .bestem{font-size:28px;line-height:1}
+  .bestcard strong{display:block;font-size:17px;line-height:1.25}
+  .bestcard span span{font-size:13.5px;color:var(--muted);line-height:1.45}
+  .fortcard{background:#fff;border-radius:22px;padding:16px;box-shadow:var(--shadow);
+            margin-bottom:16px;border-top:6px solid #17a08a}
+  .fortdots{display:flex;gap:4px;margin-top:12px}
+  .fortdot{flex:1 1 0;min-width:0;height:26px;border-radius:6px;background:#f1f2f8;border:1px solid #e6e8f0}
+  .fortdot.on{background:#17a08a;border-color:#17a08a}
   .treegroup{margin-top:20px}
   .treegroup h3{margin:0 0 8px;font-size:12px;font-weight:800;letter-spacing:.06em;
                 text-transform:uppercase;color:var(--muted)}
@@ -1298,6 +1317,7 @@
   <input id="awardNote" placeholder="What did you notice? (optional — they’ll read this)">
 </div>
 <div id="coachNudge"></div>
+<div id="fortnight"></div>
 <div id="parentGoal"></div>
 <div id="outsideFeed"></div>
 
@@ -1342,11 +1362,17 @@
       </div>
     </section>
 
-    <div class="kidstats">
-      <div class="kidstat ks1"><strong id="kidToday">0</strong><span>⭐ Points today</span></div>
-      <div class="kidstat ks2"><strong id="kidWeek">0</strong><span>📅 Points this week</span></div>
-      <div class="kidstat ks3"><strong id="kidStreak">0</strong><span>🔥 Day streak</span></div>
+    <div class="buddyrow">
+      <div class="buddy" id="kidBuddy"></div>
+      <div class="buddytalk"><p id="kidBuddyLine">Ready when you are.</p>
+        <div class="kidstats mini">
+          <div class="kidstat ks1"><strong id="kidToday">0</strong><span>today</span></div>
+          <div class="kidstat ks2"><strong id="kidWeek">0</strong><span>this week</span></div>
+          <div class="kidstat ks3 hidden"><strong id="kidStreak">0</strong><span>streak</span></div>
+        </div>
+      </div>
     </div>
+    <div id="kidBest"></div>
 
     <button class="spendbtn" onclick="showScreen('kidSpendScreen')">
       <span>🎁 Spend my points
@@ -1363,7 +1389,12 @@
 
     <div id="kidRequestStatus"></div>
 
-    <section class="boostcard" id="kidBoostCard">
+    <div class="helpline">
+      <button id="soundBtn" onclick="setSoundOn(!soundOn())">🔊 Sound on</button>
+      <button onclick="speakElement('kidHomeScreen')">🗣️ Read to me</button>
+    </div>
+
+    <section class="boostcard hidden" id="kidBoostCard">
       <h2>⭐ Ways to get more points</h2>
       <p class="lede">Little things that add up fast.</p>
       <div id="kidBoostList"></div>
@@ -2756,7 +2787,7 @@ const TIP_CATS = [
   {key:"behaviour", label:"Behaviour"}
 ];
 
-const APP_VERSION = "v71";
+const APP_VERSION = "v72";
 const today = new Date().toISOString().slice(0,10);
 let app = {families:[],currentFamily:null,currentChild:null};
 let categories = [];
@@ -5592,6 +5623,7 @@ async function undoActivityEntry(childId, entryId){
     type: "adjust", catKey: entry.catKey || undefined, actionName: entry.actionName || undefined
   });
   renderActivityLog();
+  renderFortnight();
   renderOutsideFeed();
 }
 
@@ -6877,6 +6909,7 @@ function render(){
   const eb=document.getElementById("editBar");
   if(eb) eb.classList.toggle("hidden", !editMode);
   document.body.classList.toggle("editing", !!editMode);
+  renderFortnight();
   renderOutsideFeed();
   const pg=document.getElementById("parentGoal");
   if(pg) pg.innerHTML = (isParentSession() && !editMode) ? goalCardHTML(activeGoal(), false) : "";
@@ -6887,6 +6920,7 @@ function render(){
   renderUndoBar();
   checkForGifts();
   checkForCelebrations();
+  checkForArrivals();
   renderRequests();
   renderOffersPanel();
   renderEyebrows();
@@ -7591,6 +7625,217 @@ function loadCelebrated(){
 function saveCelebrated(set){
   try{ localStorage.setItem(celebratedKey(), JSON.stringify([...set].slice(-60))); }catch(e){}
 }
+/* ---------- The fortnight strip ----------
+   One number decides whether any of the rest of this works: how many days in
+   the last fortnight had a point awarded at all. It is already in the ledger;
+   it just took squinting to see. */
+function fortnightDays(){
+  const f=currentFamily();
+  const kids=f ? f.children.filter(isChildRole) : [];
+  const out=[];
+  for(let i=13;i>=0;i--){
+    const d=new Date(); d.setHours(12,0,0,0); d.setDate(d.getDate()-i);
+    const ds=dateStr(d);
+    const any=kids.some(c=>{
+      const day=(c.pointsByDate||{})[ds];
+      return !!day && Object.keys(day).some(k=>day[k]>0);
+    });
+    out.push({ds, d, any});
+  }
+  return out;
+}
+function renderFortnight(){
+  const slot=document.getElementById("fortnight");
+  if(!slot) return;
+  if(!isParentSession() || editMode){ slot.innerHTML=""; return; }
+  const days=fortnightDays();
+  const on=days.filter(d=>d.any).length;
+  const note = on>=10 ? "Most days \u2014 this is part of the week now."
+             : on>=7  ? "About every other day. That\u2019s the rhythm to keep."
+             : on>=3  ? "A few days. Worth asking what got in the way on the others."
+                      : "Quiet fortnight. One small thing today is worth more than a big catch-up.";
+  slot.innerHTML=`<section class="fortcard">
+      <div class="goalhead"><h2>\ud83d\udcc5 ${on} of the last 14 days</h2>
+        <span class="goalfrom">days with any points awarded</span></div>
+      <div class="fortdots">${days.map(d=>`<span class="fortdot ${d.any?"on":""}"
+        title="${d.d.toLocaleDateString(undefined,{weekday:"long",day:"numeric",month:"short"})} \u2014 ${
+        d.any?"points awarded":"nothing recorded"}"></span>`).join("")}</div>
+      <p class="small" style="margin:8px 0 0">${note}</p>
+    </section>`;
+}
+
+/* ---------- One small character ----------
+   Children form attachments to characters, not to charts. One mark, four moods,
+   drawn rather than downloaded. */
+function moodFor(child){
+  if(!child) return "calm";
+  const today=todayTotalFor(child);
+  if(today>0) return "happy";
+  const last=(child.activityLog||[]).filter(e=>e.type==="award")[0];
+  const days=last ? (Date.now()-last.ts)/86400000 : 99;
+  if(days>=3) return "sleepy";
+  return "calm";
+}
+function starBuddySVG(mood, colour){
+  const c=colour || "#f6d365";
+  const eyes = mood==="sleepy"
+    ? '<path d="M20 30 q5 4 10 0" stroke="#2f2a55" stroke-width="2.6" fill="none" stroke-linecap="round"/>'
+      + '<path d="M40 30 q5 4 10 0" stroke="#2f2a55" stroke-width="2.6" fill="none" stroke-linecap="round"/>'
+    : '<circle cx="25" cy="31" r="3.4" fill="#2f2a55"/><circle cx="45" cy="31" r="3.4" fill="#2f2a55"/>';
+  const mouth = mood==="cheer"
+    ? '<path d="M26 40 q9 12 18 0 q-9 5 -18 0z" fill="#2f2a55"/>'
+    : mood==="happy"
+      ? '<path d="M27 40 q8 8 16 0" stroke="#2f2a55" stroke-width="3" fill="none" stroke-linecap="round"/>'
+      : mood==="sleepy"
+        ? '<circle cx="35" cy="42" r="3" fill="#2f2a55"/>'
+        : '<path d="M28 41 q7 4 14 0" stroke="#2f2a55" stroke-width="2.8" fill="none" stroke-linecap="round"/>';
+  const zzz = mood==="sleepy"
+    ? '<text x="55" y="16" font-size="13" font-weight="800" fill="#8d92ab">z</text>'
+      + '<text x="62" y="9" font-size="10" font-weight="800" fill="#b3b7c9">z</text>' : "";
+  return `<svg viewBox="0 0 70 62" width="100%" height="100%" aria-hidden="true">
+      <path d="M35 2 l8.5 17.5 19.5 2.6 -14 13.4 3.6 19.3 -17.6 -9.4 -17.6 9.4 3.6 -19.3 -14 -13.4 19.5 -2.6z"
+            fill="${c}" stroke="#e0b13c" stroke-width="1.4" stroke-linejoin="round"/>
+      ${eyes}${mouth}${zzz}
+    </svg>`;
+}
+function buddyLine(mood, name){
+  if(mood==="happy") return "Points today \u2014 nice one!";
+  if(mood==="sleepy") return "It\u2019s been quiet. Keep doing kind things \u2014 they get noticed.";
+  return "Ready when you are.";
+}
+
+/* ---------- Personal best ----------
+   Deliberately not a streak. A child who misses two days because they were ill
+   should not open the app to a reproach, and with four children a weekly
+   champion already produces three losers. A personal best is the one measure
+   every child can win at the same time. */
+function weekStartsBack(n){
+  const out=[];
+  const base=getCurrentWeekDates();
+  for(let w=0; w<n; w++){
+    const days=base.map(ds=>{
+      const d=new Date(ds+"T12:00:00");
+      d.setDate(d.getDate() - w*7);
+      return dateStr(d);
+    });
+    out.push(days);
+  }
+  return out;
+}
+function personalBest(child){
+  const weeks=weekStartsBack(13);
+  const totals=weeks.map(days=>days.reduce((sum,ds)=>{
+    const day=(child.pointsByDate||{})[ds] || {};
+    return sum + Object.keys(day).reduce((a,k)=>a + (day[k]>0?day[k]:0), 0);
+  }, 0));
+  const thisWeek=totals[0];
+  const before=totals.slice(1).filter(t=>t>0);
+  const best=before.length ? Math.max(...before) : 0;
+  return { thisWeek, best, isBest: thisWeek>0 && thisWeek>best, hasHistory: before.length>0 };
+}
+function personalBestHTML(child){
+  const p=personalBest(child);
+  if(!p.hasHistory && !p.thisWeek) return "";
+  if(p.isBest)
+    return `<section class="bestcard best"><span class="bestem">\ud83c\udf1f</span>
+      <span><strong>Your best week yet!</strong>
+        <span>${p.thisWeek} points \u2014 more than any week before. MashaAllah.</span></span></section>`;
+  if(p.best>0 && p.thisWeek < p.best)
+    return `<section class="bestcard"><span class="bestem">\ud83c\udfaf</span>
+      <span><strong>${Math.max(1, p.best-p.thisWeek)} to beat your best</strong>
+        <span>Your best week was ${p.best}. You&rsquo;re on ${p.thisWeek}.</span></span></section>`;
+  return "";
+}
+
+/* ---------- When points arrive ----------
+   A point awarded at four o'clock used to change a number on a screen nobody
+   was looking at. The whole product is a child being noticed, and that moment
+   was the one thing the app never showed them. Same queue as an approved
+   request, pointed at awards. */
+function awardSeenKey(){ return "fpc_seen_awards_" + (sessionMemberId || ""); }
+function loadSeenAwards(){
+  try{
+    const raw=localStorage.getItem(awardSeenKey());
+    return raw===null ? null : new Set(JSON.parse(raw));
+  }catch(e){ return new Set(); }
+}
+function saveSeenAwards(set){
+  try{ localStorage.setItem(awardSeenKey(), JSON.stringify([...set].slice(-80))); }catch(e){}
+}
+function checkForArrivals(){
+  const me=sessionMember();
+  if(!me || !isChildRole(me)) return;
+  let seen=loadSeenAwards();
+  const firstRun = seen===null;
+  if(firstRun) seen=new Set();
+  const DAY=86400000;
+  (me.activityLog||[]).slice().reverse().forEach(e=>{
+    if(e.type!=="award" || e.points<=0) return;
+    if(seen.has(e.id)) return;
+    // Don't replay a month of history the first time; anything from today is
+    // still news.
+    const stale = firstRun && (Date.now()-e.ts) > DAY;
+    if(!stale) celebrationQueue.push({ __award:true, entry:e });
+    seen.add(e.id);
+  });
+  saveSeenAwards(seen);
+  if(celebrationQueue.length && !celebrating) showNextCelebration();
+}
+
+/* ---------- Sound ----------
+   Short, warm and quiet. On by default because a chime is most of what makes a
+   point feel like it arrived, and off in one tap because it is someone's
+   living room. Built from an oscillator so there is no file to load and it
+   works offline. */
+function soundOn(){
+  try{ return localStorage.getItem("fpc_sound")!=="off"; }catch(e){ return true; }
+}
+function setSoundOn(on){
+  try{ localStorage.setItem("fpc_sound", on?"on":"off"); }catch(e){}
+  renderSoundToggle();
+}
+function chime(kind){
+  if(!soundOn()) return;
+  try{
+    const Ctx=window.AudioContext||window.webkitAudioContext;
+    if(!Ctx) return;
+    const ctx=new Ctx();
+    const notes = kind==="milestone" ? [523.25, 659.25, 783.99, 1046.5] : [659.25, 987.77];
+    notes.forEach((f,i)=>{
+      const o=ctx.createOscillator(), g=ctx.createGain();
+      o.type="sine"; o.frequency.value=f;
+      const t=ctx.currentTime + i*0.11;
+      g.gain.setValueAtTime(0, t);
+      g.gain.linearRampToValueAtTime(0.14, t+0.03);
+      g.gain.exponentialRampToValueAtTime(0.001, t+0.42);
+      o.connect(g); g.connect(ctx.destination);
+      o.start(t); o.stop(t+0.45);
+    });
+    setTimeout(()=>{ try{ ctx.close(); }catch(e){} }, 1400);
+  }catch(e){ /* audio is a nicety, never a failure */ }
+}
+function renderSoundToggle(){
+  const b=document.getElementById("soundBtn");
+  if(b) b.textContent = soundOn() ? "\ud83d\udd0a Sound on" : "\ud83d\udd07 Sound off";
+}
+
+/* ---------- Read aloud ----------
+   Most of these screens are above the reading age of the children they are for.
+   The device's own voice costs nothing and works offline. */
+function speak(text){
+  try{
+    if(!window.speechSynthesis) return;
+    window.speechSynthesis.cancel();
+    const u=new SpeechSynthesisUtterance(String(text||"").replace(/\s+/g," ").trim());
+    u.rate=0.95; u.pitch=1.05; u.lang="en-GB";
+    window.speechSynthesis.speak(u);
+  }catch(e){ /* not every browser has a voice */ }
+}
+function speakElement(id){
+  const el=document.getElementById(id);
+  if(el) speak(el.innerText || el.textContent);
+}
+
 function checkForCelebrations(){
   const me = sessionMember();
   if(!me) return;
@@ -7614,6 +7859,24 @@ function showNextCelebration(){
   const r = celebrationQueue.shift();
   if(!r){ celebrating = false; return; }
   celebrating = true;
+  if(r.__award){
+    const e=r.entry;
+    // The label carries the note a parent typed, which is the part a child
+    // re-reads. Split it so the reason gets the room it deserves.
+    const parts=String(e.label||"").split(" \u2014 ");
+    const what=parts[0], why=parts.slice(1).join(" \u2014 ");
+    document.getElementById("celebrateEmoji").textContent = "\u2b50";
+    document.getElementById("celebrateTitle").textContent =
+      (e.by ? e.by + " noticed you" : "You were noticed") + " \u2b50";
+    document.getElementById("celebrateWhat").textContent = why || what;
+    document.getElementById("celebrateWho").textContent =
+      (why ? what + " \u00b7 " : "") + "+" + e.points + " point" + (e.points===1?"":"s");
+    document.getElementById("celebration").classList.remove("hidden");
+    dropConfetti();
+    chime("award");
+    speak((e.by ? e.by + " noticed you. " : "") + (why || what) + ". Plus " + e.points + ".");
+    return;
+  }
   if(r.gift){
     // A surprise, not something earned — the wording should say so.
     document.getElementById("celebrateEmoji").textContent = "\ud83c\udf81";
@@ -7633,6 +7896,7 @@ function showNextCelebration(){
   }
   document.getElementById("celebration").classList.remove("hidden");
   dropConfetti();
+  chime("milestone");
 }
 function closeCelebration(){
   document.getElementById("celebration").classList.add("hidden");
@@ -7702,6 +7966,21 @@ function renderKidView(child){
   if(kg) kg.innerHTML = goalCardHTML(activeGoal(), true);
   const fn=document.getElementById("familyNotices");
   if(fn) fn.innerHTML = noticeCardHTML();
+  const mood=moodFor(child);
+  const bud=document.getElementById("kidBuddy");
+  if(bud) bud.innerHTML=starBuddySVG(mood);
+  const budLine=document.getElementById("kidBuddyLine");
+  if(budLine) budLine.textContent=buddyLine(mood, child.name);
+  const best=document.getElementById("kidBest");
+  if(best) best.innerHTML=personalBestHTML(child);
+  renderSoundToggle();
+  // Moved off the home screen: it belongs with the rest of the detail.
+  const boost=document.getElementById("kidBoostCard");
+  if(boost){
+    const holder=document.getElementById("kidPointsScreen");
+    if(holder && boost.parentElement!==holder) holder.appendChild(boost);
+    boost.classList.remove("hidden");
+  }
   const pt=document.getElementById("prayerToday");
   if(pt) pt.innerHTML = prayerTodayHTML(child);
   const pw=document.getElementById("prayerWall");
@@ -7807,6 +8086,7 @@ function renderKidView(child){
 
   renderKidBoost();
   checkForCelebrations();
+  checkForArrivals();
 }
 
 /* ---------- Auth entry points ---------- */
