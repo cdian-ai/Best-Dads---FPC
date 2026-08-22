@@ -1116,8 +1116,8 @@
       <section>
         <h2>⚙️ Settings</h2>
         <label style="display:flex;align-items:center;gap:8px;cursor:pointer">
-          <input type="checkbox" id="championToggle" onchange="toggleChampionBanner(this.checked)" style="width:auto">
-          <span class="small">🏆 Show weekly champion banner</span>
+          <input type="checkbox" id="championToggle" onchange="setShowChampion(this.checked)" style="width:auto">
+          <span class="small">🏆 Show this week&rsquo;s champion</span>
         </label>
         <p class="small" style="margin-top:14px;padding-top:14px;border-top:1px solid #e6e8f0">
           Everyone signs in with their own email and password. Use <strong>Sign out</strong> at the top to hand this device to someone else.
@@ -2659,7 +2659,7 @@ const TIP_CATS = [
   {key:"behaviour", label:"Behaviour"}
 ];
 
-const APP_VERSION = "v67";
+const APP_VERSION = "v68";
 const today = new Date().toISOString().slice(0,10);
 let app = {families:[],currentFamily:null,currentChild:null};
 let categories = [];
@@ -5258,6 +5258,15 @@ async function removeMember(id){
   if(!confirm("Remove "+member.name+" from the family?\n\nTheir points history stays in the ledger, but they'll no longer appear here or be able to sign in.")) return;
   try{ await window.fpc.deleteMember(familyId, id); }
   catch(e){ console.error(e); alert("That couldn't be saved."); }
+}
+/* The checkbox called a function that no longer existed, so turning the
+   champion off did nothing at all and threw in the console. */
+async function setShowChampion(on){
+  if(!requireParent()) return;
+  app.settings = app.settings || {};
+  app.settings.showChampion = !!on;
+  await saveApp();
+  render();
 }
 function renderAccounts(){
   const f=currentFamily();
