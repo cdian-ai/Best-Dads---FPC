@@ -449,6 +449,19 @@
   .fortdots{display:flex;gap:4px;margin-top:12px}
   .fortdot{flex:1 1 0;min-width:0;height:26px;border-radius:6px;background:#f1f2f8;border:1px solid #e6e8f0}
   .fortdot.on{background:#17a08a;border-color:#17a08a}
+  .duachips{display:flex;gap:6px;flex-wrap:wrap;margin:14px 0 12px}
+  .duachips button{width:auto;padding:7px 13px;font-size:12.5px;font-weight:800;
+                   background:#eef0ff;color:#3e46ad}
+  .duachips button.on{background:var(--accent);color:#fff}
+  .duacard.now{border-left-color:#e0b13c;background:linear-gradient(180deg,#fffaef,#fff)}
+  .attncard{display:flex;align-items:center;gap:13px;background:#fff;border:1px solid #e6e8f0;
+            border-left:7px solid #7c83ef;border-radius:20px;padding:15px;margin-bottom:16px;
+            box-shadow:var(--shadow)}
+  .attncard.urgent{border-left-color:#d85b5b}
+  .attncard .attnem{font-size:28px;line-height:1}
+  .attncard .attnstar{width:52px;height:48px;flex-shrink:0}
+  .attncard strong{display:block;font-size:16px;line-height:1.25}
+  .attncard span span{font-size:13px;color:var(--muted);line-height:1.45}
   .duacard{background:#fff;border:1px solid #e6e8f0;border-left:7px solid #17a08a;
            border-radius:18px;padding:14px 15px;margin-bottom:10px}
   .duawhen{display:inline-block;font-size:11px;font-weight:800;letter-spacing:.04em;
@@ -1235,6 +1248,7 @@
 
   <div id="overviewPanel" class="panel hidden">
     <button class="panelback" onclick="goHome()">← Home</button>
+    <div id="fortnight"></div>
     <h2>📊 Family Overview</h2>
     <p class="small">A quick glance at everyone — tap a row to switch to them.</p>
     <div id="overviewList" class="overviewgrid"></div>
@@ -1301,6 +1315,7 @@
 
   <div id="rewardsPanel" class="panel hidden">
     <button class="panelback" onclick="goHome()">← Home</button>
+    <div id="parentGoal"></div>
     <div id="rewardsPanelBody"></div>
   </div>
 
@@ -1329,6 +1344,8 @@
 
   <div id="activityPanel" class="panel hidden">
     <button class="panelback" onclick="goHome()">← Home</button>
+    <div id="outsideFeed"></div>
+    <div id="dailyReminder" class="hidden"></div>
     <h2>📋 Points history</h2>
     <p class="small">The last actions logged for <span id="activityChildName">—</span>. Tap Undo to reverse a mistake.</p>
     <div id="activityList" style="display:grid;gap:8px;margin-top:10px"></div>
@@ -1351,10 +1368,9 @@
   <input id="awardNote" placeholder="What did you notice? (optional — they’ll read this)">
 </div>
 <div id="coachNudge"></div>
-<div id="dailyReminder"></div>
-<div id="fortnight"></div>
-<div id="parentGoal"></div>
-<div id="outsideFeed"></div>
+<!-- One slot. Five cards used to stand between a parent and the directory that
+     was meant to be the front door. -->
+<div id="attention"></div>
 
 <section id="summarySection" class="summary hidden">
   <div class="stat"><strong id="total">0</strong><span>Today's points</span></div>
@@ -1407,50 +1423,37 @@
         </div>
       </div>
     </div>
-    <div id="kidBest"></div>
-    <div id="kidReminder"></div>
-
+    <!-- Five blocks and one action. Everything that used to sit here is still
+         in the app, on the screen it actually belongs to. -->
     <button class="spendbtn" onclick="showScreen('kidSpendScreen')">
       <span>🎁 Spend my points
         <small>Rewards, activities, or save up</small></span>
       <span class="spendbal" id="kidSpendBal">0</span>
     </button>
 
-    <div id="championToggleRow"></div>
-
-    <div id="familyNotices"></div>
-    <div id="kidGoal"></div>
-
     <div id="prayerToday"></div>
 
     <div id="kidRequestStatus"></div>
 
+    <div id="kidReminder"></div>
+
     <div class="helpline">
-      <button id="soundBtn" onclick="setSoundOn(!soundOn())">🔊 Sound on</button>
-      <button onclick="speakElement('kidHomeScreen')">🗣️ Read to me</button>
+      <button onclick="toggleKidMore()" id="kidMoreBtn">⋯ More</button>
     </div>
-
-    <section class="boostcard hidden" id="kidBoostCard">
-      <h2>⭐ Ways to get more points</h2>
-      <p class="lede">Little things that add up fast.</p>
-      <div id="kidBoostList"></div>
-      <button class="boostmore" onclick="nextKidTips()">Show me different ideas</button>
-    </section>
-
-    <div class="helpline">
+    <div class="helpline hidden" id="kidMore">
+      <button id="soundBtn" onclick="setSoundOn(!soundOn())">🔊 Sound on</button>
+      <button onclick="speakKidHome()">🗣️ Read to me</button>
       <button onclick="showDeenPanel()">🤲 Duas &amp; bedtime</button>
       <button onclick="showTreePanel()">🌳 My family</button>
       <button onclick="showRulesPanel()">📜 House rules</button>
       <button onclick="startTour(kidTourKey(sessionMember()))">❓ How this works</button>
-    </div>
-
-    <p class="kidfooter">Only Mum and Dad can give points — keep doing kind things and they'll notice! 💛</p>
-    <div style="text-align:center;margin:0 0 24px">
-      <button class="light" style="width:auto" onclick="signOutDevice()">🔒 Sign out — hand the device back</button>
+      <button onclick="signOutDevice()">🔒 Sign out</button>
     </div>
   </div>
 
   <div id="kidSpendScreen" class="hidden">
+    <div id="familyNotices"></div>
+    <div id="kidGoal"></div>
     <section class="kidcard teal">
       <h2>🎁 Spend my points</h2>
       <p class="lede">You have <strong id="kidSpendBal2">0</strong> points to spend. Nothing is taken until Mum or Dad say yes.</p>
@@ -1481,8 +1484,19 @@
   </div>
 
   <div id="kidPointsScreen" class="hidden">
+    <div id="kidBest"></div>
+    <div id="championToggleRow"></div>
     <div id="prayerWall"></div>
     <div id="kidGraphWrap" class="graphcard"></div>
+    <section class="boostcard hidden" id="kidBoostCard">
+      <h2>⭐ Ways to get more points</h2>
+      <p class="lede">Little things that add up fast.</p>
+      <div id="kidBoostList"></div>
+      <button class="boostmore" onclick="nextKidTips()">Show me different ideas</button>
+    </section>
+
+    <p class="kidfooter">Only Mum and Dad can give points — keep doing kind things and they'll notice! 💛</p>
+
     <section class="kidcard pink">
       <h2>⭐ Points I've been given</h2>
       <p class="lede">What you earned, who gave it to you, and what it was for.</p>
@@ -2518,6 +2532,29 @@ const STORIES = [
     text:"Prophet Musa (peace be upon him) led his people out at night, and by morning Pharaoh's army was behind them and the sea was in front. His people said: we are caught. Musa said: no. My Lord is with me, and He will guide me. He was told to strike the sea with his staff, and it parted, each part like a great mountain, and they walked through on dry ground.",
     ask:"What did Musa say when everyone else had given up?" }
 ];
+/* Five moments, so any dua is two taps away rather than a scroll of twenty. */
+const DUA_GROUPS = [
+  { id:"all",      label:"All" },
+  { id:"eating",   label:"\ud83c\udf7d\ufe0f Eating",   match:/eating/i },
+  { id:"sleeping", label:"\ud83c\udf19 Sleeping", match:/sleep|waking/i },
+  { id:"out",      label:"\ud83d\udeaa Going out", match:/house|travel|car|masjid|bathroom|wudu/i },
+  { id:"feelings", label:"\ud83d\udc9b Feelings",  match:/worried|angry|wrong|unwell|kindness|parents|like/i },
+  { id:"learning", label:"\ud83d\udcd6 Learning",  match:/studying|hard|rain/i }
+];
+function duaGroupOf(d){
+  const g=DUA_GROUPS.find(x=>x.match && x.match.test(d.when));
+  return g ? g.id : "feelings";
+}
+/* Matched to the hour, so the one on top is usually the one you want. */
+function duaOfNow(){
+  const h=new Date().getHours();
+  const want = h<8 ? /waking/i
+            : h<11 ? /leaving the house/i
+            : h<15 ? /eating/i
+            : h<19 ? /parents|studying/i
+            : /sleeping|before sleeping/i;
+  return DUAS.find(d=>want.test(d.when)) || DUAS[0];
+}
 function pickOfDay(list){
   const d=new Date();
   const key=Math.floor(d.getTime()/86400000);
@@ -2963,7 +3000,7 @@ const TIP_CATS = [
   {key:"behaviour", label:"Behaviour"}
 ];
 
-const APP_VERSION = "v73";
+const APP_VERSION = "v74";
 const today = new Date().toISOString().slice(0,10);
 let app = {families:[],currentFamily:null,currentChild:null};
 let categories = [];
@@ -3848,6 +3885,13 @@ function popThen(el){
   el.classList.add("pop");
   setTimeout(()=>el.classList.remove("pop"), 500);
 }
+function toggleKidMore(){
+  const m=document.getElementById("kidMore");
+  const b=document.getElementById("kidMoreBtn");
+  if(!m) return;
+  const open=m.classList.toggle("hidden")===false;
+  if(b) b.textContent = open ? "\u22ef Less" : "\u22ef More";
+}
 function showQuickPanel(){ openPanel("quickPanel"); renderQuickPanel(); }
 /* The bar belongs to Quick points only, not to every screen. */
 function syncNoteBar(){
@@ -4604,6 +4648,8 @@ function pickNudge(me){
     .sort((a,b)=>a.rank-b.rank);
   return eligible.length ? {nudge:eligible[0], ctx:c, fresh:true} : null;
 }
+/* The nudge is chosen inside renderAttention() now; this stays for the element
+   that no longer exists on the dashboard, and is a no-op. */
 function renderCoachNudge(){
   const slot=document.getElementById("coachNudge");
   if(!slot) return;
@@ -5810,8 +5856,7 @@ async function undoActivityEntry(childId, entryId){
   });
   renderActivityLog();
   syncNoteBar();
-  const dr=document.getElementById("dailyReminder");
-  if(dr) dr.innerHTML = (isParentSession() && !editMode && !screenNow) ? reminderCardHTML() : "";
+  renderAttention();
   renderFortnight();
   renderOutsideFeed();
 }
@@ -5970,6 +6015,8 @@ async function removeRewardById(id){
    find one at the moment it is needed rather than at the moment they remember
    to look. */
 let deenTab="duas";
+let duaFilter="all";
+function setDuaFilter(id){ duaFilter=id; renderDeenPanel(); }
 function setDeenTab(t){ deenTab=t; renderDeenPanel(); }
 function showDeenPanel(){
   const me=sessionMember();
@@ -5984,15 +6031,26 @@ function renderDeenPanel(){
     if(b) b.classList.toggle("on", deenTab===t);
   });
   if(deenTab==="duas"){
+    const now=duaOfNow();
+    const shown=DUAS.filter(d=>duaFilter==="all" || duaGroupOf(d)===duaFilter);
     body.innerHTML = `<h2>\ud83e\udd32 Everyday duas</h2>
       <p class="small">The small ones, for the moments they belong to. Tap \ud83d\udde3\ufe0f to hear one read out.</p>
-      ${DUAS.map((d,i)=>`<section class="duacard" id="dua${i}">
+      <section class="duacard now">
+        <span class="duawhen">Right now \u00b7 ${escapeHtml(now.when)}</span>
+        <h3>${escapeHtml(now.title)}</h3>
+        <p class="translit">${escapeHtml(now.translit)}</p>
+        <p class="meaning">${escapeHtml(now.meaning)}</p>
+        <button class="light" style="width:auto" onclick="speak('${now.translit.replace(/'/g,"\\'")}')">\ud83d\udde3\ufe0f Read it to me</button>
+      </section>
+      <div class="duachips">${DUA_GROUPS.map(g=>`<button class="${
+        duaFilter===g.id?"on":""}" onclick="setDuaFilter('${g.id}')">${g.label}</button>`).join("")}</div>
+      ${shown.map((d,i)=>`<section class="duacard" id="dua${i}">
           <span class="duawhen">${escapeHtml(d.when)}</span>
           <h3>${escapeHtml(d.title)}</h3>
           <p class="translit">${escapeHtml(d.translit)}</p>
           <p class="meaning">${escapeHtml(d.meaning)}</p>
           <button class="light" style="width:auto" onclick="speak('${d.translit.replace(/'/g,"\\'")}')">\ud83d\udde3\ufe0f Read it to me</button>
-        </section>`).join("")}
+        </section>`).join("") || '<p class="small">Nothing in that group.</p>'}
       <p class="small" style="margin-top:16px">The Arabic isn\u2019t written here on purpose \u2014 it should be added from a copy your family trusts rather than typed out by an app.</p>`;
     return;
   }
@@ -7166,8 +7224,7 @@ function render(){
   if(eb) eb.classList.toggle("hidden", !editMode);
   document.body.classList.toggle("editing", !!editMode);
   syncNoteBar();
-  const dr=document.getElementById("dailyReminder");
-  if(dr) dr.innerHTML = (isParentSession() && !editMode && !screenNow) ? reminderCardHTML() : "";
+  renderAttention();
   renderFortnight();
   renderOutsideFeed();
   const pg=document.getElementById("parentGoal");
@@ -7428,7 +7485,7 @@ function renderParentAdminView(parent){
         ${tile("\ud83c\udf81","Rewards","What the points are for","showRewardsPanel()")}
         ${tile("\ud83e\udd1d","The grown-ups","Your own list, and your partner","showGrownupsPanel()", offers.length||0)}
         ${tile("\ud83d\udc68\u200d\ud83d\udc69\u200d\ud83d\udc67","Family and friends","Logins, invites and tutors","showPicker('people')")}
-        ${tile("\ud83d\udccb","History","What was awarded today","showActivityPanel()")}
+        ${tile("\ud83d\udccb","History","What was awarded today","showActivityPanel()", outsideAwards(7).length||0)}
         ${tile("\ud83d\udcdc","House rules","How points work, for both of you","showRulesPanel()")}
       </div>
     </div>`;
@@ -7884,6 +7941,48 @@ function loadCelebrated(){
 function saveCelebrated(set){
   try{ localStorage.setItem(celebratedKey(), JSON.stringify([...set].slice(-60))); }catch(e){}
 }
+/* ---------- One thing at a time ----------
+   Five cards were competing to tell a parent what needed attention, which meant
+   none of them did. Highest priority wins the slot; everything else lives on
+   the screen it belongs to and is reachable from the directory. */
+function renderAttention(){
+  const slot=document.getElementById("attention");
+  if(!slot) return;
+  if(!isParentSession() || editMode || screenNow){ slot.innerHTML=""; return; }
+  const pend=pendingRequests().filter(r=>daysAgo(r.ts)>=1);
+  if(pend.length){
+    slot.innerHTML=`<section class="attncard urgent" onclick="showRequestsPanel()">
+        <span class="attnem">\ud83d\udd14</span>
+        <span><strong>${pend.length} request${pend.length>1?"s":""} waiting over a day</strong>
+          <span>A no is fine \u2014 it\u2019s the waiting that stops them asking again.</span></span>
+      </section>`;
+    return;
+  }
+  const me=sessionMember();
+  const picked=me ? pickNudge(me) : null;
+  if(picked){
+    const [em, head, body]=picked.nudge.text(picked.ctx);
+    slot.innerHTML=`<div class="coach"><span class="cem">${em}</span>
+        <span class="cbodytext"><strong>${escapeHtml(head)}</strong>${escapeHtml(body)}</span>
+        <button class="cx" title="Not now" onclick="dismissNudge('${picked.nudge.id}')">\u2715</button></div>`;
+    if(picked.fresh) recordNudgeShown(me, picked.nudge.id);
+    return;
+  }
+  const days=fortnightDays();
+  const on=days.filter(d=>d.any).length;
+  if(on < 7){
+    const mood=moodFor(null, true);
+    slot.innerHTML=`<section class="attncard" onclick="showOverviewPanel()">
+        <span class="attnstar">${starBuddySVG(mood)}</span>
+        <span><strong>${on} of the last 14 days</strong>
+          <span>${on>=3 ? "Worth asking what got in the way on the others."
+                        : "One small thing today is worth more than a big catch-up."}</span></span>
+      </section>`;
+    return;
+  }
+  slot.innerHTML=reminderCardHTML();
+}
+
 /* ---------- The fortnight strip ----------
    One number decides whether any of the rest of this works: how many days in
    the last fortnight had a point awarded at all. It is already in the ledger;
@@ -7926,14 +8025,23 @@ function renderFortnight(){
 /* ---------- One small character ----------
    Children form attachments to characters, not to charts. One mark, four moods,
    drawn rather than downloaded. */
-function moodFor(child){
+/* Never sleepy on a child's screen. The quiet days were not the child's doing,
+   and they should not open their own app to a reproach for someone else's
+   inaction. The sleepy star belongs to the parent, who can act on it. */
+function moodFor(child, forParent){
+  if(forParent){
+    const f=currentFamily();
+    const kids=f ? f.children.filter(isChildRole) : [];
+    const any=kids.some(c=>todayTotalFor(c)>0);
+    if(any) return "happy";
+    const last=Math.max(0, ...kids.map(c=>{
+      const e=(c.activityLog||[]).filter(x=>x.type==="award")[0];
+      return e ? e.ts : 0;
+    }));
+    return (!last || (Date.now()-last)/86400000 >= 3) ? "sleepy" : "calm";
+  }
   if(!child) return "calm";
-  const today=todayTotalFor(child);
-  if(today>0) return "happy";
-  const last=(child.activityLog||[]).filter(e=>e.type==="award")[0];
-  const days=last ? (Date.now()-last.ts)/86400000 : 99;
-  if(days>=3) return "sleepy";
-  return "calm";
+  return todayTotalFor(child)>0 ? "happy" : "calm";
 }
 function starBuddySVG(mood, colour){
   const c=colour || "#f6d365";
@@ -7959,8 +8067,7 @@ function starBuddySVG(mood, colour){
 }
 function buddyLine(mood, name){
   if(mood==="happy") return "Points today \u2014 nice one!";
-  if(mood==="sleepy") return "It\u2019s been quiet. Keep doing kind things \u2014 they get noticed.";
-  return "Ready when you are.";
+  return "Nothing yet today \u2014 there\u2019s still time.";
 }
 
 /* ---------- Personal best ----------
@@ -8028,15 +8135,17 @@ function checkForArrivals(){
   const firstRun = seen===null;
   if(firstRun) seen=new Set();
   const DAY=86400000;
+  // One card, however many arrived. Four modals in a row is not four moments of
+  // being noticed \u2014 it is a dialogue box a child learns to dismiss.
+  const fresh=[];
   (me.activityLog||[]).slice().reverse().forEach(e=>{
     if(e.type!=="award" || e.points<=0) return;
     if(seen.has(e.id)) return;
-    // Don't replay a month of history the first time; anything from today is
-    // still news.
     const stale = firstRun && (Date.now()-e.ts) > DAY;
-    if(!stale) celebrationQueue.push({ __award:true, entry:e });
+    if(!stale) fresh.push(e);
     seen.add(e.id);
   });
+  if(fresh.length) celebrationQueue.push({ __award:true, entries:fresh });
   saveSeenAwards(seen);
   if(celebrationQueue.length && !celebrating) showNextCelebration();
 }
@@ -8055,6 +8164,11 @@ function setSoundOn(on){
 }
 function chime(kind){
   if(!soundOn()) return;
+  // A child's device only, and never after bedtime. It used to sound on a
+  // parent's phone when they approved a reward at eleven at night.
+  if(!isChildRole(sessionMember())) return;
+  const h=new Date().getHours();
+  if(h>=21 || h<7) return;
   try{
     const Ctx=window.AudioContext||window.webkitAudioContext;
     if(!Ctx) return;
@@ -8090,6 +8204,35 @@ function speak(text){
     window.speechSynthesis.speak(u);
   }catch(e){ /* not every browser has a voice */ }
 }
+/* Written to be heard rather than seen. speakElement() on the whole screen read
+   out the button labels, so a child asking to be read to heard "Sound on. Read
+   to me. House rules." */
+function kidSpeechFor(child){
+  if(!child) return "";
+  const lines=[];
+  lines.push("Asalamualaikum, " + child.name + ".");
+  const today=todayTotalFor(child);
+  const latest=(child.activityLog||[]).filter(e=>e.type==="award" && tsToDateStr(e.ts)===dateStr(new Date()))[0];
+  if(latest){
+    const parts=String(latest.label||"").split(" \u2014 ");
+    const why=parts.slice(1).join(" \u2014 ") || parts[0];
+    lines.push((latest.by ? latest.by + " noticed you for " : "You were noticed for ") + why + ".");
+  }
+  lines.push(today>0
+    ? "You have " + today + " point" + (today===1?"":"s") + " today."
+    : "Nothing yet today. There is still time.");
+  if(prayerBoardEnabled()){
+    const g=prayerGrid(child,1)[0];
+    lines.push(g.complete ? "All five prayers today. MashaAllah."
+                          : g.count + " of your five prayers so far.");
+  }
+  const spendable=availableFor(child);
+  const next=(app.rewards||[]).filter(r=>r.points>spendable).sort((a,b)=>a.points-b.points)[0];
+  if(next) lines.push("You need " + (next.points-spendable) + " more points for " + next.name + ".");
+  else if(spendable>0) lines.push("You have " + spendable + " points to spend.");
+  return lines.join(" ");
+}
+function speakKidHome(){ speak(kidSpeechFor(sessionMember())); }
 function speakElement(id){
   const el=document.getElementById(id);
   if(el) speak(el.innerText || el.textContent);
@@ -8119,21 +8262,29 @@ function showNextCelebration(){
   if(!r){ celebrating = false; return; }
   celebrating = true;
   if(r.__award){
-    const e=r.entry;
-    // The label carries the note a parent typed, which is the part a child
-    // re-reads. Split it so the reason gets the room it deserves.
-    const parts=String(e.label||"").split(" \u2014 ");
-    const what=parts[0], why=parts.slice(1).join(" \u2014 ");
+    const list=r.entries || [];
+    const newest=list[list.length-1] || {};
+    const reason=e=>{
+      // The label carries the note a parent typed, which is the part a child
+      // re-reads. The action name is the fallback.
+      const parts=String(e.label||"").split(" \u2014 ");
+      return parts.slice(1).join(" \u2014 ") || parts[0];
+    };
+    const total=list.reduce((a,e)=>a+e.points, 0);
+    const who=newest.by || "";
+    const many=list.length>1;
     document.getElementById("celebrateEmoji").textContent = "\u2b50";
-    document.getElementById("celebrateTitle").textContent =
-      (e.by ? e.by + " noticed you" : "You were noticed") + " \u2b50";
-    document.getElementById("celebrateWhat").textContent = why || what;
+    document.getElementById("celebrateTitle").textContent = many
+      ? (who ? who + " and others noticed you " + list.length + " times" : "You were noticed " + list.length + " times")
+      : (who ? who + " noticed you \u2b50" : "You were noticed \u2b50");
+    document.getElementById("celebrateWhat").textContent = reason(newest);
     document.getElementById("celebrateWho").textContent =
-      (why ? what + " \u00b7 " : "") + "+" + e.points + " point" + (e.points===1?"":"s");
+      (many ? list.slice(0,-1).map(e=>"\u00b7 "+reason(e)+" (+"+e.points+")").join("\n") + "\n\n" : "")
+      + "+" + total + " point" + (total===1?"":"s") + " altogether";
     document.getElementById("celebration").classList.remove("hidden");
     dropConfetti();
     chime("award");
-    speak((e.by ? e.by + " noticed you. " : "") + (why || what) + ". Plus " + e.points + ".");
+    speak((who ? who + " noticed you. " : "") + reason(newest) + ". Plus " + total + " altogether.");
     return;
   }
   if(r.gift){
@@ -8232,16 +8383,12 @@ function renderKidView(child){
   if(budLine) budLine.textContent=buddyLine(mood, child.name);
   const best=document.getElementById("kidBest");
   if(best) best.innerHTML=personalBestHTML(child);
+  // On a day something has already arrived, the home screen has said its piece.
   const kr=document.getElementById("kidReminder");
-  if(kr) kr.innerHTML=reminderCardHTML();
+  if(kr) kr.innerHTML = todayTotalFor(child)>0 ? "" : reminderCardHTML();
   renderSoundToggle();
-  // Moved off the home screen: it belongs with the rest of the detail.
   const boost=document.getElementById("kidBoostCard");
-  if(boost){
-    const holder=document.getElementById("kidPointsScreen");
-    if(holder && boost.parentElement!==holder) holder.appendChild(boost);
-    boost.classList.remove("hidden");
-  }
+  if(boost) boost.classList.remove("hidden");
   const pt=document.getElementById("prayerToday");
   if(pt) pt.innerHTML = prayerTodayHTML(child);
   const pw=document.getElementById("prayerWall");
