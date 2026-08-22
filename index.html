@@ -449,6 +449,13 @@
   .fortdots{display:flex;gap:4px;margin-top:12px}
   .fortdot{flex:1 1 0;min-width:0;height:26px;border-radius:6px;background:#f1f2f8;border:1px solid #e6e8f0}
   .fortdot.on{background:#17a08a;border-color:#17a08a}
+  .goalideas{display:grid;gap:8px;margin-top:12px}
+  .goalidea{display:grid;grid-template-columns:1fr auto;gap:4px 12px;align-items:center;text-align:left;
+            width:auto;background:#f7f8fc;border:1px solid #e6e8f0;border-radius:16px;padding:13px 15px;
+            color:var(--ink)}
+  .goalidea .gititle{font-size:15px;font-weight:800;line-height:1.25}
+  .goalidea .gitblurb{grid-column:1;font-size:12px;color:var(--muted);line-height:1.4}
+  .goalidea .gitpts{grid-row:1/3;font-size:18px;font-weight:800;color:#12796a;white-space:nowrap}
   .duachips{display:flex;gap:6px;flex-wrap:wrap;margin:14px 0 12px}
   .duachips button{width:auto;padding:7px 13px;font-size:12.5px;font-weight:800;
                    background:#eef0ff;color:#3e46ad}
@@ -512,7 +519,8 @@
              text-transform:uppercase;color:var(--muted)}
   .menugroup:first-of-type{margin-top:4px}
   /* The sheet used to read as part of the page behind it. */
-  .menuscrim{position:fixed;inset:0;z-index:143;background:rgba(24,22,60,.45);
+  body.locked{position:fixed;left:0;right:0;width:100%;overflow:hidden}
+  .menuscrim{touch-action:none;overscroll-behavior:none;position:fixed;inset:0;z-index:143;background:rgba(24,22,60,.45);
              backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px)}
   .menusheet{position:fixed;left:12px;right:12px;top:calc(62px + env(safe-area-inset-top));
              z-index:145;display:grid;gap:7px;max-width:420px;margin:0;padding:12px;max-height:72vh;overflow-y:auto;
@@ -1316,6 +1324,7 @@
   <div id="rewardsPanel" class="panel hidden">
     <button class="panelback" onclick="goHome()">← Home</button>
     <div id="parentGoal"></div>
+    <div id="goalIdeas"></div>
     <div id="rewardsPanelBody"></div>
   </div>
 
@@ -2926,7 +2935,42 @@ const STARTER_GAMES = [
   {name:"Connect 4", points:30, desc:"Take turns dropping discs. First to line up four in a row wins."},
   {name:"Snakes and Ladders", points:30, desc:"Roll, climb the ladders, slide down the snakes, race to the last square."},
   {name:"Family quiz night", points:35, desc:"One person sets the questions, everyone else plays for points."},
-  {name:"Treasure hunt", points:50, desc:"A trail of written clues around the house leading to something hidden."}
+  {name:"Treasure hunt", points:50, desc:"A trail of written clues around the house leading to something hidden."},
+
+  // Costing nothing but an afternoon \u2014 priced low so they get chosen.
+  {name:"Walk somewhere new together", points:40, desc:"A park, a canal, a hill you have never walked up. Phones in pockets."},
+  {name:"Cook something as a family", points:50, desc:"Everyone gets a job. Whoever cooks does not wash up."},
+  {name:"Bike ride or scooter trip", points:50, desc:"Out on wheels together, wherever the path goes."},
+  {name:"Library trip \u2014 everyone picks a book", points:50, desc:"One book each, and you read the first page together at home."},
+  {name:"Plant something and look after it", points:60, desc:"Seeds, a pot, a windowsill. It only counts if you keep watering it."},
+
+  // Worth doing, and worth saving a little for.
+  {name:"Visit an Islamic centre or a new masjid", points:120, desc:"Pray somewhere different, meet people, see how another community does things."},
+  {name:"Research an Islamic project together", points:150, desc:"Pick a topic \u2014 a prophet, a scholar, a place \u2014 and present it to the family at the weekend."},
+  {name:"Visit a museum", points:180, desc:"Choose one room and do it properly rather than the whole building in a rush."},
+  {name:"A day at the coast", points:250, desc:"Sea, sand, chips, and the long drive home."},
+  {name:"Islamic history day out", points:300, desc:"A mosque, a museum collection, or an exhibition \u2014 something with a story behind it."},
+  {name:"Zoo, farm or aquarium", points:350, desc:"A whole day out, with something living to look at."},
+  {name:"Theme park or a big day out", points:600, desc:"The expensive one. Worth saving properly for."}
+];
+
+/* ---------- Goals the children unlock together ----------
+   Suggestions, not rules. A goal counts what every child earns from the day it
+   is set, so nobody pays for it out of their own balance and the biggest ones
+   only happen if the whole family pulls. */
+const GOAL_IDEAS = [
+  {title:"A family meal out, our choice", points:600,
+   blurb:"Everyone picks one thing on the table."},
+  {title:"A day at the coast", points:900,
+   blurb:"A whole day, all of us."},
+  {title:"Soft play or trampoline park for everyone", points:1000,
+   blurb:"The one that costs per child."},
+  {title:"A weekend away", points:2500,
+   blurb:"Two nights somewhere none of us has been."},
+  {title:"A family holiday", points:6000,
+   blurb:"The big one. Months of everyone pulling together."},
+  {title:"Umrah, insha\u2019Allah", points:12000,
+   blurb:"A lifetime aim. Set it now and let it sit there while everything else goes past it."}
 ];
 
 /* Ideas for parents, grouped so the card can lean towards connection when
@@ -3000,7 +3044,7 @@ const TIP_CATS = [
   {key:"behaviour", label:"Behaviour"}
 ];
 
-const APP_VERSION = "v74";
+const APP_VERSION = "v75";
 const today = new Date().toISOString().slice(0,10);
 let app = {families:[],currentFamily:null,currentChild:null};
 let categories = [];
@@ -4266,6 +4310,49 @@ async function dismissNotice(id){
   await saveApp(); render();
 }
 
+/* A parent setting a goal themselves, rather than waiting for an uncle to offer
+   one. The mechanism is the same: what all the children earn together from the
+   day it starts, with nobody's own balance touched. */
+async function newFamilyGoal(idx){
+  if(!requireParent()) return;
+  const idea = (idx===undefined || idx===null) ? null : GOAL_IDEAS[idx];
+  const title = idea ? idea.title
+    : (prompt("What are you all working towards?\n\nExample: a day at the coast, a family meal out.") || "").trim();
+  if(!title) return;
+  const suggested = idea ? idea.points : 900;
+  const raw = prompt("How many points should the children reach together?\n\n"
+    + "Everyone\u2019s points count towards it and nobody spends anything.\n\n"
+    + "About 250 a week per child, so " + suggested + " is roughly "
+    + Math.max(1, Math.round(suggested/(250*Math.max(1,(currentFamily()?currentFamily().children.filter(isChildRole).length:1))))) 
+    + " week(s) for your family.", String(suggested));
+  const points=parseInt(raw,10);
+  if(Number.isNaN(points) || points<50){ if(raw!==null) alert("Give it a target of at least 50 points."); return; }
+  const byDate=(prompt("By when? (optional \u2014 e.g. before Eid, the summer holidays)", idea? "" : "") || "").trim();
+  const message=(prompt("A line for the children (optional)", idea ? idea.blurb : "") || "").trim();
+  app.goals = familyGoals().concat([{
+    id:"g"+Math.abs(hashString(title+Date.now())).toString(16),
+    title, points, message, byDate,
+    sponsorName:(sessionMember()||{}).name || "Mum and Dad",
+    createdTs:Date.now(), fromDate:dateStr(new Date()), status:"open"
+  }]);
+  await saveApp();
+  render();
+}
+function goalIdeasHTML(){
+  const open=activeGoal();
+  return `<section class="card" style="border-top-color:#17a08a">
+      <h2 style="margin:0 0 2px">\ud83c\udfaf Something to work towards together</h2>
+      <p class="small" style="margin:0">One goal at a time. Every child\u2019s points count towards it, and nobody spends any of their own \u2014 so the big ones only happen if everyone pulls.</p>
+      ${open ? `<p class="small" style="margin:12px 0 0"><strong>Currently set:</strong> ${escapeHtml(open.title)} \u00b7 ${open.points} points. Finish or cancel it before setting another.</p>`
+        : `<div class="goalideas">${GOAL_IDEAS.map((g,i)=>`<button class="goalidea" onclick="newFamilyGoal(${i})">
+              <span class="gititle">${escapeHtml(g.title)}</span>
+              <span class="gitblurb">${escapeHtml(g.blurb)}</span>
+              <span class="gitpts">${g.points}</span>
+            </button>`).join("")}</div>
+           <button class="light" style="width:100%;margin-top:10px" onclick="newFamilyGoal(null)">\uff0b Something else</button>`}
+    </section>`;
+}
+
 /* ---------- Offers from the wider family ----------
    An offer is a request, because the requests collection is the one thing any
    member may write to. Nothing an uncle offers reaches the children until a
@@ -5155,7 +5242,7 @@ function showScreen(id){
   if(home) home.classList.toggle("hidden",
     screenNow==="kidSpendScreen" || screenNow==="kidPointsScreen" || screenNow==="kidLearnScreen");
   // A screen that covers the page must not leave the page behind it scrolling.
-  document.body.style.overflow = screenNow ? "hidden" : "";
+  lockPage(!!screenNow);
   window.scrollTo({top:0,behavior:"smooth"});
   const p=screenNow && document.getElementById(screenNow);
   if(p) p.scrollTop=0;
@@ -5200,10 +5287,30 @@ function closeMenu(){
 }
 /* The sheet floats over the page, so the page behind it has to recede or it
    reads as part of what is underneath. */
+/* overflow:hidden alone does not stop a touch dragging the page on iOS, which
+   is why the layer underneath still moved. Fixing the body does \u2014 but it
+   forgets where you were, so the position is put back on the way out. */
+let lockedScrollY = 0;
+function lockPage(on){
+  const b=document.body;
+  if(on){
+    if(b.classList.contains("locked")) return;
+    lockedScrollY = window.scrollY || 0;
+    b.style.top = (-lockedScrollY) + "px";
+    b.classList.add("locked");
+  }else{
+    if(!b.classList.contains("locked")) return;
+    b.classList.remove("locked");
+    b.style.top = "";
+    window.scrollTo(0, lockedScrollY);
+  }
+}
 function setMenuScrim(on){
   const scrim=document.getElementById("menuScrim");
   if(scrim) scrim.classList.toggle("hidden", !on);
-  document.body.style.overflow = on ? "hidden" : (screenNow ? "hidden" : "");
+  const fab=document.getElementById("menuFab");
+  if(fab) fab.textContent = on ? "\u2715 Close" : "\u2630 Menu";
+  lockPage(on || !!screenNow);
 }
 function openPanel(id){
   if(!requireParent()) return;
@@ -5212,6 +5319,8 @@ function openPanel(id){
 }
 function showRewardsPanel(){
   openPanel("rewardsPanel");
+  const gi=document.getElementById("goalIdeas");
+  if(gi) gi.innerHTML=goalIdeasHTML();
   const body=document.getElementById("rewardsPanelBody");
   ["rewardSection","gameNightSection"].forEach(id=>{
     const el=document.getElementById(id);
@@ -7218,7 +7327,11 @@ function render(){
   const anw=document.getElementById("awardNoteWrap");
   if(anw) anw.classList.toggle("hidden", !(isParentSession() && viewChildId && !editMode && !screenNow));
   const mf=document.getElementById("menuFab");
-  if(mf) mf.classList.toggle("hidden", !(ready && isParentSession() && !editMode && !screenNow));
+  if(mf){
+    mf.classList.toggle("hidden", !(ready && isParentSession() && !editMode && !screenNow));
+    const open=!document.getElementById("menuSheet").classList.contains("hidden");
+    mf.textContent = open ? "\u2715 Close" : "\u2630 Menu";
+  }
   applyEditGates();
   const eb=document.getElementById("editBar");
   if(eb) eb.classList.toggle("hidden", !editMode);
@@ -7229,6 +7342,8 @@ function render(){
   renderOutsideFeed();
   const pg=document.getElementById("parentGoal");
   if(pg) pg.innerHTML = (isParentSession() && !editMode) ? goalCardHTML(activeGoal(), false) : "";
+  const gi=document.getElementById("goalIdeas");
+  if(gi && isParentSession()) gi.innerHTML=goalIdeasHTML();
   renderCoachNudge();
   renderChampionFloat();
   renderChampionToggle();
