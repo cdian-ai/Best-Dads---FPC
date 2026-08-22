@@ -654,7 +654,16 @@
     .chip{padding:14px}
     .chip .cicon{font-size:34px}
   }
-  .gatewrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
+  /* 100vh is a lie on a phone: it is the height with the URL bar hidden, so the
+     page grew and shrank as the bar slid in and out, and every tap on an input
+     resized it again when the keyboard opened. svh is the stable one. Centring
+     with align-items also clipped the top of a card taller than the screen -
+     auto margins centre it when there is room and let it scroll when there is
+     not. */
+  .gatewrap{min-height:100vh;min-height:100svh;display:flex;align-items:flex-start;
+            justify-content:center;padding:24px 24px calc(24px + env(safe-area-inset-bottom));
+            overscroll-behavior-y:contain}
+  .gatewrap > *{margin-top:auto;margin-bottom:auto}
   .gatecard{max-width:440px;width:100%;background:var(--card);border-radius:24px;padding:28px;box-shadow:var(--shadow);text-align:center}
   .gateprofiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:12px;margin-top:16px}
   .gateprofile{display:flex;flex-direction:column;align-items:center;gap:8px;background:#f7f8fc;border:1px solid #e6e8f0;border-radius:16px;padding:14px 8px;font-weight:700;color:var(--ink)}
@@ -866,6 +875,89 @@
   .vaultsetting{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;
                 background:#fff8ec;border:1px solid #f3d9ae;border-radius:18px;padding:14px 15px;margin:14px 0}
   .kidsheet button{text-align:left}
+
+  /* ---------- Reading cards ----------
+     Six palettes, not twenty. A card's colour says what KIND of thing it is, so
+     the eye learns the grouping instead of being shouted at by every card in a
+     different shade. Ink stays dark on a soft tint - white on saturated colour
+     photographs well and reads badly, and these are for children. */
+  .rcard{position:relative;overflow:hidden;border-radius:26px;padding:22px 20px 20px;
+         margin-bottom:16px;min-height:33svh;display:flex;flex-direction:column;
+         justify-content:center;box-shadow:0 10px 26px rgba(24,22,60,.10);
+         border:1px solid rgba(24,22,60,.06)}
+  .rcard .rglyph{position:absolute;right:-14px;bottom:-22px;font-size:118px;line-height:1;
+                 opacity:.13;pointer-events:none;user-select:none}
+  .rcard .rtag{align-self:flex-start;font-size:12px;font-weight:800;letter-spacing:.05em;
+               text-transform:uppercase;padding:6px 13px;border-radius:999px;margin-bottom:12px}
+  .rcard h3{margin:0 0 10px;font-size:23px;line-height:1.25;font-weight:800}
+  .rcard .rlead{margin:0 0 10px;font-size:19px;line-height:1.5;font-weight:700}
+  .rcard .rsub{margin:0;font-size:15.5px;line-height:1.6}
+  .rcard .rsrc{margin-top:14px;font-size:13px;font-weight:700;opacity:.72}
+  .rcard.tap{cursor:pointer}
+  .rcard.tap:active{transform:scale(.985)}
+  /* t1 warm gold - reminders about mercy and character */
+  .rcard.t1{background:linear-gradient(150deg,#fff6df,#ffeec4)}
+  .rcard.t1 .rtag{background:#f3d489;color:#6d4d05}.rcard.t1 h3,.rcard.t1 .rlead{color:#5e4304}.rcard.t1 .rsub,.rcard.t1 .rsrc{color:#7a5c15}
+  /* t2 teal - eating, food, thankfulness */
+  .rcard.t2{background:linear-gradient(150deg,#e2f7f2,#c9efe6)}
+  .rcard.t2 .rtag{background:#8fd9c6;color:#0a5546}.rcard.t2 h3,.rcard.t2 .rlead{color:#0b5545}.rcard.t2 .rsub,.rcard.t2 .rsrc{color:#14705d}
+  /* t3 indigo - night, sleep, stillness */
+  .rcard.t3{background:linear-gradient(150deg,#e8e9ff,#d5d7fb)}
+  .rcard.t3 .rtag{background:#a9adf3;color:#2a2d78}.rcard.t3 h3,.rcard.t3 .rlead{color:#2b2e73}.rcard.t3 .rsub,.rcard.t3 .rsrc{color:#3d4193}
+  /* t4 rose - feelings, other people, kindness */
+  .rcard.t4{background:linear-gradient(150deg,#ffeaf0,#ffd8e4)}
+  .rcard.t4 .rtag{background:#f6a9c0;color:#7c1f3f}.rcard.t4 h3,.rcard.t4 .rlead{color:#7a2242}.rcard.t4 .rsub,.rcard.t4 .rsrc{color:#933054}
+  /* t5 green - going out, the world outside */
+  .rcard.t5{background:linear-gradient(150deg,#e9f6dd,#d5edc3)}
+  .rcard.t5 .rtag{background:#a4d189;color:#33581f}.rcard.t5 h3,.rcard.t5 .rlead{color:#345a1f}.rcard.t5 .rsub,.rcard.t5 .rsrc{color:#456f2c}
+  /* t6 violet - learning and knowing */
+  .rcard.t6{background:linear-gradient(150deg,#f3ecff,#e6daff)}
+  .rcard.t6 .rtag{background:#c4abf5;color:#4a2483}.rcard.t6 h3,.rcard.t6 .rlead{color:#4b2685}.rcard.t6 .rsub,.rcard.t6 .rsrc{color:#5e3599}
+  .rcard.pinned{outline:3px solid #f0c14b;outline-offset:-3px}
+  .rpin{position:absolute;top:14px;right:16px;font-size:12px;font-weight:800;
+        background:#f0c14b;color:#5e4304;padding:5px 11px;border-radius:999px}
+
+  /* ---------- Story reader ---------- */
+  .storytile{position:relative;overflow:hidden;border-radius:26px;margin-bottom:16px;
+             box-shadow:0 10px 26px rgba(24,22,60,.12);border:none;padding:0;width:100%;
+             display:block;text-align:left;background:#fff}
+  .storytile .storyart{display:block;width:100%;height:auto}
+  .storytile .stbody{padding:16px 18px 18px}
+  .storytile h3{margin:0 0 4px;font-size:21px;line-height:1.25;color:var(--ink)}
+  .storytile .stmeta{margin:0;font-size:13.5px;color:var(--muted);font-weight:700}
+  .storyread .storyart{display:block;width:100%;height:auto;border-radius:22px;margin-bottom:16px}
+  .storyread h2{margin:0 0 2px;font-size:26px;line-height:1.2}
+  .storyread .stsrc{margin:0 0 18px;font-size:13.5px;color:var(--muted);font-weight:700}
+  .storyread p.para{font-size:18px;line-height:1.75;color:var(--ink);margin:0 0 16px;max-width:38em}
+  .storyread p.para.lead{font-size:20px;font-weight:700}
+  .storyread .stask{background:linear-gradient(150deg,#fff6df,#ffeec4);border-radius:22px;
+                    padding:18px 20px;margin-top:8px}
+  .storyread .stask strong{display:block;font-size:13px;letter-spacing:.05em;text-transform:uppercase;
+                           color:#7a5c15;margin-bottom:6px}
+  .storyread .stask p{margin:0;font-size:18px;line-height:1.5;font-weight:700;color:#5e4304}
+
+  /* ---------- Objective states, spelled out ---------- */
+  .objstate{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:800;
+            padding:4px 10px;border-radius:999px;margin-top:5px;white-space:nowrap}
+  .objstate.s-none{background:#eef0f6;color:#6a7086}
+  .objstate.s-cov{background:#dbe4ff;color:#2f3a9c}
+  .objstate.s-sec{background:#cdefe2;color:#0c6b4f}
+  .objstate.s-rev{background:#ffe6c7;color:#98520a}
+  .learnhow{background:#fff;border:1px solid #e6e8f0;border-radius:20px;padding:15px 17px;margin-bottom:16px}
+  .learnhow h3{margin:0 0 8px;font-size:16px}
+  .learnhow p{margin:0 0 7px;font-size:14px;line-height:1.55;color:var(--muted)}
+  .learnhow p:last-child{margin-bottom:0}
+  .learnhow b{color:var(--ink)}
+
+  /* ---------- Sound, where a child can find it ---------- */
+  .soundrow{display:flex;align-items:center;justify-content:space-between;gap:12px;
+            background:#fff;border:1px solid #e6e8f0;border-radius:20px;
+            padding:13px 15px;margin:14px 0}
+  .soundrow .slabel{font-weight:800;font-size:15.5px}
+  .soundrow .shint{display:block;font-weight:600;font-size:12.5px;color:var(--muted);margin-top:2px}
+  .soundswitch{width:auto;min-width:104px;min-height:48px;border-radius:999px;font-weight:800;font-size:15px}
+  .soundswitch.on{background:linear-gradient(135deg,#17a08a,#0f8f9c);color:#fff}
+  .soundswitch.off{background:#eceef6;color:#5a5f7a}
   .teachercard{background:#fff;border-radius:24px;padding:18px;margin-bottom:16px;
                box-shadow:0 8px 22px rgba(24,22,60,.09);border:1px solid #eceef8}
   .teachercard h3{margin:0 0 10px;font-size:18px}
@@ -1208,12 +1300,12 @@
   <button class="light" onclick="kidMenuGo('kidLearnScreen')">📖 Learn</button>
   <button class="light" onclick="kidMenuGo('kidPointsScreen')">⭐ My points</button>
   <p class="menugroup">More</p>
-  <button class="light" id="soundBtn" onclick="setSoundOn(!soundOn())">🔊 Sound on</button>
   <button class="light" onclick="closeKidMenu();showDeenPanel()">🤲 Duas &amp; bedtime</button>
   <button class="light" onclick="closeKidMenu();showTreePanel()">🌳 My family</button>
   <button class="light" onclick="closeKidMenu();showRulesPanel()">📜 House rules</button>
   <button class="light" onclick="closeKidMenu();startTour(kidTourKey(sessionMember()))">❓ How this works</button>
   <p class="menugroup">This device</p>
+  <button class="light" id="soundBtn" onclick="setSoundOn(!soundOn())">🔊 Sound on</button>
   <button class="light" onclick="signOutDevice()">🔒 Sign out</button>
 </div>
 <button id="panelTop" class="paneltop hidden" onclick="panelToTop()">↑ Top</button>
@@ -1584,6 +1676,12 @@
       </div>
     </section>
 
+    <div class="soundrow">
+      <span><span class="slabel">🔊 Sound</span>
+        <span class="shint">The happy noise when points arrive</span></span>
+      <button class="soundswitch on" id="soundSwitch" onclick="setSoundOn(!soundOn())"
+              aria-pressed="true">On</button>
+    </div>
     <div class="buddyrow">
       <div class="buddy" id="kidBuddy"></div>
       <div class="buddytalk"><p id="kidBuddyLine">Ready when you are.</p>
@@ -2636,76 +2734,222 @@ const DUAS = [
 /* Short, well-known teachings. Phrased as meanings rather than as exact
    quotations, with where they come from, so nothing is put in the Prophet's
    mouth word for word by an app. */
+/* A theme per reminder, so the colours group rather than scatter. */
 const REMINDERS = [
-  { text:"The best of you are the best to their families.", src:"Meaning of a hadith \u2014 Tirmidhi" },
-  { text:"Whoever is not merciful to people, Allah is not merciful to him.", src:"Meaning of a hadith \u2014 Bukhari & Muslim" },
-  { text:"A good word is charity.", src:"Meaning of a hadith \u2014 Bukhari & Muslim" },
-  { text:"Allah is gentle, and loves gentleness in all things.", src:"Meaning of a hadith \u2014 Muslim" },
-  { text:"Deeds that are small and constant are more loved than large ones done rarely.", src:"Meaning of a hadith \u2014 Bukhari & Muslim" },
-  { text:"None of you truly believes until he loves for his brother what he loves for himself.", src:"Meaning of a hadith \u2014 Bukhari & Muslim" },
-  { text:"The strong one is the one who controls himself when he is angry.", src:"Meaning of a hadith \u2014 Bukhari & Muslim" },
-  { text:"Smiling in your brother's face is charity.", src:"Meaning of a hadith \u2014 Tirmidhi" },
-  { text:"Be mindful of Allah, and you will find Him before you.", src:"Meaning of a hadith \u2014 Tirmidhi" },
-  { text:"Allah does not look at your appearance or your wealth, but at your hearts and your deeds.", src:"Meaning of a hadith \u2014 Muslim" },
-  { text:"Whoever does not thank people has not thanked Allah.", src:"Meaning of a hadith \u2014 Abu Dawud & Tirmidhi" },
-  { text:"Speak good, or stay quiet.", src:"Meaning of a hadith \u2014 Bukhari & Muslim" },
-  { text:"The most beloved deeds to Allah are the most consistent ones, even if small.", src:"Meaning of a hadith \u2014 Bukhari" },
-  { text:"Cleanliness is half of faith.", src:"Meaning of a hadith \u2014 Muslim" }
+  { theme:"t4", tag:"Family", glyph:"👪", text:"The best of you are the best to their families.", src:"Meaning of a hadith \u2014 Tirmidhi" },
+  { theme:"t4", tag:"Mercy", glyph:"💛", text:"Whoever is not merciful to people, Allah is not merciful to him.", src:"Meaning of a hadith \u2014 Bukhari & Muslim" },
+  { theme:"t6", tag:"Words", glyph:"💬", text:"A good word is charity.", src:"Meaning of a hadith \u2014 Bukhari & Muslim" },
+  { theme:"t4", tag:"Gentleness", glyph:"🕊️", text:"Allah is gentle, and loves gentleness in all things.", src:"Meaning of a hadith \u2014 Muslim" },
+  { theme:"t1", tag:"Keeping going", glyph:"🌱", text:"Deeds that are small and constant are more loved than large ones done rarely.", src:"Meaning of a hadith \u2014 Bukhari & Muslim" },
+  { theme:"t4", tag:"Others", glyph:"🤝", text:"None of you truly believes until he loves for his brother what he loves for himself.", src:"Meaning of a hadith \u2014 Bukhari & Muslim" },
+  { theme:"t3", tag:"Self-control", glyph:"🧘", text:"The strong one is the one who controls himself when he is angry.", src:"Meaning of a hadith \u2014 Bukhari & Muslim" },
+  { theme:"t4", tag:"Kindness", glyph:"😊", text:"Smiling in your brother's face is charity.", src:"Meaning of a hadith \u2014 Tirmidhi" },
+  { theme:"t3", tag:"Remembering", glyph:"✨", text:"Be mindful of Allah, and you will find Him before you.", src:"Meaning of a hadith \u2014 Tirmidhi" },
+  { theme:"t3", tag:"The heart", glyph:"🖤", text:"Allah does not look at your appearance or your wealth, but at your hearts and your deeds.", src:"Meaning of a hadith \u2014 Muslim" },
+  { theme:"t2", tag:"Thankfulness", glyph:"🙌", text:"Whoever does not thank people has not thanked Allah.", src:"Meaning of a hadith \u2014 Abu Dawud & Tirmidhi" },
+  { theme:"t6", tag:"Words", glyph:"🤫", text:"Speak good, or stay quiet.", src:"Meaning of a hadith \u2014 Bukhari & Muslim" },
+  { theme:"t1", tag:"Keeping going", glyph:"🌱", text:"The most beloved deeds to Allah are the most consistent ones, even if small.", src:"Meaning of a hadith \u2014 Bukhari" },
+  { theme:"t5", tag:"Cleanliness", glyph:"🧼", text:"Cleanliness is half of faith.", src:"Meaning of a hadith \u2014 Muslim" }
 ];
 
-/* Ten short tellings for bedtime. Each is a summary in the app's own words,
-   with where the story is found, and a question to end on \u2014 the question is
-   the part that turns a story into a conversation. */
+/* Ten tellings for bedtime, written long enough to actually be a bedtime
+   story rather than a summary, each with a scene to look at while it is read.
+   The illustrations are landscapes and animals only - no people are drawn,
+   which is the respectful choice here and also the one that survives being
+   hand-written as inline SVG. */
+const STORY_ART = {
+  sea: "<svg viewBox=\"0 0 400 220\" class=\"storyart\" role=\"img\" aria-label=\"A dark sea under a night sky\"> <defs><linearGradient id=\"sk1\" x1=\"0\" y1=\"0\" x2=\"0\" y2=\"1\"><stop offset=\"0\" stop-color=\"#1b2a5e\"/><stop offset=\"1\" stop-color=\"#3f5aa6\"/></linearGradient> <linearGradient id=\"se1\" x1=\"0\" y1=\"0\" x2=\"0\" y2=\"1\"><stop offset=\"0\" stop-color=\"#12507a\"/><stop offset=\"1\" stop-color=\"#062f4d\"/></linearGradient></defs> <rect width=\"400\" height=\"220\" fill=\"url(#sk1)\"/> <circle cx=\"322\" cy=\"46\" r=\"20\" fill=\"#ffe9a8\"/><circle cx=\"314\" cy=\"42\" r=\"18\" fill=\"#3f5aa6\" opacity=\".92\"/> <g fill=\"#fff\" opacity=\".85\"><circle cx=\"60\" cy=\"34\" r=\"1.8\"/><circle cx=\"112\" cy=\"60\" r=\"1.4\"/><circle cx=\"168\" cy=\"28\" r=\"2\"/><circle cx=\"228\" cy=\"66\" r=\"1.5\"/><circle cx=\"264\" cy=\"30\" r=\"1.7\"/><circle cx=\"40\" cy=\"82\" r=\"1.3\"/><circle cx=\"150\" cy=\"88\" r=\"1.2\"/></g> <path d=\"M0 138 Q60 122 120 138 T240 138 T360 138 T480 138 V220 H0 Z\" fill=\"url(#se1)\"/> <path d=\"M0 158 Q70 144 140 158 T280 158 T420 158 V220 H0 Z\" fill=\"#0a3f63\" opacity=\".75\"/> <path d=\"M118 176 q28 -16 56 0 q-28 10 -56 0 Z\" fill=\"#0e5f86\"/> <path d=\"M174 176 q22 -6 34 6 q-18 6 -34 -6 Z\" fill=\"#0e5f86\"/> <path d=\"M96 172 q10 -12 22 -6\" stroke=\"#8fd3f0\" stroke-width=\"2.5\" fill=\"none\" stroke-linecap=\"round\" opacity=\".7\"/> </svg>",
+  birds: "<svg viewBox=\"0 0 400 220\" class=\"storyart\" role=\"img\" aria-label=\"Birds flying over green hills at dawn\"> <defs><linearGradient id=\"sk2\" x1=\"0\" y1=\"0\" x2=\"0\" y2=\"1\"><stop offset=\"0\" stop-color=\"#ffd9a0\"/><stop offset=\"1\" stop-color=\"#ffb8b0\"/></linearGradient></defs> <rect width=\"400\" height=\"220\" fill=\"url(#sk2)\"/> <circle cx=\"200\" cy=\"150\" r=\"52\" fill=\"#fff0c4\" opacity=\".85\"/> <path d=\"M0 150 Q70 108 150 148 T300 140 T400 158 V220 H0 Z\" fill=\"#6f9f6a\"/> <path d=\"M0 176 Q90 146 190 178 T400 174 V220 H0 Z\" fill=\"#4e7d51\"/> <g stroke=\"#5a3f2e\" stroke-width=\"3\" fill=\"none\" stroke-linecap=\"round\"> <path d=\"M70 56 q12 -12 24 0 q12 -12 24 0\"/><path d=\"M150 34 q10 -10 20 0 q10 -10 20 0\"/> <path d=\"M232 62 q11 -11 22 0 q11 -11 22 0\"/><path d=\"M300 30 q9 -9 18 0 q9 -9 18 0\"/> <path d=\"M118 92 q8 -8 16 0 q8 -8 16 0\"/></g> </svg>",
+  well: "<svg viewBox=\"0 0 400 220\" class=\"storyart\" role=\"img\" aria-label=\"A stone well beside a dusty desert road\"> <defs><linearGradient id=\"sk3\" x1=\"0\" y1=\"0\" x2=\"0\" y2=\"1\"><stop offset=\"0\" stop-color=\"#bfe3f5\"/><stop offset=\"1\" stop-color=\"#f6e2b8\"/></linearGradient></defs> <rect width=\"400\" height=\"220\" fill=\"url(#sk3)\"/> <circle cx=\"330\" cy=\"48\" r=\"26\" fill=\"#ffe07a\" opacity=\".9\"/> <path d=\"M0 152 Q100 138 200 152 T400 148 V220 H0 Z\" fill=\"#e2c48c\"/> <path d=\"M0 176 Q120 164 240 180 T400 174 V220 H0 Z\" fill=\"#cfae74\"/> <g><rect x=\"150\" y=\"150\" width=\"96\" height=\"14\" rx=\"5\" fill=\"#9a8360\"/> <rect x=\"158\" y=\"162\" width=\"80\" height=\"42\" rx=\"6\" fill=\"#b39a72\"/> <rect x=\"158\" y=\"162\" width=\"80\" height=\"42\" rx=\"6\" fill=\"none\" stroke=\"#8b7554\" stroke-width=\"2\"/> <path d=\"M170 162 v42 M186 162 v42 M202 162 v42 M218 162 v42\" stroke=\"#8b7554\" stroke-width=\"1.5\" opacity=\".6\"/> <path d=\"M162 150 v-34 h72 v34\" fill=\"none\" stroke=\"#7d6647\" stroke-width=\"4\" stroke-linecap=\"round\"/> <path d=\"M198 116 v22\" stroke=\"#7d6647\" stroke-width=\"2.5\"/><rect x=\"190\" y=\"136\" width=\"16\" height=\"12\" rx=\"3\" fill=\"#7d6647\"/></g> <path d=\"M56 208 q40 -14 88 -6\" stroke=\"#bb9a63\" stroke-width=\"6\" fill=\"none\" stroke-linecap=\"round\" opacity=\".6\"/> </svg>",
+  cave: "<svg viewBox=\"0 0 400 220\" class=\"storyart\" role=\"img\" aria-label=\"The dark mouth of a cave in a hillside\"> <defs><linearGradient id=\"sk4\" x1=\"0\" y1=\"0\" x2=\"0\" y2=\"1\"><stop offset=\"0\" stop-color=\"#2a2f5e\"/><stop offset=\"1\" stop-color=\"#6b5a8e\"/></linearGradient> <radialGradient id=\"mouth\"><stop offset=\"0\" stop-color=\"#050510\"/><stop offset=\"1\" stop-color=\"#1b1630\"/></radialGradient></defs> <rect width=\"400\" height=\"220\" fill=\"url(#sk4)\"/> <g fill=\"#fff\" opacity=\".8\"><circle cx=\"48\" cy=\"30\" r=\"1.7\"/><circle cx=\"96\" cy=\"52\" r=\"1.3\"/><circle cx=\"330\" cy=\"36\" r=\"2\"/><circle cx=\"288\" cy=\"66\" r=\"1.4\"/><circle cx=\"360\" cy=\"72\" r=\"1.5\"/></g> <path d=\"M0 200 L70 96 L130 148 L196 62 L268 150 L330 104 L400 196 V220 H0 Z\" fill=\"#4a4066\"/> <path d=\"M0 214 L84 132 L152 180 L226 118 L300 182 L400 128 V220 H0 Z\" fill=\"#332c4d\"/> <path d=\"M152 220 q0 -74 48 -74 q48 0 48 74 Z\" fill=\"url(#mouth)\"/> <path d=\"M152 220 q0 -74 48 -74 q48 0 48 74\" fill=\"none\" stroke=\"#221d38\" stroke-width=\"3\"/> <circle cx=\"200\" cy=\"196\" r=\"3\" fill=\"#ffd97a\" opacity=\".55\"/> </svg>",
+  ants: "<svg viewBox=\"0 0 400 220\" class=\"storyart\" role=\"img\" aria-label=\"A wide valley floor with a line of ants\"> <defs><linearGradient id=\"sk5\" x1=\"0\" y1=\"0\" x2=\"0\" y2=\"1\"><stop offset=\"0\" stop-color=\"#cfe8ff\"/><stop offset=\"1\" stop-color=\"#f3e6c6\"/></linearGradient></defs> <rect width=\"400\" height=\"220\" fill=\"url(#sk5)\"/> <path d=\"M0 120 L60 74 L120 118 L180 66 L250 120 L320 84 L400 124 V220 H0 Z\" fill=\"#c2b48c\"/> <path d=\"M0 150 Q100 132 200 152 T400 146 V220 H0 Z\" fill=\"#e0cf9f\"/> <path d=\"M0 186 Q120 172 250 190 T400 184 V220 H0 Z\" fill=\"#cbb87f\"/> <g fill=\"#4a382a\"> <g transform=\"translate(90,196)\"><ellipse cx=\"0\" cy=\"0\" rx=\"5\" ry=\"3.4\"/><circle cx=\"-6.5\" cy=\"-1\" r=\"2.4\"/><circle cx=\"6\" cy=\"0\" r=\"3\"/><path d=\"M-2 3 l-3 4 M2 3 l3 4 M0 3 l0 5\" stroke=\"#4a382a\" stroke-width=\"1.1\"/></g> <g transform=\"translate(134,190)\"><ellipse cx=\"0\" cy=\"0\" rx=\"5\" ry=\"3.4\"/><circle cx=\"-6.5\" cy=\"-1\" r=\"2.4\"/><circle cx=\"6\" cy=\"0\" r=\"3\"/><path d=\"M-2 3 l-3 4 M2 3 l3 4\" stroke=\"#4a382a\" stroke-width=\"1.1\"/></g> <g transform=\"translate(182,198)\"><ellipse cx=\"0\" cy=\"0\" rx=\"5\" ry=\"3.4\"/><circle cx=\"-6.5\" cy=\"-1\" r=\"2.4\"/><circle cx=\"6\" cy=\"0\" r=\"3\"/><path d=\"M-2 3 l-3 4 M2 3 l3 4\" stroke=\"#4a382a\" stroke-width=\"1.1\"/></g> <g transform=\"translate(230,192)\"><ellipse cx=\"0\" cy=\"0\" rx=\"5\" ry=\"3.4\"/><circle cx=\"-6.5\" cy=\"-1\" r=\"2.4\"/><circle cx=\"6\" cy=\"0\" r=\"3\"/><path d=\"M-2 3 l-3 4 M2 3 l3 4\" stroke=\"#4a382a\" stroke-width=\"1.1\"/></g> <g transform=\"translate(276,200)\"><ellipse cx=\"0\" cy=\"0\" rx=\"5\" ry=\"3.4\"/><circle cx=\"-6.5\" cy=\"-1\" r=\"2.4\"/><circle cx=\"6\" cy=\"0\" r=\"3\"/><path d=\"M-2 3 l-3 4 M2 3 l3 4\" stroke=\"#4a382a\" stroke-width=\"1.1\"/></g> </g> </svg>",
+  palm: "<svg viewBox=\"0 0 400 220\" class=\"storyart\" role=\"img\" aria-label=\"A date palm beside a stream\"> <defs><linearGradient id=\"sk6\" x1=\"0\" y1=\"0\" x2=\"0\" y2=\"1\"><stop offset=\"0\" stop-color=\"#ffe3b0\"/><stop offset=\"1\" stop-color=\"#f9c98d\"/></linearGradient></defs> <rect width=\"400\" height=\"220\" fill=\"url(#sk6)\"/> <circle cx=\"86\" cy=\"54\" r=\"24\" fill=\"#fff2c9\" opacity=\".9\"/> <path d=\"M0 164 Q100 150 200 166 T400 158 V220 H0 Z\" fill=\"#dcc08a\"/> <path d=\"M236 200 q-6 -74 4 -104\" stroke=\"#7a5730\" stroke-width=\"11\" fill=\"none\" stroke-linecap=\"round\"/> <g stroke=\"#3f7a48\" stroke-width=\"7\" fill=\"none\" stroke-linecap=\"round\"> <path d=\"M240 96 q-40 -18 -62 -2\"/><path d=\"M240 96 q40 -20 64 -4\"/> <path d=\"M240 94 q-30 -36 -54 -42\"/><path d=\"M240 94 q32 -36 56 -40\"/> <path d=\"M240 92 q-6 -42 2 -54\"/></g> <g fill=\"#c2622c\"><circle cx=\"230\" cy=\"106\" r=\"4\"/><circle cx=\"242\" cy=\"112\" r=\"4\"/><circle cx=\"250\" cy=\"104\" r=\"3.6\"/><circle cx=\"236\" cy=\"118\" r=\"3.4\"/></g> <path d=\"M0 194 Q90 180 180 196 T400 190 V206 Q300 214 200 204 T0 210 Z\" fill=\"#61b6d6\" opacity=\".85\"/> <path d=\"M40 198 q30 -6 60 2\" stroke=\"#fff\" stroke-width=\"2\" fill=\"none\" opacity=\".5\"/> </svg>",
+  sky: "<svg viewBox=\"0 0 400 220\" class=\"storyart\" role=\"img\" aria-label=\"A flock of small birds high in a bright sky\"> <defs><linearGradient id=\"sk7\" x1=\"0\" y1=\"0\" x2=\"0\" y2=\"1\"><stop offset=\"0\" stop-color=\"#8fc7ee\"/><stop offset=\"1\" stop-color=\"#e8f3fb\"/></linearGradient></defs> <rect width=\"400\" height=\"220\" fill=\"url(#sk7)\"/> <ellipse cx=\"90\" cy=\"70\" rx=\"54\" ry=\"20\" fill=\"#fff\" opacity=\".75\"/> <ellipse cx=\"126\" cy=\"62\" rx=\"38\" ry=\"16\" fill=\"#fff\" opacity=\".7\"/> <ellipse cx=\"300\" cy=\"110\" rx=\"46\" ry=\"17\" fill=\"#fff\" opacity=\".6\"/> <g stroke=\"#2f3b57\" stroke-width=\"2.6\" fill=\"none\" stroke-linecap=\"round\"> <path d=\"M60 132 q9 -9 18 0 q9 -9 18 0\"/><path d=\"M118 152 q7 -7 14 0 q7 -7 14 0\"/> <path d=\"M176 122 q9 -9 18 0 q9 -9 18 0\"/><path d=\"M238 148 q8 -8 16 0 q8 -8 16 0\"/> <path d=\"M296 130 q7 -7 14 0 q7 -7 14 0\"/><path d=\"M150 96 q6 -6 12 0 q6 -6 12 0\"/> <path d=\"M212 172 q6 -6 12 0 q6 -6 12 0\"/><path d=\"M84 176 q6 -6 12 0 q6 -6 12 0\"/></g> <path d=\"M0 206 Q120 194 260 208 T400 200 V220 H0 Z\" fill=\"#d8c69a\"/> </svg>",
+  path: "<svg viewBox=\"0 0 400 220\" class=\"storyart\" role=\"img\" aria-label=\"A thorny branch lying across a quiet road\"> <defs><linearGradient id=\"sk8\" x1=\"0\" y1=\"0\" x2=\"0\" y2=\"1\"><stop offset=\"0\" stop-color=\"#d9ecc9\"/><stop offset=\"1\" stop-color=\"#f4ecd2\"/></linearGradient></defs> <rect width=\"400\" height=\"220\" fill=\"url(#sk8)\"/> <path d=\"M0 128 Q100 116 200 130 T400 124 V220 H0 Z\" fill=\"#a8b980\"/> <path d=\"M160 220 Q186 160 200 130 Q214 160 244 220 Z\" fill=\"#e5d6ae\"/> <path d=\"M168 220 Q192 162 200 136\" stroke=\"#cbb98d\" stroke-width=\"2\" fill=\"none\"/> <g stroke=\"#6b4a2a\" stroke-width=\"5\" fill=\"none\" stroke-linecap=\"round\"> <path d=\"M132 186 q42 -14 90 -2 q30 8 54 2\"/></g> <g stroke=\"#6b4a2a\" stroke-width=\"2.4\" stroke-linecap=\"round\"> <path d=\"M156 184 l-6 -9\"/><path d=\"M180 180 l-4 -10\"/><path d=\"M204 182 l2 -10\"/><path d=\"M228 186 l6 -9\"/> <path d=\"M168 188 l-4 9\"/><path d=\"M216 188 l5 9\"/></g> <g fill=\"#7fa05a\"><ellipse cx=\"70\" cy=\"176\" rx=\"16\" ry=\"7\"/><ellipse cx=\"320\" cy=\"164\" rx=\"20\" ry=\"8\"/></g> </svg>",
+  parted: "<svg viewBox=\"0 0 400 220\" class=\"storyart\" role=\"img\" aria-label=\"Two great walls of water with dry ground between them\"> <defs><linearGradient id=\"sk9\" x1=\"0\" y1=\"0\" x2=\"0\" y2=\"1\"><stop offset=\"0\" stop-color=\"#2b3f74\"/><stop offset=\"1\" stop-color=\"#7a8fc4\"/></linearGradient> <linearGradient id=\"wall\" x1=\"0\" y1=\"0\" x2=\"0\" y2=\"1\"><stop offset=\"0\" stop-color=\"#59b6d9\"/><stop offset=\"1\" stop-color=\"#0d4f74\"/></linearGradient></defs> <rect width=\"400\" height=\"220\" fill=\"url(#sk9)\"/> <circle cx=\"200\" cy=\"48\" r=\"30\" fill=\"#ffeeb8\" opacity=\".55\"/> <path d=\"M0 220 V96 q40 -22 76 -6 q30 14 44 42 q18 36 22 88 Z\" fill=\"url(#wall)\"/> <path d=\"M400 220 V96 q-40 -22 -76 -6 q-30 14 -44 42 q-18 36 -22 88 Z\" fill=\"url(#wall)\"/> <path d=\"M0 220 V120 q34 -12 62 4 q26 16 36 44 q10 28 12 52 Z\" fill=\"#0b3f60\" opacity=\".55\"/> <path d=\"M400 220 V120 q-34 -12 -62 4 q-26 16 -36 44 q-10 28 -12 52 Z\" fill=\"#0b3f60\" opacity=\".55\"/> <path d=\"M142 220 q26 -70 58 -84 q32 14 58 84 Z\" fill=\"#e0cda2\"/> <path d=\"M164 220 q22 -56 36 -70\" stroke=\"#c9b489\" stroke-width=\"2\" fill=\"none\"/> <g fill=\"#bfe6f5\" opacity=\".7\"><circle cx=\"96\" cy=\"128\" r=\"3\"/><circle cx=\"308\" cy=\"140\" r=\"3\"/><circle cx=\"72\" cy=\"168\" r=\"2.4\"/><circle cx=\"330\" cy=\"176\" r=\"2.4\"/></g> </svg>",
+  hills: "<svg viewBox=\"0 0 400 220\" class=\"storyart\" role=\"img\" aria-label=\"Green hills under an evening sky\"> <defs><linearGradient id=\"sk10\" x1=\"0\" y1=\"0\" x2=\"0\" y2=\"1\"><stop offset=\"0\" stop-color=\"#f7c9a0\"/><stop offset=\"1\" stop-color=\"#fdeacb\"/></linearGradient></defs> <rect width=\"400\" height=\"220\" fill=\"url(#sk10)\"/> <circle cx=\"300\" cy=\"88\" r=\"30\" fill=\"#ffdf9a\"/> <path d=\"M0 140 Q70 96 140 138 T280 132 T400 150 V220 H0 Z\" fill=\"#7ba36d\"/> <path d=\"M0 172 Q100 140 200 174 T400 168 V220 H0 Z\" fill=\"#5b8455\"/> <path d=\"M0 200 Q120 184 250 202 T400 196 V220 H0 Z\" fill=\"#42663f\"/> <g stroke=\"#4a3a2a\" stroke-width=\"2.2\" fill=\"none\" stroke-linecap=\"round\" opacity=\".8\"> <path d=\"M84 62 q8 -8 16 0 q8 -8 16 0\"/><path d=\"M150 44 q7 -7 14 0 q7 -7 14 0\"/></g> </svg>",
+};
 const STORIES = [
   { title:"Yunus and the whale", src:"Surah as-Saffat and Surah al-Anbiya",
-    minutes:4,
-    text:"Prophet Yunus (peace be upon him) grew tired of a people who would not listen, and left before Allah told him to. At sea a storm rose, and he found himself in the belly of a great fish, in darkness inside darkness inside darkness. There he called out: there is no god but You, glory be to You, truly I was among the wrongdoers. Allah heard him, and the fish carried him to shore, where a plant grew to shade him while he grew strong again. And his people, when he returned, believed.",
-    ask:"What did Yunus do first when he realised he had made a mistake?" },
+    minutes:6, art:"sea",
+    ask:"Yunus had done something wrong and he knew it. What was the very first thing he did about it?",
+    paras:[
+      "Prophet Yunus (peace be upon him) was sent to a city where nobody wanted to listen. He told them about Allah in the morning and they turned away. He told them again in the evening and they laughed. Years went by like this, and every year the people stayed exactly as they were.",
+      "One day Yunus had simply had enough. He was tired and he was hurt, and he decided he was finished with them. He walked down to the sea and got onto a ship that was leaving — without waiting for Allah to tell him he could go.",
+      "The ship set sail. Out on the open water the wind changed. The sky went the colour of old iron and the waves grew until they were taller than the mast. The ship was too heavy, and everyone on board knew that if something did not change, all of them would drown.",
+      "Yunus knew, in his heart, why the storm had come. He went over the side into the black water.",
+      "And in the dark of the sea, a great fish swallowed him whole.",
+      "Imagine it. Inside the fish it was completely dark. Around the fish was the deep sea, also dark. And above the sea was the night, dark as well. Darkness inside darkness inside darkness, and nobody in the world who knew where he was.",
+      "But Yunus was not alone, because Allah is never far. And from inside all that darkness he called out:",
+      "There is no god but You. Glory be to You. Truly, I was one of the wrongdoers.",
+      "He did not make excuses. He did not say the people had deserved it, or that he had been treated badly, though both of those things were true. He said: I was wrong.",
+      "Allah heard him. Of course He heard him — He hears from inside a fish, inside the sea, inside the night.",
+      "The fish carried Yunus to a shore and left him on the sand, and he was weak, the way you are weak after being very ill. So Allah caused a broad-leafed plant to grow over him, shading him from the sun while his strength came back, day by day.",
+      "And when Yunus was well again, he went back to the city he had walked away from.",
+      "They were waiting for him. Every single one of them had come to believe.",
+    ] },
   { title:"Ibrahim and the birds", src:"Surah al-Baqarah",
-    minutes:3,
-    text:"Prophet Ibrahim (peace be upon him) asked Allah to show him how the dead are brought to life \u2014 not because he doubted, but so his heart would be at rest. He was told to take four birds, to make them close to him, and to place a part of each on a distant hill. When he called them, they came flying back to him, whole. Allah is Mighty, and Wise.",
-    ask:"Is it alright to ask questions about things you already believe?" },
-  { title:"The thirsty dog", src:"Meaning of a hadith \u2014 Bukhari & Muslim",
-    minutes:3,
-    text:"A man walking a long road grew very thirsty, and climbed down into a well to drink. When he came up he saw a dog panting, licking at the wet earth from thirst. He thought: this creature is as thirsty as I was. So he climbed back down, filled his shoe with water, held it in his teeth as he climbed, and gave the dog a drink. Allah thanked him for it, and forgave him.",
-    ask:"He was already out of the well. Why do you think he went back down?" },
+    minutes:5, art:"birds",
+    ask:"Ibrahim already believed, and he still asked. Is it alright to ask questions about things you believe?",
+    paras:[
+      "Prophet Ibrahim (peace be upon him) is the one who argued with a whole city about their idols when he was young, and who was thrown into a fire and walked out of it unburnt. He was not a man who was short of faith.",
+      "And yet one day he said to Allah: my Lord, show me how You bring the dead back to life.",
+      "Allah asked him: do you not believe?",
+      "And Ibrahim said something very honest. He said: of course I believe. But I want my heart to be at rest.",
+      "That is worth stopping on. He was not doubting. He was asking to see, because seeing settles something in a person that hearing cannot. And Allah did not tell him off for asking. Allah answered him.",
+      "He was told: take four birds. Make them used to you.",
+      "So Ibrahim did. He kept four birds close, fed them, let them sit on his hand, until they knew him — the way a cat knows which person in the house is the one who feeds it. They knew his voice.",
+      "Then he was told to place a part of each bird on a separate hill, far off in different directions, and to go back and call them.",
+      "So Ibrahim stood and called.",
+      "And they came. Across the empty air, from every hill at once, the four birds came flying back to him, whole and alive and exactly as they had been. They landed on his hands as if nothing had ever happened.",
+      "Allah is Mighty, and Wise.",
+      "Ibrahim had known it before. Now his heart was at rest.",
+    ] },
+  { title:"The thirsty dog", src:"Meaning of a hadith — Bukhari & Muslim",
+    minutes:5, art:"well",
+    ask:"He was already out of the well and safe. Why do you think he climbed back down?",
+    paras:[
+      "There was a man walking a long road, a very long way from anywhere. The sun was directly overhead. There was no shade, no water, and nothing but dust and stones in every direction.",
+      "He got thirsty. Then he got so thirsty that he could not think about anything else at all.",
+      "Eventually he came to a well. There was no bucket and no rope, so he climbed down inside it, hand over hand, all the way to the water at the bottom. He drank until he had had enough. Then he climbed back up, which was harder, and stood at the top feeling like a person again.",
+      "And that is where the story could have ended.",
+      "But as he stood there catching his breath, he noticed a dog by the side of the well. It was panting hard. It was licking at the damp earth around the stones, trying to get moisture out of the dirt, because it was dying of thirst and there was nothing else for it to do.",
+      "The man watched it for a moment. And he thought: this creature is exactly as thirsty as I was ten minutes ago.",
+      "Nobody was watching. It was not his dog. He had already got what he came for, and the climb had been hard, and he was tired.",
+      "He climbed back down anyway.",
+      "At the bottom he took off his leather shoe and filled it with water. Then he climbed all the way back up one-handed — holding the shoe in his teeth, so as not to spill it.",
+      "And he gave the dog a drink.",
+      "The Prophet (peace be upon him) told this story to his companions, and they asked him: do we really get rewarded for animals too?",
+      "He said: in every living creature there is a reward.",
+      "Allah thanked that man for the water in his shoe, and forgave him.",
+    ] },
   { title:"Luqman's advice to his son", src:"Surah Luqman",
-    minutes:4,
-    text:"Luqman was a wise man, and Allah recorded what he said to his own son. Do not associate anything with Allah. Be good to your mother and father, for your mother carried you through weakness upon weakness. Establish the prayer. Tell people what is good, and stop what is wrong, and be patient with what happens to you. Do not turn your cheek away from people in pride, and do not walk through the earth full of yourself. Be moderate in how you walk, and lower your voice \u2014 for the ugliest of voices is the braying of a donkey.",
-    ask:"Which piece of Luqman's advice is the hardest one?" },
+    minutes:5, art:"hills",
+    ask:"Which piece of Luqman's advice do you think is the hardest one to actually do?",
+    paras:[
+      "Luqman was not a prophet and not a king. He was an ordinary man known for one thing: he was wise. And Allah thought so highly of what he said to his own son that He put it in the Qur'an, where it has stayed for more than a thousand years.",
+      "Here is a father talking to his boy.",
+      "My son — do not give any of Allah's place to anything else. That is a terrible wrong.",
+      "Be good to your mother and your father. Your mother carried you, weakness upon weakness, and then fed you and stayed awake for you for two more years. Be thankful to Me, and to them.",
+      "My son — if something were the weight of a mustard seed, and it were hidden inside a rock, or lost somewhere in the sky, or buried in the earth, Allah would bring it out. Nothing is too small for Him to see, and nothing is far enough away to be lost.",
+      "Establish the prayer.",
+      "Tell people what is good, and speak up about what is wrong, and be patient with whatever happens to you as a result — because it will bring you trouble, and being patient about that is one of the things that matters most.",
+      "And then the part children remember:",
+      "Do not turn your cheek away from people in pride. Do not stride about the earth full of yourself. Allah does not love anyone who is arrogant and boastful.",
+      "Be moderate in the way you walk. And lower your voice — because the ugliest of all voices is the braying of a donkey.",
+      "Luqman had one son and this is what he chose to spend his words on. Not how to get rich, or how to win an argument, or how to be admired. How to pray, how to treat his mother, how to walk down a street, and how loud to be.",
+    ] },
   { title:"The people of the cave", src:"Surah al-Kahf",
-    minutes:5,
-    text:"A group of young men believed in Allah alone at a time when their city did not. Rather than give up what they knew was true, they left everything and took shelter in a cave, and said: our Lord, give us mercy from Yourself and make our situation right. Allah put them to sleep there, turning them from side to side, with their dog stretched out at the entrance. They slept for hundreds of years. When they woke they thought it had been a day, or part of a day \u2014 and the city outside had come to believe.",
-    ask:"They gave up their comfortable life for what they believed. Was it worth it?" },
+    minutes:6, art:"cave",
+    ask:"They gave up a comfortable life for something they believed. Do you think it was worth it?",
+    paras:[
+      "They were young men in a city that had gone wrong. Everybody around them worshipped things that were not Allah, and it was not the kind of place where you could say so out loud.",
+      "But these few had worked it out for themselves. There is one God, and He made all of this, and none of these statues made anything at all.",
+      "They knew what would happen if they were found out. So they made a decision that must have been terrifying: they left. Their homes, their families, their whole city — all of it, at night, walking out into the hills with nothing.",
+      "They found a cave and went inside, and they made a du'a that is worth learning by heart:",
+      "Our Lord, give us mercy from Yourself, and set our situation right for us.",
+      "And then Allah did something they never asked for. He put them to sleep.",
+      "The sun rose over the mouth of the cave and slanted past it, and set on the other side, and did not fall on them. Allah turned them over from side to side as they slept, the way you would turn a sleeping child so they do not get sore. Their dog lay stretched out across the entrance with its front paws out.",
+      "They slept for three hundred years.",
+      "Outside, everything changed. The king died. His grandchildren died. The city changed its mind, and then changed it again. The old religion was forgotten and people began to worship Allah, and nobody living remembered the young men who had disappeared into the hills.",
+      "Then they woke up.",
+      "They stretched, and blinked, and asked each other how long they had been asleep. One of them said: a day. Another said: no — part of a day. Then they said, sensibly: our Lord knows best how long we stayed.",
+      "They were hungry. So they sent one of them into the city with an old silver coin to buy food, telling him to be careful and not let anyone find out who they were.",
+      "You can imagine the shopkeeper's face at that coin.",
+      "The whole city came out to meet them. Not to arrest them — to marvel at them. The thing they had given up everything for had come true while they slept.",
+    ] },
   { title:"Sulayman and the ant", src:"Surah an-Naml",
-    minutes:3,
-    text:"Prophet Sulayman (peace be upon him) was given a kingdom no one else has had \u2014 he understood the speech of the birds and the animals. One day his army came to a valley of ants, and an ant called out: O ants, get into your homes, so that Sulayman and his soldiers do not crush you without realising. Sulayman heard her, and smiled, and said: my Lord, help me to be grateful for the favour You have given me.",
-    ask:"The ant was tiny and the king was powerful. Why did he stop and listen?" },
+    minutes:5, art:"ants",
+    ask:"The ant was tiny and Sulayman was the most powerful man alive. Why did he stop and listen?",
+    paras:[
+      "Prophet Sulayman (peace be upon him) was given a kingdom that nobody before or since has had. The wind carried him. Armies of people, and of jinn, and of birds marched under his command, drawn up in ranks. And strangest of all, Allah taught him the speech of the animals — so the birds overhead were not just noise to him. He could understand what they were saying.",
+      "One day the whole army was on the move, and their road took them past a valley of ants.",
+      "Now picture this properly. Thousands of soldiers. Horses. The ground shaking. Dust as high as the hills. And down in the dirt, one ant sees them coming.",
+      "She called out to the others: O ants! Get into your homes — quickly — or Sulayman and his soldiers will crush you without even noticing.",
+      "Without even noticing. She was not accusing him of cruelty. She knew he would never mean to. She was saying: we are so small that they will not see us at all.",
+      "And Sulayman heard her.",
+      "Above the noise of an entire army, the king heard one ant talking to other ants about him, and he stopped. And he smiled — the Qur'an says he smiled, amused at her words.",
+      "And then he did not say: how dare she. He said a du'a.",
+      "My Lord, help me to be grateful for the favour You have given to me and to my parents, and to do good deeds that please You, and admit me by Your mercy among Your righteous servants.",
+      "The most powerful man on earth heard the smallest creature in the valley worrying about him, and his response was to ask Allah to help him be grateful, and to be good.",
+    ] },
   { title:"Maryam and the date palm", src:"Surah Maryam",
-    minutes:4,
-    text:"Maryam (peace be upon her) was alone, frightened and in pain, and she wished she could disappear altogether. She was told: do not grieve. There is a stream beneath you. And shake the trunk of the palm tree towards you \u2014 fresh dates will fall. So eat, and drink, and be comforted. Allah did not take the difficulty away, but He gave her what she needed to get through it.",
-    ask:"When something is hard, what helps you get through it?" },
+    minutes:5, art:"palm",
+    ask:"When something is really hard, what is the thing that helps you get through it?",
+    paras:[
+      "Maryam (peace be upon her) was young, and she was completely alone.",
+      "She had gone away from everybody, to a far-off place. She was about to have a baby, and she had no mother with her, no midwife, nobody at all. And she knew that when she went home carrying a child, her people would not believe her, because what had happened to her was something that had never happened to anyone.",
+      "The pain drove her to the trunk of a palm tree, and she held on to it. And she said something so honest that it is startling to find it in the Qur'an:",
+      "I wish I had died before this, and been something forgotten, completely forgotten.",
+      "That is a person at the very bottom. Allah put her words in the Qur'an exactly as she said them. He did not tidy them up.",
+      "And then a voice called to her from below her.",
+      "Do not grieve. Your Lord has placed a stream beneath you.",
+      "And shake the trunk of the palm tree towards you — it will drop fresh, ripe dates on you.",
+      "So eat, and drink, and let your eyes be comforted.",
+      "Look carefully at what happened there, because it is the whole point of the story. Allah did not make the difficulty disappear. She still had to hold on to the tree. She still had to shake it herself, in that state, to make the dates fall. She still had to walk home afterwards and face everyone.",
+      "What Allah gave her was exactly what she needed to get through it: water under her feet, food above her head, and someone telling her not to grieve.",
+      "Sometimes the help is not that the hard thing stops. Sometimes the help is a stream and a handful of dates, and being told you are not on your own.",
+    ] },
   { title:"The elephant army", src:"Surah al-Fil",
-    minutes:3,
-    text:"An army came with elephants to destroy the Kaaba, sure that nothing could stop them. Abdul-Muttalib was asked whether he would not defend the House, and he answered: the House has a Lord who will defend it. And so it happened \u2014 flocks of birds were sent against them, and the great army was left like chewed-up straw. This was the year the Prophet Muhammad (peace be upon him) was born.",
-    ask:"Why do you think Abdul-Muttalib was not afraid?" },
-  { title:"The man who moved the branch", src:"Meaning of a hadith \u2014 Muslim",
-    minutes:2,
-    text:"A man was walking along a road when he found a thorny branch lying across it. He picked it up and moved it out of the way, so that nobody after him would be scratched. It was a small thing. Nobody saw him do it. Allah thanked him for it and forgave him.",
-    ask:"What small thing could you move out of someone's way tomorrow?" },
+    minutes:5, art:"sky",
+    ask:"Everyone else was terrified. Why do you think Abdul-Muttalib was not?",
+    paras:[
+      "An army came to Makkah to knock the Kaaba down.",
+      "It was led by a governor called Abrahah, who had built a grand new place of worship far to the south and was furious that people still travelled to Makkah instead. So he raised an army, and at the front of it he put elephants — animals the people of Makkah had never seen in their lives. There was nothing in the city that could stand against them.",
+      "On the way, Abrahah's soldiers rounded up livestock from the surrounding land, including two hundred camels belonging to Abdul-Muttalib, the chief of Makkah and the grandfather of the Prophet Muhammad (peace be upon him).",
+      "So Abdul-Muttalib went to the camp to speak to Abrahah. And Abrahah, who had heard he was an impressive man, was ready to be impressed.",
+      "Abdul-Muttalib asked for his camels back.",
+      "Abrahah was genuinely thrown. He said: I came here to destroy the House your fathers built, the thing your whole city is famous for — and you want to talk to me about camels?",
+      "And Abdul-Muttalib said: I am the owner of the camels. The House has an Owner, and He will protect it.",
+      "Then he took his camels and went home. He told the people of Makkah to leave the city and go up into the hills, out of the way. And they went.",
+      "In the morning, the army moved on the city. But when they turned the great elephant towards the Kaaba, it knelt down and would not get up. They beat it. They turned it south, and it stood and walked happily. They turned it back towards the Kaaba, and it knelt again.",
+      "And then the sky went dark with birds.",
+      "Flocks of them, coming in wave after wave, each carrying small stones. They dropped them on the army below. And an army that had been unstoppable the day before was left, as the Qur'an puts it, like a field of chewed-up straw.",
+      "That was the year the Prophet Muhammad (peace be upon him) was born.",
+    ] },
+  { title:"The man who moved the branch", src:"Meaning of a hadith — Muslim",
+    minutes:4, art:"path",
+    ask:"What is one small thing you could move out of someone's way tomorrow?",
+    paras:[
+      "This is a very short story. It is one of the shortest the Prophet (peace be upon him) ever told, and people have been repeating it for fourteen hundred years.",
+      "A man was walking along a road.",
+      "Lying across the road was a branch, the thorny kind, the kind that catches your ankle and tears it. It had probably blown down. It had nothing to do with him.",
+      "He could have stepped over it. Everyone else had. That is why it was still there.",
+      "Instead he stopped, picked it up — carefully, because of the thorns — carried it to the side, and put it down out of the way.",
+      "That is the whole story.",
+      "Nobody thanked him, because nobody saw him. The people he saved from a scratched leg never found out they had been saved from anything, because nothing happened to them. That is what a problem prevented looks like: nothing at all.",
+      "But the Prophet (peace be upon him) said that Allah thanked him for it, and forgave him.",
+      "He also said that removing something harmful from the path is one of the branches of faith. Not a nice extra. Part of what it means to believe.",
+      "So: the shopping trolley left in the middle of the car park. The toy on the stairs that somebody is going to stand on in the dark. The wet patch on the kitchen floor. The bag someone will trip over in the hallway.",
+      "Nobody will ever know you moved it. That is rather the point.",
+    ] },
   { title:"Musa and the sea", src:"Surah ash-Shu'ara",
-    minutes:4,
-    text:"Prophet Musa (peace be upon him) led his people out at night, and by morning Pharaoh's army was behind them and the sea was in front. His people said: we are caught. Musa said: no. My Lord is with me, and He will guide me. He was told to strike the sea with his staff, and it parted, each part like a great mountain, and they walked through on dry ground.",
-    ask:"What did Musa say when everyone else had given up?" }
+    minutes:5, art:"parted",
+    ask:"Everyone else said 'we are caught'. What did Musa say — and how could he say it?",
+    paras:[
+      "Prophet Musa (peace be upon him) led his people out of Egypt in the middle of the night, quietly, in their thousands. Men, women, children, old people, everything they could carry.",
+      "By dawn, Pharaoh knew they had gone. He raised his army and went after them, and he was not a man who gave up on anything.",
+      "By the time the sun was properly up, Musa's people had reached the shore of the sea. There was no way round it and no boats. And behind them, along the horizon, they saw the dust of Pharaoh's chariots coming.",
+      "Water in front. An army behind. Nowhere left to go.",
+      "His people said what anybody would have said. They said: we are caught. They have got us.",
+      "And Musa said: No.",
+      "Then he said the thing this whole story is remembered for:",
+      "My Lord is with me. He will guide me.",
+      "Look at when he said it. Not before, when things were going well. Not afterwards, once it had worked out and he could see how. He said it standing on a beach with an army bearing down on him and nothing in front of him but deep water. He did not know how. He knew Who.",
+      "Then Allah told him: strike the sea with your staff.",
+      "So he did. And the sea split apart, and each part stood up like a great mountain, and between them the seabed was dry — properly dry, dry enough to walk on, dry enough for children and old people and animals to cross.",
+      "And they walked through, all of them, with walls of water standing on either side.",
+      "Pharaoh came after them into the gap, still certain, right up until the moment the water came back.",
+    ] },
 ];
 /* Five moments, so any dua is two taps away rather than a scroll of twenty. */
 const DUA_GROUPS = [
   { id:"all",      label:"All" },
-  { id:"eating",   label:"\ud83c\udf7d\ufe0f Eating",   match:/eating/i },
-  { id:"sleeping", label:"\ud83c\udf19 Sleeping", match:/sleep|waking/i },
-  { id:"out",      label:"\ud83d\udeaa Going out", match:/house|travel|car|masjid|bathroom|wudu/i },
-  { id:"feelings", label:"\ud83d\udc9b Feelings",  match:/worried|angry|wrong|unwell|kindness|parents|like/i },
-  { id:"learning", label:"\ud83d\udcd6 Learning",  match:/studying|hard|rain/i }
+  { theme:"t2", glyph:"🍽️", id:"eating",   label:"\ud83c\udf7d\ufe0f Eating",   match:/eating/i },
+  { theme:"t3", glyph:"🌙", id:"sleeping", label:"\ud83c\udf19 Sleeping", match:/sleep|waking/i },
+  { theme:"t5", glyph:"🚪", id:"out",      label:"\ud83d\udeaa Going out", match:/house|travel|car|masjid|bathroom|wudu/i },
+  { theme:"t4", glyph:"💛", id:"feelings", label:"\ud83d\udc9b Feelings",  match:/worried|angry|wrong|unwell|kindness|parents|like/i },
+  { theme:"t6", glyph:"📖", id:"learning", label:"\ud83d\udcd6 Learning",  match:/studying|hard|rain/i }
 ];
 function duaGroupOf(d){
   const g=DUA_GROUPS.find(x=>x.match && x.match.test(d.when));
@@ -3211,7 +3455,7 @@ const TIP_CATS = [
   {key:"behaviour", label:"Behaviour"}
 ];
 
-const APP_VERSION = "v79";
+const APP_VERSION = "v80";
 const today = new Date().toISOString().slice(0,10);
 let app = {families:[],currentFamily:null,currentChild:null};
 let categories = [];
@@ -3948,15 +4192,26 @@ function ladderHTML(child, subject, strand, canSecure){
     // lookup never resolved and no name was ever shown. The ledger already
     // carries the name that wrote the mark.
     const by = st.securedName || (st.securedBy ? ((memberById(st.securedBy)||{}).name||null) : null);
+    // The state is written on the row, not decoded from a tick against a key
+    // somewhere further up the page.
+    const stateLabel = st.status==="secure" ? ["s-sec","\u2713 Secure"]
+                     : st.status==="review" ? ["s-rev","\u21ba Time to revisit"]
+                     : st.status==="covered" ? ["s-cov","\u25cf Practised"]
+                     : ["s-none","Not started yet"];
+    // A child who taps Practised by mistake can take it straight back off. They
+    // still cannot touch a secure mark - only the grown-up who set it can.
+    const mayUndoCovered = st.status==="covered";
     return `<div class="objrow ${cls}">
         <span class="objmark">${mark}</span>
         <span class="objtext">${escapeHtml(objectiveText(subject, strand, i))}
           ${o[1]?`<span class="objdom">${escapeHtml(o[1])}</span>`:""}
-          ${by?`<span class="objby">secure \u00b7 ${escapeHtml(by)}</span>`:""}
-          ${st.status==="review"?`<span class="objby">due for revision</span>`:""}</span>
+          <span class="objstate ${stateLabel[0]}">${stateLabel[1]}</span>
+          ${by&&st.status!=="covered"?`<span class="objby">marked by ${escapeHtml(by)}</span>`:""}</span>
         <span class="objbtns">
-          ${st.status==="none"||st.status==="covered"
+          ${st.status==="none"
             ? `<button class="light" onclick="onMark('${child.id}','${id}','covered')">Practised</button>`:""}
+          ${mayUndoCovered
+            ? `<button class="light" onclick="onMark('${child.id}','${id}','clear')">\u21a9 Undo</button>`:""}
           ${canSecure && st.status!=="secure"
             ? `<button class="confirm" onclick="onMark('${child.id}','${id}','secure')">Secure</button>`:""}
           ${canSecure && (st.status==="secure"||st.status==="review")
@@ -4027,14 +4282,18 @@ function teachersCardHTML(child){
       ${said}
     </section>`;
 }
-/* Four states, none of which explain themselves from a tick alone. */
+/* The key used to float at the top of every subject, describing four words
+   that appeared nowhere near it. Each row now carries its own state, so this
+   only has to explain who may change what. */
 function legendHTML(){
-  return `<div class="learnkey">
-      <span><i class="k-none"></i>Not started</span>
-      <span><i class="k-cov">\u25cf</i>Practised</span>
-      <span><i class="k-sec">\u2713</i>Secure</span>
-      <span><i class="k-rev">\u21ba</i>Time to revisit</span>
-    </div>`;
+  return `<section class="learnhow">
+      <h3>\u2753 How this works</h3>
+      <p>Every line below is one thing to learn, and each has its own label.</p>
+      <p><b>Not started yet</b> \u2014 nobody has marked it.
+         <b>\u25cf Practised</b> \u2014 you have worked on it. You can tap this yourself, and undo it if you tap it by mistake.</p>
+      <p><b>\u2713 Secure</b> \u2014 a grown-up watched you do it on your own. Only Mum, Dad or your teacher can set or remove this one.
+         <b>\u21ba Time to revisit</b> \u2014 it was secure a while ago, so it is worth checking you still remember.</p>
+    </section>`;
 }
 function learnScreenHTML(child){
   if(!child) return "";
@@ -4383,6 +4642,16 @@ async function markObjective(childId, objId, status){
   }
   if(status==="covered" && !isParentRole(me) && !isTutorRole(me) && me.id!==child.id){
     return false;
+  }
+  // "clear" had no guard at all, so a child could have wiped a secure mark. A
+  // child may only take back their own Practised.
+  if(status==="clear" && !mayMarkSecure(me, child)){
+    if(me.id!==child.id) return false;
+    const cur=(progressOf(child, objId)||{}).status;
+    if(cur!=="covered"){
+      alert("Only Mum, Dad or your teacher can change that one.");
+      return false;
+    }
   }
   try{
     await window.fpc.addLedgerEntry(familyId, {
@@ -6576,7 +6845,8 @@ async function removeRewardById(id){
 let deenTab="duas";
 let duaFilter="all";
 function setDuaFilter(id){ duaFilter=id; renderDeenPanel(); }
-function setDeenTab(t){ deenTab=t; renderDeenPanel(); }
+function setDeenTab(t){
+  storyOpen = null; deenTab=t; renderDeenPanel(); }
 function showDeenPanel(){
   const me=sessionMember();
   if(me && isChildRole(me)){ showScreen("deenPanel"); renderDeenPanel(); return; }
@@ -6593,53 +6863,89 @@ function renderDeenPanel(){
     const now=duaOfNow();
     const shown=DUAS.filter(d=>duaFilter==="all" || duaGroupOf(d)===duaFilter);
     body.innerHTML = `<h2>\ud83e\udd32 Everyday duas</h2>
-      <p class="small">The small ones, for the moments they belong to. Tap \ud83d\udde3\ufe0f to hear one read out.</p>
-      <section class="duacard now">
-        <span class="duawhen">Right now \u00b7 ${escapeHtml(now.when)}</span>
-        <h3>${escapeHtml(now.title)}</h3>
-        <p class="translit">${escapeHtml(now.translit)}</p>
-        <p class="meaning">${escapeHtml(now.meaning)}</p>
-      </section>
+      <p class="small">The small ones, for the moments they belong to. The colour tells you what kind of moment it is.</p>
+      ${duaCardHTML(now, true)}
       <div class="duachips">${DUA_GROUPS.map(g=>`<button class="${
         duaFilter===g.id?"on":""}" onclick="setDuaFilter('${g.id}')">${g.label}</button>`).join("")}</div>
-      ${shown.map((d,i)=>`<section class="duacard" id="dua${i}">
-          <span class="duawhen">${escapeHtml(d.when)}</span>
-          <h3>${escapeHtml(d.title)}</h3>
-          <p class="translit">${escapeHtml(d.translit)}</p>
-          <p class="meaning">${escapeHtml(d.meaning)}</p>
-        </section>`).join("") || '<p class="small">Nothing in that group.</p>'}
+      ${shown.map(d=>duaCardHTML(d, false)).join("") || '<p class="small">Nothing in that group.</p>'}
       <p class="small" style="margin-top:16px">The Arabic isn\u2019t written here on purpose \u2014 it should be added from a copy your family trusts rather than typed out by an app.</p>`;
     return;
   }
   if(deenTab==="reminders"){
     const today=pickOfDay(REMINDERS);
     body.innerHTML = `<h2>\ud83d\udca1 Reminders</h2>
-      <section class="remcard today"><p>${escapeHtml(today.text)}</p>
-        <span class="remsrc">${escapeHtml(today.src)} \u00b7 today\u2019s</span></section>
+      ${remCardHTML(today, true)}
       <p class="small" style="margin:16px 0 8px">The rest</p>
-      ${REMINDERS.filter(r=>r.text!==today.text).map(r=>`<section class="remcard">
-          <p>${escapeHtml(r.text)}</p><span class="remsrc">${escapeHtml(r.src)}</span>
-        </section>`).join("")}
+      ${REMINDERS.filter(r=>r.text!==today.text).map(r=>remCardHTML(r, false)).join("")}
       <p class="small" style="margin-top:16px">These are the meanings of well-known narrations, not word-for-word translations.</p>`;
     return;
   }
+  if(storyOpen !== null && STORIES[storyOpen]){
+    body.innerHTML = storyReaderHTML(storyOpen);
+    return;
+  }
   body.innerHTML = `<h2>\ud83c\udf19 Bedtime stories</h2>
-    <p class="small">Ten short ones, three to five minutes each. Every one ends with something to ask them.</p>
-    ${STORIES.map((s,i)=>`<section class="storycard">
-        <details ${i===0?"open":""}>
-          <summary><strong>${escapeHtml(s.title)}</strong>
-            <span class="storymeta">${s.minutes} min \u00b7 ${escapeHtml(s.src)}</span></summary>
-          <p class="storytext" id="story${i}">${escapeHtml(s.text)}</p>
-          <p class="storyask">\ud83d\udcac ${escapeHtml(s.ask)}</p>
-        </details>
-      </section>`).join("")}`;
+    <p class="small">Ten of them, four to six minutes each. Tap one to open it \u2014 there is a picture to look at while it is read, and something to talk about at the end.</p>
+    ${STORIES.map((st,i)=>`<button class="storytile" onclick="openStory(${i})">
+        ${STORY_ART[st.art]||""}
+        <span class="stbody">
+          <h3>${escapeHtml(st.title)}</h3>
+          <p class="stmeta">${st.minutes} min \u00b7 ${escapeHtml(st.src)}</p>
+        </span>
+      </button>`).join("")}`;
+}
+function themeOfDua(d){
+  const g=DUA_GROUPS.find(x=>x.id===duaGroupOf(d));
+  return { theme:(g&&g.theme)||"t4", glyph:(g&&g.glyph)||"\ud83d\udc9b",
+           tag:(g&&g.label)?String(g.label).replace(/^[^\w]+/,"").trim():"Dua" };
 }
 function reminderCardHTML(){
   const r=pickOfDay(REMINDERS);
-  return `<section class="remcard today tappable" onclick="showDeenPanel()">
-      <p>${escapeHtml(r.text)}</p>
-      <span class="remsrc">${escapeHtml(r.src)}</span>
+  return `<section class="rcard tap ${r.theme||"t1"} pinned" onclick="showDeenPanel()">
+      <span class="rpin">Today</span>
+      <span class="rglyph" aria-hidden="true">${r.glyph||"\ud83d\udca1"}</span>
+      <span class="rtag">${escapeHtml(r.tag||"Reminder")}</span>
+      <p class="rlead">${escapeHtml(r.text)}</p>
+      <p class="rsrc">${escapeHtml(r.src)}</p>
     </section>`;
+}
+function duaCardHTML(d, pinned){
+  const t=themeOfDua(d);
+  return `<section class="rcard ${t.theme}${pinned?" pinned":""}">
+      ${pinned?'<span class="rpin">Right now</span>':""}
+      <span class="rglyph" aria-hidden="true">${t.glyph}</span>
+      <span class="rtag">${escapeHtml(d.when)}</span>
+      <h3>${escapeHtml(d.title)}</h3>
+      <p class="rlead">${escapeHtml(d.translit)}</p>
+      <p class="rsub">${escapeHtml(d.meaning)}</p>
+    </section>`;
+}
+function remCardHTML(r, pinned){
+  return `<section class="rcard ${r.theme||"t1"}${pinned?" pinned":""}">
+      ${pinned?'<span class="rpin">Today</span>':""}
+      <span class="rglyph" aria-hidden="true">${r.glyph||"\ud83d\udca1"}</span>
+      <span class="rtag">${escapeHtml(r.tag||"Reminder")}</span>
+      <p class="rlead">${escapeHtml(r.text)}</p>
+      <p class="rsrc">${escapeHtml(r.src)}</p>
+    </section>`;
+}
+/* A story is opened, not unfolded: a picture, then the telling, at a size that
+   can be read across a room by a parent holding the phone. */
+let storyOpen = null;
+function openStory(i){ storyOpen = i; renderDeenPanel(); window.scrollTo({top:0}); 
+  const p=document.getElementById("deenPanel"); if(p) p.scrollTop=0; }
+function closeStory(){ storyOpen = null; renderDeenPanel(); }
+function storyReaderHTML(i){
+  const st=STORIES[i];
+  if(!st) return "";
+  return `<button class="light" style="width:auto;margin-bottom:14px" onclick="closeStory()">\u2190 All stories</button>
+    <div class="storyread">
+      ${STORY_ART[st.art]||""}
+      <h2>${escapeHtml(st.title)}</h2>
+      <p class="stsrc">${escapeHtml(st.src)} \u00b7 about ${st.minutes} minutes</p>
+      ${st.paras.map((p,n)=>`<p class="para${n===0?" lead":""}">${escapeHtml(p)}</p>`).join("")}
+      <div class="stask"><strong>Something to talk about</strong><p>${escapeHtml(st.ask)}</p></div>
+    </div>`;
 }
 
 /* ---------- The family tree ----------
@@ -8798,6 +9104,14 @@ function chime(kind){
 function renderSoundToggle(){
   const b=document.getElementById("soundBtn");
   if(b) b.textContent = soundOn() ? "\ud83d\udd0a Sound on" : "\ud83d\udd07 Sound off";
+  const sw=document.getElementById("soundSwitch");
+  if(sw){
+    const on=soundOn();
+    sw.textContent = on ? "On" : "Off";
+    sw.className = "soundswitch " + (on ? "on" : "off");
+    sw.setAttribute("aria-pressed", on ? "true" : "false");
+    sw.setAttribute("aria-label", on ? "Sound is on. Tap to turn it off." : "Sound is off. Tap to turn it on.");
+  }
 }
 
 /* ---------- Read aloud: withdrawn ----------
