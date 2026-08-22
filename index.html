@@ -1,4 +1,4 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -588,7 +588,9 @@
   header{padding-top:calc(6px + env(safe-area-inset-top))}
   /* Centred, so it sits clear of the fixed menu button on the left rather than
      underneath it. */
-  header .logo{justify-content:center;margin:0 0 10px;padding:0 84px}
+  header .logo{display:flex;width:max-content;max-width:calc(100% - 8px);
+                justify-content:center;margin:0 auto 10px;padding:9px 16px}
+  .logo .qmk{width:9px;height:13px;flex-shrink:0;opacity:.92}
   .lockup{display:inline-flex;align-items:center;gap:9px;flex-wrap:nowrap;
           margin:0 0 14px;color:var(--accent)}
   .lockup .qm{width:16px;height:23px;flex-shrink:0}
@@ -814,6 +816,77 @@
   .boostmore:hover{background:rgba(255,255,255,.85)}
 
   /* ---------- Approval celebration ---------- */
+  /* A child asking for something is a moment, not a system prompt. The browser's
+     own confirm() box was grey, system-font and said "OK / Cancel". */
+  .kidmodal{position:fixed;inset:0;z-index:210;display:flex;align-items:center;justify-content:center;
+            padding:20px;background:rgba(24,22,60,.55)}
+  .kidmodal .kmcard{width:100%;max-width:380px;background:#fff;border-radius:28px;overflow:hidden;
+            box-shadow:0 24px 60px rgba(24,22,60,.35);animation:kmpop .26s cubic-bezier(.2,1.25,.4,1)}
+  @keyframes kmpop{from{transform:scale(.86) translateY(14px);opacity:0}to{transform:none;opacity:1}}
+  .kidmodal .kmtop{padding:22px 20px 18px;text-align:center;color:#fff;
+            background:linear-gradient(135deg,#7b5cff,#17a08a)}
+  .kidmodal .kmtop.treat{background:linear-gradient(135deg,#ff8a3d,#ff5d8f)}
+  .kidmodal .kmtop.vault{background:linear-gradient(135deg,#f0a500,#e0651b)}
+  .kidmodal .kmtop.cheer{background:linear-gradient(135deg,#17a08a,#3ec6a0)}
+  .kidmodal .kmicon{font-size:44px;line-height:1;display:block;margin-bottom:6px}
+  .kidmodal .kmtitle{margin:0;font-size:21px;font-weight:800}
+  .kidmodal .kmbody{padding:18px 20px 4px;text-align:center}
+  .kidmodal .kmthing{font-size:20px;font-weight:800;margin:0 0 6px;color:var(--ink)}
+  .kidmodal .kmnote{margin:0;font-size:14.5px;line-height:1.5;color:var(--muted)}
+  .kidmodal .kmcost{display:inline-flex;align-items:center;gap:6px;margin:13px 0 0;
+            background:#fff5d6;border:1px solid #f2d489;color:#8a6100;font-weight:800;
+            padding:7px 14px;border-radius:999px;font-size:15px}
+  .kidmodal .kmbtns{display:grid;gap:9px;padding:16px 20px 22px}
+  .kidmodal .kmbtns button{width:100%;border-radius:18px;padding:15px;font-size:17px;font-weight:800}
+  .kidmodal .kmyes{background:linear-gradient(135deg,#17a08a,#0f8f9c);color:#fff}
+  .kidmodal .kmno{background:#f1f2f8;color:#5a5f7a}
+  /* The vault: saving has to look like the better choice, not the boring one. */
+  .vaultcard{border-radius:26px;padding:20px;color:#fff;position:relative;overflow:hidden;
+             background:linear-gradient(140deg,#f0a500,#e0651b 62%,#c2410c)}
+  .vaultcard h3{margin:0;font-size:21px;font-weight:800}
+  .vaultcard .vsub{margin:4px 0 0;font-size:13.5px;opacity:.92;line-height:1.45}
+  .vaulttotal{display:flex;align-items:baseline;gap:8px;margin:14px 0 2px}
+  .vaulttotal strong{font-size:40px;font-weight:800;line-height:1}
+  .vaulttotal span{font-size:14px;opacity:.9}
+  .vaultbar{height:14px;border-radius:999px;background:rgba(255,255,255,.28);overflow:hidden;margin:10px 0 6px}
+  .vaultbar i{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,#fff3c4,#fff)}
+  .vaultmeta{font-size:13px;opacity:.94;margin:0}
+  .vaultadd{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:14px}
+  .vaultadd button{background:rgba(255,255,255,.94);color:#a1470b;font-weight:800;
+                   border-radius:16px;padding:13px 4px;font-size:15px;width:auto}
+  .vaultlocked{background:rgba(255,255,255,.18);border-radius:18px;padding:13px 15px;margin-top:14px;
+               font-size:13.5px;line-height:1.5}
+  .vaultgoal{display:flex;align-items:center;gap:12px;width:100%;text-align:left;
+             background:#fff;color:var(--ink);border-radius:20px;padding:14px 15px;margin-top:9px;
+             box-shadow:0 6px 16px rgba(24,22,60,.12)}
+  .vaultgoal .vgname{flex:1;min-width:0;font-weight:800;font-size:15.5px}
+  .vaultgoal .vgdesc{display:block;font-weight:500;font-size:12.5px;color:var(--muted);margin-top:2px}
+  .vaultgoal .vgpts{font-weight:800;color:#c2410c;white-space:nowrap}
+  .vaultgoal:disabled{opacity:.5}
+  .vaultsetting{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;
+                background:#fff8ec;border:1px solid #f3d9ae;border-radius:18px;padding:14px 15px;margin:14px 0}
+  .kidsheet button{text-align:left}
+  .teachercard{background:#fff;border-radius:24px;padding:18px;margin-bottom:16px;
+               box-shadow:0 8px 22px rgba(24,22,60,.09);border:1px solid #eceef8}
+  .teachercard h3{margin:0 0 10px;font-size:18px}
+  .teacherrow{display:flex;flex-wrap:wrap;gap:8px}
+  .teacherchip{display:inline-flex;align-items:center;gap:6px;background:#eef0ff;color:#3e46ad;
+               font-weight:700;font-size:13.5px;padding:8px 13px;border-radius:999px}
+  .teacherchip em{font-style:normal;font-weight:600;opacity:.75}
+  .teachernote{background:#f8f9fc;border-radius:16px;padding:11px 13px;margin-top:8px}
+  .teachernote .tnhead{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;
+                       font-size:13.5px;align-items:baseline}
+  .teachernote .tnhead span{color:var(--muted);font-size:12px}
+  .teachernote .tnbody{margin:5px 0 0;font-size:14px;line-height:1.5;color:var(--ink)}
+  .learnkey{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 14px}
+  .learnkey span{display:inline-flex;align-items:center;gap:6px;background:#fff;border:1px solid #e6e8f0;
+                 border-radius:999px;padding:6px 12px;font-size:12.5px;color:var(--muted);font-weight:600}
+  .learnkey i{width:18px;height:18px;border-radius:50%;display:inline-flex;align-items:center;
+              justify-content:center;font-style:normal;font-size:11px;font-weight:800}
+  .learnkey .k-none{background:#eceef6}
+  .learnkey .k-cov{background:#dbe4ff;color:#3e46ad}
+  .learnkey .k-sec{background:#cdefe2;color:#0f7a5a}
+  .learnkey .k-rev{background:#ffe6c7;color:#a35a09}
   .celebrate{position:fixed;inset:0;z-index:200;display:flex;align-items:center;justify-content:center;
              padding:20px;background:rgba(36,30,70,.55);overflow:hidden}
   .celebratecard{position:relative;z-index:2;max-width:420px;width:100%;text-align:center;
@@ -1121,8 +1194,28 @@
   ⚠️ <strong>This is a local copy.</strong> Accounts can't be created or signed into from a file on your computer — open the app from its web address (github.io) instead. Everything else here is just a preview.
 </div>
 <button id="homeFab" class="fab hidden" onclick="fabAction()">🏠 Home</button>
-<div id="menuScrim" class="menuscrim hidden" onclick="closeMenu()"></div>
-<button id="menuFab" class="menufab hidden" onclick="toggleMenu()">☰ Menu</button>
+<div id="menuScrim" class="menuscrim hidden" onclick="closeAnyMenu()"></div>
+<button id="menuFab" class="menufab hidden" onclick="openAnyMenu()">☰ Menu</button>
+<div id="kidModal" class="kidmodal hidden"></div>
+<!-- Children had no menu at all: six links behind a "More" row that only existed
+     on the home screen, so from any tab there was no way back to House rules,
+     the family tree or Sign out. Same fixed button as the parents get. -->
+<div class="menusheet kidsheet hidden" id="kidMenuSheet">
+  <p class="small" id="kidMenuWho" style="margin:0 0 2px;padding:0 4px"></p>
+  <p class="menugroup">Go to</p>
+  <button class="light" onclick="kidMenuGo(null)">🏠 Home</button>
+  <button class="light" onclick="kidMenuGo('kidSpendScreen')">🎁 Spend my points</button>
+  <button class="light" onclick="kidMenuGo('kidLearnScreen')">📖 Learn</button>
+  <button class="light" onclick="kidMenuGo('kidPointsScreen')">⭐ My points</button>
+  <p class="menugroup">More</p>
+  <button class="light" id="soundBtn" onclick="setSoundOn(!soundOn())">🔊 Sound on</button>
+  <button class="light" onclick="closeKidMenu();showDeenPanel()">🤲 Duas &amp; bedtime</button>
+  <button class="light" onclick="closeKidMenu();showTreePanel()">🌳 My family</button>
+  <button class="light" onclick="closeKidMenu();showRulesPanel()">📜 House rules</button>
+  <button class="light" onclick="closeKidMenu();startTour(kidTourKey(sessionMember()))">❓ How this works</button>
+  <p class="menugroup">This device</p>
+  <button class="light" onclick="signOutDevice()">🔒 Sign out</button>
+</div>
 <button id="panelTop" class="paneltop hidden" onclick="panelToTop()">↑ Top</button>
 <div id="editBar" class="editbar hidden">
   <span>✏️ Edit mode — lists can be changed</span>
@@ -1178,11 +1271,14 @@
 <div id="mainApp" class="wrap hidden">
 <header>
   <div class="logo" role="img" aria-label="Notice Me">
+  <svg class="qmk" viewBox="0 0 32 46" aria-hidden="true" focusable="false"><path d="M14 8 C2 15 0 31 11 38 C20 43 31 38 31 28 C31 20 25 16 17 17 C18 11 22 7 27 4 Z" fill="currentColor"/></svg>
+  <span>Notice Me</span>
+  <svg class="qmk" viewBox="0 0 32 46" aria-hidden="true" focusable="false"><path d="M18 38 C30 31 32 15 21 8 C12 3 1 8 1 18 C1 26 7 30 15 29 C14 35 10 39 5 42 Z" fill="currentColor"/></svg>
   <svg class="mark" viewBox="0 0 52 52" aria-hidden="true" focusable="false">
     <path d="M26 3 L32 21 L51 23 L36 35 L41 53 L26 43 L11 53 L16 35 L1 23 L20 21 Z" fill="#ffd970"/>
     <circle cx="21" cy="27" r="2.8" fill="#2f2a55"/><circle cx="31" cy="27" r="2.8" fill="#2f2a55"/>
     <path d="M21 34 q5 5 10 0" fill="none" stroke="#2f2a55" stroke-width="2.6" stroke-linecap="round"/>
-  </svg><span>Notice Me</span></div>
+  </svg></div>
 
   <div id="familyCover" class="familycover hidden" onclick="onCoverClick()">
     <div class="coverfade"></div>
@@ -1512,18 +1608,6 @@
 
     <div id="kidReminder"></div>
 
-    <div class="helpline">
-      <button onclick="toggleKidMore()" id="kidMoreBtn">⋯ More</button>
-    </div>
-    <div class="helpline hidden" id="kidMore">
-      <button id="soundBtn" onclick="setSoundOn(!soundOn())">🔊 Sound on</button>
-      <button onclick="speakKidHome()">🗣️ Read to me</button>
-      <button onclick="showDeenPanel()">🤲 Duas &amp; bedtime</button>
-      <button onclick="showTreePanel()">🌳 My family</button>
-      <button onclick="showRulesPanel()">📜 House rules</button>
-      <button onclick="startTour(kidTourKey(sessionMember()))">❓ How this works</button>
-      <button onclick="signOutDevice()">🔒 Sign out</button>
-    </div>
   </div>
 
   <div id="kidSpendScreen" class="hidden">
@@ -1535,7 +1619,7 @@
       <div class="spendtabs">
         <button id="spendTabRewards" onclick="setSpendTab('rewards')">🎁 Rewards</button>
         <button id="spendTabGames" onclick="setSpendTab('games')">🎲 Activities</button>
-        <button id="spendTabSave" onclick="setSpendTab('save')">💰 Save up</button>
+        <button id="spendTabSave" onclick="setSpendTab('save')">🏦 My vault</button>
       </div>
       <div id="spendPaneRewards">
         <p class="lede">Tap a reward to ask Mum or Dad for it.</p>
@@ -1546,9 +1630,7 @@
         <div id="kidGameChips" class="chiprow"></div>
       </div>
       <div id="spendPaneSave" class="hidden">
-        <div class="savebox">
-          <p>💡 <strong>Or save up.</strong> You don't have to spend anything today. Keeping your points builds towards a bigger family activity you all choose together.</p>
-        </div>
+        <div id="kidVault"></div>
       </div>
       <div id="kidSpendRequests"></div>
     </section>
@@ -1595,6 +1677,15 @@
   <p class="small" style="margin:14px 0 6px"><strong>Available to buy right now</strong> — <span id="rewardCount">0</span> on the list</p>
   <div id="rewardManageList" style="display:grid;gap:7px"></div>
   <p id="pacingNote" class="small hidden" style="margin-top:10px"></p>
+
+  <div class="vaultsetting">
+    <div style="flex:1;min-width:200px">
+      <strong>🏦 The vault</strong>
+      <div class="small">Children can lock points away where they can't be spent on small things.
+      Nothing comes out until they reach the target, and then only on something from the big list.</div>
+    </div>
+    <button class="light" style="width:auto" onclick="setVaultTarget()">Target: <span id="vaultTargetLabel">5000</span></button>
+  </div>
 
   <p class="small editnote">✏️ To add a reward or change its points, turn on <strong>Edit mode</strong> in the menu.</p>
   <button class="primary hidden" id="rewardAddToggle" style="margin-top:14px;width:100%" onclick="toggleRewardEditor()">＋ Add or change rewards</button>
@@ -2991,6 +3082,16 @@ function iconFor(item, fallback){
   return fallback || "\ud83c\udf81";
 }
 
+/* Big things only. These live in the rewards list with vault:true so they need
+   no new document and no rules change - they are simply never offered on the
+   ordinary spend list. */
+const DEFAULT_BIG_GOALS = [
+  {name:"A weekend away together", points:5000, vault:true, desc:"Two nights somewhere none of us has been."},
+  {name:"A big day out - theme park or the coast", points:5000, vault:true, desc:"The expensive one, saved for properly."},
+  {name:"Your own bike", points:6000, vault:true, desc:"Chosen with Mum or Dad, and looked after."},
+  {name:"A family holiday", points:12000, vault:true, desc:"Everyone in, saved up over a long time."},
+  {name:"Umrah together, one day insha'Allah", points:20000, vault:true, desc:"The longest saving of all."}
+];
 const STARTER_GAMES = [
   {name:"20 Questions", points:15, desc:"One person thinks of something; everyone else asks yes/no questions to work out what it is."},
   {name:"Story chain", points:15, desc:"Each person adds one sentence in turn until the story finds an ending."},
@@ -3110,7 +3211,7 @@ const TIP_CATS = [
   {key:"behaviour", label:"Behaviour"}
 ];
 
-const APP_VERSION = "v77";
+const APP_VERSION = "v79";
 const today = new Date().toISOString().slice(0,10);
 let app = {families:[],currentFamily:null,currentChild:null};
 let categories = [];
@@ -3487,11 +3588,15 @@ function projectApp(raw){
       // is exactly what a parent needs when they disagree with a tutor.
       const progress = {};
       let balance = 0;
+      // Locked savings. Derived from the ledger like everything else, so it is
+      // reproducible and a child's device never writes it.
+      let vault = 0;
       entries.forEach(e => {
         balance += e.points;
+        if(e.type === "vault") vault += (e.vaultAmount || 0);
         if(e.type === "progress" && e.objectiveId){
           const at=progress[e.objectiveId] || (progress[e.objectiveId]={});
-          if(e.status === "secure"){ at.status="secure"; at.securedBy=e.byUid||null; at.securedTs=e.ts; }
+          if(e.status === "secure"){ at.status="secure"; at.securedBy=e.byUid||null; at.securedTs=e.ts; at.securedName=e.byName||""; }
           else if(e.status === "covered"){
             if(at.status !== "secure"){ at.status="covered"; at.coveredBy=e.byUid||null; at.coveredTs=e.ts; }
           }else if(e.status === "clear"){ delete progress[e.objectiveId]; }
@@ -3523,7 +3628,7 @@ function projectApp(raw){
         forChildren: Array.isArray(m.forChildren) ? m.forChildren : [],
         relation: m.relation || null, side: m.side || null,
         about: m.about || "", noLogin: m.noLogin === true,
-        balance, pointsByDate, prayerByDate, activityLog
+        balance, vault, pointsByDate, prayerByDate, activityLog
       };
     });
 
@@ -3839,7 +3944,10 @@ function ladderHTML(child, subject, strand, canSecure){
               : st.status==="covered" ? "covered" : "";
     const mark = st.status==="secure" ? "\u2713" : st.status==="review" ? "\u{1f501}"
                : st.status==="covered" ? "\u25cf" : "";
-    const by = st.securedBy ? (memberById(st.securedBy)||{}).name : null;
+    // securedBy is an auth uid and members are keyed by member id, so the
+    // lookup never resolved and no name was ever shown. The ledger already
+    // carries the name that wrote the mark.
+    const by = st.securedName || (st.securedBy ? ((memberById(st.securedBy)||{}).name||null) : null);
     return `<div class="objrow ${cls}">
         <span class="objmark">${mark}</span>
         <span class="objtext">${escapeHtml(objectiveText(subject, strand, i))}
@@ -3879,22 +3987,77 @@ async function onMark(childId, objId, status){
     }));
   }
 }
+/* ---------- Who is teaching this child ----------
+   A tutor could already see the child. The child could not see the tutor, so
+   a mark appearing against an objective came from nowhere. Their teachers, and
+   what those teachers actually wrote, belong at the top of Learn. */
+function tutorsFor(child){
+  const f=currentFamily();
+  if(!f || !child) return [];
+  return f.children.filter(m=>isTutorRole(m) && assignedChildIds(m).indexOf(child.id)>=0);
+}
+function tutorNotesFor(child, limit){
+  const names=tutorsFor(child).map(t=>t.name);
+  if(!names.length) return [];
+  return (child.activityLog||[])
+    .filter(e=>e.type==="award" && e.by && names.indexOf(e.by)>=0)
+    .slice(0, limit||6)
+    .map(e=>{
+      const parts=String(e.label||"").split(" \u2014 ");
+      return { by:e.by, topic:parts[0]||"", note:parts.slice(1).join(" \u2014 "), ts:e.ts, points:e.points };
+    });
+}
+function teachersCardHTML(child){
+  const tutors=tutorsFor(child);
+  if(!tutors.length) return "";
+  const notes=tutorNotesFor(child, 6);
+  const who=tutors.map(t=>`<span class="teacherchip">\ud83d\udc69\u200d\ud83c\udfeb ${escapeHtml(t.name)}${
+      roleLabel(t)?` <em>${escapeHtml(roleLabel(t))}</em>`:""}</span>`).join("");
+  const said=notes.length
+    ? notes.map(n=>`<div class="teachernote">
+         <div class="tnhead"><strong>${escapeHtml(n.topic)}</strong>
+           <span>${escapeHtml(n.by)} \u00b7 ${new Date(n.ts).toLocaleDateString()}</span></div>
+         ${n.note?`<p class="tnbody">\u201c${escapeHtml(n.note)}\u201d</p>`:""}
+       </div>`).join("")
+    : `<p class="small" style="margin:8px 0 0">Nothing written yet. When your teacher notices something, it appears here.</p>`;
+  return `<section class="teachercard">
+      <h3>\ud83d\udc69\u200d\ud83c\udfeb My teachers</h3>
+      <div class="teacherrow">${who}</div>
+      <p class="small" style="margin:12px 0 2px"><strong>What they said</strong></p>
+      ${said}
+    </section>`;
+}
+/* Four states, none of which explain themselves from a tick alone. */
+function legendHTML(){
+  return `<div class="learnkey">
+      <span><i class="k-none"></i>Not started</span>
+      <span><i class="k-cov">\u25cf</i>Practised</span>
+      <span><i class="k-sec">\u2713</i>Secure</span>
+      <span><i class="k-rev">\u21ba</i>Time to revisit</span>
+    </div>`;
+}
 function learnScreenHTML(child){
   if(!child) return "";
   const me=sessionMember();
   const canSecure=mayMarkSecure(me, child);
-  return CURRICULUM.map(subject=>{
+  const adultView=isParentRole(me)||isTutorRole(me);
+  return teachersCardHTML(child) + legendHTML() + CURRICULUM.map(subject=>{
     const shown=strandsShown(subject, child);
     const done=shown.reduce((a,st)=>a+strandProgress(child,subject,st).secure,0);
     const total=shown.reduce((a,st)=>a+st.objectives.length,0);
-    const picker=subject.byYear
+    // A child sees their own year and only their own year. The picker was how
+    // they got out of it - useful for a parent comparing years, confusing for
+    // a child who could wander into Year 6 and conclude they were behind.
+    const picker=(subject.byYear && adultView)
       ? `<div class="yearpick">${subject.strands.map(st=>`<button class="${
           st.id===yearShown(subject,child)?"on":""}" onclick="setLearnYear('${child.id}','${subject.subject}','${st.id}')">${
           st.name.replace("Year ","Y")}</button>`).join("")}</div>`
       : "";
+    const yearName=(subject.byYear && !adultView)
+      ? (shown[0] ? shown[0].name : "") : "";
     return `<section class="kidhero"><div class="kidherorow"><div>
         <p class="kidhi">${subject.icon} ${escapeHtml(subject.name)}</p>
-        <p class="kidsub">${done} of ${total} secure</p>
+        <p class="kidsub">${yearName?escapeHtml(yearName)+" \u00b7 ":""}${done} of ${total} secure</p>
       </div></div>${picker}</section>`
       + shown.map(st=>ladderHTML(child, subject, st, canSecure)).join("");
   }).join("")
@@ -3998,6 +4161,7 @@ function popThen(el){
 function toggleKidMore(){
   const m=document.getElementById("kidMore");
   const b=document.getElementById("kidMoreBtn");
+  if(!m || !b) return;   // superseded by the child's menu sheet
   if(!m) return;
   const open=m.classList.toggle("hidden")===false;
   if(b) b.textContent = open ? "\u22ef Less" : "\u22ef More";
@@ -5158,10 +5322,29 @@ async function applyRecommendedLists(){
     }
   });
   app.parentRewards.sort((a,b)=>a.points-b.points);
+  // Activities were only ever seeded when a family was first created, so every
+  // family older than that release had an empty Activities tab and no way to
+  // fill it. Same top-up treatment as the rewards above.
+  let gamesAdded=0;
+  STARTER_GAMES.forEach(dg=>{
+    const found=(app.gameNightActivities||[]).find(g=>normKey(g.name)===normKey(dg.name));
+    if(!found){
+      app.gameNightActivities.push(Object.assign({id:"g"+Math.abs(hashString(dg.name)).toString(16)}, dg));
+      gamesAdded++;
+    }else if(found.points!==dg.points){ found.points=dg.points; gamesAdded++; }
+  });
+  app.gameNightActivities.sort((a,b)=>a.points-b.points);
+  DEFAULT_BIG_GOALS.forEach(bg=>{
+    const found=(app.rewards||[]).find(r=>normKey(r.name)===normKey(bg.name));
+    if(!found){
+      app.rewards.push(Object.assign({id:"v"+Math.abs(hashString(bg.name)).toString(16)}, bg));
+      repriced++;
+    }else{ found.vault=true; found.points=bg.points; }
+  });
   app.settings=app.settings||{}; app.settings.rewardsEditedTs=Date.now();
   await saveApp();
   render();
-  alert("Done.\n\n"+added+" actions added\n"+rescored+" rescored\n"+repriced+" rewards added or repriced\n\nAnything you wrote yourself was left as it was.");
+  alert("Done.\n\n"+added+" actions added\n"+rescored+" rescored\n"+repriced+" rewards added or repriced\n"+gamesAdded+" activities added or repriced\n\nAnything you wrote yourself was left as it was.");
 }
 
 /* ---------- The prayer board ----------
@@ -5306,6 +5489,198 @@ let screenNow = null;
 function screenLocksPage(){
   const el = screenNow && document.getElementById(screenNow);
   return !!(el && el.classList.contains("panel"));
+}
+
+/* ---------- Talking to a child ----------
+   Every question a child was asked came out of the browser: confirm() and
+   alert(), grey, system font, "OK / Cancel". Same questions, in the app's own
+   voice, with a colour that tells them what kind of thing is being asked. */
+let kidDialogResolve = null;
+function kidDialog(o){
+  const wrap=document.getElementById("kidModal");
+  if(!wrap) return Promise.resolve(true);
+  wrap.innerHTML = `<div class="kmcard" role="dialog" aria-modal="true" aria-label="${escapeHtml(o.title||"")}">
+      <div class="kmtop ${o.tone||""}">
+        <span class="kmicon" aria-hidden="true">${o.icon||"\u2b50"}</span>
+        <p class="kmtitle">${escapeHtml(o.title||"")}</p>
+      </div>
+      <div class="kmbody">
+        ${o.thing?`<p class="kmthing">${escapeHtml(o.thing)}</p>`:""}
+        ${o.note?`<p class="kmnote">${escapeHtml(o.note)}</p>`:""}
+        ${(o.cost!==undefined && o.cost!==null)?`<span class="kmcost">\u2b50 ${o.cost} points</span>`:""}
+      </div>
+      <div class="kmbtns">
+        <button class="kmyes" onclick="closeKidDialog(true)">${escapeHtml(o.yes||"Yes please!")}</button>
+        ${o.no===null?"":`<button class="kmno" onclick="closeKidDialog(false)">${escapeHtml(o.no||"Not now")}</button>`}
+      </div>
+    </div>`;
+  wrap.classList.remove("hidden");
+  return new Promise(res => { kidDialogResolve = res; });
+}
+function closeKidDialog(v){
+  const wrap=document.getElementById("kidModal");
+  if(wrap){ wrap.classList.add("hidden"); wrap.innerHTML=""; }
+  const r=kidDialogResolve; kidDialogResolve=null;
+  if(r) r(!!v);
+}
+/* One button, nothing to decide - the child-sized version of alert(). */
+function kidSay(o){ return kidDialog(Object.assign({}, o, {yes:o.yes||"OK!", no:null})); }
+
+/* ---------- The child's menu ---------- */
+function kidViewOpen(){
+  const kv=document.getElementById("kidView");
+  return !!kv && !kv.classList.contains("hidden");
+}
+function openAnyMenu(){ if(kidViewOpen()) toggleKidMenu(); else toggleMenu(); }
+function toggleKidMenu(){
+  const sheet=document.getElementById("kidMenuSheet");
+  if(!sheet) return;
+  const open = sheet.classList.toggle("hidden") === false;
+  const who=document.getElementById("kidMenuWho");
+  const m=sessionMember();
+  if(who) who.textContent = m ? ("Signed in as " + m.name) : "";
+  setMenuScrim(open);
+  render();
+}
+function closeKidMenu(){
+  const sheet=document.getElementById("kidMenuSheet");
+  if(sheet && !sheet.classList.contains("hidden")){
+    sheet.classList.add("hidden");
+    setMenuScrim(false);
+  }
+}
+function closeAnyMenu(){ closeKidMenu(); closeMenu(); }
+function kidMenuGo(id){ closeKidMenu(); showScreen(id); }
+
+/* ---------- The vault ----------
+   Saved points sit outside the spendable balance so they cannot leak away on
+   sweets. Nothing comes out until the target is reached, and then only on
+   something a parent has put on the big list. Deposits and withdrawals both go
+   through the existing request-and-approve path, so a child's device never
+   writes a points movement and the rules need no change at all. */
+function vaultTarget(){
+  const t = app.settings && Number(app.settings.vaultTarget);
+  return (t && t >= 100) ? Math.round(t) : 5000;
+}
+function vaultGoals(){ return (app.rewards||[]).filter(r=>r.vault===true).slice().sort((a,b)=>a.points-b.points); }
+function spendableRewards(){ return (app.rewards||[]).filter(r=>r.vault!==true); }
+function vaultOf(child){ return Math.max(0, (child && child.vault) || 0); }
+function pendingVaultOut(childId){
+  return (app.requests||[])
+    .filter(r=>r.childId===childId && r.status==="pending" && r.type==="vaultout")
+    .reduce((n,r)=>n+(r.vaultAmount||0),0);
+}
+function vaultAvailable(child){ return Math.max(0, vaultOf(child) - pendingVaultOut(child.id)); }
+function kidVaultHTML(child){
+  const target=vaultTarget();
+  const have=vaultAvailable(child);
+  const pct=Math.max(0, Math.min(100, Math.round(have/target*100)));
+  const spendable=availableFor(child);
+  const unlocked = have >= target;
+  const steps=[25,50,100,250].filter(n=>n<=spendable);
+  const addRow = steps.length
+    ? `<div class="vaultadd">${steps.map(n=>`<button onclick="popThen(this);kidVaultIn(${n})">+${n}</button>`).join("")}</div>`
+    : `<div class="vaultlocked">You have no spare points to lock away just yet. Keep earning \u2b50</div>`;
+  const goals=vaultGoals();
+  const goalRows = goals.length
+    ? goals.map(g=>{
+        const can = unlocked && have >= g.points;
+        return `<button class="vaultgoal" ${can?"":"disabled"} onclick="popThen(this);kidVaultOut('${g.id}')">
+          <span aria-hidden="true" style="font-size:24px">${can?"\ud83c\udf1f":"\ud83d\udd12"}</span>
+          <span class="vgname">${escapeHtml(g.name)}
+            ${g.desc?`<span class="vgdesc">${escapeHtml(g.desc)}</span>`:""}</span>
+          <span class="vgpts">${g.points}</span>
+        </button>`;
+      }).join("")
+    : `<p class="small">Mum or Dad haven't added any big things yet.</p>`;
+  return `<div class="vaultcard">
+      <h3>\ud83c\udfe6 My vault</h3>
+      <p class="vsub">Points you lock away are safe. They can't be spent on small things \u2014 they're for something big.</p>
+      <div class="vaulttotal"><strong>${have}</strong><span>saved of ${target}</span></div>
+      <div class="vaultbar"><i style="width:${pct}%"></i></div>
+      <p class="vaultmeta">${unlocked
+        ? "\ud83c\udf89 Unlocked! You can choose something big below."
+        : (target-have)+" more to unlock. You have "+spendable+" spare points right now."}</p>
+      ${addRow}
+      ${unlocked?"":`<div class="vaultlocked">\ud83d\udd12 Nothing comes out until you reach ${target}. That's the whole point \u2014 it's how the big things happen.</div>`}
+    </div>
+    <h3 style="margin:20px 0 2px;font-size:17px">\ud83c\udf1f Big things to save for</h3>
+    <p class="small" style="margin:0 0 4px">Mum or Dad choose what goes on this list.</p>
+    ${goalRows}`;
+}
+async function kidVaultIn(amount){
+  const child=sessionMember();
+  if(!child || isParentRole(child)) return;
+  amount=Math.max(1, Math.round(amount));
+  if(availableFor(child) < amount){
+    await kidSay({icon:"\u2b50", tone:"treat", title:"Not quite yet",
+      note:"You have "+availableFor(child)+" points spare right now, so you can't lock away "+amount+" of them."});
+    return;
+  }
+  const ok=await kidDialog({icon:"\ud83c\udfe6", tone:"vault", title:"Lock these away?",
+    thing:amount+" points into your vault",
+    note:"Once they're in, they stay in until you reach "+vaultTarget()+" \u2014 then they can go on something big. Mum or Dad say yes first.",
+    cost:amount, yes:"Yes, save them", no:"Not now"});
+  if(!ok) return;
+  try{
+    await window.fpc.createRequest(familyId, {
+      childId:child.id, childName:child.name, type:"vaultin",
+      itemId:"vault", itemName:amount+" points into the vault", points:amount
+    });
+  }catch(e){
+    console.error("Vault deposit refused:", e);
+    await kidSay({icon:"\ud83d\udce1", tone:"treat", title:"That didn't send",
+      note:"Check your connection and try again."});
+    return;
+  }
+  await kidSay({icon:"\ud83c\udfe6", tone:"cheer", title:"Asked!",
+    note:"Mum or Dad will say yes, and then "+amount+" points go safely into your vault."});
+}
+async function kidVaultOut(goalId){
+  const child=sessionMember();
+  if(!child || isParentRole(child)) return;
+  const goal=vaultGoals().find(g=>g.id===goalId);
+  if(!goal) return;
+  const have=vaultAvailable(child);
+  if(have < vaultTarget()){
+    await kidSay({icon:"\ud83d\udd12", tone:"vault", title:"Still locked",
+      note:"You need "+(vaultTarget()-have)+" more in your vault before anything can come out."});
+    return;
+  }
+  if(have < goal.points){
+    await kidSay({icon:"\ud83d\udd12", tone:"vault", title:"Not enough saved",
+      note:"\u201c"+goal.name+"\u201d needs "+goal.points+" and you have "+have+". Keep saving \u2014 you're getting there."});
+    return;
+  }
+  const ok=await kidDialog({icon:"\ud83c\udf1f", tone:"vault", title:"Spend your savings?",
+    thing:goal.name,
+    note:"This takes "+goal.points+" out of your vault in one go. Nothing happens until Mum or Dad say yes.",
+    cost:goal.points, yes:"Yes, ask for it", no:"Keep saving"});
+  if(!ok) return;
+  try{
+    await window.fpc.createRequest(familyId, {
+      childId:child.id, childName:child.name, type:"vaultout",
+      itemId:goal.id, itemName:goal.name, points:0, vaultAmount:goal.points
+    });
+  }catch(e){
+    console.error("Vault withdrawal refused:", e);
+    await kidSay({icon:"\ud83d\udce1", tone:"treat", title:"That didn't send",
+      note:"Check your connection and try again."});
+    return;
+  }
+  await kidSay({icon:"\ud83c\udf89", tone:"cheer", title:"Asked!",
+    thing:goal.name, note:"Mum or Dad will see it. Your savings stay yours until they say yes."});
+}
+async function setVaultTarget(){
+  if(!requireParent()) return;
+  const v=prompt("How many points must a child save before anything can come out of the vault?\n\nNothing is withdrawable below this, and then only on something from the big list.", String(vaultTarget()));
+  if(v===null) return;
+  const n=Math.round(Number(v));
+  if(!isFinite(n) || n < 100){ alert("Pick a number of at least 100."); return; }
+  app.settings=app.settings||{};
+  app.settings.vaultTarget=n;
+  await saveApp();
+  render();
 }
 function showScreen(id){
   screenNow = id || null;
@@ -6224,7 +6599,6 @@ function renderDeenPanel(){
         <h3>${escapeHtml(now.title)}</h3>
         <p class="translit">${escapeHtml(now.translit)}</p>
         <p class="meaning">${escapeHtml(now.meaning)}</p>
-        <button class="light" style="width:auto" onclick="speak('${now.translit.replace(/'/g,"\\'")}')">\ud83d\udde3\ufe0f Read it to me</button>
       </section>
       <div class="duachips">${DUA_GROUPS.map(g=>`<button class="${
         duaFilter===g.id?"on":""}" onclick="setDuaFilter('${g.id}')">${g.label}</button>`).join("")}</div>
@@ -6233,7 +6607,6 @@ function renderDeenPanel(){
           <h3>${escapeHtml(d.title)}</h3>
           <p class="translit">${escapeHtml(d.translit)}</p>
           <p class="meaning">${escapeHtml(d.meaning)}</p>
-          <button class="light" style="width:auto" onclick="speak('${d.translit.replace(/'/g,"\\'")}')">\ud83d\udde3\ufe0f Read it to me</button>
         </section>`).join("") || '<p class="small">Nothing in that group.</p>'}
       <p class="small" style="margin-top:16px">The Arabic isn\u2019t written here on purpose \u2014 it should be added from a copy your family trusts rather than typed out by an app.</p>`;
     return;
@@ -6258,7 +6631,6 @@ function renderDeenPanel(){
             <span class="storymeta">${s.minutes} min \u00b7 ${escapeHtml(s.src)}</span></summary>
           <p class="storytext" id="story${i}">${escapeHtml(s.text)}</p>
           <p class="storyask">\ud83d\udcac ${escapeHtml(s.ask)}</p>
-          <button class="light" style="width:auto" onclick="speakElement('story${i}')">\ud83d\udde3\ufe0f Read it aloud</button>
         </details>
       </section>`).join("")}`;
 }
@@ -7403,10 +7775,17 @@ function render(){
   if(anw) anw.classList.toggle("hidden", !(isParentSession() && viewChildId && !editMode && !screenNow));
   const mf=document.getElementById("menuFab");
   if(mf){
-    mf.classList.toggle("hidden", !(ready && isParentSession() && !editMode && !screenNow));
-    const open=!document.getElementById("menuSheet").classList.contains("hidden");
+    // Children get the same fixed button, and on every tab rather than only at
+    // home, because the way back to House rules or Sign out has to exist there.
+    const kidOn = kidViewOpen();
+    const parentOn = isParentSession() && !editMode && !screenNow;
+    mf.classList.toggle("hidden", !(ready && (parentOn || kidOn)));
+    const sheet=document.getElementById(kidOn ? "kidMenuSheet" : "menuSheet");
+    const open = !!sheet && !sheet.classList.contains("hidden");
     mf.textContent = open ? "\u2715 Close" : "\u2630 Menu";
   }
+  const vtl=document.getElementById("vaultTargetLabel");
+  if(vtl) vtl.textContent = vaultTarget();
   applyEditGates();
   const eb=document.getElementById("editBar");
   if(eb) eb.classList.toggle("hidden", !editMode);
@@ -7796,18 +8175,30 @@ async function kidBuy(type, id){
     : app.gameNightActivities.find(g=>g.id===id);
   if(!item) return;
   const blocked=limitReachedMessage(child, item) || (type==="reward" ? groupCapMessage(child, item) : null);
-  if(blocked){ alert(blocked); return; }
+  if(blocked){ await kidSay({icon:"\u23f3", tone:"treat", title:"Not just yet", note:blocked}); return; }
   const price=item.points||0;
   const spendable=availableFor(child);
   if(spendable<price){
     const waiting=pendingSpendFor(child.id);
-    alert(waiting>0
-      ? "You\u2019ve already asked for something worth "+waiting+" points, so you have "+spendable+" left to spend. Wait for Mum or Dad to decide, or keep earning! \u2b50"
-      : "Not quite yet! You need "+(price-spendable)+" more point"+((price-spendable)===1?"":"s")+" for \u201c"+item.name+"\u201d. Keep going \u2014 you\u2019re getting closer! \u2b50");
+    await kidSay({icon:"\u2b50", tone:"treat", title:"Not quite yet",
+      thing:item.name,
+      note: waiting>0
+        ? "You\u2019ve already asked for something worth "+waiting+" points, so you have "+spendable+" left to spend. Wait for Mum or Dad to decide, or keep earning!"
+        : "You need "+(price-spendable)+" more point"+((price-spendable)===1?"":"s")+" for this. Keep going \u2014 you\u2019re getting closer!"});
     return;
   }
-  const label = type==="reward" ? "reward" : "activity";
-  if(!confirm("Ask for this "+label+"?\n\n"+item.name+"\n\nIt costs "+price+" points. Nothing is taken until Mum or Dad says yes.")) return;
+  const isGame = type!=="reward";
+  const ok = await kidDialog({
+    icon: isGame ? "\ud83c\udfb2" : "\ud83c\udf81",
+    tone: isGame ? "" : "treat",
+    title: isGame ? "Ask to do this?" : "Ask for this reward?",
+    thing: item.name,
+    note: "Nothing is taken until Mum or Dad say yes.",
+    cost: price,
+    yes: isGame ? "Yes, ask!" : "Yes please!",
+    no: "Not now"
+  });
+  if(!ok) return;
   try{
     await window.fpc.createRequest(familyId, {
       childId: child.id, childName: child.name,
@@ -7815,12 +8206,13 @@ async function kidBuy(type, id){
     });
   }catch(e){
     console.error("Request refused:", e);
-    alert("That couldn\u2019t be sent \u2014 check your connection and try again.");
+    await kidSay({icon:"\ud83d\udce1", tone:"treat", title:"That didn\u2019t send",
+      note:"Check your connection and try again."});
     return;
   }
-  let msg="\ud83c\udf89 Asked! You chose: "+item.name+"\n\nMum or Dad will see it and decide. Your points stay yours until then.";
-  if(item.desc) msg+="\n\n"+item.desc;
-  alert(msg);
+  await kidSay({icon:"\ud83c\udf89", tone:"cheer", title:"Asked!",
+    thing:item.name,
+    note:(item.desc ? item.desc+" \u2014 " : "")+"Mum or Dad will see it and decide. Your points stay yours until then."});
 }
 function pendingRequests(){
   // Offers from the wider family have their own list and their own buttons.
@@ -7830,18 +8222,41 @@ async function approveRequest(id){
   if(!requireParent()) return;
   const r=(app.requests||[]).find(x=>x.id===id); if(!r || r.status!=="pending") return;
   const child=memberById(r.childId);
-  if(child && (child.balance||0) < r.points){
-    alert(child.name+" only has "+(child.balance||0)+" points now \u2014 not enough for this. Turn it down, or give them the points first.");
-    return;
-  }
   const me=sessionMember();
+  const who={ byUid: window.fpc.uid(), byName: me?me.name:"", byRole: me?(roleLabel(me)||""):"" };
+  let entry;
+  if(r.type==="vaultin"){
+    // Into the vault: leaves the spendable balance, arrives as locked savings.
+    if(child && (child.balance||0) < r.points){
+      alert(child.name+" only has "+(child.balance||0)+" points now \u2014 not enough to lock away.");
+      return;
+    }
+    entry=Object.assign({ childId:r.childId, points:-r.points, type:"vault",
+      vaultAmount:r.points, label:"Into the vault" }, who);
+  }else if(r.type==="vaultout"){
+    // Out of the vault: the balance is untouched, the savings are spent.
+    const amt=r.vaultAmount||0;
+    if(child && (child.vault||0) < amt){
+      alert(child.name+" has "+((child && child.vault)||0)+" saved, which isn\u2019t enough for this.");
+      return;
+    }
+    if(amt < vaultTarget()){
+      alert("The vault only opens at "+vaultTarget()+" points. Change the target on the Rewards screen if that\u2019s not what you want.");
+      return;
+    }
+    entry=Object.assign({ childId:r.childId, points:0, type:"vault",
+      vaultAmount:-amt, label:"Vault: "+r.itemName }, who);
+  }else{
+    if(child && (child.balance||0) < r.points){
+      alert(child.name+" only has "+(child.balance||0)+" points now \u2014 not enough for this. Turn it down, or give them the points first.");
+      return;
+    }
+    entry=Object.assign({ childId:r.childId, points:-r.points, type:"purchase",
+      label:(r.type==="game" ? "Activity: " : "Reward: ") + r.itemName }, who);
+  }
   try{
-    // Approval is the moment the points are spent: status and deduction commit together.
-    await window.fpc.approveRequest(familyId, id, {
-      childId: r.childId, points: -r.points, type: "purchase",
-      label: (r.type==="game" ? "Activity: " : "Reward: ") + r.itemName,
-      byUid: window.fpc.uid(), byName: me?me.name:"", byRole: me?(roleLabel(me)||""):""
-    }, me?me.name:"");
+    // Approval is the moment the points move: status and ledger commit together.
+    await window.fpc.approveRequest(familyId, id, entry, me?me.name:"");
   }catch(e){
     console.error("Approve failed:", e);
     alert("That couldn't be saved \u2014 check your connection.");
@@ -7861,11 +8276,14 @@ async function declineRequest(id){
 }
 function requestRowHTML(r){
   const when=new Date(r.ts).toLocaleString([], {weekday:"short", hour:"2-digit", minute:"2-digit"});
-  const what = r.type==="game" ? "\ud83c\udfb2 Activity" : "\ud83c\udf81 Reward";
+  const what = r.type==="game" ? "\ud83c\udfb2 Activity"
+             : r.type==="vaultin"  ? "\ud83c\udfe6 Into the vault"
+             : r.type==="vaultout" ? "\ud83c\udf1f From the vault"
+             : "\ud83c\udf81 Reward";
   return `<div class="requestrow">
     <div style="flex:1;min-width:180px">
       <div><strong>${escapeHtml(r.childName)}</strong> would like <strong>${escapeHtml(r.itemName)}</strong></div>
-      <div class="logmeta">${what}${r.kind?" \u00b7 "+escapeHtml(r.kind):""} \u00b7 ${r.points} pts \u00b7 ${when}</div>
+      <div class="logmeta">${what}${r.kind?" \u00b7 "+escapeHtml(r.kind):""} \u00b7 ${r.type==="vaultout"?(r.vaultAmount||0)+" saved pts":r.points+" pts"} \u00b7 ${when}</div>
     </div>
     <div class="rbtns">
       <button class="approve" onclick="approveRequest('${r.id}')">\u2713 Approve</button>
@@ -8382,18 +8800,12 @@ function renderSoundToggle(){
   if(b) b.textContent = soundOn() ? "\ud83d\udd0a Sound on" : "\ud83d\udd07 Sound off";
 }
 
-/* ---------- Read aloud ----------
-   Most of these screens are above the reading age of the children they are for.
-   The device's own voice costs nothing and works offline. */
-function speak(text){
-  try{
-    if(!window.speechSynthesis) return;
-    window.speechSynthesis.cancel();
-    const u=new SpeechSynthesisUtterance(String(text||"").replace(/\s+/g," ").trim());
-    u.rate=0.95; u.pitch=1.05; u.lang="en-GB";
-    window.speechSynthesis.speak(u);
-  }catch(e){ /* not every browser has a voice */ }
-}
+/* ---------- Read aloud: withdrawn ----------
+   The device's own en-GB voice mangled the transliterated duas badly enough
+   that it was worse than no feature at all - and there is no fixing that with
+   a rate or a pitch, because the voice has no Arabic phonology to work from.
+   Kept as a no-op so every caller stays safe; the buttons are gone. */
+function speak(text){ /* intentionally does nothing - see above */ }
 /* Written to be heard rather than seen. speakElement() on the whole screen read
    out the button labels, so a child asking to be read to heard "Sound on. Read
    to me. House rules." */
@@ -8474,7 +8886,6 @@ function showNextCelebration(){
     document.getElementById("celebration").classList.remove("hidden");
     dropConfetti();
     chime("award");
-    speak((who ? who + " noticed you. " : "") + reason(newest) + ". Plus " + total + " altogether.");
     return;
   }
   if(r.gift){
@@ -8658,11 +9069,13 @@ function renderKidView(child){
     return sortForDisplay(marked).map((i,idx)=>chip(i,type,idx)).join("");
   }
   document.getElementById("kidRewardChips").innerHTML =
-    chipList(app.rewards, "reward", kidShowAllRewards, "toggleAllRewards()",
+    chipList(spendableRewards(), "reward", kidShowAllRewards, "toggleAllRewards()",
              "\ud83c\udf81 Nothing on the list yet \u2014 ask Mum or Dad to add some rewards!");
   document.getElementById("kidGameChips").innerHTML =
     chipList(app.gameNightActivities, "game", kidShowAllGames, "toggleAllGames()",
              "\ud83c\udfb2 No activities yet \u2014 ask Mum or Dad what you could do together.");
+  const vaultEl=document.getElementById("kidVault");
+  if(vaultEl) vaultEl.innerHTML = kidVaultHTML(child);
 
   // Their own requests
   const mine=(app.requests||[]).filter(r=>r.childId===child.id).slice(0,4);
