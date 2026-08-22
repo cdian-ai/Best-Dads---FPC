@@ -12,7 +12,7 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Points Card">
-<meta name="description" content="A positive points system for celebrating kindness, good manners and everyday effort, together as a family.">
+<meta name="description" content="One place to notice what your children do well — prayers, kindness, homework and effort — and to keep track of what they are learning. Points they earn, rewards they choose, and a record you can share.">
 <style>
   :root {
     --ink:#243044; --muted:#657084; --paper:#f7f8fc; --card:#fff;
@@ -427,12 +427,19 @@
   .accountbuttons{display:flex;gap:8px;flex-wrap:wrap}.small{font-size:12px;color:var(--muted);margin-top:3px}
   /* Everything except the one action a parent actually came here to do lives
      behind the menu. Eight buttons filled the whole first screen on a phone. */
+  .signupwhat{background:#f7f7ff;border:1px solid #e1e3f4;border-radius:16px;padding:13px 14px;
+              margin:4px 0;text-align:left}
+  .signupwhat p{margin:0 0 9px;font-size:12.5px;line-height:1.5;color:var(--ink)}
+  .signupwhat p:last-child{margin-bottom:0}
   .menugroup{margin:10px 4px 2px;font-size:11px;font-weight:800;letter-spacing:.06em;
              text-transform:uppercase;color:var(--muted)}
   .menugroup:first-of-type{margin-top:4px}
+  /* The sheet used to read as part of the page behind it. */
+  .menuscrim{position:fixed;inset:0;z-index:143;background:rgba(24,22,60,.45);
+             backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px)}
   .menusheet{position:fixed;left:12px;right:12px;top:calc(62px + env(safe-area-inset-top));
              z-index:145;display:grid;gap:7px;max-width:420px;margin:0;padding:12px;max-height:72vh;overflow-y:auto;
-             background:#fff;border:1px solid #e1e3f4;border-radius:18px;box-shadow:0 18px 44px rgba(24,22,60,.22)}
+             background:#fff;border:1px solid #e1e3f4;border-radius:18px;box-shadow:0 24px 60px rgba(24,22,60,.38)}
   .menusheet button{width:100%;text-align:left;padding:13px 15px;font-size:14px}
   #menuBadge:empty{display:none}
   .accountbuttons button{width:auto}
@@ -756,7 +763,8 @@
 <div id="authGate" class="gatewrap hidden">
   <div class="gatecard">
     <div class="logo"><svg class="mark" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M8 15l-3 8 4-2 3 2.4 3-2.4 4 2-3-8z" fill="currentColor" opacity=".72"/><circle cx="12" cy="9" r="7" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M12 5l1.2 2.5 2.7.4-2 1.9.5 2.8-2.4-1.3-2.4 1.3.5-2.8-2-1.9 2.7-.4z" fill="currentColor"/></svg><span>Points Card</span></div>
-    <p class="sub">A positive points system for celebrating kindness, good manners, and Islamic values — together, from any device.</p>
+    <p class="sub">Notice the good things, and keep track of the learning.</p>
+    <p class="sub" style="margin-top:6px">Prayers, kindness, manners, homework and effort — you award the points, they choose what to spend them on. With a Qur&rsquo;an and school progress tracker built in, so you can see what they can actually do.</p>
 
     <div id="signInForm" style="text-align:left;display:grid;gap:8px;margin-top:16px">
       <input id="authEmail" type="email" placeholder="Email" autocomplete="username">
@@ -782,7 +790,15 @@
         <button type="button" id="signupModeNew" class="light selected" style="width:auto;flex:1" onclick="setSignupMode('new')">Start a new family</button>
         <button type="button" id="signupModeJoin" class="light" style="width:auto;flex:1" onclick="setSignupMode('join')">I have a code</button>
       </div>
-      <p class="small" id="signupModeNote" style="margin:0">This creates a new family and makes you its first parent. Everyone else gets their own login afterwards.</p>
+      <p class="small" id="signupModeNote" style="margin:0">This creates a new family and makes you its first parent. Everyone else — the other parent, each child, grandparents, tutors — gets their own login afterwards.</p>
+      <div class="signupwhat">
+        <p><strong>What you get</strong></p>
+        <p>⭐ <strong>Points for what they do.</strong> Prayers, kindness, manners, helping, homework, keeping going when something is hard. You decide what counts and what it is worth.</p>
+        <p>🎁 <strong>Rewards they choose.</strong> They ask, you decide. Time together is cheap on purpose; sweets are rare on purpose.</p>
+        <p>🕌 <strong>A prayer board.</strong> Each of the five prayers recorded separately, so you can see which one keeps slipping.</p>
+        <p>📖 <strong>Homework and learning tracked.</strong> Qur&rsquo;an from Qaida to hifz, plus maths, English and science by school year — covered, and secure once they can do it unaided.</p>
+        <p>👥 <strong>Everyone who helps.</strong> Both parents, grandparents with a small weekly allowance, and tutors who record how a lesson went.</p>
+      </div>
       <input id="signupFamilyName" type="text" placeholder="Family name (e.g. The Ahmeds)">
       <input id="signupName" type="text" placeholder="Your name (e.g. Sarah)">
       <input id="signupEmail" type="email" placeholder="Email" autocomplete="username">
@@ -803,7 +819,8 @@
 <div id="welcomeScreen" class="gatewrap hidden">
   <div class="gatecard">
     <div class="logo"><svg class="mark" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M8 15l-3 8 4-2 3 2.4 3-2.4 4 2-3-8z" fill="currentColor" opacity=".72"/><circle cx="12" cy="9" r="7" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M12 5l1.2 2.5 2.7.4-2 1.9.5 2.8-2.4-1.3-2.4 1.3.5-2.8-2-1.9 2.7-.4z" fill="currentColor"/></svg><span>Points Card</span></div>
-    <p class="sub">A simple, positive way to celebrate kindness, good manners, and Islamic values as a family — wherever everyone is.</p>
+    <p class="sub">Notice the good things, and keep track of the learning.</p>
+    <p class="sub" style="margin-top:6px">Everyone on their own device: you award, they see what they&rsquo;ve earned, and grandparents and tutors can join in too.</p>
     <button class="primary" style="margin-top:16px" onclick="dismissWelcome()">Get started</button>
   </div>
 </div>
@@ -944,6 +961,7 @@
   ⚠️ <strong>This is a local copy.</strong> Accounts can't be created or signed into from a file on your computer — open the app from its web address (github.io) instead. Everything else here is just a preview.
 </div>
 <button id="homeFab" class="fab hidden" onclick="fabAction()">🏠 Home</button>
+<div id="menuScrim" class="menuscrim hidden" onclick="closeMenu()"></div>
 <button id="menuFab" class="menufab hidden" onclick="toggleMenu()">☰ Menu</button>
 <button id="panelTop" class="paneltop hidden" onclick="panelToTop()">↑ Top</button>
 <div id="editBar" class="editbar hidden">
@@ -1122,6 +1140,15 @@
         <p class="small" style="margin-top:14px;padding-top:14px;border-top:1px solid #e6e8f0">
           Everyone signs in with their own email and password. Use <strong>Sign out</strong> at the top to hand this device to someone else.
         </p>
+      </section>
+      <section>
+        <h2>⚠️ Leaving</h2>
+        <p class="small">Joined or created the wrong family? Leaving removes you from it and takes you back to the code screen. Your login stays — nothing else is touched.</p>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">
+          <button class="xbtn" style="width:auto" onclick="leaveFamilyFlow()">← Leave this family</button>
+          <button class="xbtn hidden" id="btnDeleteFamily" style="width:auto" onclick="deleteFamilyFlow()">✕ Delete this family</button>
+        </div>
+        <p class="small" id="deleteFamilyNote" style="margin-top:8px"></p>
       </section>
     </div>
   </div>
@@ -1459,8 +1486,8 @@
   // ---------------------------------------------------------------------------
   import { initializeApp, deleteApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
   import {
-    initializeFirestore, persistentLocalCache, doc, getDoc, setDoc, updateDoc, deleteDoc,
-    collection, addDoc, onSnapshot, writeBatch, serverTimestamp
+    initializeFirestore, persistentLocalCache, doc, getDoc, getDocs, setDoc, updateDoc, deleteDoc,
+    collection, addDoc, onSnapshot, writeBatch, serverTimestamp, query, limit
   } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
   import {
     getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword,
@@ -1665,6 +1692,27 @@
        and the role field stays exactly as it was. */
     async saveMemberPrefs(fid, id, prefs){ await updateDoc(memberRef(fid, id), { prefs }); },
     async deleteMember(fid, id){ await deleteDoc(memberRef(fid, id)); },
+    /* Leaving clears your own two rows and nothing else. Deleting the family is
+       offered only while it is still empty, so there is no history to destroy. */
+    async leaveFamily(fid, uid){
+      await deleteDoc(memberRef(fid, uid));
+      await deleteDoc(indexRef(uid));
+    },
+    async familyIsEmpty(fid, uid){
+      const members = await getDocs(collection(db, "families", fid, "members"));
+      const others  = members.docs.filter(d => d.id !== uid).length;
+      const ledger  = await getDocs(query(ledgerRef(fid), limit(1)));
+      return { others, hasHistory: !ledger.empty };
+    },
+    async deleteFamily(fid, uid){
+      for(const name of ["categories","rewards","games","settings",
+                         "parentCategories","parentRewards","goals","announcements"]){
+        try{ await deleteDoc(configRef(fid, name)); }catch(e){ /* may not exist */ }
+      }
+      await deleteDoc(memberRef(fid, uid));
+      await deleteDoc(famRef(fid));
+      await deleteDoc(indexRef(uid));
+    },
     async saveFamilyName(fid, name){ await updateDoc(famRef(fid), { name }); },
     async saveFamilyPhoto(fid, photo){ await updateDoc(famRef(fid), { photo }); },
 
@@ -2659,7 +2707,7 @@ const TIP_CATS = [
   {key:"behaviour", label:"Behaviour"}
 ];
 
-const APP_VERSION = "v68";
+const APP_VERSION = "v69";
 const today = new Date().toISOString().slice(0,10);
 let app = {families:[],currentFamily:null,currentChild:null};
 let categories = [];
@@ -4828,11 +4876,20 @@ function watchPanelScroll(){
 function toggleMenu(){
   const sheet=document.getElementById("menuSheet");
   if(!sheet) return;
-  sheet.classList.toggle("hidden");
+  const open=sheet.classList.toggle("hidden") === false;
+  setMenuScrim(open);
 }
 function closeMenu(){
   const sheet=document.getElementById("menuSheet");
   if(sheet) sheet.classList.add("hidden");
+  setMenuScrim(false);
+}
+/* The sheet floats over the page, so the page behind it has to recede or it
+   reads as part of what is underneath. */
+function setMenuScrim(on){
+  const scrim=document.getElementById("menuScrim");
+  if(scrim) scrim.classList.toggle("hidden", !on);
+  document.body.style.overflow = on ? "hidden" : (screenNow ? "hidden" : "");
 }
 function openPanel(id){
   if(!requireParent()) return;
@@ -4894,7 +4951,7 @@ function pickPerson(id){
   showScreen(null);
   renderAccounts();
 }
-function showAccountPanel(){ resetAddMemberPanel(); openPanel("accountPanel"); renderAccounts(); }
+function showAccountPanel(){ resetAddMemberPanel(); openPanel("accountPanel"); renderAccounts(); refreshLeaveOptions(); }
 function showOverviewPanel(){
   const me=sessionMember();
   if(me && isParentRole(me) && memberPrefs(me).openedOverview!==true){
@@ -5627,6 +5684,64 @@ async function removeRewardById(id){
   if(i<0) return;
   await removeReward(i);
 }
+/* ---------- Getting out of the wrong family ----------
+   Creating a family when you meant to join one is an easy mistake and used to
+   be permanent: there was no way to leave and no way to remove what you made.
+   Leaving is always available. Deleting is offered only to whoever created it,
+   and only while nothing has happened in it yet. */
+async function refreshLeaveOptions(){
+  const btn=document.getElementById("btnDeleteFamily");
+  const note=document.getElementById("deleteFamilyNote");
+  if(!btn || !note) return;
+  const f=currentFamily();
+  const uid=window.fpc.uid && window.fpc.uid();
+  if(!f || !uid || f.ownerUid!==uid){ btn.classList.add("hidden"); note.textContent=""; return; }
+  try{
+    const state=await window.fpc.familyIsEmpty(familyId, uid);
+    if(state.others===0 && !state.hasHistory){
+      btn.classList.remove("hidden");
+      note.textContent="You created this family and nothing has happened in it yet, so it can be removed completely.";
+    }else{
+      btn.classList.add("hidden");
+      note.textContent = state.hasHistory
+        ? "This family has points recorded in it, so it can\u2019t be deleted \u2014 you can still leave it."
+        : "Other people are in this family, so it can\u2019t be deleted \u2014 remove them first, or just leave.";
+    }
+  }catch(e){ console.error("Couldn't check the family:", e); }
+}
+async function leaveFamilyFlow(){
+  const uid=window.fpc.uid && window.fpc.uid();
+  const f=currentFamily();
+  if(!uid || !f) return;
+  if(!confirm("Leave \u201c"+f.name+"\u201d?\n\nYou\u2019ll be taken back to the code screen and can join another family. Your login stays as it is.")) return;
+  try{
+    await window.fpc.leaveFamily(familyId, uid);
+    location.reload();
+  }catch(e){
+    console.error("Couldn't leave:", e);
+    alert("That didn\u2019t work. If it keeps happening the security rules may not be published yet.");
+  }
+}
+async function deleteFamilyFlow(){
+  const uid=window.fpc.uid && window.fpc.uid();
+  const f=currentFamily();
+  if(!uid || !f) return;
+  const state=await window.fpc.familyIsEmpty(familyId, uid);
+  if(state.others>0 || state.hasHistory){
+    alert("This family isn\u2019t empty any more, so it can\u2019t be deleted. You can still leave it.");
+    refreshLeaveOptions();
+    return;
+  }
+  if(!confirm("Delete \u201c"+f.name+"\u201d completely?\n\nThis removes the family and its lists. It cannot be undone \u2014 but nothing has happened in it yet.")) return;
+  try{
+    await window.fpc.deleteFamily(familyId, uid);
+    location.reload();
+  }catch(e){
+    console.error("Couldn't delete the family:", e);
+    alert("That didn\u2019t work. If it keeps happening the security rules may not be published yet.");
+  }
+}
+
 /* ---------- The grown-ups' own points ---------- */
 async function parentRequestReward(id){
   if(!requireParent()) return;
