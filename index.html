@@ -1614,6 +1614,10 @@
       batch.set(doc(db, "families", invite.familyId, "members", uid), {
         name: personName,
         role: ((invite.role === "family" || invite.role === "tutor") ? invite.role : "parent"),
+        // The rules look the invite up from this field to check the code is
+        // live and grants this exact role. Without it joinIsValid() has nothing
+        // to read, and the write is refused.
+        inviteCode: code,
         age: roleLabel, photo: null,
         // A tutor starts with nobody. A parent chooses who they work with.
         forChildren: (invite.role === "tutor" ? [] : null),
@@ -2707,7 +2711,7 @@ const TIP_CATS = [
   {key:"behaviour", label:"Behaviour"}
 ];
 
-const APP_VERSION = "v69";
+const APP_VERSION = "v70";
 const today = new Date().toISOString().slice(0,10);
 let app = {families:[],currentFamily:null,currentChild:null};
 let categories = [];
@@ -4993,10 +4997,17 @@ function authErrorMessage(e){
       ? "Accounts can't be created when the file is opened directly from your computer. Open the app from its web address instead."
       : "\ud83d\udcf6 No internet. Nothing is lost \u2014 your points are safe and waiting. Try again when you're back online.";
   }
-  if(code === "permission-denied")
-    return isParentSession()
-      ? "The database refused that. The security rules may not be deployed yet."
-      : "\ud83d\udd12 Only Mum and Dad can do that. Nothing is broken \u2014 that button just isn't yours.";
+  if(code === "permission-denied"){
+    // Only a signed-in child gets the child wording. On the join screen nobody
+    // is a member yet, so this used to tell a joining father that the button
+    // wasn't his.
+    const me = sessionMember();
+    if(me && isChildRole(me))
+      return "\ud83d\udd12 Only Mum and Dad can do that. Nothing is broken \u2014 that button just isn't yours.";
+    if(!familyId)
+      return "That code was refused. Check each character, and ask for a fresh one if it\u2019s more than fifteen minutes old. If it keeps failing, the security rules may not be published yet.";
+    return "The database refused that. The security rules may not be deployed yet.";
+  }
   // Use the timeout's own wording only when it actually says something useful.
   if(code === "timeout")
     return (e.message && e.message.length > 15)
