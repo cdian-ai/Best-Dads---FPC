@@ -3110,7 +3110,7 @@ const TIP_CATS = [
   {key:"behaviour", label:"Behaviour"}
 ];
 
-const APP_VERSION = "v76";
+const APP_VERSION = "v77";
 const today = new Date().toISOString().slice(0,10);
 let app = {families:[],currentFamily:null,currentChild:null};
 let categories = [];
@@ -5298,6 +5298,15 @@ const SHARED_SCREENS   = ["rulesPanel","treePanel","deenPanel"];
 const SCREENS = ["accountPanel","overviewPanel","activityPanel","requestsPanel","progressPanel","rewardsPanel","grownupsPanel","pickPanel","quickPanel","reviewPanel","rulesPanel","tutorPanel","treePanel","deenPanel",
                  "kidSpendScreen","kidLearnScreen","kidPointsScreen"];
 let screenNow = null;
+/* Only the parent's full-screen .panel elements scroll inside themselves, so
+   only they need the page held still behind them. The child's tab screens
+   (Spend / My points / Learn) sit in normal page flow, so locking the body
+   for those clipped them at the viewport edge - nothing below the fold could
+   be scrolled to or tapped. */
+function screenLocksPage(){
+  const el = screenNow && document.getElementById(screenNow);
+  return !!(el && el.classList.contains("panel"));
+}
 function showScreen(id){
   screenNow = id || null;
   SCREENS.forEach(s=>{
@@ -5308,7 +5317,7 @@ function showScreen(id){
   if(home) home.classList.toggle("hidden",
     screenNow==="kidSpendScreen" || screenNow==="kidPointsScreen" || screenNow==="kidLearnScreen");
   // A screen that covers the page must not leave the page behind it scrolling.
-  lockPage(!!screenNow);
+  lockPage(screenLocksPage());
   window.scrollTo({top:0,behavior:"smooth"});
   const p=screenNow && document.getElementById(screenNow);
   if(p) p.scrollTop=0;
@@ -5376,7 +5385,7 @@ function setMenuScrim(on){
   if(scrim) scrim.classList.toggle("hidden", !on);
   const fab=document.getElementById("menuFab");
   if(fab) fab.textContent = on ? "\u2715 Close" : "\u2630 Menu";
-  lockPage(on || !!screenNow);
+  lockPage(on || screenLocksPage());
 }
 function openPanel(id){
   if(!requireParent()) return;
