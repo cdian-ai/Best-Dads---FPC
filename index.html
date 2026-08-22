@@ -445,7 +445,14 @@
          padding-top:calc(16px + env(safe-area-inset-top))}
   .panel > h2:first-of-type{margin-top:0}
   .panelinner{max-width:760px;margin:0 auto}
-  .panelback{width:auto;background:#eef0ff;color:#3e46ad;margin-bottom:14px;font-weight:800}
+  /* Sticky, so the way out never needs scrolling back to. Progress is a long
+     page and hunting for Home at the very top was the wrong ask. */
+  .panelback{position:sticky;top:0;z-index:5;width:auto;background:#eef0ff;color:#3e46ad;
+             margin:0 0 14px;font-weight:800;box-shadow:0 6px 14px rgba(246,247,251,.9)}
+  .paneltop{position:fixed;right:16px;bottom:calc(16px + env(safe-area-inset-bottom));z-index:155;
+            width:auto;padding:11px 15px;border-radius:14px;background:#fff;color:#3e46ad;
+            font-weight:800;font-size:14px;box-shadow:0 8px 22px rgba(24,22,60,.18);
+            border:1px solid #e6e8f0}
   .panelgrid{grid-template-columns:1fr!important}
   @media(min-width:760px){ .panelgrid{grid-template-columns:1fr 1fr!important} }
 
@@ -487,7 +494,9 @@
   /* One line: the menu button sits left as a fixed control, so the wordmark
      goes right and the header stops being three deep. */
   header{padding-top:calc(6px + env(safe-area-inset-top))}
-  header .logo{justify-content:flex-end;margin:0 0 10px}
+  /* Centred, so it sits clear of the fixed menu button on the left rather than
+     underneath it. */
+  header .logo{justify-content:center;margin:0 0 10px;padding:0 84px}
   .logo{display:inline-flex;align-items:center;gap:7px;background:linear-gradient(90deg,var(--accent),var(--accent2));
         color:white;font-weight:800;font-size:13px;letter-spacing:.06em;text-transform:uppercase;
         padding:7px 14px;border-radius:999px;margin-bottom:12px}
@@ -936,8 +945,9 @@
 </div>
 <button id="homeFab" class="fab hidden" onclick="fabAction()">🏠 Home</button>
 <button id="menuFab" class="menufab hidden" onclick="toggleMenu()">☰ Menu</button>
+<button id="panelTop" class="paneltop hidden" onclick="panelToTop()">↑ Top</button>
 <div id="editBar" class="editbar hidden">
-  <span>✏️ Editing categories</span>
+  <span>✏️ Edit mode — lists can be changed</span>
   <button class="confirm" onclick="toggleEditMode()">✓ Done</button>
 </div>
 <button id="championFab" class="champfab hidden" onclick="openChampionCard()" aria-label="This week's champion"></button>
@@ -1032,7 +1042,7 @@
 
       <p class="menugroup">Set up</p>
       <button class="light" id="btnRewardsMenu" onclick="showRewardsPanel()">🎁 Rewards &amp; activities</button>
-      <button class="light" onclick="toggleEditMode()" id="editModeBtn">✏️ Edit categories</button>
+      <button class="light" onclick="toggleEditMode()" id="editModeBtn">✏️ Edit mode</button>
       <button class="light" id="btnRefreshLists" onclick="applyRecommendedLists()">✨ Update to recommended lists</button>
 
       <p class="menugroup">Help</p>
@@ -1357,7 +1367,8 @@
   <div id="rewardManageList" style="display:grid;gap:7px"></div>
   <p id="pacingNote" class="small hidden" style="margin-top:10px"></p>
 
-  <button class="primary" id="rewardAddToggle" style="margin-top:14px;width:100%" onclick="toggleRewardEditor()">＋ Add or change rewards</button>
+  <p class="small editnote">✏️ To add a reward or change its points, turn on <strong>Edit mode</strong> in the menu.</p>
+  <button class="primary hidden" id="rewardAddToggle" style="margin-top:14px;width:100%" onclick="toggleRewardEditor()">＋ Add or change rewards</button>
   <div class="catedit hidden" id="rewardEditor" style="margin-top:14px">
     <p class="small" style="margin:0 0 2px">🍫 Ideas — tap to add, then change the points to suit:</p>
     <div id="snackQuickAdd" class="quickchips"></div>
@@ -1385,7 +1396,8 @@
   <p class="small" style="margin:14px 0 6px"><strong>Available to ask for</strong> — <span id="parentRewardCount">0</span> on the list</p>
   <div id="parentRewardList" style="display:grid;gap:7px"></div>
 
-  <button class="primary" id="parentRewardAddToggle" style="margin-top:14px;width:100%" onclick="toggleParentRewardEditor()">＋ Add or change rewards</button>
+  <p class="small editnote">✏️ To add or change these, turn on <strong>Edit mode</strong> in the menu.</p>
+  <button class="primary hidden" id="parentRewardAddToggle" style="margin-top:14px;width:100%" onclick="toggleParentRewardEditor()">＋ Add or change rewards</button>
   <div class="catedit hidden" id="parentRewardEditor" style="margin-top:14px">
     <p class="small" style="margin:0 0 2px">💛 Ideas — tap to add, then change the points to suit:</p>
     <div id="parentRewardQuickAdd" class="quickchips"></div>
@@ -1412,7 +1424,8 @@
   <p class="small" style="margin:14px 0 6px"><strong>Available to buy right now</strong> — <span id="gameCount">0</span> on the list</p>
   <div id="gameNightList" style="display:grid;gap:7px"></div>
 
-  <button class="primary" id="gameAddToggle" style="margin-top:14px;width:100%" onclick="toggleGameEditor()">＋ Add or change activities</button>
+  <p class="small editnote">✏️ To add or change activities, turn on <strong>Edit mode</strong> in the menu.</p>
+  <button class="primary hidden" id="gameAddToggle" style="margin-top:14px;width:100%" onclick="toggleGameEditor()">＋ Add or change activities</button>
   <div class="catedit hidden" id="gameEditor" style="margin-top:14px">
     <div style="display:grid;gap:8px">
       <div class="editrow">
@@ -2646,7 +2659,7 @@ const TIP_CATS = [
   {key:"behaviour", label:"Behaviour"}
 ];
 
-const APP_VERSION = "v66";
+const APP_VERSION = "v67";
 const today = new Date().toISOString().slice(0,10);
 let app = {families:[],currentFamily:null,currentChild:null};
 let categories = [];
@@ -4784,9 +4797,32 @@ function showScreen(id){
   window.scrollTo({top:0,behavior:"smooth"});
   const p=screenNow && document.getElementById(screenNow);
   if(p) p.scrollTop=0;
+  const topBtn=document.getElementById("panelTop");
+  if(topBtn) topBtn.classList.add("hidden");
+  watchPanelScroll();
   render();
 }
 function goHome(){ closeMenu(); showScreen(null); }
+function panelToTop(){
+  const p=screenNow && document.getElementById(screenNow);
+  if(!p) return;
+  if(typeof p.scrollTo === "function") p.scrollTo({top:0, behavior:"smooth"});
+  else p.scrollTop = 0;
+}
+/* Shown once a screen has been scrolled far enough that the sticky bar alone
+   would mean a long thumb journey back. */
+function watchPanelScroll(){
+  document.querySelectorAll(".panel").forEach(p=>{
+    if(p.dataset.topWatch) return;
+    p.dataset.topWatch="1";
+    p.addEventListener("scroll", ()=>{
+      const btn=document.getElementById("panelTop");
+      if(!btn) return;
+      const open = screenNow === p.id;
+      btn.classList.toggle("hidden", !(open && p.scrollTop > 400));
+    }, {passive:true});
+  });
+}
 
 /* ---------- Family & children management ---------- */
 function toggleMenu(){
@@ -5481,13 +5517,21 @@ function renderGameNight(){
         <div><strong>${escapeHtml(g.name)}</strong> <span class="points" style="font-size:12px">${g.points} pts</span></div>
         ${g.desc?`<div class="small" style="margin-top:2px">${escapeHtml(g.desc)}</div>`:""}
       </div>`;
-    const btn=document.createElement("button");
-    btn.className="xbtn"; btn.textContent="✕ Remove";
-    btn.title="Take this off the list";
-    btn.onclick=()=>removeGameNightActivity(g.name);
-    row.appendChild(btn);
+    if(editMode){
+      const pts=document.createElement("input");
+      pts.type="number"; pts.min="1"; pts.value=g.points; pts.className="ptsinput";
+      pts.title="Change the points";
+      pts.onchange=()=>setGamePoints(g.id, pts.value);
+      row.appendChild(pts);
+      const btn=document.createElement("button");
+      btn.className="xbtn"; btn.textContent="✕";
+      btn.title="Take this off the list";
+      btn.onclick=()=>removeGameNightActivity(g.name);
+      row.appendChild(btn);
+    }
     list.appendChild(row);
   });
+  applyEditGates();
 }
 
 /* ---------- Rewards (data-driven, editable) ---------- */
@@ -5516,6 +5560,19 @@ async function setGamePoints(id, value){
   await saveApp();
   renderGameNight();
 }
+/* One switch governs every list. Outside edit mode the pages are for looking at
+   and choosing from; inside it, they are for changing. */
+function applyEditGates(){
+  ["rewardAddToggle","gameAddToggle","parentRewardAddToggle"].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el) el.classList.toggle("hidden", !editMode);
+  });
+  ["rewardEditor","gameEditor","parentRewardEditor"].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el && !editMode) el.classList.add("hidden");
+  });
+  document.querySelectorAll(".editnote").forEach(n=>n.classList.toggle("hidden", !!editMode));
+}
 function renderRewardManageList(){
   const wrap=document.getElementById("rewardManageList");
   if(!wrap) return;
@@ -5535,20 +5592,25 @@ function renderRewardManageList(){
         <div><strong>${escapeHtml(r.name)}</strong> <span class="points" style="font-size:12px">${r.points} pts</span></div>
         ${r.kind?`<div class="small" style="margin-top:2px">${escapeHtml(r.kind)}</div>`:""}
       </div>`;
-    const pts=document.createElement("input");
-    pts.type="number"; pts.min="1"; pts.value=r.points; pts.className="ptsinput";
-    pts.title="Change the points";
-    pts.onchange=()=>setRewardPoints(r.id, pts.value);
-    row.appendChild(pts);
-    const btn=document.createElement("button");
-    btn.className="xbtn"; btn.textContent="✕";
-    btn.title="Take this off the list";
-    btn.onclick=()=>removeRewardById(r.id);
-    row.appendChild(btn);
+    // Only in edit mode. A price box sitting live next to every reward is one
+    // mis-tap away from changing what a child is saving towards.
+    if(editMode){
+      const pts=document.createElement("input");
+      pts.type="number"; pts.min="1"; pts.value=r.points; pts.className="ptsinput";
+      pts.title="Change the points";
+      pts.onchange=()=>setRewardPoints(r.id, pts.value);
+      row.appendChild(pts);
+      const btn=document.createElement("button");
+      btn.className="xbtn"; btn.textContent="✕";
+      btn.title="Take this off the list";
+      btn.onclick=()=>removeRewardById(r.id);
+      row.appendChild(btn);
+    }
     wrap.appendChild(row);
   });
   renderSnackQuickAdd();
   renderEyebrows();
+  applyEditGates();
 }
 async function removeRewardById(id){
   if(!requireParent()) return;
@@ -5608,16 +5670,19 @@ function renderParentRewards(){
           <div><strong>${escapeHtml(r.name)}</strong> <span class="points" style="font-size:12px">${r.points} pts</span></div>
           ${r.kind?`<div class="small" style="margin-top:2px">${escapeHtml(r.kind)}</div>`:""}
         </div>`;
-      const btn=document.createElement("button");
-      btn.className="xbtn"; btn.textContent="✕ Remove";
-      btn.title="Take this off the list";
-      btn.onclick=()=>removeParentReward(r.id);
-      row.appendChild(btn);
+      if(editMode){
+        const btn=document.createElement("button");
+        btn.className="xbtn"; btn.textContent="✕";
+        btn.title="Take this off the list";
+        btn.onclick=()=>removeParentReward(r.id);
+        row.appendChild(btn);
+      }
       wrap.appendChild(row);
     });
   }
   renderParentRewardIdeas();
   renderParentRewardEyebrow();
+  applyEditGates();
 }
 function renderParentRewardIdeas(){
   const wrap=document.getElementById("parentRewardQuickAdd");
@@ -6493,6 +6558,7 @@ function render(){
   if(anw) anw.classList.toggle("hidden", !(isParentSession() && viewChildId && !editMode && !screenNow));
   const mf=document.getElementById("menuFab");
   if(mf) mf.classList.toggle("hidden", !(ready && isParentSession() && !editMode && !screenNow));
+  applyEditGates();
   const eb=document.getElementById("editBar");
   if(eb) eb.classList.toggle("hidden", !editMode);
   document.body.classList.toggle("editing", !!editMode);
