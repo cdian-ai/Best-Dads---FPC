@@ -209,6 +209,9 @@
     100%{transform:scale(1)}
   }
   @media (prefers-reduced-motion: reduce){ .pop{animation:none} }
+  .notebar{position:fixed;left:0;right:0;bottom:0;z-index:158;background:#fffaef;
+           border-top:1px solid #f0e2bd;padding:10px 14px calc(10px + env(safe-area-inset-bottom))}
+  .notebar input{width:100%;font-size:15px}
   .notebox{background:#fffaef;border:1px solid #f0e2bd;border-radius:16px;padding:12px 13px;margin-bottom:14px}
   .notebox input{width:100%;font-size:15px}
   .quickcard{background:#fff;border-radius:20px;padding:14px;box-shadow:var(--shadow);margin-bottom:12px}
@@ -446,6 +449,24 @@
   .fortdots{display:flex;gap:4px;margin-top:12px}
   .fortdot{flex:1 1 0;min-width:0;height:26px;border-radius:6px;background:#f1f2f8;border:1px solid #e6e8f0}
   .fortdot.on{background:#17a08a;border-color:#17a08a}
+  .duacard{background:#fff;border:1px solid #e6e8f0;border-left:7px solid #17a08a;
+           border-radius:18px;padding:14px 15px;margin-bottom:10px}
+  .duawhen{display:inline-block;font-size:11px;font-weight:800;letter-spacing:.04em;
+           text-transform:uppercase;color:#12796a;background:#e4f7ed;padding:3px 9px;border-radius:99px}
+  .duacard h3{margin:8px 0 4px;font-size:16.5px}
+  .duacard .translit{margin:0 0 6px;font-size:15px;font-weight:700;color:var(--ink);line-height:1.45}
+  .duacard .meaning{margin:0 0 10px;font-size:13.5px;color:var(--muted);line-height:1.5}
+  .remcard{background:#fff;border:1px solid #e6e8f0;border-left:7px solid #8b7cf6;
+           border-radius:18px;padding:14px 15px;margin-bottom:9px}
+  .remcard.today{border-left-color:#e0b13c;background:linear-gradient(180deg,#fffaef,#fff)}
+  .remcard p{margin:0 0 6px;font-size:15.5px;font-weight:700;line-height:1.4;color:var(--ink)}
+  .remsrc{font-size:11.5px;color:var(--muted);font-weight:700}
+  .storycard{background:#fff;border:1px solid #e6e8f0;border-radius:18px;padding:6px 15px;margin-bottom:10px}
+  .storycard summary{cursor:pointer;padding:10px 0;font-size:15.5px}
+  .storymeta{display:block;font-size:11.5px;color:var(--muted);font-weight:700;margin-top:2px}
+  .storytext{font-size:15px;line-height:1.65;color:var(--ink);margin:4px 0 12px}
+  .storyask{background:#f7f7ff;border-radius:14px;padding:11px 13px;font-size:13.5px;
+            font-weight:700;color:#4b4372;margin:0 0 12px}
   .treegroup{margin-top:20px}
   .treegroup h3{margin:0 0 8px;font-size:12px;font-weight:800;letter-spacing:.06em;
                 text-transform:uppercase;color:var(--muted)}
@@ -1112,6 +1133,7 @@
 
       <p class="menugroup">People</p>
       <button class="light" id="btnFamily" onclick="showAccountPanel()">👨‍👩‍👧 Family members</button>
+      <button class="light" id="btnDeen" onclick="showDeenPanel()">🤲 Duas &amp; bedtime</button>
       <button class="light" id="btnTree" onclick="showTreePanel()">🌳 Family tree</button>
       <button class="light" id="btnTutors" onclick="showTutorPanel()">📚 Tutors</button>
       <button class="light" id="btnGrownups" onclick="showGrownupsPanel()">🤝 The grown-ups</button>
@@ -1225,6 +1247,16 @@
     <div id="progressBody" style="margin-top:10px"></div>
   </div>
 
+  <div id="deenPanel" class="panel hidden">
+    <button class="panelback" onclick="goHome()">← Home</button>
+    <div class="spendtabs" style="max-width:460px">
+      <button id="deenTabDuas" onclick="setDeenTab('duas')">🤲 Duas</button>
+      <button id="deenTabRem" onclick="setDeenTab('reminders')">💡 Reminders</button>
+      <button id="deenTabStories" onclick="setDeenTab('stories')">🌙 Bedtime</button>
+    </div>
+    <div id="deenBody"></div>
+  </div>
+
   <div id="treePanel" class="panel hidden">
     <button class="panelback" onclick="goHome()">← Home</button>
     <div id="treeBody"></div>
@@ -1242,11 +1274,13 @@
     <button class="panelback" onclick="goHome()">← Home</button>
     <h2>🔥 Quick points</h2>
     <p class="small">Everyone on one screen. Tap and it’s recorded — no need to open anyone’s card.</p>
-    <div class="notebox">
+    <p class="small">A note is attached to the next thing you tap, then clears. It matters more than the number.</p>
+    <div id="quickBody" style="margin-top:14px;padding-bottom:76px"></div>
+    <!-- Pinned to the bottom: by the time you reach the fourth child, a note box
+         at the top of the page is three screens away. -->
+    <div class="notebar">
       <input id="quickNote" placeholder="What did you notice? (optional — they’ll read this)" oninput="renderQuickPanel()">
-      <p class="small" style="margin:6px 0 0">A note is attached to the next thing you tap, then clears. It matters more than the number.</p>
     </div>
-    <div id="quickBody" style="margin-top:14px"></div>
   </div>
 
   <div id="reviewPanel" class="panel hidden">
@@ -1317,6 +1351,7 @@
   <input id="awardNote" placeholder="What did you notice? (optional — they’ll read this)">
 </div>
 <div id="coachNudge"></div>
+<div id="dailyReminder"></div>
 <div id="fortnight"></div>
 <div id="parentGoal"></div>
 <div id="outsideFeed"></div>
@@ -1373,6 +1408,7 @@
       </div>
     </div>
     <div id="kidBest"></div>
+    <div id="kidReminder"></div>
 
     <button class="spendbtn" onclick="showScreen('kidSpendScreen')">
       <span>🎁 Spend my points
@@ -1402,6 +1438,7 @@
     </section>
 
     <div class="helpline">
+      <button onclick="showDeenPanel()">🤲 Duas &amp; bedtime</button>
       <button onclick="showTreePanel()">🌳 My family</button>
       <button onclick="showRulesPanel()">📜 House rules</button>
       <button onclick="startTour(kidTourKey(sessionMember()))">❓ How this works</button>
@@ -2347,6 +2384,145 @@ const CURRICULUM = [
     ]}
 ];
 const MILESTONE_BONUS = 50;
+
+/* ---------- Deen: duas, reminders and stories ----------
+   Transliteration and meaning only. Arabic script is deliberately not written
+   out here: a typo in a dua is not the same kind of mistake as a typo in a
+   reward name, and it should be pasted in from a copy the family trusts rather
+   than typed from memory by an app. */
+const DUAS = [
+  { when:"Before eating", title:"Bismillah",
+    translit:"Bismillahi wa 'ala barakatillah",
+    meaning:"In the name of Allah, and with the blessing of Allah." },
+  { when:"If you forget and start eating", title:"Bismillah, at the start and the end",
+    translit:"Bismillahi awwalahu wa akhirahu",
+    meaning:"In the name of Allah, at its beginning and at its end." },
+  { when:"After eating", title:"Alhamdulillah",
+    translit:"Alhamdulillahil-ladhi at'amana wa saqana wa ja'alana muslimin",
+    meaning:"All praise is for Allah, who fed us and gave us drink and made us Muslims." },
+  { when:"Before sleeping", title:"In Your name I die and I live",
+    translit:"Bismika Allahumma amutu wa ahya",
+    meaning:"In Your name, O Allah, I die and I live." },
+  { when:"On waking", title:"Praise on waking",
+    translit:"Alhamdulillahil-ladhi ahyana ba'da ma amatana wa ilayhin-nushur",
+    meaning:"All praise is for Allah, who gave us life after death, and to Him is the return." },
+  { when:"Leaving the house", title:"I put my trust in Allah",
+    translit:"Bismillah, tawakkaltu 'alallah, wa la hawla wa la quwwata illa billah",
+    meaning:"In the name of Allah, I place my trust in Allah, and there is no power or strength except with Allah." },
+  { when:"Entering the bathroom", title:"Seeking refuge",
+    translit:"Allahumma inni a'udhu bika minal-khubthi wal-khaba'ith",
+    meaning:"O Allah, I seek refuge with You from all evil and harm." },
+  { when:"Leaving the bathroom", title:"Ghufranak",
+    translit:"Ghufranak",
+    meaning:"I seek Your forgiveness." },
+  { when:"Before wudu", title:"Bismillah",
+    translit:"Bismillah",
+    meaning:"In the name of Allah." },
+  { when:"Travelling, or in the car", title:"Glory to the One who made this for us",
+    translit:"Subhanal-ladhi sakhkhara lana hadha wa ma kunna lahu muqrinin",
+    meaning:"Glory to the One who has made this subservient to us, when we could never have done it ourselves." },
+  { when:"When you are worried", title:"Allah is enough for me",
+    translit:"Hasbunallahu wa ni'mal-wakil",
+    meaning:"Allah is sufficient for us, and He is the best Guardian." },
+  { when:"When you are angry", title:"Seeking refuge from shaytan",
+    translit:"A'udhu billahi minash-shaytanir-rajim",
+    meaning:"I seek refuge with Allah from the accursed shaytan." },
+  { when:"When something goes wrong", title:"To Allah we belong",
+    translit:"Inna lillahi wa inna ilayhi raji'un",
+    meaning:"Truly we belong to Allah, and to Him we return." },
+  { when:"For your parents", title:"Have mercy on them",
+    translit:"Rabbir-hamhuma kama rabbayani saghira",
+    meaning:"My Lord, have mercy on them both as they raised me when I was small." },
+  { when:"Before studying, or when something is hard", title:"Increase me in knowledge",
+    translit:"Rabbi zidni 'ilma",
+    meaning:"My Lord, increase me in knowledge." },
+  { when:"When someone does you a kindness", title:"Jazakallahu khayran",
+    translit:"Jazakallahu khayran",
+    meaning:"May Allah reward you with good." },
+  { when:"When it rains", title:"A rain of benefit",
+    translit:"Allahumma sayyiban nafi'a",
+    meaning:"O Allah, let it be a rain of benefit." },
+  { when:"When you see something you like", title:"MashaAllah",
+    translit:"MashaAllah, la quwwata illa billah",
+    meaning:"What Allah has willed; there is no power except with Allah." },
+  { when:"When someone is unwell", title:"A dua for healing",
+    translit:"Allahumma rabban-nas, adhhibil-ba's, ishfi antash-shafi",
+    meaning:"O Allah, Lord of the people, take away the difficulty and heal — You are the Healer." },
+  { when:"Entering the masjid", title:"Open the doors of Your mercy",
+    translit:"Allahummaftah li abwaba rahmatik",
+    meaning:"O Allah, open for me the doors of Your mercy." }
+];
+
+/* Short, well-known teachings. Phrased as meanings rather than as exact
+   quotations, with where they come from, so nothing is put in the Prophet's
+   mouth word for word by an app. */
+const REMINDERS = [
+  { text:"The best of you are the best to their families.", src:"Meaning of a hadith \u2014 Tirmidhi" },
+  { text:"Whoever is not merciful to people, Allah is not merciful to him.", src:"Meaning of a hadith \u2014 Bukhari & Muslim" },
+  { text:"A good word is charity.", src:"Meaning of a hadith \u2014 Bukhari & Muslim" },
+  { text:"Allah is gentle, and loves gentleness in all things.", src:"Meaning of a hadith \u2014 Muslim" },
+  { text:"Deeds that are small and constant are more loved than large ones done rarely.", src:"Meaning of a hadith \u2014 Bukhari & Muslim" },
+  { text:"None of you truly believes until he loves for his brother what he loves for himself.", src:"Meaning of a hadith \u2014 Bukhari & Muslim" },
+  { text:"The strong one is the one who controls himself when he is angry.", src:"Meaning of a hadith \u2014 Bukhari & Muslim" },
+  { text:"Smiling in your brother's face is charity.", src:"Meaning of a hadith \u2014 Tirmidhi" },
+  { text:"Be mindful of Allah, and you will find Him before you.", src:"Meaning of a hadith \u2014 Tirmidhi" },
+  { text:"Allah does not look at your appearance or your wealth, but at your hearts and your deeds.", src:"Meaning of a hadith \u2014 Muslim" },
+  { text:"Whoever does not thank people has not thanked Allah.", src:"Meaning of a hadith \u2014 Abu Dawud & Tirmidhi" },
+  { text:"Speak good, or stay quiet.", src:"Meaning of a hadith \u2014 Bukhari & Muslim" },
+  { text:"The most beloved deeds to Allah are the most consistent ones, even if small.", src:"Meaning of a hadith \u2014 Bukhari" },
+  { text:"Cleanliness is half of faith.", src:"Meaning of a hadith \u2014 Muslim" }
+];
+
+/* Ten short tellings for bedtime. Each is a summary in the app's own words,
+   with where the story is found, and a question to end on \u2014 the question is
+   the part that turns a story into a conversation. */
+const STORIES = [
+  { title:"Yunus and the whale", src:"Surah as-Saffat and Surah al-Anbiya",
+    minutes:4,
+    text:"Prophet Yunus (peace be upon him) grew tired of a people who would not listen, and left before Allah told him to. At sea a storm rose, and he found himself in the belly of a great fish, in darkness inside darkness inside darkness. There he called out: there is no god but You, glory be to You, truly I was among the wrongdoers. Allah heard him, and the fish carried him to shore, where a plant grew to shade him while he grew strong again. And his people, when he returned, believed.",
+    ask:"What did Yunus do first when he realised he had made a mistake?" },
+  { title:"Ibrahim and the birds", src:"Surah al-Baqarah",
+    minutes:3,
+    text:"Prophet Ibrahim (peace be upon him) asked Allah to show him how the dead are brought to life \u2014 not because he doubted, but so his heart would be at rest. He was told to take four birds, to make them close to him, and to place a part of each on a distant hill. When he called them, they came flying back to him, whole. Allah is Mighty, and Wise.",
+    ask:"Is it alright to ask questions about things you already believe?" },
+  { title:"The thirsty dog", src:"Meaning of a hadith \u2014 Bukhari & Muslim",
+    minutes:3,
+    text:"A man walking a long road grew very thirsty, and climbed down into a well to drink. When he came up he saw a dog panting, licking at the wet earth from thirst. He thought: this creature is as thirsty as I was. So he climbed back down, filled his shoe with water, held it in his teeth as he climbed, and gave the dog a drink. Allah thanked him for it, and forgave him.",
+    ask:"He was already out of the well. Why do you think he went back down?" },
+  { title:"Luqman's advice to his son", src:"Surah Luqman",
+    minutes:4,
+    text:"Luqman was a wise man, and Allah recorded what he said to his own son. Do not associate anything with Allah. Be good to your mother and father, for your mother carried you through weakness upon weakness. Establish the prayer. Tell people what is good, and stop what is wrong, and be patient with what happens to you. Do not turn your cheek away from people in pride, and do not walk through the earth full of yourself. Be moderate in how you walk, and lower your voice \u2014 for the ugliest of voices is the braying of a donkey.",
+    ask:"Which piece of Luqman's advice is the hardest one?" },
+  { title:"The people of the cave", src:"Surah al-Kahf",
+    minutes:5,
+    text:"A group of young men believed in Allah alone at a time when their city did not. Rather than give up what they knew was true, they left everything and took shelter in a cave, and said: our Lord, give us mercy from Yourself and make our situation right. Allah put them to sleep there, turning them from side to side, with their dog stretched out at the entrance. They slept for hundreds of years. When they woke they thought it had been a day, or part of a day \u2014 and the city outside had come to believe.",
+    ask:"They gave up their comfortable life for what they believed. Was it worth it?" },
+  { title:"Sulayman and the ant", src:"Surah an-Naml",
+    minutes:3,
+    text:"Prophet Sulayman (peace be upon him) was given a kingdom no one else has had \u2014 he understood the speech of the birds and the animals. One day his army came to a valley of ants, and an ant called out: O ants, get into your homes, so that Sulayman and his soldiers do not crush you without realising. Sulayman heard her, and smiled, and said: my Lord, help me to be grateful for the favour You have given me.",
+    ask:"The ant was tiny and the king was powerful. Why did he stop and listen?" },
+  { title:"Maryam and the date palm", src:"Surah Maryam",
+    minutes:4,
+    text:"Maryam (peace be upon her) was alone, frightened and in pain, and she wished she could disappear altogether. She was told: do not grieve. There is a stream beneath you. And shake the trunk of the palm tree towards you \u2014 fresh dates will fall. So eat, and drink, and be comforted. Allah did not take the difficulty away, but He gave her what she needed to get through it.",
+    ask:"When something is hard, what helps you get through it?" },
+  { title:"The elephant army", src:"Surah al-Fil",
+    minutes:3,
+    text:"An army came with elephants to destroy the Kaaba, sure that nothing could stop them. Abdul-Muttalib was asked whether he would not defend the House, and he answered: the House has a Lord who will defend it. And so it happened \u2014 flocks of birds were sent against them, and the great army was left like chewed-up straw. This was the year the Prophet Muhammad (peace be upon him) was born.",
+    ask:"Why do you think Abdul-Muttalib was not afraid?" },
+  { title:"The man who moved the branch", src:"Meaning of a hadith \u2014 Muslim",
+    minutes:2,
+    text:"A man was walking along a road when he found a thorny branch lying across it. He picked it up and moved it out of the way, so that nobody after him would be scratched. It was a small thing. Nobody saw him do it. Allah thanked him for it and forgave him.",
+    ask:"What small thing could you move out of someone's way tomorrow?" },
+  { title:"Musa and the sea", src:"Surah ash-Shu'ara",
+    minutes:4,
+    text:"Prophet Musa (peace be upon him) led his people out at night, and by morning Pharaoh's army was behind them and the sea was in front. His people said: we are caught. Musa said: no. My Lord is with me, and He will guide me. He was told to strike the sea with his staff, and it parted, each part like a great mountain, and they walked through on dry ground.",
+    ask:"What did Musa say when everyone else had given up?" }
+];
+function pickOfDay(list){
+  const d=new Date();
+  const key=Math.floor(d.getTime()/86400000);
+  return list[Math.abs(key) % list.length];
+}
 function allStrands(){
   const out=[];
   CURRICULUM.forEach(s=>s.strands.forEach(st=>out.push({subject:s, strand:st})));
@@ -2787,7 +2963,7 @@ const TIP_CATS = [
   {key:"behaviour", label:"Behaviour"}
 ];
 
-const APP_VERSION = "v72";
+const APP_VERSION = "v73";
 const today = new Date().toISOString().slice(0,10);
 let app = {families:[],currentFamily:null,currentChild:null};
 let categories = [];
@@ -3673,6 +3849,11 @@ function popThen(el){
   setTimeout(()=>el.classList.remove("pop"), 500);
 }
 function showQuickPanel(){ openPanel("quickPanel"); renderQuickPanel(); }
+/* The bar belongs to Quick points only, not to every screen. */
+function syncNoteBar(){
+  const bar=document.querySelector(".notebar");
+  if(bar) bar.classList.toggle("hidden", screenNow!=="quickPanel");
+}
 function renderQuickPanel(){
   const body=document.getElementById("quickBody");
   if(!body) return;
@@ -4910,7 +5091,12 @@ async function toggleExcusedToday(childId){
    Before this, visibility was decided in five different functions and no single
    place could tell you what was open. screenNow === null means the home screen
    for whoever is signed in: the parent dashboard, or the child's own card. */
-const SCREENS = ["accountPanel","overviewPanel","activityPanel","requestsPanel","progressPanel","rewardsPanel","grownupsPanel","pickPanel","quickPanel","reviewPanel","rulesPanel","tutorPanel","treePanel",
+/* Three kinds of screen: a child's own, a parent's own, and the ones both may
+   open. Getting this wrong in either direction closes a screen the moment
+   somebody opens it. */
+const KID_ONLY_SCREENS = ["kidSpendScreen","kidLearnScreen","kidPointsScreen"];
+const SHARED_SCREENS   = ["rulesPanel","treePanel","deenPanel"];
+const SCREENS = ["accountPanel","overviewPanel","activityPanel","requestsPanel","progressPanel","rewardsPanel","grownupsPanel","pickPanel","quickPanel","reviewPanel","rulesPanel","tutorPanel","treePanel","deenPanel",
                  "kidSpendScreen","kidLearnScreen","kidPointsScreen"];
 let screenNow = null;
 function showScreen(id){
@@ -5623,6 +5809,9 @@ async function undoActivityEntry(childId, entryId){
     type: "adjust", catKey: entry.catKey || undefined, actionName: entry.actionName || undefined
   });
   renderActivityLog();
+  syncNoteBar();
+  const dr=document.getElementById("dailyReminder");
+  if(dr) dr.innerHTML = (isParentSession() && !editMode && !screenNow) ? reminderCardHTML() : "";
   renderFortnight();
   renderOutsideFeed();
 }
@@ -5776,6 +5965,69 @@ async function removeRewardById(id){
   if(i<0) return;
   await removeReward(i);
 }
+/* ---------- Duas, reminders and bedtime ----------
+   Open to everyone. A child can read a dua without asking, and a parent can
+   find one at the moment it is needed rather than at the moment they remember
+   to look. */
+let deenTab="duas";
+function setDeenTab(t){ deenTab=t; renderDeenPanel(); }
+function showDeenPanel(){
+  const me=sessionMember();
+  if(me && isChildRole(me)){ showScreen("deenPanel"); renderDeenPanel(); return; }
+  openPanel("deenPanel"); renderDeenPanel();
+}
+function renderDeenPanel(){
+  const body=document.getElementById("deenBody");
+  if(!body) return;
+  ["duas","reminders","stories"].forEach(t=>{
+    const b=document.getElementById(t==="duas"?"deenTabDuas":t==="reminders"?"deenTabRem":"deenTabStories");
+    if(b) b.classList.toggle("on", deenTab===t);
+  });
+  if(deenTab==="duas"){
+    body.innerHTML = `<h2>\ud83e\udd32 Everyday duas</h2>
+      <p class="small">The small ones, for the moments they belong to. Tap \ud83d\udde3\ufe0f to hear one read out.</p>
+      ${DUAS.map((d,i)=>`<section class="duacard" id="dua${i}">
+          <span class="duawhen">${escapeHtml(d.when)}</span>
+          <h3>${escapeHtml(d.title)}</h3>
+          <p class="translit">${escapeHtml(d.translit)}</p>
+          <p class="meaning">${escapeHtml(d.meaning)}</p>
+          <button class="light" style="width:auto" onclick="speak('${d.translit.replace(/'/g,"\\'")}')">\ud83d\udde3\ufe0f Read it to me</button>
+        </section>`).join("")}
+      <p class="small" style="margin-top:16px">The Arabic isn\u2019t written here on purpose \u2014 it should be added from a copy your family trusts rather than typed out by an app.</p>`;
+    return;
+  }
+  if(deenTab==="reminders"){
+    const today=pickOfDay(REMINDERS);
+    body.innerHTML = `<h2>\ud83d\udca1 Reminders</h2>
+      <section class="remcard today"><p>${escapeHtml(today.text)}</p>
+        <span class="remsrc">${escapeHtml(today.src)} \u00b7 today\u2019s</span></section>
+      <p class="small" style="margin:16px 0 8px">The rest</p>
+      ${REMINDERS.filter(r=>r.text!==today.text).map(r=>`<section class="remcard">
+          <p>${escapeHtml(r.text)}</p><span class="remsrc">${escapeHtml(r.src)}</span>
+        </section>`).join("")}
+      <p class="small" style="margin-top:16px">These are the meanings of well-known narrations, not word-for-word translations.</p>`;
+    return;
+  }
+  body.innerHTML = `<h2>\ud83c\udf19 Bedtime stories</h2>
+    <p class="small">Ten short ones, three to five minutes each. Every one ends with something to ask them.</p>
+    ${STORIES.map((s,i)=>`<section class="storycard">
+        <details ${i===0?"open":""}>
+          <summary><strong>${escapeHtml(s.title)}</strong>
+            <span class="storymeta">${s.minutes} min \u00b7 ${escapeHtml(s.src)}</span></summary>
+          <p class="storytext" id="story${i}">${escapeHtml(s.text)}</p>
+          <p class="storyask">\ud83d\udcac ${escapeHtml(s.ask)}</p>
+          <button class="light" style="width:auto" onclick="speakElement('story${i}')">\ud83d\udde3\ufe0f Read it aloud</button>
+        </details>
+      </section>`).join("")}`;
+}
+function reminderCardHTML(){
+  const r=pickOfDay(REMINDERS);
+  return `<section class="remcard today tappable" onclick="showDeenPanel()">
+      <p>${escapeHtml(r.text)}</p>
+      <span class="remsrc">${escapeHtml(r.src)}</span>
+    </section>`;
+}
+
 /* ---------- The family tree ----------
    Two things at once: the children seeing who their grandparents are, and a
    parent seeing who is who without reading a flat list. The people on it are
@@ -6818,8 +7070,12 @@ function applyRoleChrome(){
   // Handing the device on must not leave the router pointing at a screen the
   // new person cannot open — a child inheriting "accountPanel", say.
   if(screenNow){
-    const kidScreen = screenNow.indexOf("kid")===0;
-    if(kid !== kidScreen){
+    // This used to be inferred from the name starting with "kid", which closed
+    // House rules, the family tree and the duas the instant a child opened one.
+    const shared  = SHARED_SCREENS.indexOf(screenNow) >= 0;
+    const kidOnly = KID_ONLY_SCREENS.indexOf(screenNow) >= 0;
+    const wrongPerson = !shared && (kid ? !kidOnly : kidOnly);
+    if(wrongPerson){
       // Reset in place rather than through showScreen(), which would re-enter
       // render() from inside render().
       screenNow=null;
@@ -6837,7 +7093,7 @@ function applyRoleChrome(){
   set("championBanner", !kid && app.settings && app.settings.showChampion);
   // Parent-only controls and sections
   ["btnFamily","btnOverview","btnActivity","btnRequests","btnProgress","btnRewardsMenu","btnGrownups",
-   "btnTutors","btnTree","btnRules","btnQuickMenu","btnReviewMenu","editModeBtn","btnResetDay"]
+   "btnTutors","btnTree","btnDeen","btnRules","btnQuickMenu","btnReviewMenu","editModeBtn","btnResetDay"]
     .forEach(id=>set(id, !kid));
   // One Give points and one menu: the wide tile on the home screen, and the
   // fixed button. The pair inside the old account bar were the duplicates.
@@ -6874,7 +7130,7 @@ function applyRoleChrome(){
   if(fam){
     // A grandparent gets one screen and no machinery: no menu, no panels, no
     // category tiles, and nothing that could move a point.
-    ["accountPanel","overviewPanel","activityPanel","requestsPanel","progressPanel","quickPanel","reviewPanel","tutorPanel","rulesPanel","treePanel","addCategoryWrap","summarySection",
+    ["accountPanel","overviewPanel","activityPanel","requestsPanel","progressPanel","quickPanel","reviewPanel","tutorPanel","addCategoryWrap","summarySection",
      "cards","rewardSection","gameNightSection","parentRewardSection","requestsBanner","behaviourWrap",
      "editModeNote","tipsCard","undoBar","whoStrip","championBanner","coachNudge","parentGoal","kidTabBar","championFab"]
       .forEach(id=>set(id, false));
@@ -6909,6 +7165,9 @@ function render(){
   const eb=document.getElementById("editBar");
   if(eb) eb.classList.toggle("hidden", !editMode);
   document.body.classList.toggle("editing", !!editMode);
+  syncNoteBar();
+  const dr=document.getElementById("dailyReminder");
+  if(dr) dr.innerHTML = (isParentSession() && !editMode && !screenNow) ? reminderCardHTML() : "";
   renderFortnight();
   renderOutsideFeed();
   const pg=document.getElementById("parentGoal");
@@ -7973,6 +8232,8 @@ function renderKidView(child){
   if(budLine) budLine.textContent=buddyLine(mood, child.name);
   const best=document.getElementById("kidBest");
   if(best) best.innerHTML=personalBestHTML(child);
+  const kr=document.getElementById("kidReminder");
+  if(kr) kr.innerHTML=reminderCardHTML();
   renderSoundToggle();
   // Moved off the home screen: it belongs with the rest of the detail.
   const boost=document.getElementById("kidBoostCard");
