@@ -3651,7 +3651,7 @@ const TIP_CATS = [
   {key:"deen", label:"Deen"}
 ];
 
-const APP_VERSION = "v112";
+const APP_VERSION = "v113";
 const today = new Date().toISOString().slice(0,10);
 let app = {families:[],currentFamily:null,currentChild:null};
 let categories = [];
@@ -8361,7 +8361,9 @@ function applyRoleChrome(){
   const set=(id,on)=>{const el=document.getElementById(id); if(el) el.classList.toggle("hidden", !on);};
   set("familyView", fam);
   set("kidView", kid);
-  set("summarySection", !kid);
+  /* The stat strip is dead weight now: it only ever appeared on a child's
+     card, and that page is for awarding, not for reading numbers. */
+  set("summarySection", false);
   set("cards", !kid);
   set("championBanner", !kid && app.settings && app.settings.showChampion);
   // Parent-only controls and sections
@@ -8504,7 +8506,10 @@ function render(){
       renderAccounts(); return;
     }
   }
-  document.getElementById("summarySection").classList.remove("hidden");
+  /* Today's points, best category and balance are an overview, and Overview is
+     where they live. Four stat cards stood between the top of this page and the
+     categories, which are the reason anyone opens it. */
+  document.getElementById("summarySection").classList.add("hidden");
   rewardSection.classList.remove("hidden");
   gameNightSection.classList.remove("hidden");
   // The grown-ups' list belongs on the dashboard, not on someone's card.
@@ -8545,10 +8550,23 @@ function render(){
     const lede = (child && isParentRole(child))
       ? "The grown-ups’ own list. The children never see any of this."
       : `Tap one to see what ${who} can earn points for, and to add more of your own.`;
-    cards.insertAdjacentHTML("beforeend", `<div style="grid-column:1/-1">
+    cards.insertAdjacentHTML("beforeend", `<div style="grid-column:1/-1" id="noticeHead">
       <h2 style="margin:0 0 4px;font-size:20px">⭐ What we notice</h2>
-      <p class="small" style="margin:0 0 14px">${lede}</p>
+      <p class="small" style="margin:0 0 12px">${lede}</p>
     </div>`);
+    /* The note was in a box near the top of the page, a long way from the tile
+       you tap. It types the sentence that goes on the award, so it sits with
+       the list it describes. */
+    const nb=document.getElementById("awardNoteWrap");
+    const nh=document.getElementById("noticeHead");
+    if(nb && nh && nb.parentElement!==nh) nh.appendChild(nb);
+    if(child && isChildRole(child) && !isParentRole(child)){
+      nh.insertAdjacentHTML("beforeend",
+        `<p class="small" style="margin:10px 0 2px">
+          <a href="#" onclick="openChildStats('${child.id}');return false;"
+             style="color:var(--accent);font-weight:700;text-decoration:none">
+            \u{1f4ca} ${escapeHtml(child.name)}\u2019s full picture \u2192</a></p>`);
+    }
     tileWrap = document.createElement("div");
     tileWrap.className = "cattiles";
     cards.appendChild(tileWrap);
@@ -9223,6 +9241,10 @@ function renderAttention(){
   const slot=document.getElementById("attention");
   if(!slot) return;
   if(!isParentSession() || editMode || screenNow){ slot.innerHTML=""; return; }
+  /* Opening a child means one thing: you are here to award something. The
+     reminder belongs on the dashboard you came from, not between you and the
+     list you came for. */
+  if(viewChildId){ slot.innerHTML=""; return; }
   const pend=pendingRequests().filter(r=>daysAgo(r.ts)>=1);
   if(pend.length){
     slot.innerHTML=`<section class="attncard urgent" onclick="showRequestsPanel()">
