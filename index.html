@@ -3694,7 +3694,7 @@ const TIP_CATS = [
   {key:"deen", label:"Deen"}
 ];
 
-const APP_VERSION = "v117";
+const APP_VERSION = "v118";
 const today = new Date().toISOString().slice(0,10);
 let app = {families:[],currentFamily:null,currentChild:null};
 let categories = [];
@@ -15757,10 +15757,13 @@ window.GROWNUP_DECKS = [
 
   /* ---- fold the ledger into notes ---- */
   function notes(){
-    const out=new Map(), dead=new Set(), deadItem=new Set(), done=new Map(), paid=new Set();
+    const out=new Map(), dead=new Set(), deadItem=new Set(), done=new Map(), paid=new Set(),
+          msg=new Map(), bon=new Map();
     ledger().slice().sort((a,b)=>a.ts-b.ts).forEach(e=>{
       const k=String(e.catKey||"");
       if(e.type==="noteoff"  && k.indexOf("noteoff|")===0){ dead.add(k.split("|")[1]); return; }
+      if(e.type==="notemsg"  && k.indexOf("notemsg|")===0){ msg.set(k.split("|")[1], e.actionName||""); return; }
+      if(e.type==="notebonus"&& k.indexOf("notebonus|")===0){ bon.set(k.split("|")[1], e.noteBonus||0); return; }
       if(e.type==="award" && k.indexOf("notepaid|")===0){ paid.add(k.split("|")[1]); return; }
       if(e.type==="itemoff"  && k.indexOf("itemoff|")===0){ deadItem.add(k.split("|").slice(1).join("|")); return; }
       if(e.type==="itemdone" && k.indexOf("itemdone|")===0){ done.set(k.split("|").slice(1).join("|"), e); return; }
@@ -15793,6 +15796,8 @@ window.GROWNUP_DECKS = [
       .filter(nt=>!dead.has(nt.id))
       .map(nt=>Object.assign({}, nt, {
         paid: paid.has(nt.id),
+        message: msg.has(nt.id) ? msg.get(nt.id) : nt.message,
+        bonus:   bon.has(nt.id) ? bon.get(nt.id) : nt.bonus,
         items: nt.items
           .filter(it=>!deadItem.has(nt.id+"|"+it.id))
           .map(it=>Object.assign({}, it, {done: done.get(nt.id+"|"+it.id)||null}))
@@ -15839,9 +15844,36 @@ window.GROWNUP_DECKS = [
     font-size:11px;font-weight:800;margin-top:5px}
   .ntx{background:none;border:0;font-size:14px;opacity:.4;cursor:pointer;padding:8px;min-width:38px;min-height:38px}
   .ntdone{margin:12px 0 0;font-size:13px;font-weight:700;color:#1c8a6c;text-align:center}
-  .ntadd{background:#f7f8fc;border:1px solid #e6e8f0;border-radius:18px;padding:13px;margin-top:10px}
-  .ntadd select,.ntadd input[type=text],.ntadd input[type=date]{width:100%;padding:11px 12px;font-size:15px;
-    border:1px solid #d9dce8;border-radius:12px;background:#fff;margin-bottom:8px;min-height:44px}
+  .ntadd{background:#fff;border:1px solid #e6e8f0;border-radius:20px;padding:15px;margin-top:12px}
+  .ntadd select,.ntadd input[type=text]{width:100%;padding:12px 13px;font-size:15.5px;
+    border:1px solid #d9dce8;border-radius:13px;background:#fff;margin-bottom:9px;min-height:46px}
+  .ntaddcap{margin:0 0 10px;font-size:11px;font-weight:800;letter-spacing:.06em;
+    text-transform:uppercase;color:#8a90a6}
+  /* Faces, because you are writing to a person, not filing against a record. */
+  .ntwho{display:flex;gap:8px;overflow-x:auto;padding:2px 2px 8px;margin-bottom:14px;
+    scrollbar-width:none;-webkit-overflow-scrolling:touch}
+  .ntwho::-webkit-scrollbar{display:none}
+  .ntwho button{flex:0 0 auto;display:flex;flex-direction:column;align-items:center;gap:6px;
+    width:auto;background:none;border:0;padding:4px 2px;cursor:pointer;min-height:0}
+  .ntwho img,.ntwho .avatar-placeholder{width:54px;height:54px;border-radius:50%;object-fit:cover;
+    display:flex;align-items:center;justify-content:center;font-size:22px;background:#e4e6f5;
+    border:3px solid transparent}
+  .ntwho button.on img,.ntwho button.on .avatar-placeholder{border-color:var(--accent)}
+  .ntwho span{font-size:12.5px;font-weight:700;color:var(--muted);max-width:74px;
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .ntwho button.on span{color:var(--accent)}
+  /* The message is the note, so it is written on the note, not in a form. */
+  .ntmsgin{width:100%;background:transparent;border:0;padding:0;font-size:17px;font-weight:800;
+    color:#6a4a05;line-height:1.35;min-height:0}
+  .ntmsgin::placeholder{color:#b08e3c;font-weight:700}
+  .ntmsgin:focus{outline:none}
+  .ntbonusrow{display:flex;align-items:center;gap:12px;flex-wrap:wrap;background:#fffaef;
+    border:1px solid #f0e2bd;border-radius:18px;padding:13px 15px;margin-top:12px}
+  .ntbonusrow span{flex:1;min-width:150px;font-size:13.5px;line-height:1.5;color:#7a5c15}
+  .ntbonusrow select{width:auto;flex:none;padding:10px 12px;font-size:14.5px;font-weight:700;
+    border:1px solid #e2cf9e;border-radius:12px;background:#fff;min-height:44px}
+  .ntclear{width:100%;margin-top:12px;background:none;border:0;color:#a8aec2;font-size:13px;
+    font-weight:700;cursor:pointer;min-height:44px}
   .ntchips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:9px}
   .ntchips button{width:auto;background:#fff;border:1px solid #d3d7f5;color:#3e46ad;border-radius:99px;
     padding:9px 13px;font-size:13px;font-weight:700;cursor:pointer;min-height:42px}
@@ -15870,25 +15902,23 @@ window.GROWNUP_DECKS = [
     const b=$("notesBody");
     if(b) b.style.opacity = on ? ".55" : "";
   }
-  window.ntStart = async function(){
-    if(!grown(me()) || busy) return;
-    const msg=String((($("ntMsg")||{}).value)||"").trim();
-    const due=($("ntDue")||{}).value || today();
-    const bonus=parseInt((($("ntBonus")||{}).value)||"0", 10) || 0;
-    const id=newId("nt");
-    working(true);
-    const ok=await writeLedger({ childId:pickChild, points:0, type:"note",
-      label:"Note for the day", catKey:"note|"+id, actionName:msg,
-      noteDue:due, noteBonus:bonus });
-    working(false);
-    if(!ok) alert("That couldn\u2019t be saved. Check your connection and try again.");
-    renderNotesPanel(); if(typeof render==="function") render();
-  };
-
+  /* Kept only so an older call cannot throw. Notes start themselves when the
+     first thing goes on them; there is no "start a note" step any more. */
+  window.ntStart = function(){ ntAddItem(""); };
   window.ntAddItem = async function(noteId){
-    if(!grown(me())) return;
-    const nt=notes().filter(x=>x.id===noteId)[0];
-    if(!nt || nt.items.length>=MAX_ITEMS) return;
+    if(!grown(me()) || busy) return;
+    let nt = noteId ? notes().filter(x=>x.id===noteId)[0] : null;
+    if(!nt){
+      const id=newId("nt");
+      working(true);
+      const ok=await writeLedger({ childId:pickChild, points:0, type:"note",
+        label:"Note for the day", catKey:"note|"+id, actionName:"",
+        noteDue:today(), noteBonus:5 });
+      working(false);
+      if(!ok){ alert("That couldn\u2019t be saved. Check your connection and try again."); return; }
+      nt={ id, childId:pickChild, items:[] };
+    }
+    if(nt.items.length>=MAX_ITEMS) return;
     let text="", action=null, points=0;
     if(mode==="action"){
       const v=($("ntAction")||{}).value||"";
@@ -15900,10 +15930,25 @@ window.GROWNUP_DECKS = [
       if(!text) return;
     }
     const iid=newId("it");
-    await writeLedger({ childId:nt.childId, points:0, type:"noteitem",
+    await writeLedger({ childId:nt.childId||pickChild, points:0, type:"noteitem",
       label:"Asked: "+text, catKey:"noteitem|"+noteId+"|"+iid,
       actionName:text, itemAction:action, itemPoints:points });
     const f=$("ntFree"); if(f) f.value="";
+    renderNotesPanel(); if(typeof render==="function") render();
+  };
+
+  window.ntSetMessage = async function(noteId){
+    if(!grown(me())) return;
+    const el=$("ntMsgLive"); if(!el) return;
+    const v=String(el.value||"").trim();
+    await writeLedger({ childId:pickChild, points:0, type:"notemsg",
+      label:"Note message", catKey:"notemsg|"+noteId, actionName:v });
+    renderNotesPanel(); if(typeof render==="function") render();
+  };
+  window.ntSetBonus = async function(noteId, v){
+    if(!grown(me())) return;
+    await writeLedger({ childId:pickChild, points:0, type:"notebonus",
+      label:"Note bonus", catKey:"notebonus|"+noteId, noteBonus:parseInt(v,10)||0 });
     renderNotesPanel(); if(typeof render==="function") render();
   };
 
@@ -16015,24 +16060,39 @@ window.GROWNUP_DECKS = [
     </section>`;
   }
 
+  /* One row, always visible, that does the thing the page is for. The two
+     modes are a toggle rather than a form: pick from the list and it carries
+     its points, or type anything and it carries none. */
   function addBoxHTML(nt){
-    if(nt.items.length>=MAX_ITEMS){
+    const count = nt ? nt.items.length : 0;
+    if(count>=MAX_ITEMS){
       return `<div class="ntadd"><p class="ntfull" style="margin:0">
-        Six things is a full note. Beyond that a list stops being a list \u2014 take
-        one off if there is something more important.</p></div>`;
+        \u2713 Six things is a full note. Beyond that a list stops being a list \u2014
+        take one off if something more important comes up.</p></div>`;
     }
     const acts=actionOptions();
+    const id = nt ? nt.id : "";
     return `<div class="ntadd">
+      <p class="ntaddcap">Add something to the note</p>
       <div class="ntchips">
-        <button class="${mode==="action"?"on":""}" onclick="ntMode('action')">From the list \u00b7 earns points</button>
-        <button class="${mode==="free"?"on":""}" onclick="ntMode('free')">Something else \u00b7 no points</button>
+        <button class="${mode==="action"?"on":""}" onclick="ntMode('action')">\u2b50 Earns points</button>
+        <button class="${mode==="free"?"on":""}" onclick="ntMode('free')">\u{1f9f9} Just a job</button>
       </div>
       ${mode==="action"
         ? `<select id="ntAction">${acts.map(a=>
             `<option value="${esc(a.name)}|${a.points}">${a.icon} ${esc(a.name)} \u2014 ${a.points} pts</option>`).join("")}</select>`
         : `<input type="text" id="ntFree" placeholder="e.g. put the bins out" maxlength="70">`}
-      <button class="light" style="width:100%" onclick="ntAddItem('${nt.id}')">Add to the note</button>
-      <p class="ntfull">${nt.items.length} of ${MAX_ITEMS} \u00b7 mix things that earn points with things that don\u2019t.</p>
+      <button class="primary" style="width:100%" onclick="ntAddItem('${id}')">\uff0b Add it</button>
+      <p class="ntfull">${count} of ${MAX_ITEMS} on the note${count?"":" \u2014 nothing yet"}</p>
+    </div>`;
+  }
+
+  function bonusRow(nt){
+    const opts=[0,5,10,15].map(v=>
+      `<option value="${v}"${(nt.bonus||0)===v?" selected":""}>${v?v+" extra":"No bonus"}</option>`).join("");
+    return `<div class="ntbonusrow">
+      <span>\u2b50 For finishing <strong>everything</strong>, including the jobs that pay nothing</span>
+      <select onchange="ntSetBonus('${nt.id}', this.value)">${opts}</select>
     </div>`;
   }
 
@@ -16048,30 +16108,42 @@ window.GROWNUP_DECKS = [
     const child=kids.filter(c=>c.id===pickChild)[0];
     const nt=liveNoteFor(pickChild);
 
-    let h=`<div class="ntchips" style="margin-bottom:14px">${kids.map(c=>`<button class="${
-      c.id===pickChild?"on":""}" onclick="ntPickChild('${c.id}')">${esc(c.name)}</button>`).join("")}</div>`;
+    /* Faces, not just names: you are writing to a person. */
+    let h=`<div class="ntwho">${kids.map(c=>`<button class="${
+      c.id===pickChild?"on":""}" onclick="ntPickChild('${c.id}')">
+        ${c.photo?`<img src="${c.photo}" alt="">`:'<span class="avatar-placeholder">\ud83d\udc64</span>'}
+        <span>${esc(c.name)}</span></button>`).join("")}</div>`;
 
-    if(!nt){
-      h+=`<div class="ntadd">
-        <p class="ntfull" style="margin:0 0 9px">One note per child at a time. Write a line
-          they\u2019ll read at the top \u2014 that is what makes it a note rather than a list of orders.</p>
-        <input type="text" id="ntMsg" maxlength="90" placeholder="e.g. Back at six \u2014 Dad">
-        <input type="date" id="ntDue" value="${today()}">
-        <label class="ntfull" style="display:block;margin:2px 0 6px">Extra points for finishing
-          <strong>everything</strong> on it \u2014 including the jobs that pay nothing.</label>
-        <select id="ntBonus">
-          <option value="0">No bonus</option>
-          <option value="5" selected>5 extra</option>
-          <option value="10">10 extra</option>
-          <option value="15">15 extra</option>
-        </select>
-        <button class="primary" style="width:100%" onclick="ntStart()">Start a note for ${esc(child.name)}</button>
-      </div>`;
-    }else{
-      h+=noteHTML(nt, true, true) + addBoxHTML(nt)
-        + `<button class="ntx" style="width:auto;margin-top:6px"
-             onclick="ntRemove('${nt.id}','${nt.childId}')">\u{1f5d1} Clear this note</button>`;
-    }
+    /* The note itself is always on screen, empty or not, so the page shows
+       what it is for instead of asking you to fill something in first. */
+    h += `<section class="ntcard">
+      <div class="nthead">
+        <input class="ntmsgin" id="ntMsgLive" maxlength="90"
+          value="${nt ? esc(nt.message||"") : ""}"
+          placeholder="Write a line for ${esc(child.name)} \u2014 e.g. Back at six, Dad"
+          ${nt ? `onchange="ntSetMessage('${nt.id}')"` : "disabled"}>
+        <p class="ntfrom">${nt
+          ? "From " + esc(nt.askedBy || (m?m.name:"")) + (nt.due>today() ? " \u00b7 for "+esc(nt.due) : " \u00b7 today")
+          : "Add the first thing below and the note starts itself."}</p>
+      </div>
+      <div class="ntbody">
+        ${nt && nt.items.length
+          ? nt.items.map(it=>itemRow(nt, it, true, true)).join("")
+          : `<p class="ntempty">Nothing on it yet. Whatever you add, ${esc(child.name)} sees
+              next time they open the app.</p>`}
+        ${nt && nt.items.length && nt.items.every(i=>i.done)
+          ? (nt.paid ? `<p class="ntdone">\u2713 All done, and paid.</p>`
+                     : `<button class="primary" style="width:100%;margin-top:12px"
+                          onclick="ntPayout('${nt.id}')">Hand over ${
+                            nt.items.reduce((a,i)=>a+i.points,0)+(nt.bonus||0)} points</button>`)
+          : ""}
+      </div>
+    </section>`;
+
+    h += addBoxHTML(nt);
+    if(nt) h += bonusRow(nt);
+    if(nt) h += `<button class="ntclear" onclick="ntRemove('${nt.id}','${nt.childId}')">
+        \u{1f5d1} Clear this note</button>`;
     body.innerHTML=h;
   }
   window.renderNotesPanel = renderNotesPanel;
