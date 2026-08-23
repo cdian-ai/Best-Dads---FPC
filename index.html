@@ -1486,7 +1486,6 @@
       <p class="menugroup">Just for the grown-ups</p>
       <button class="light" id="btnGrownups" onclick="showGrownupsPanel()">🤝 Your reward list</button>
       <button class="light" id="btnPledges" onclick="showPledgesPanel()">🤞 Pledges</button>
-      <button class="light" id="btnMyCourses" onclick="showCoursesPanel()">📓 My courses</button>
 
       <p class="menugroup">Set up</p>
       <button class="light" id="btnRewardsMenu" onclick="showRewardsPanel()">🎁 Rewards &amp; activities</button>
@@ -1671,11 +1670,6 @@
     <div id="pledgeHost"></div>
   </div>
 
-  <div id="coursesPanel" class="panel hidden">
-    <button class="panelback" onclick="panelBack()">← Back</button>
-    <h2 id="coursesTitle">📓 My courses</h2>
-    <p class="small">A book, a juz plan, a class — anything you’re working through yourself. You add the steps and tick them off. No points, and nobody marks it but you.</p>
-    <div id="courseHost"></div>
   </div>
 
   <div id="notesPanel" class="panel hidden">
@@ -3657,7 +3651,7 @@ const TIP_CATS = [
   {key:"deen", label:"Deen"}
 ];
 
-const APP_VERSION = "v111";
+const APP_VERSION = "v112";
 const today = new Date().toISOString().slice(0,10);
 let app = {families:[],currentFamily:null,currentChild:null};
 let categories = [];
@@ -6016,7 +6010,7 @@ async function toggleExcusedToday(childId){
    somebody opens it. */
 const KID_ONLY_SCREENS = ["kidSpendScreen","kidLearnScreen","kidPointsScreen"];
 const SHARED_SCREENS   = ["rulesPanel","treePanel","deenPanel","playPanel"];
-const SCREENS = ["accountPanel","overviewPanel","activityPanel","requestsPanel","progressPanel","rewardsPanel","grownupsPanel","pledgesPanel","coursesPanel","playPanel","notesPanel","pickPanel","quickPanel","reviewPanel","rulesPanel","tutorPanel","treePanel","deenPanel",
+const SCREENS = ["accountPanel","overviewPanel","activityPanel","requestsPanel","progressPanel","rewardsPanel","grownupsPanel","pledgesPanel","playPanel","notesPanel","pickPanel","quickPanel","reviewPanel","rulesPanel","tutorPanel","treePanel","deenPanel",
                  "kidSpendScreen","kidLearnScreen","kidPointsScreen"];
 let screenNow = null;
 /* Only the parent's full-screen .panel elements scroll inside themselves, so
@@ -6332,14 +6326,13 @@ function showPledgesPanel(){
   openPanelFrom("pledgesPanel");
   if(typeof renderPledges==="function") renderPledges();
 }
+/* My courses is no longer a screen \u2014 it is a group on the My learning shelf.
+   Kept as a redirect so any older link still lands somewhere sensible. */
 function showCoursesPanel(){
-  openPanelFrom("coursesPanel");
-  /* Whose courses. "My courses" is true but says nothing when two grown-ups
-     share a household and both have their own. */
-  const t=document.getElementById("coursesTitle");
-  const m=sessionMember();
-  if(t) t.textContent = "\ud83d\udcd3 " + (m && m.name ? m.name + "\u2019s courses" : "My courses");
-  if(typeof renderCourses==="function") renderCourses();
+  if(typeof showProgressPanel==="function"){
+    try{ localStorage.setItem("fpc_learn_tab","me"); }catch(e){}
+    showProgressPanel();
+  }
 }
 function showPlayPanel(){
   openPanelFrom("playPanel");
@@ -13918,7 +13911,7 @@ function done(){
       const text=String(t||"").trim();
       if(text) await courseAddStep(id, text, true);
     }
-    refresh();
+    redraw();
   };
   window.courseAddFromForm = function(){
     const n=document.getElementById("courseName");
@@ -13942,7 +13935,7 @@ function done(){
     if(!text) return;
     await writeLedger({childId:m.id, points:0, type:"coursestep",
       label:"Step: "+text, catKey:"coursestep|"+cid+"|"+newId("st"), actionName:text});
-    if(!quiet) refresh();
+    if(!quiet) redraw();
   };
   window.courseToggle = async function(cid, sid){
     const m=me();
@@ -13952,14 +13945,14 @@ function done(){
     const on=doneSteps(c).has(sid);
     try{ await markObjective(m.id, objIdFor(cid,sid), on ? "clear" : "secure"); }
     catch(e){ console.warn("course mark failed", e); }
-    refresh();
+    redraw();
   };
   window.courseRemoveStep = async function(cid, sid){
     const m=me();
     if(!isGrownUp(m)) return;
     await writeLedger({childId:m.id, points:0, type:"coursestep",
       label:"Removed a step", catKey:"coursestepoff|"+cid+"|"+sid, actionName:"removed"});
-    refresh();
+    redraw();
   };
   window.courseRemove = async function(cid){
     const c=mine().find(x=>x.id===cid);
@@ -13967,7 +13960,7 @@ function done(){
     if(!confirm("Remove \u201c"+c.title+"\u201d?\n\nYour ticks stay in the record, but the course goes.")) return;
     await writeLedger({childId:me().id, points:0, type:"course",
       label:"Removed course", catKey:"courseoff|"+cid, actionName:c.title});
-    refresh();
+    redraw();
   };
 
   /* ---- view ---- */
@@ -13975,10 +13968,6 @@ function done(){
   let openCourse=null;
   /* A new course opens itself and closes whatever was open, so adding one
      shows you the thing you just made rather than a longer wall. */
-  window.courseFold=function(id){
-    openCourse = (openCourse===id) ? null : id;
-    refresh();
-  };
   function html(){
     const list=mine();
     const taken=new Set(list.map(c=>String(c.title||"").toLowerCase()));
@@ -14096,11 +14085,31 @@ function done(){
     const host=document.getElementById("courseHost");
     if(!host) return;
     host.innerHTML = isGrownUp(me()) ? html() : "";
-    if(typeof render==="function") render();
+  }
+  /* Courses render inside the Learn panel now, so every change has to redraw
+     that, not a host that no longer exists. */
+  function redraw(){
+    if(typeof renderProgressPanel==="function"){
+      const p=document.getElementById("progressPanel");
+      if(p && !p.classList.contains("hidden")){ renderProgressPanel(); return; }
+    }
+    refresh();
   }
   window.renderCourses = refresh;
+  /* Returns the markup so My learning can render it inline rather than having
+     to mount a host and call back into here. */
+  window.coursesHTML = () => isGrownUp(me()) ? html() : "";
 
-  /* Its own screen, reached from Learn \u2192 My learning and from the menu. */
+  /* Folding a course re-renders whichever Learn surface is showing. */
+  window.courseFold=function(id){
+    openCourse = (openCourse===id) ? null : id;
+    if(typeof renderProgressPanel==="function") renderProgressPanel();
+    else refresh();
+  };
+
+  /* No longer its own screen: these live on Learn \u2192 My learning, on the same
+     shelf as the Qur'an ladder and the language packs, because from where a
+     parent sits they are all the same sentence \u2014 things I am working through. */
 })();
 
 </script>
@@ -14820,7 +14829,12 @@ window.GROWNUP_DECKS = [
   #learnTabs button{background:#eef0ff;color:#3e46ad;font-size:13px;font-weight:700;
     padding:13px 6px;width:auto;border:0;border-radius:14px;cursor:pointer;min-height:46px}
   #learnTabs button.on{background:var(--accent);color:#fff}
-  .mylearn-note{font-size:12.5px;color:#8a90a6;line-height:1.5;margin:14px 0 0}
+  .mylearn-note{font-size:12.5px;color:#8a90a6;line-height:1.5;margin:16px 0 0}
+  /* Two provenances on one shelf: what the app shipped, and what you wrote.
+     When there are four language packs this is where a pack lands. */
+  .shelfgroup{margin:18px 0 9px;padding:0 4px;font-size:11px;font-weight:800;
+    letter-spacing:.06em;text-transform:uppercase;color:#8a90a6}
+  .shelfgroup:first-child{margin-top:2px}
   `;
   const st = document.createElement("style"); st.textContent = CSS; document.head.appendChild(st);
 
@@ -14894,8 +14908,9 @@ window.GROWNUP_DECKS = [
        explainer belongs here. It arrives folded \u2014 you only need it once. */
     let h = (typeof legendHTML === "function") ? legendHTML() : "";
 
-    /* Qur'an first, and the only one here that opens in place \u2014 it is a
+    /* Qur'an first, and the only pack here that opens in place \u2014 it is a
        ladder rather than a door to somewhere else. */
+    h += `<p class="shelfgroup">Ready-made</p>`;
     h += quranHTML();
 
     if(window.FULFULDE_M1 && typeof window.openFulfulde === "function"){
@@ -14907,9 +14922,12 @@ window.GROWNUP_DECKS = [
         "openFulfulde()");
     }
 
-    h += shelfLink("s-courses", "\u{1f4d3}", "My courses",
-      "A book, a juz plan, a class \u2014 your own steps, ticked off by you",
-      "showCoursesPanel()");
+    h += `<p class="shelfgroup">Your own</p>`;
+    /* Rendered inline rather than behind a door. A course you wrote and a pack
+       someone else wrote are the same sentence from where you sit: things I am
+       working through. The only distinction worth keeping is who wrote it, and
+       a heading does that better than a separate screen. */
+    h += (typeof window.coursesHTML === "function") ? window.coursesHTML() : "";
 
     h += `<p class="mylearn-note">Everything here is marked by you, for you. It earns no points \u2014
       the map is the point. Looking for what the children have covered?
@@ -14922,7 +14940,6 @@ window.GROWNUP_DECKS = [
      its own screen now rather than tab three of the grown-ups' panel. */
   window.openMyCourses = function(){
     if(typeof showCoursesPanel === "function") showCoursesPanel();
-    else if(typeof showGrownupsPanel === "function") showGrownupsPanel();
   };
 
   /* ---- the wrapper ---- */
