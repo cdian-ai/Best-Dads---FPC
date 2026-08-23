@@ -70,8 +70,26 @@
   .givehead{display:flex;align-items:center;gap:12px;margin:0 0 14px}
   .givback{width:44px!important;height:44px;flex:none;padding:0;font-size:19px;font-weight:800;
     border-radius:14px}
+  .givehead{position:relative}
   .givwho{flex:1;min-width:0}
-  .givwho strong{display:block;font-size:20px;line-height:1.2;overflow-wrap:anywhere}
+  .givname{display:flex;align-items:center;gap:8px;width:auto;background:none;border:0;padding:0;
+    cursor:pointer;color:inherit;min-height:0;text-align:left}
+  .givname[disabled]{cursor:default}
+  .givname strong{display:block;font-size:20px;line-height:1.2;overflow-wrap:anywhere}
+  .givcaret{flex:none;width:8px;height:8px;border-right:2.5px solid #8a90a6;
+    border-bottom:2.5px solid #8a90a6;transform:translateY(-2px) rotate(45deg)}
+  .whomenu{position:absolute;left:56px;top:56px;z-index:120;min-width:210px;max-width:calc(100% - 60px);
+    background:#fff;border:1px solid #e1e3f4;border-radius:16px;padding:6px;
+    box-shadow:0 18px 44px rgba(24,22,60,.22);display:grid;gap:2px;
+    max-height:52svh;overflow-y:auto;overscroll-behavior:contain}
+  .whomenu button{display:flex;align-items:center;gap:10px;width:100%;background:none;border:0;
+    padding:9px 10px;border-radius:12px;font-size:15px;font-weight:700;color:var(--ink);
+    cursor:pointer;text-align:left;min-height:48px}
+  .whomenu button.on{background:#eef0ff;color:#3e46ad}
+  .whomenu img,.whomenu .avatar-placeholder{width:32px;height:32px;border-radius:50%;object-fit:cover;
+    flex:none;display:flex;align-items:center;justify-content:center;font-size:15px;background:#e4e6f5}
+  .whomenu span:not(.avatar-placeholder){flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .whotick{flex:none!important;color:#1c8a6c;font-weight:800}
   .givlink{width:auto;background:none;border:0;padding:4px 0 0;font-size:12.5px;font-weight:700;
     color:var(--accent);cursor:pointer;min-height:0}
   .givav{flex:none}
@@ -3676,7 +3694,7 @@ const TIP_CATS = [
   {key:"deen", label:"Deen"}
 ];
 
-const APP_VERSION = "v116";
+const APP_VERSION = "v117";
 const today = new Date().toISOString().slice(0,10);
 let app = {families:[],currentFamily:null,currentChild:null};
 let categories = [];
@@ -8239,50 +8257,17 @@ async function undoLastDelete(){
   render();
 }
 function dismissUndo(){ lastDeleted=null; renderUndoBar(); }
-/* Everyone in the family as a row of chips. Picking a different child is one
-   tap from wherever you are, rather than going back to a list. */
+/* Retired. This drew the whole family as a grid of faces once you had already
+   chosen someone \u2014 so the first thing on the awarding screen was the choice
+   you had just made, offered again, taking most of a screen before the reason
+   you came. Switching child is a dropdown in the header now. */
 function renderWhoStrip(){
   const strip=document.getElementById("whoStrip");
   if(!strip) return;
-  // Everyone's face above every screen was most of the scrolling. Choosing a
-  // person now happens inside Give points and Family and friends, and the strip
-  // only appears once you are already looking at someone.
-  if(!viewChildId){ strip.classList.add("hidden"); strip.innerHTML=""; return; }
-  const f=currentFamily();
-  if(!isParentSession() || !f || editMode){ strip.classList.add("hidden"); strip.innerHTML=""; return; }
-  const openId=currentChildId();
-  const kids=f.children.filter(c=>isChildRole(c));
-  const partners=f.children.filter(c=>isParentRole(c) && c.id!==sessionMemberId && hasLogin(c));
-  if(!kids.length && !partners.length){ strip.classList.add("hidden"); strip.innerHTML=""; return; }
-  const pend=pendingRequests();
-  const weekDates=getCurrentWeekDates();
-  const tile=(c,kind)=>{
-    const waiting = kind==="kid" ? pend.filter(r=>r.childId===c.id).length : 0;
-    const band=bandForChild(c);
-    const av = c.photo
-      ? `<img src="${c.photo}" alt="">`
-      : '<span class="avatar-placeholder">\ud83d\udc64</span>';
-    const body = kind==="kid"
-      ? `<span class="kidtile-meta">${todayTotalFor(c)} today \u00b7 ${weeklyTotalFor(c,weekDates)} this week</span>
-         <span class="moodpill ${band.cls}">${band.label}</span>`
-      : `<span class="kidtile-meta">${c.balance||0} points \u00b7 grown-up</span>`;
-    return `<button class="kidtile ${kind==="parent"?"grown":""} ${c.id===openId?"on":""}" onclick="selectChild('${c.id}')">
-        <span class="kidtile-av">${av}${waiting?`<span class="tilebadge">${waiting}</span>`:""}</span>
-        <span class="kidtile-name">${escapeHtml(c.name)}</span>
-        ${body}
-      </button>`;
-  };
-  strip.classList.remove("hidden");
-  strip.innerHTML =
-    (kids.length
-      ? `<p class="stripcap">Tap a child to give points</p>
-         <div class="kidtiles">${kids.map(c=>tile(c,"kid")).join("")}</div>`
-      : "")
-  + (partners.length
-      ? `<p class="stripcap grown">The grown-ups</p>
-         <div class="kidtiles">${partners.map(c=>tile(c,"parent")).join("")}</div>`
-      : "");
+  strip.classList.add("hidden");
+  strip.innerHTML="";
 }
+
 function renderUndoBar(){
   const bar=document.getElementById("undoBar");
   const txt=document.getElementById("undoText");
@@ -8580,15 +8565,32 @@ function render(){
       ? `<img src="${child.photo}" alt="">`
       : '<span class="avatar-placeholder">\ud83d\udc64</span>';
     const kid = isChildRole(child) && !isParentRole(child);
+    /* The name is the switcher: tap it, pick someone else, stay where you are.
+       Nobody has to go back to a list to change who they are awarding. */
+    const f0=currentFamily();
+    const others=(f0?f0.children:[]).filter(c=>
+      (isChildRole(c) || (isParentRole(c) && c.id!==sessionMemberId && hasLogin(c))));
+    const multi = others.length>1;
     cards.insertAdjacentHTML("beforeend",
       `<div class="givehead" style="grid-column:1/-1">
-        <button class="light givback" onclick="backToParentHome()">\u2190</button>
+        <button class="light givback" onclick="backToParentHome()" aria-label="Back">\u2190</button>
         <div class="givwho">
-          <strong>${escapeHtml(child.name)}</strong>
+          <button class="givname" onclick="toggleWhoMenu()" aria-haspopup="listbox"
+            aria-expanded="false" id="givNameBtn" ${multi?"":"disabled"}>
+            <strong>${escapeHtml(child.name)}</strong>${multi?'<span class="givcaret"></span>':""}
+          </button>
           ${kid ? `<button class="givlink" onclick="openChildStats('${child.id}')">\u{1f4ca} Full picture</button>` : ""}
         </div>
         <span class="givav">${av}</span>
-        ${isParentRole(child) ? `<button class="confirm givgift" onclick="openGiftDialog()">\u{1f381}</button>` : ""}
+        ${isParentRole(child) ? `<button class="confirm givgift" onclick="openGiftDialog()" aria-label="Send a surprise">\u{1f381}</button>` : ""}
+        <div class="whomenu hidden" id="whoMenu" role="listbox">
+          ${others.map(c=>`<button role="option" aria-selected="${c.id===child.id}"
+            class="${c.id===child.id?"on":""}" onclick="pickWho('${c.id}')">
+            ${c.photo?`<img src="${c.photo}" alt="">`:'<span class="avatar-placeholder">\ud83d\udc64</span>'}
+            <span>${escapeHtml(c.name)}</span>
+            ${c.id===child.id?'<span class="whotick">\u2713</span>':""}
+          </button>`).join("")}
+        </div>
       </div>`);
   }
   const cats = activeCats();
@@ -9307,6 +9309,32 @@ function saveCelebrated(set){
    off is she?", so this half is read-only and sorted by what is within reach. */
 let __noticeTab = "earn";
 function noticeTab(){ return __noticeTab; }
+let __whoMenuOpen=false;
+function toggleWhoMenu(){
+  const m=document.getElementById("whoMenu");
+  const b=document.getElementById("givNameBtn");
+  if(!m) return;
+  __whoMenuOpen = m.classList.contains("hidden");
+  m.classList.toggle("hidden", !__whoMenuOpen);
+  if(b) b.setAttribute("aria-expanded", String(__whoMenuOpen));
+}
+function closeWhoMenu(){
+  const m=document.getElementById("whoMenu");
+  if(m) m.classList.add("hidden");
+  __whoMenuOpen=false;
+}
+function pickWho(id){
+  closeWhoMenu();
+  selectChild(id);
+}
+/* Tapping anywhere else closes it, the way a menu should. */
+document.addEventListener("click", (e)=>{
+  if(!__whoMenuOpen) return;
+  const head=e.target.closest && e.target.closest(".givehead");
+  if(!head) closeWhoMenu();
+}, true);
+document.addEventListener("keydown", (e)=>{ if(e.key==="Escape") closeWhoMenu(); });
+
 function setNoticeTab(t){
   __noticeTab = (t==="spend") ? "spend" : "earn";
   render();
