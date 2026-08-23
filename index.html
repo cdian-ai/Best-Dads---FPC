@@ -66,6 +66,21 @@
   .cattile.k2 .ticon{background:#ffeaf0} .cattile.k3 .ticon{background:#fff4dd}
   .cattile.k4 .ticon{background:#e9f6dd} .cattile.k5 .ticon{background:#f3ecff}
   .whobar{display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap;margin:0 0 6px}
+  .noticetabs{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin:0 0 14px}
+  .noticetabs button{width:auto;background:#eef0ff;color:#3e46ad;font-size:13.5px;font-weight:700;
+    padding:13px 6px;border:0;border-radius:14px;cursor:pointer;min-height:46px}
+  .noticetabs button.on{background:var(--accent);color:#fff}
+  .spendlist{display:grid;gap:8px}
+  .spendrow{display:flex;align-items:center;gap:12px;background:#fff;border:1px solid #e9ebf3;
+    border-radius:16px;padding:12px 14px;opacity:.62}
+  .spendrow.can{opacity:1;border-color:#bfe4d2;background:linear-gradient(150deg,#f2fbf7,#fff)}
+  .spendicon{font-size:26px;line-height:1;flex:none}
+  .spendmain{flex:1;min-width:0}
+  .spendname{display:block;font-size:15.5px;font-weight:800;color:var(--ink);line-height:1.3}
+  .spendkind{display:block;font-size:12px;color:var(--muted);font-weight:600;margin-top:2px}
+  .spendpts{flex:none;text-align:right;font-size:17px;font-weight:800;color:#3e46ad;line-height:1.1}
+  .spendpts em{display:block;font-style:normal;font-size:10.5px;font-weight:700;color:var(--muted);margin-top:3px}
+  .spendrow.can .spendpts{color:#1c8a6c}
   .tname{font-size:14.5px;font-weight:800;line-height:1.25;overflow-wrap:break-word;
          display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
   .cattilebtn:focus-visible{outline:3px solid var(--accent);outline-offset:-3px}
@@ -1874,11 +1889,15 @@
   <div id="rewardManageList" style="display:grid;gap:7px"></div>
   <p id="pacingNote" class="small hidden" style="margin-top:10px"></p>
 
+  <!-- The vault target is one number for the whole family, so it belongs with
+       the rest of the family's reward settings rather than on any one child's
+       card. -->
   <div class="vaultsetting">
     <div style="flex:1;min-width:200px">
-      <strong>🏦 The vault</strong>
-      <div class="small">Children can lock points away where they can't be spent on small things.
-      Nothing comes out until they reach the target, and then only on something from the big list.</div>
+      <strong>🏦 The vault — one target for everyone</strong>
+      <div class="small">Children can lock points away where they can’t be spent on small things.
+      Nothing comes out until they reach the target, and then only on something from the big list.
+      This target applies to every child.</div>
     </div>
     <button class="light" style="width:auto" onclick="setVaultTarget()">Target: <span id="vaultTargetLabel">5000</span></button>
   </div>
@@ -3651,7 +3670,7 @@ const TIP_CATS = [
   {key:"deen", label:"Deen"}
 ];
 
-const APP_VERSION = "v113";
+const APP_VERSION = "v114";
 const today = new Date().toISOString().slice(0,10);
 let app = {families:[],currentFamily:null,currentChild:null};
 let categories = [];
@@ -8510,8 +8529,12 @@ function render(){
      where they live. Four stat cards stood between the top of this page and the
      categories, which are the reason anyone opens it. */
   document.getElementById("summarySection").classList.add("hidden");
-  rewardSection.classList.remove("hidden");
-  gameNightSection.classList.remove("hidden");
+  /* These are the same nodes the Rewards & activities panel uses, and that
+     panel moves them into itself. Showing them here as well meant one of the
+     two places was always empty. Editing has one home; this page shows what
+     the points buy, read-only, on the second tab. */
+  rewardSection.classList.add("hidden");
+  gameNightSection.classList.add("hidden");
   // The grown-ups' list belongs on the dashboard, not on someone's card.
   document.getElementById("parentRewardSection").classList.add("hidden");
   // Behaviour trend sits directly above the category cards, so a parent sees the
@@ -8550,16 +8573,24 @@ function render(){
     const lede = (child && isParentRole(child))
       ? "The grown-ups’ own list. The children never see any of this."
       : `Tap one to see what ${who} can earn points for, and to add more of your own.`;
+    const tab = noticeTab();
     cards.insertAdjacentHTML("beforeend", `<div style="grid-column:1/-1" id="noticeHead">
       <h2 style="margin:0 0 4px;font-size:20px">⭐ What we notice</h2>
-      <p class="small" style="margin:0 0 12px">${lede}</p>
+      <p class="small" style="margin:0 0 12px">${tab==="spend"
+        ? "What "+who+" can spend those points on. To add or change any of it, use Rewards &amp; activities."
+        : lede}</p>
+      <div class="noticetabs">
+        <button class="${tab==="earn"?"on":""}" onclick="setNoticeTab('earn')">\uff0b Ways to earn</button>
+        <button class="${tab==="spend"?"on":""}" onclick="setNoticeTab('spend')">\ud83c\udf81 What it buys</button>
+      </div>
     </div>`);
     /* The note was in a box near the top of the page, a long way from the tile
        you tap. It types the sentence that goes on the award, so it sits with
        the list it describes. */
     const nb=document.getElementById("awardNoteWrap");
     const nh=document.getElementById("noticeHead");
-    if(nb && nh && nb.parentElement!==nh) nh.appendChild(nb);
+    if(nb && nh && tab==="earn" && nb.parentElement!==nh) nh.appendChild(nb);
+    if(nb) nb.classList.toggle("hidden", tab!=="earn");
     if(child && isChildRole(child) && !isParentRole(child)){
       nh.insertAdjacentHTML("beforeend",
         `<p class="small" style="margin:10px 0 2px">
@@ -8567,12 +8598,18 @@ function render(){
              style="color:var(--accent);font-weight:700;text-decoration:none">
             \u{1f4ca} ${escapeHtml(child.name)}\u2019s full picture \u2192</a></p>`);
     }
-    tileWrap = document.createElement("div");
-    tileWrap.className = "cattiles";
-    cards.appendChild(tileWrap);
+    if(tab==="spend"){
+      cards.insertAdjacentHTML("beforeend",
+        `<div style="grid-column:1/-1">${spendListHTML(child)}</div>`);
+    }else{
+      tileWrap = document.createElement("div");
+      tileWrap.className = "cattiles";
+      cards.appendChild(tileWrap);
+    }
   }
   cats.forEach((cat,ci)=>{
     let catTotal=0;
+    if(!tileWrap && !editMode) return;     /* the spend tab has no tiles */
     const card=document.createElement("article"); card.className="card";
     if(editMode){
       const acts=cat.actions.map(([name,p],ai)=>`
@@ -9237,6 +9274,53 @@ function saveCelebrated(set){
    Five cards were competing to tell a parent what needed attention, which meant
    none of them did. Highest priority wins the slot; everything else lives on
    the screen it belongs to and is reachable from the directory. */
+/* ---------- What we notice, in two halves ----------
+   The reward and activity editors used to sit at the bottom of a child's card.
+   They are the same DOM nodes the Rewards & activities panel uses, and that
+   panel moves them into itself when you open it \u2014 so once you had been there,
+   the copies on the child's card were gone, which is why Activities showed
+   nothing and opened nothing. Editing lives in one place now.
+
+   What is useful while awarding is not the editor but the answer to "how far
+   off is she?", so this half is read-only and sorted by what is within reach. */
+let __noticeTab = "earn";
+function noticeTab(){ return __noticeTab; }
+function setNoticeTab(t){
+  __noticeTab = (t==="spend") ? "spend" : "earn";
+  render();
+}
+function spendListHTML(child){
+  const bal = child ? (child.balance||0) : 0;
+  const vault = child ? (child.vault||0) : 0;
+  /* Rewards and activities are two lists in the data and one idea to a child:
+     things points buy. Shown together, cheapest first. */
+  const items = (app.rewards||[]).map(r=>({...r, kind:r.vault ? "Big goal" : "Reward"}))
+    .concat((app.gameNightActivities||[]).map(g=>({...g, kind:"Activity"})))
+    .sort((a,b)=>a.points-b.points);
+  if(!items.length){
+    return `<p class="small">Nothing on the list yet. Add rewards and activities under
+      <strong>Rewards &amp; activities</strong> in the menu.</p>`;
+  }
+  const rows = items.map(it=>{
+    const can = bal >= it.points;
+    const gap = it.points - bal;
+    return `<div class="spendrow${can?" can":""}">
+      <span class="spendicon">${iconFor(it, it.kind==="Activity" ? "\ud83c\udfb2" : "\ud83c\udf81")}</span>
+      <span class="spendmain">
+        <span class="spendname">${escapeHtml(it.name)}</span>
+        <span class="spendkind">${it.kind}${it.desc?" \u00b7 "+escapeHtml(it.desc):""}</span>
+      </span>
+      <span class="spendpts">${it.points}<em>${can ? "affordable" : gap+" more"}</em></span>
+    </div>`;
+  }).join("");
+  const vaultLine = vault>0
+    ? `<p class="small" style="margin:10px 0 0">\ud83c\udfe6 ${escapeHtml(child?child.name:"They")} has
+        <strong>${vault}</strong> locked away in the vault as well, saving towards something big.</p>` : "";
+  return `<p class="small" style="margin:0 0 10px"><strong>${bal}</strong> point${bal===1?"":"s"}
+      to spend right now.</p>
+    <div class="spendlist">${rows}</div>${vaultLine}`;
+}
+
 function renderAttention(){
   const slot=document.getElementById("attention");
   if(!slot) return;
