@@ -585,19 +585,33 @@
               margin:4px 0;text-align:left}
   .signupwhat p{margin:0 0 9px;font-size:12.5px;line-height:1.5;color:var(--ink)}
   .signupwhat p:last-child{margin-bottom:0}
-  .menugroup{margin:10px 4px 2px;font-size:11px;font-weight:800;letter-spacing:.06em;
+  .menugroup{margin:16px 4px 6px;font-size:10.5px;font-weight:800;letter-spacing:.08em;
              text-transform:uppercase;color:var(--muted)}
   .menugroup:first-of-type{margin-top:4px}
   /* The sheet used to read as part of the page behind it. */
   body.locked{position:fixed;left:0;right:0;width:100%;overflow:hidden}
   .menuscrim{touch-action:none;overscroll-behavior:none;position:fixed;inset:0;z-index:143;background:rgba(24,22,60,.45);
              backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px)}
-  .menusheet{position:fixed;left:12px;right:12px;top:calc(62px + env(safe-area-inset-top));
-             z-index:145;display:grid;gap:7px;max-width:420px;margin:0;padding:12px;
+  /* Was a white box of identical grey buttons, which read as a settings dump.
+     Now a proper sheet: sections with air between them, one hairline between
+     rows instead of a border around each, and the emoji doing the work of an
+     icon column so the eye can find a row without reading every label. */
+  .menusheet{position:fixed;left:10px;right:10px;top:calc(62px + env(safe-area-inset-top));
+             z-index:145;display:block;max-width:440px;margin:0 auto;padding:8px 6px 10px;
              max-height:calc(100svh - 84px - env(safe-area-inset-top));overflow-y:auto;
              overscroll-behavior:contain;-webkit-overflow-scrolling:touch;touch-action:pan-y;
-             background:#fff;border:1px solid #e1e3f4;border-radius:18px;box-shadow:0 24px 60px rgba(24,22,60,.38)}
-  .menusheet button{width:100%;text-align:left;padding:13px 15px;font-size:14px}
+             background:#fff;border:1px solid #e6e8f0;border-radius:26px;
+             box-shadow:0 28px 70px rgba(24,22,60,.30)}
+  .menusheet button{display:flex;align-items:center;gap:13px;width:100%;text-align:left;
+             padding:14px 14px;font-size:15.5px;font-weight:700;color:var(--ink);
+             background:none;border:0;border-radius:16px;min-height:54px;cursor:pointer}
+  .menusheet button:active{background:#f2f3fb}
+  .menusheet button+button{box-shadow:inset 0 1px 0 #f1f2f8}
+  .menusheet button+button:active{box-shadow:none}
+  .menusheet .menugroup+button{box-shadow:none}
+  #menuWho,#kidMenuWho{margin:6px 0 2px!important;padding:0 14px!important;font-size:12.5px;
+             font-weight:700;color:var(--muted)}
+  #menuBadge .badge,.menusheet .badge{margin-left:auto}
   #menuBadge:empty{display:none}
   .accountbuttons button{width:auto}
   /* A menu item used to unfold a panel halfway down the page, so choosing one
@@ -607,6 +621,11 @@
          -webkit-overflow-scrolling:touch;background:#f6f7fb;
          padding:16px 16px calc(30px + env(safe-area-inset-bottom));
          padding-top:calc(16px + env(safe-area-inset-top))}
+  /* The fixed button in the corner closes a panel now, so the in-page Back is
+     a second exit doing the same job — and it was the thing pushing every
+     panel heading down the screen. */
+  .panel .panelback{display:none}
+  .panel{padding-top:calc(64px + env(safe-area-inset-top))}
   .panel > h2:first-of-type{margin-top:0}
   .panelinner{max-width:760px;margin:0 auto}
   /* Sticky, so the way out never needs scrolling back to. Progress is a long
@@ -622,6 +641,8 @@
 
   /* Home: a directory, not a wall. */
   .homegrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:4px}
+  .homegroup{margin:22px 4px 10px;font-size:10.5px;font-weight:800;letter-spacing:.08em;
+    text-transform:uppercase;color:var(--muted)}
   .hometile{position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:4px;
             text-align:left;background:#fff;border:1px solid #e6e8f0;border-radius:20px;
             padding:16px 15px;width:auto;min-height:104px;color:var(--ink);box-shadow:var(--shadow)}
@@ -637,8 +658,10 @@
                     font-size:11px;font-weight:800;min-width:20px;height:20px;border-radius:99px;
                     display:flex;align-items:center;justify-content:center;padding:0 6px}
   .menufab{position:fixed;left:14px;top:calc(14px + env(safe-area-inset-top));z-index:146;
-           width:auto;padding:10px 14px;border-radius:14px;background:#fff;color:#3e46ad;
-           font-weight:800;font-size:15px;box-shadow:0 6px 18px rgba(24,22,60,.14);border:1px solid #e6e8f0}
+           width:auto;padding:11px 16px;border-radius:99px;background:#fff;color:#3e46ad;
+           font-weight:800;font-size:15px;box-shadow:0 8px 22px rgba(24,22,60,.16);
+           border:1px solid #e6e8f0;min-height:44px}
+  .menufab.closing{background:#1f2733;color:#fff;border-color:#1f2733}
   .editbar{position:fixed;left:0;right:0;top:0;z-index:160;display:flex;align-items:center;
            justify-content:space-between;gap:10px;background:#fff6e8;border-bottom:1px solid #f3d6a4;
            padding:calc(10px + env(safe-area-inset-top)) 14px 10px;font-size:13.5px;font-weight:700;color:#7a6320}
@@ -3716,7 +3739,7 @@ const TIP_CATS = [
   {key:"deen", label:"Deen"}
 ];
 
-const APP_VERSION = "v119";
+const APP_VERSION = "v120";
 const today = new Date().toISOString().slice(0,10);
 let app = {families:[],currentFamily:null,currentChild:null};
 let categories = [];
@@ -6134,7 +6157,11 @@ function kidViewOpen(){
   const kv=document.getElementById("kidView");
   return !!kv && !kv.classList.contains("hidden");
 }
-function openAnyMenu(){ if(kidViewOpen()) toggleKidMenu(); else toggleMenu(); }
+function openAnyMenu(){
+  /* Inside a panel this button is the way out, not a way deeper in. */
+  if(screenNow && !kidViewOpen()){ goHome(); return; }
+  if(kidViewOpen()) toggleKidMenu(); else toggleMenu();
+}
 function toggleKidMenu(){
   const sheet=document.getElementById("kidMenuSheet");
   if(!sheet) return;
@@ -8481,11 +8508,13 @@ function render(){
     // Children get the same fixed button, and on every tab rather than only at
     // home, because the way back to House rules or Sign out has to exist there.
     const kidOn = kidViewOpen();
-    const parentOn = isParentSession() && !editMode && !screenNow;
+    const parentOn = isParentSession() && !editMode;
     mf.classList.toggle("hidden", !(ready && (parentOn || kidOn)));
     const sheet=document.getElementById(kidOn ? "kidMenuSheet" : "menuSheet");
     const open = !!sheet && !sheet.classList.contains("hidden");
-    mf.textContent = open ? "\u2715 Close" : "\u2630 Menu";
+    const onPanel = !!screenNow && !kidOn;
+    mf.textContent = (open || onPanel) ? "\u2715 Close" : "\u2630 Menu";
+    mf.classList.toggle("closing", open || onPanel);
   }
   const vtl=document.getElementById("vaultTargetLabel");
   if(vtl) vtl.textContent = vaultTarget();
@@ -8785,6 +8814,7 @@ function renderParentAdminView(parent){
       <span class="hsub">${sub}</span></button>`;
   cards.innerHTML = `
     <div style="grid-column:1/-1">
+      <p class="homegroup" style="margin-top:2px">Today</p>
       <div class="homegrid">
         <button class="hometile wide" onclick="showPicker('give')">
           <span class="hicon">\uff0b</span>
@@ -8794,11 +8824,17 @@ function renderParentAdminView(parent){
               : "Add a child to get started"}</span></span>
         </button>
         ${tile("\ud83d\udd25","Quick points","Everyone on one screen","showQuickPanel()")}
-        ${tile("\ud83d\udde3\ufe0f","Review together","Go through the week with them","showReviewPanel()")}
-        ${tile("\ud83d\udd14","Requests", pend.length?pend.length+" waiting on you":"Nothing waiting","showRequestsPanel()", pend.length||0)}
         ${tile("\ud83d\udccc","The note","What you\u2019ve asked of them today","showNotesPanel()")}
-        ${tile("\ud83d\udcd6","Learn","Your own, and how they\u2019re getting on","showProgressPanel()")}
+        ${tile("\ud83d\udd14","Requests", pend.length?pend.length+" waiting on you":"Nothing waiting","showRequestsPanel()", pend.length||0)}
+      </div>
+      <p class="homegroup">How they\u2019re doing</p>
+      <div class="homegrid">
+        ${tile("\ud83d\udde3\ufe0f","Review together","Go through the week with them","showReviewPanel()")}
         ${tile("\ud83d\udcca","Overview","Everyone\u2019s week at a glance","showOverviewPanel()")}
+        ${tile("\ud83d\udcd6","Learn","Your own, and how they\u2019re getting on","showProgressPanel()")}
+      </div>
+      <p class="homegroup">The rest</p>
+      <div class="homegrid">
         ${tile("\ud83c\udf81","Rewards","What the points are for","showRewardsPanel()")}
         ${tile("\ud83e\udd1d","The grown-ups","Your own list, and your partner","showGrownupsPanel()", offers.length||0)}
         ${tile("\ud83e\udd1e","Pledges","Something you promise each other","showPledgesPanel()")}
@@ -15911,6 +15947,11 @@ window.GROWNUP_DECKS = [
   .ntbonusrow span{flex:1;min-width:150px;font-size:13.5px;line-height:1.5;color:#7a5c15}
   .ntbonusrow select{width:auto;flex:none;padding:10px 12px;font-size:14.5px;font-weight:700;
     border:1px solid #e2cf9e;border-radius:12px;background:#fff;min-height:44px}
+  .ntpast{display:grid;gap:6px}
+  .ntpastrow{display:flex;align-items:center;gap:12px;background:#f7f8fc;border:1px solid #eceef6;
+    border-radius:14px;padding:11px 13px}
+  .ntpastrow span{flex:1;min-width:0;font-size:14px;font-weight:700;color:#5c6479;line-height:1.35}
+  .ntpastrow em{flex:none;font-style:normal;font-size:11.5px;font-weight:700;color:#8a90a6}
   .ntclear{width:100%;margin-top:12px;background:none;border:0;color:#a8aec2;font-size:13px;
     font-weight:700;cursor:pointer;min-height:44px}
   .ntchips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:9px}
@@ -15927,13 +15968,33 @@ window.GROWNUP_DECKS = [
   window.ntPickChild = id => { pickChild=id; renderNotesPanel(); };
   window.ntMode = m => { mode=m; renderNotesPanel(); };
 
-  function actionOptions(){
+  /* Anything already on the note comes off the list you are choosing from.
+     Asking for Fajr twice on the same note is never what anyone meant, and the
+     app knowing that is better than the parent having to remember it. */
+  function actionOptions(nt){
+    const on=new Set((nt && nt.items ? nt.items : []).map(i=>String(i.text||"").toLowerCase()));
     const out=[];
     (typeof app!=="undefined" ? (app.categories||[]) : []).forEach(cat=>(cat.actions||[]).forEach(a=>{
+      if(on.has(String(a[0]).toLowerCase())) return;
       out.push({name:a[0], points:a[1], icon:cat.icon||""});
     }));
     return out;
   }
+  /* What has already been asked of this child recently, so a parent writing
+     tonight's note can see they asked the same thing yesterday. */
+  function recentlyAsked(childId){
+    const cut=Date.now()-7*86400000;
+    const seen=new Map();
+    notes().filter(nt=>nt.childId===childId).forEach(nt=>{
+      nt.items.forEach(it=>{
+        const k=String(it.text||"").toLowerCase();
+        const at=nt.ts||0;
+        if(at>=cut && (!seen.has(k) || seen.get(k).at<at)) seen.set(k,{text:it.text, at, done:!!it.done});
+      });
+    });
+    return [...seen.values()].sort((a,b)=>b.at-a.at);
+  }
+  window.recentlyAsked = recentlyAsked;
 
   let busy=false;
   function working(on){
@@ -15967,6 +16028,10 @@ window.GROWNUP_DECKS = [
     }else{
       text=String((($("ntFree")||{}).value)||"").trim();
       if(!text) return;
+    }
+    if((nt.items||[]).some(i=>String(i.text||"").toLowerCase()===text.toLowerCase())){
+      alert("\u201c"+text+"\u201d is already on this note.");
+      return;
     }
     const iid=newId("it");
     await writeLedger({ childId:nt.childId||pickChild, points:0, type:"noteitem",
@@ -16109,7 +16174,7 @@ window.GROWNUP_DECKS = [
         \u2713 Six things is a full note. Beyond that a list stops being a list \u2014
         take one off if something more important comes up.</p></div>`;
     }
-    const acts=actionOptions();
+    const acts=actionOptions(nt);
     const id = nt ? nt.id : "";
     return `<div class="ntadd">
       <p class="ntaddcap">Add something to the note</p>
@@ -16118,8 +16183,11 @@ window.GROWNUP_DECKS = [
         <button class="${mode==="free"?"on":""}" onclick="ntMode('free')">\u{1f9f9} Just a job</button>
       </div>
       ${mode==="action"
-        ? `<select id="ntAction">${acts.map(a=>
-            `<option value="${esc(a.name)}|${a.points}">${a.icon} ${esc(a.name)} \u2014 ${a.points} pts</option>`).join("")}</select>`
+        ? (acts.length
+            ? `<select id="ntAction">${acts.map(a=>
+                `<option value="${esc(a.name)}|${a.points}">${a.icon} ${esc(a.name)} \u2014 ${a.points} pts</option>`).join("")}</select>`
+            : `<p class="ntfull" style="margin:0 0 9px">Everything on the points list is already
+                on this note. Add something of your own instead.</p>`)
         : `<input type="text" id="ntFree" placeholder="e.g. put the bins out" maxlength="70">`}
       <button class="primary" style="width:100%" onclick="ntAddItem('${id}')">\uff0b Add it</button>
       <p class="ntfull">${count} of ${MAX_ITEMS} on the note${count?"":" \u2014 nothing yet"}</p>
@@ -16180,6 +16248,22 @@ window.GROWNUP_DECKS = [
     </section>`;
 
     h += addBoxHTML(nt);
+
+    /* Asked before. Without this a parent has no way of knowing they asked the
+       same thing yesterday, and the child gets the same note every night. */
+    const before = recentlyAsked(pickChild)
+      .filter(r=>!(nt && nt.items.some(i=>String(i.text||"").toLowerCase()===String(r.text||"").toLowerCase())));
+    if(before.length){
+      h += `<p class="ntaddcap" style="margin:20px 0 8px">Asked in the last week</p>
+        <div class="ntpast">${before.slice(0,8).map(r=>{
+          const d=new Date(r.at);
+          const day = dayStr(r.at)===today() ? "today"
+            : d.toLocaleDateString(undefined,{weekday:"short"});
+          return `<span class="ntpastrow"><span>${esc(r.text)}</span>
+            <em>${r.done?"\u2713 done":"not done"} \u00b7 ${day}</em></span>`;
+        }).join("")}</div>`;
+    }
+
     if(nt) h += bonusRow(nt);
     if(nt) h += `<button class="ntclear" onclick="ntRemove('${nt.id}','${nt.childId}')">
         \u{1f5d1} Clear this note</button>`;
