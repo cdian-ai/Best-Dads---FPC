@@ -582,7 +582,6 @@
   #childrenList{display:grid;gap:7px;margin-top:8px}.childrow{display:flex;justify-content:space-between;align-items:center;padding:9px 11px;background:#f7f8fc;border-radius:12px;gap:8px}
   .childrow button{padding:6px 9px;width:auto}.selected{outline:2px solid var(--accent)}
   .loading{text-align:center;padding:40px;color:var(--muted)}
-  .logo .mark{width:17px;height:17px;flex-shrink:0;display:block}
   /* One line: the menu button sits left as a fixed control, so the wordmark
      goes right and the header stops being three deep. */
   header{padding-top:calc(6px + env(safe-area-inset-top))}
@@ -590,19 +589,15 @@
      underneath it. */
   header .logo{display:flex;width:max-content;max-width:calc(100% - 8px);
                 justify-content:center;margin:0 auto 10px;padding:9px 16px}
-  .logo .qmk{width:16px;height:19px;flex-shrink:0;opacity:.95}
-  .logo .qmk.gold{opacity:1}
+  .logo .qmk.gold{width:15px;height:19px;flex-shrink:0}
   .lockup{display:inline-flex;align-items:center;gap:9px;flex-wrap:nowrap;
           margin:0 0 14px;color:var(--accent)}
-  /* The mark is a star with a tail, so it needs a squarer box than the old
-     comma glyph did. The closing mark carries the face, which is why there is
-     no longer a separate star at the end of the lockup. */
-  .lockup .qm{width:27px;height:32px;flex-shrink:0}
-  .lockup .qm.gold{width:33px;height:39px;margin-left:1px}
+  /* One mark, after the word: the star's own arm curled into a quote's tail.
+     There is no opening mark, because a star cannot be turned upside down and a
+     rising-tail version was unreadable at header size. */
+  .lockup .qm.gold{width:34px;height:44px;flex-shrink:0;margin-left:3px}
   .lockup .lw{font-size:30px;font-weight:800;letter-spacing:-.01em;color:var(--ink);white-space:nowrap}
-  @media(max-width:380px){ .lockup .lw{font-size:25px}
-    .lockup .qm{width:23px;height:27px} .lockup .qm.gold{width:28px;height:33px} }
-  .logo .mark{width:19px;height:19px}
+  @media(max-width:380px){ .lockup .lw{font-size:25px} .lockup .qm.gold{width:28px;height:36px} }
   .logo{display:inline-flex;align-items:center;gap:7px;background:linear-gradient(90deg,var(--accent),var(--accent2));
         color:white;font-weight:800;font-size:13px;letter-spacing:.06em;text-transform:uppercase;
         padding:7px 14px;border-radius:999px;margin-bottom:12px}
@@ -1025,9 +1020,8 @@
 <div id="authGate" class="gatewrap hidden">
   <div class="gatecard">
     <div class="lockup" role="img" aria-label="Notice Me">
-  <svg class="qm" viewBox="3 7 56 67" aria-hidden="true" focusable="false"><g transform="translate(8,4)"><path d="M26 3 L32 21 L51 23 L36 35 L41 53 L26 43 L11 53 L16 35 L1 23 L20 21 Z" fill="currentColor"/><path d="M11 49 C8 60 3 66 -5 70 C5 69 17 61 19 50 Z" fill="currentColor"/></g></svg>
   <span class="lw">Notice Me</span>
-  <svg class="qm gold" viewBox="3 7 56 67" aria-hidden="true" focusable="false"><g transform="translate(62,0) scale(-1,1)"><g transform="translate(8,4)"><path d="M26 3 L32 21 L51 23 L36 35 L41 53 L26 43 L11 53 L16 35 L1 23 L20 21 Z" fill="#e0b13c"/><path d="M11 49 C8 60 3 66 -5 70 C5 69 17 61 19 50 Z" fill="#e0b13c"/><circle cx="21" cy="27" r="2.8" fill="#2f2a55"/><circle cx="31" cy="27" r="2.8" fill="#2f2a55"/><path d="M21 34 q5 5 10 0" fill="none" stroke="#2f2a55" stroke-width="2.6" stroke-linecap="round"/></g></g></svg>
+  <svg class="qm gold" viewBox="-6 3 57 73" aria-hidden="true" focusable="false"><path d="M26 3 L32 21 L51 23 L36 35 L41 53 L26 43 C20 58 12 70 -2 76 C6 66 12 56 13 44 L16 35 L1 23 L20 21 Z" fill="#e0b13c"/><circle cx="21" cy="27" r="2.8" fill="#2f2a55"/><circle cx="31" cy="27" r="2.8" fill="#2f2a55"/><path d="M21 34 q5 5 10 0" fill="none" stroke="#2f2a55" stroke-width="2.6" stroke-linecap="round"/></svg>
 </div>
     <p class="sub">Notice the good things, and keep track of the learning.</p>
     <p class="sub" style="margin-top:6px">Prayers, kindness, manners, homework and effort — you award the points, they choose what to spend them on. With a Qur&rsquo;an and school progress tracker built in, so you can see what they can actually do.</p>
@@ -1097,9 +1091,8 @@
 <div id="welcomeScreen" class="gatewrap hidden">
   <div class="gatecard">
     <div class="lockup" role="img" aria-label="Notice Me">
-  <svg class="qm" viewBox="3 7 56 67" aria-hidden="true" focusable="false"><g transform="translate(8,4)"><path d="M26 3 L32 21 L51 23 L36 35 L41 53 L26 43 L11 53 L16 35 L1 23 L20 21 Z" fill="currentColor"/><path d="M11 49 C8 60 3 66 -5 70 C5 69 17 61 19 50 Z" fill="currentColor"/></g></svg>
   <span class="lw">Notice Me</span>
-  <svg class="qm gold" viewBox="3 7 56 67" aria-hidden="true" focusable="false"><g transform="translate(62,0) scale(-1,1)"><g transform="translate(8,4)"><path d="M26 3 L32 21 L51 23 L36 35 L41 53 L26 43 L11 53 L16 35 L1 23 L20 21 Z" fill="#e0b13c"/><path d="M11 49 C8 60 3 66 -5 70 C5 69 17 61 19 50 Z" fill="#e0b13c"/><circle cx="21" cy="27" r="2.8" fill="#2f2a55"/><circle cx="31" cy="27" r="2.8" fill="#2f2a55"/><path d="M21 34 q5 5 10 0" fill="none" stroke="#2f2a55" stroke-width="2.6" stroke-linecap="round"/></g></g></svg>
+  <svg class="qm gold" viewBox="-6 3 57 73" aria-hidden="true" focusable="false"><path d="M26 3 L32 21 L51 23 L36 35 L41 53 L26 43 C20 58 12 70 -2 76 C6 66 12 56 13 44 L16 35 L1 23 L20 21 Z" fill="#e0b13c"/><circle cx="21" cy="27" r="2.8" fill="#2f2a55"/><circle cx="31" cy="27" r="2.8" fill="#2f2a55"/><path d="M21 34 q5 5 10 0" fill="none" stroke="#2f2a55" stroke-width="2.6" stroke-linecap="round"/></svg>
 </div>
     <p class="sub">Notice the good things, and keep track of the learning.</p>
     <p class="sub" style="margin-top:6px">Everyone on their own device: you award, they see what they&rsquo;ve earned, and grandparents and tutors can join in too.</p>
@@ -1109,9 +1102,8 @@
 <div id="bootGate" class="gatewrap hidden">
   <div class="gatecard">
     <div class="lockup" role="img" aria-label="Notice Me">
-  <svg class="qm" viewBox="3 7 56 67" aria-hidden="true" focusable="false"><g transform="translate(8,4)"><path d="M26 3 L32 21 L51 23 L36 35 L41 53 L26 43 L11 53 L16 35 L1 23 L20 21 Z" fill="currentColor"/><path d="M11 49 C8 60 3 66 -5 70 C5 69 17 61 19 50 Z" fill="currentColor"/></g></svg>
   <span class="lw">Notice Me</span>
-  <svg class="qm gold" viewBox="3 7 56 67" aria-hidden="true" focusable="false"><g transform="translate(62,0) scale(-1,1)"><g transform="translate(8,4)"><path d="M26 3 L32 21 L51 23 L36 35 L41 53 L26 43 L11 53 L16 35 L1 23 L20 21 Z" fill="#e0b13c"/><path d="M11 49 C8 60 3 66 -5 70 C5 69 17 61 19 50 Z" fill="#e0b13c"/><circle cx="21" cy="27" r="2.8" fill="#2f2a55"/><circle cx="31" cy="27" r="2.8" fill="#2f2a55"/><path d="M21 34 q5 5 10 0" fill="none" stroke="#2f2a55" stroke-width="2.6" stroke-linecap="round"/></g></g></svg>
+  <svg class="qm gold" viewBox="-6 3 57 73" aria-hidden="true" focusable="false"><path d="M26 3 L32 21 L51 23 L36 35 L41 53 L26 43 C20 58 12 70 -2 76 C6 66 12 56 13 44 L16 35 L1 23 L20 21 Z" fill="#e0b13c"/><circle cx="21" cy="27" r="2.8" fill="#2f2a55"/><circle cx="31" cy="27" r="2.8" fill="#2f2a55"/><path d="M21 34 q5 5 10 0" fill="none" stroke="#2f2a55" stroke-width="2.6" stroke-linecap="round"/></svg>
 </div>
     <p class="sub" style="margin-top:12px">Loading your family…</p>
   </div>
@@ -1119,9 +1111,8 @@
 <div id="errorGate" class="gatewrap hidden">
   <div class="gatecard">
     <div class="lockup" role="img" aria-label="Notice Me">
-  <svg class="qm" viewBox="3 7 56 67" aria-hidden="true" focusable="false"><g transform="translate(8,4)"><path d="M26 3 L32 21 L51 23 L36 35 L41 53 L26 43 L11 53 L16 35 L1 23 L20 21 Z" fill="currentColor"/><path d="M11 49 C8 60 3 66 -5 70 C5 69 17 61 19 50 Z" fill="currentColor"/></g></svg>
   <span class="lw">Notice Me</span>
-  <svg class="qm gold" viewBox="3 7 56 67" aria-hidden="true" focusable="false"><g transform="translate(62,0) scale(-1,1)"><g transform="translate(8,4)"><path d="M26 3 L32 21 L51 23 L36 35 L41 53 L26 43 L11 53 L16 35 L1 23 L20 21 Z" fill="#e0b13c"/><path d="M11 49 C8 60 3 66 -5 70 C5 69 17 61 19 50 Z" fill="#e0b13c"/><circle cx="21" cy="27" r="2.8" fill="#2f2a55"/><circle cx="31" cy="27" r="2.8" fill="#2f2a55"/><path d="M21 34 q5 5 10 0" fill="none" stroke="#2f2a55" stroke-width="2.6" stroke-linecap="round"/></g></g></svg>
+  <svg class="qm gold" viewBox="-6 3 57 73" aria-hidden="true" focusable="false"><path d="M26 3 L32 21 L51 23 L36 35 L41 53 L26 43 C20 58 12 70 -2 76 C6 66 12 56 13 44 L16 35 L1 23 L20 21 Z" fill="#e0b13c"/><circle cx="21" cy="27" r="2.8" fill="#2f2a55"/><circle cx="31" cy="27" r="2.8" fill="#2f2a55"/><path d="M21 34 q5 5 10 0" fill="none" stroke="#2f2a55" stroke-width="2.6" stroke-linecap="round"/></svg>
 </div>
     <h1 style="font-size:20px;margin:12px 0 4px">Couldn't load your family</h1>
     <p class="sub" id="errorText"></p>
@@ -1135,9 +1126,8 @@
 <div id="onboarding" class="gatewrap hidden">
   <div class="onbcard">
     <div style="text-align:center"><div class="lockup" role="img" aria-label="Notice Me">
-  <svg class="qm" viewBox="3 7 56 67" aria-hidden="true" focusable="false"><g transform="translate(8,4)"><path d="M26 3 L32 21 L51 23 L36 35 L41 53 L26 43 L11 53 L16 35 L1 23 L20 21 Z" fill="currentColor"/><path d="M11 49 C8 60 3 66 -5 70 C5 69 17 61 19 50 Z" fill="currentColor"/></g></svg>
   <span class="lw">Notice Me</span>
-  <svg class="qm gold" viewBox="3 7 56 67" aria-hidden="true" focusable="false"><g transform="translate(62,0) scale(-1,1)"><g transform="translate(8,4)"><path d="M26 3 L32 21 L51 23 L36 35 L41 53 L26 43 L11 53 L16 35 L1 23 L20 21 Z" fill="#e0b13c"/><path d="M11 49 C8 60 3 66 -5 70 C5 69 17 61 19 50 Z" fill="#e0b13c"/><circle cx="21" cy="27" r="2.8" fill="#2f2a55"/><circle cx="31" cy="27" r="2.8" fill="#2f2a55"/><path d="M21 34 q5 5 10 0" fill="none" stroke="#2f2a55" stroke-width="2.6" stroke-linecap="round"/></g></g></svg>
+  <svg class="qm gold" viewBox="-6 3 57 73" aria-hidden="true" focusable="false"><path d="M26 3 L32 21 L51 23 L36 35 L41 53 L26 43 C20 58 12 70 -2 76 C6 66 12 56 13 44 L16 35 L1 23 L20 21 Z" fill="#e0b13c"/><circle cx="21" cy="27" r="2.8" fill="#2f2a55"/><circle cx="31" cy="27" r="2.8" fill="#2f2a55"/><path d="M21 34 q5 5 10 0" fill="none" stroke="#2f2a55" stroke-width="2.6" stroke-linecap="round"/></svg>
 </div></div>
     <div class="onbdots" id="onbDots"></div>
 
@@ -1206,9 +1196,8 @@
 <div id="noFamilyGate" class="gatewrap hidden">
   <div class="gatecard">
     <div class="lockup" role="img" aria-label="Notice Me">
-  <svg class="qm" viewBox="3 7 56 67" aria-hidden="true" focusable="false"><g transform="translate(8,4)"><path d="M26 3 L32 21 L51 23 L36 35 L41 53 L26 43 L11 53 L16 35 L1 23 L20 21 Z" fill="currentColor"/><path d="M11 49 C8 60 3 66 -5 70 C5 69 17 61 19 50 Z" fill="currentColor"/></g></svg>
   <span class="lw">Notice Me</span>
-  <svg class="qm gold" viewBox="3 7 56 67" aria-hidden="true" focusable="false"><g transform="translate(62,0) scale(-1,1)"><g transform="translate(8,4)"><path d="M26 3 L32 21 L51 23 L36 35 L41 53 L26 43 L11 53 L16 35 L1 23 L20 21 Z" fill="#e0b13c"/><path d="M11 49 C8 60 3 66 -5 70 C5 69 17 61 19 50 Z" fill="#e0b13c"/><circle cx="21" cy="27" r="2.8" fill="#2f2a55"/><circle cx="31" cy="27" r="2.8" fill="#2f2a55"/><path d="M21 34 q5 5 10 0" fill="none" stroke="#2f2a55" stroke-width="2.6" stroke-linecap="round"/></g></g></svg>
+  <svg class="qm gold" viewBox="-6 3 57 73" aria-hidden="true" focusable="false"><path d="M26 3 L32 21 L51 23 L36 35 L41 53 L26 43 C20 58 12 70 -2 76 C6 66 12 56 13 44 L16 35 L1 23 L20 21 Z" fill="#e0b13c"/><circle cx="21" cy="27" r="2.8" fill="#2f2a55"/><circle cx="31" cy="27" r="2.8" fill="#2f2a55"/><path d="M21 34 q5 5 10 0" fill="none" stroke="#2f2a55" stroke-width="2.6" stroke-linecap="round"/></svg>
 </div>
     <h1 style="font-size:20px;margin:12px 0 4px">This login isn't part of a family</h1>
     <p class="sub">You're signed in as <strong id="noFamilyEmail">—</strong>, but this account isn't in any family yet.</p>
@@ -1338,9 +1327,8 @@
 <div id="mainApp" class="wrap hidden">
 <header>
   <div class="logo" role="img" aria-label="Notice Me">
-  <svg class="qmk" viewBox="3 7 56 67" aria-hidden="true" focusable="false"><g transform="translate(8,4)"><path d="M26 3 L32 21 L51 23 L36 35 L41 53 L26 43 L11 53 L16 35 L1 23 L20 21 Z" fill="currentColor"/><path d="M11 49 C8 60 3 66 -5 70 C5 69 17 61 19 50 Z" fill="currentColor"/></g></svg>
   <span>Notice Me</span>
-  <svg class="qmk gold" viewBox="3 7 56 67" aria-hidden="true" focusable="false"><g transform="translate(62,0) scale(-1,1)"><g transform="translate(8,4)"><path d="M26 3 L32 21 L51 23 L36 35 L41 53 L26 43 L11 53 L16 35 L1 23 L20 21 Z" fill="#ffd970"/><path d="M11 49 C8 60 3 66 -5 70 C5 69 17 61 19 50 Z" fill="#ffd970"/></g></g></svg>
+  <svg class="qmk gold" viewBox="-6 3 57 73" aria-hidden="true" focusable="false"><path d="M26 3 L32 21 L51 23 L36 35 L41 53 L26 43 C20 58 12 70 -2 76 C6 66 12 56 13 44 L16 35 L1 23 L20 21 Z" fill="#ffd970"/></svg>
 </div>
 
   <div id="familyCover" class="familycover hidden" onclick="onCoverClick()">
@@ -3426,7 +3414,7 @@ const TIP_CATS = [
   {key:"behaviour", label:"Behaviour"}
 ];
 
-const APP_VERSION = "v97";
+const APP_VERSION = "v99";
 const today = new Date().toISOString().slice(0,10);
 let app = {families:[],currentFamily:null,currentChild:null};
 let categories = [];
@@ -12289,7 +12277,11 @@ window.FULFULDE_M1_VIDEO = {
 
   /* ---------- screen ---------- */
   const CSS=`
-  #packScreen{position:fixed;inset:0;z-index:60;background:#0f3b3a;color:#fff;display:flex;
+  /* The app's own tab bar and panels live at z-index 150-210. An overlay at 60
+     sat underneath them, which is why the Next button was hidden behind the tab
+     bar and why taps landed on app furniture instead of the exercise. */
+  body.overlay-open .tabbar{display:none!important}
+  #packScreen{position:fixed;inset:0;z-index:300;background:#0f3b3a;color:#fff;display:flex;
     flex-direction:column;font-family:inherit}
   #packScreen.hidden{display:none}
   .pk-top{display:flex;align-items:center;gap:12px;padding:14px 16px 4px}
@@ -12370,11 +12362,15 @@ window.FULFULDE_M1_VIDEO = {
      Guarded: this runs at load, and an add-on that throws here loses its card
      on the Learn screen — which has caught me out twice already. */
   try{
+    /* This screen shows and hides with the "hidden" class, not "on" like the
+       other two. Testing for "on" here meant Escape and the Android back button
+       never fired, which is most of what "I am locked in" felt like. */
+    const isOpen = () => !el.classList.contains("hidden");
     if(document.addEventListener) document.addEventListener("keydown", e=>{
-      if(e.key==="Escape" && el.classList.contains("on")) close();
+      if(e.key==="Escape" && isOpen()) close();
     });
     if(window.addEventListener) window.addEventListener("popstate", ()=>{
-      if(el.classList.contains("on")) close(true);
+      if(isOpen()) close(true);
     });
   }catch(e){ console.warn("overlay key/back wiring", e); }
 
@@ -12386,8 +12382,15 @@ window.FULFULDE_M1_VIDEO = {
 
   let view='menu', act=null, set=null, step=0, heard=new Set(), st={};
 
-  function open(){ view='menu'; el.classList.remove('hidden'); document.body.style.overflow='hidden'; draw(); }
-  function close(fromBack){ el.classList.add('hidden'); document.body.style.overflow='';
+  let prevOverflow="";
+  function open(){ view='menu'; el.classList.remove('hidden');
+    prevOverflow=document.body.style.overflow;
+    document.body.style.overflow='hidden';
+    document.body.classList.add('overlay-open');
+    draw(); }
+  function close(fromBack){ el.classList.add('hidden');
+    document.body.style.overflow=prevOverflow||'';
+    document.body.classList.remove('overlay-open');
                     if(typeof render==='function') render(); }
   window.openFulfulde=open;
 
@@ -12623,7 +12626,10 @@ window.FULFULDE_M1_VIDEO = {
           <p class="kidhi" style="color:#fff">\u{1f4d7} ${esc(PACK.title)}</p>
           <p class="kidsub" style="color:#bcd6d3">${SETS.length} of ${ALL_SETS.length} sets ready \u00b7 ${done} practised \u00b7 tap to start</p>
         </div><div style="font-size:30px">\u203a</div></div></section>`;
-      return tile + inner(c);
+      /* After the app's own content, not before it. The card was pushing the
+         teachers card and the legend down the screen, so the Learn page opened
+         on a course rather than on the guidance it is meant to open on. */
+      return inner(c) + tile;
     };
     learnScreenHTML = window.learnScreenHTML;
   }
@@ -12698,7 +12704,7 @@ window.DECK_PICS = {"birthday": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0c
       CURRICULUM.push(SUBJECT);
   }catch(e){}
 
-  const st=document.createElement("style"); st.textContent="\n:root{--paper:#fdfbf6;--ink:#1d2b32;--soft:#7c8890;--line:#efe9dd;--gold:#e8a33d;--go:#2f8f6f}\n*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}\n#deckScreen{position:fixed;inset:0;z-index:60;background:var(--paper);color:var(--ink);\n display:none;flex-direction:column;user-select:none;\n font-family:system-ui,-apple-system,\"Segoe UI\",sans-serif}\n#deckScreen.on{display:flex}\n#deckScreen .inner{flex:1;display:flex;flex-direction:column;max-width:600px;width:100%;margin:0 auto;min-height:0}\n#deckScreen .top{display:flex;align-items:center;gap:12px;padding:16px 18px 4px}\n#deckScreen .dkx{width:44px;height:44px;border-radius:14px;background:#efe9dd;border:0;color:#5c6b72;font-size:17px;cursor:pointer;flex:none}\n#deckScreen .count{font-size:12px;color:var(--soft);font-weight:600;letter-spacing:.04em}\n#deckScreen .dots{display:flex;gap:6px;flex:1;justify-content:center;flex-wrap:wrap}\n#deckScreen .dot{width:8px;height:8px;border-radius:99px;background:#e2dccf}\n#deckScreen .dot.done{background:var(--gold)}#deckScreen .dot.now{background:var(--ink);transform:scale(1.4)}\n#deckScreen .stage{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;\n gap:14px;padding:12px 18px 24px;min-height:0;overflow-y:auto}\n#deckScreen .stage>*{flex:0 0 auto;margin-left:auto;margin-right:auto}\n#deckScreen .card{width:100%;max-width:360px;background:#fff;border:1px solid var(--line);border-radius:28px;\n padding:24px 22px;box-shadow:0 10px 28px rgba(29,43,50,.09);text-align:center}\n#deckScreen .lab{font-size:11px;letter-spacing:.11em;text-transform:uppercase;color:#a2968a;font-weight:700}\n#deckScreen .clue{font-size:21px;line-height:1.4;font-weight:600;margin:16px 0 0}\n#deckScreen .clue.next{color:var(--soft);font-weight:500;font-size:19px;margin-top:12px}\n#deckScreen .big{font-size:38px;font-weight:700;letter-spacing:-.02em;margin:6px 0 0}\n#deckScreen .disc{width:150px;height:150px;border-radius:50%;background:#fdf0e2;display:grid;place-items:center;\n margin:4px auto 0}\n#deckScreen .disc img{width:66%}\n#deckScreen .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;width:100%;max-width:340px}\n#deckScreen .opt{background:#fff;border:1px solid var(--line);border-radius:22px;padding:14px;cursor:pointer;\n box-shadow:0 6px 18px rgba(29,43,50,.07);transition:transform .15s}\n#deckScreen .opt:active{transform:scale(.97)}\n#deckScreen .opt img{width:64%;max-width:82px}\n#deckScreen .opt.gone{opacity:0;pointer-events:none}\n#deckScreen .opt.small img{width:56%;max-width:64px}\n#deckScreen .opt.chosen{border-color:var(--gold);box-shadow:0 0 0 3px #fbeeda}\n#deckScreen .grid.four{grid-template-columns:repeat(4,1fr);gap:9px;max-width:360px}\n#deckScreen .grid.four .opt{padding:10px;border-radius:18px}\n#deckScreen .inline{margin-top:16px;background:#fdf6ea;border:1px solid #f0e2c8;border-radius:99px;\n padding:9px 16px;font-size:14px;font-weight:600;color:#8a6d33;cursor:pointer}\n#deckScreen .spent{margin-top:16px;font-size:12.5px;color:#b3aa9d}\n#deckScreen .opt.right{border-color:#8fd6a4;box-shadow:0 0 0 3px #d9f2e1}\n#deckScreen .opt.wrong{opacity:.3}\n#deckScreen .bins{display:grid;grid-template-columns:1fr 1fr;gap:10px;width:100%;max-width:360px}\n#deckScreen .bin{background:#fff;border:1px dashed #ddd4c4;border-radius:20px;padding:10px;min-height:120px}\n#deckScreen .bin h4{margin:0 0 8px;font-size:11.5px;color:var(--soft);font-weight:700;line-height:1.35}\n#deckScreen .bin .in{display:flex;flex-wrap:wrap;gap:6px;justify-content:center}\n#deckScreen .tok{width:44px;height:44px;border-radius:14px;background:#fdf0e2;display:grid;place-items:center;cursor:pointer}\n#deckScreen .tok img{width:70%}\n#deckScreen .tok.ok{background:#d9f2e1}#deckScreen .tok.no{background:#fbe0da}\n#deckScreen .tok{touch-action:none;transition:box-shadow .15s,background .15s}\n#deckScreen .tok.picked{box-shadow:0 0 0 3px var(--gold);background:#fdf0e2}\n#deckScreen .tok.dragging{z-index:5;position:relative;box-shadow:0 10px 20px rgba(29,43,50,.25);opacity:.95}\n#deckScreen .bin{transition:background .15s,border-color .15s}\n#deckScreen .bin.over{background:#f4fbf7;border-color:var(--go);border-style:solid}\n#deckScreen .tray{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;max-width:360px}\n#deckScreen .btn{width:100%;max-width:360px;border:0;border-radius:18px;padding:16px;font-size:17px;font-weight:700;\n background:var(--ink);color:#fff;cursor:pointer}\n#deckScreen .btn.ghost{background:#fff;color:var(--soft);border:1px solid var(--line)}\n#deckScreen .btn.go{background:var(--go)}\n#deckScreen .bottom{padding:8px 18px calc(24px + env(safe-area-inset-bottom));display:flex;flex-direction:column;\n gap:10px;align-items:center}\n#deckScreen .note{font-size:12.5px;color:var(--soft);line-height:1.5;text-align:center;max-width:340px}\n#deckScreen .nextup{display:flex;align-items:center;gap:12px;background:#1d2b32;color:#fff;border-radius:20px;padding:15px 16px;margin-bottom:16px;cursor:pointer}\n#deckScreen .nextup .nlab{font-size:10.5px;letter-spacing:.13em;text-transform:uppercase;color:#9db3ba;font-weight:700}\n#deckScreen .nextup .ntitle{font-size:18px;font-weight:700;margin-top:3px}\n#deckScreen .nextup .nwhy{font-size:12px;color:#9db3ba;margin-top:2px}\n#deckScreen .nextup .btn{background:#e8a33d;color:#3d2a00;min-height:44px}\n#deckScreen .win{text-align:center}\n#deckScreen .win .star{font-size:74px}\n@media (prefers-reduced-motion:reduce){#deckScreen *{transition:none!important;animation:none!important}}\n"; document.head.appendChild(st);
+  const st=document.createElement("style"); st.textContent="\n:root{--paper:#fdfbf6;--ink:#1d2b32;--soft:#7c8890;--line:#efe9dd;--gold:#e8a33d;--go:#2f8f6f}\n*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}\n#deckScreen{position:fixed;inset:0;z-index:300;background:var(--paper);color:var(--ink);\n display:none;flex-direction:column;user-select:none;\n font-family:system-ui,-apple-system,\"Segoe UI\",sans-serif}\n#deckScreen.on{display:flex}\n#deckScreen .inner{flex:1;display:flex;flex-direction:column;max-width:600px;width:100%;margin:0 auto;min-height:0}\n#deckScreen .top{display:flex;align-items:center;gap:12px;padding:16px 18px 4px}\n#deckScreen .dkx{width:44px;height:44px;border-radius:14px;background:#efe9dd;border:0;color:#5c6b72;font-size:17px;cursor:pointer;flex:none}\n#deckScreen .count{font-size:12px;color:var(--soft);font-weight:600;letter-spacing:.04em}\n#deckScreen .dots{display:flex;gap:6px;flex:1;justify-content:center;flex-wrap:wrap}\n#deckScreen .dot{width:8px;height:8px;border-radius:99px;background:#e2dccf}\n#deckScreen .dot.done{background:var(--gold)}#deckScreen .dot.now{background:var(--ink);transform:scale(1.4)}\n#deckScreen .stage{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;\n gap:14px;padding:12px 18px 24px;min-height:0;overflow-y:auto}\n#deckScreen .stage>*{flex:0 0 auto;margin-left:auto;margin-right:auto}\n#deckScreen .card{width:100%;max-width:360px;background:#fff;border:1px solid var(--line);border-radius:28px;\n padding:24px 22px;box-shadow:0 10px 28px rgba(29,43,50,.09);text-align:center}\n#deckScreen .lab{font-size:11px;letter-spacing:.11em;text-transform:uppercase;color:#a2968a;font-weight:700}\n#deckScreen .clue{font-size:21px;line-height:1.4;font-weight:600;margin:16px 0 0}\n#deckScreen .clue.next{color:var(--soft);font-weight:500;font-size:19px;margin-top:12px}\n#deckScreen .big{font-size:38px;font-weight:700;letter-spacing:-.02em;margin:6px 0 0}\n#deckScreen .disc{width:150px;height:150px;border-radius:50%;background:#fdf0e2;display:grid;place-items:center;\n margin:4px auto 0}\n#deckScreen .disc img{width:66%}\n#deckScreen .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;width:100%;max-width:340px}\n#deckScreen .opt{background:#fff;border:1px solid var(--line);border-radius:22px;padding:14px;cursor:pointer;\n box-shadow:0 6px 18px rgba(29,43,50,.07);transition:transform .15s}\n#deckScreen .opt:active{transform:scale(.97)}\n#deckScreen .opt img{width:64%;max-width:82px}\n#deckScreen .opt.gone{opacity:0;pointer-events:none}\n#deckScreen .opt.small img{width:56%;max-width:64px}\n#deckScreen .opt.chosen{border-color:var(--gold);box-shadow:0 0 0 3px #fbeeda}\n#deckScreen .grid.four{grid-template-columns:repeat(4,1fr);gap:9px;max-width:360px}\n#deckScreen .grid.four .opt{padding:10px;border-radius:18px}\n#deckScreen .inline{margin-top:16px;background:#fdf6ea;border:1px solid #f0e2c8;border-radius:99px;\n padding:9px 16px;font-size:14px;font-weight:600;color:#8a6d33;cursor:pointer}\n#deckScreen .spent{margin-top:16px;font-size:12.5px;color:#b3aa9d}\n#deckScreen .opt.right{border-color:#8fd6a4;box-shadow:0 0 0 3px #d9f2e1}\n#deckScreen .opt.wrong{opacity:.3}\n#deckScreen .bins{display:grid;grid-template-columns:1fr 1fr;gap:10px;width:100%;max-width:360px}\n#deckScreen .bin{background:#fff;border:1px dashed #ddd4c4;border-radius:20px;padding:10px;min-height:120px}\n#deckScreen .bin h4{margin:0 0 8px;font-size:11.5px;color:var(--soft);font-weight:700;line-height:1.35}\n#deckScreen .bin .in{display:flex;flex-wrap:wrap;gap:6px;justify-content:center}\n#deckScreen .tok{width:44px;height:44px;border-radius:14px;background:#fdf0e2;display:grid;place-items:center;cursor:pointer}\n#deckScreen .tok img{width:70%}\n#deckScreen .tok.ok{background:#d9f2e1}#deckScreen .tok.no{background:#fbe0da}\n#deckScreen .tok{touch-action:none;transition:box-shadow .15s,background .15s}\n#deckScreen .tok.picked{box-shadow:0 0 0 3px var(--gold);background:#fdf0e2}\n#deckScreen .tok.dragging{z-index:5;position:relative;box-shadow:0 10px 20px rgba(29,43,50,.25);opacity:.95}\n#deckScreen .bin{transition:background .15s,border-color .15s}\n#deckScreen .bin.over{background:#f4fbf7;border-color:var(--go);border-style:solid}\n#deckScreen .tray{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;max-width:360px}\n#deckScreen .btn{width:100%;max-width:360px;border:0;border-radius:18px;padding:16px;font-size:17px;font-weight:700;\n background:var(--ink);color:#fff;cursor:pointer}\n#deckScreen .btn.ghost{background:#fff;color:var(--soft);border:1px solid var(--line)}\n#deckScreen .btn.go{background:var(--go)}\n#deckScreen .bottom{padding:8px 18px calc(24px + env(safe-area-inset-bottom));display:flex;flex-direction:column;\n gap:10px;align-items:center}\n#deckScreen .note{font-size:12.5px;color:var(--soft);line-height:1.5;text-align:center;max-width:340px}\n#deckScreen .nextup{display:flex;align-items:center;gap:12px;background:#1d2b32;color:#fff;border-radius:20px;padding:15px 16px;margin-bottom:16px;cursor:pointer}\n#deckScreen .nextup .nlab{font-size:10.5px;letter-spacing:.13em;text-transform:uppercase;color:#9db3ba;font-weight:700}\n#deckScreen .nextup .ntitle{font-size:18px;font-weight:700;margin-top:3px}\n#deckScreen .nextup .nwhy{font-size:12px;color:#9db3ba;margin-top:2px}\n#deckScreen .nextup .btn{background:#e8a33d;color:#3d2a00;min-height:44px}\n#deckScreen .win{text-align:center}\n#deckScreen .win .star{font-size:74px}\n@media (prefers-reduced-motion:reduce){#deckScreen *{transition:none!important;animation:none!important}}\n"; document.head.appendChild(st);
 
   const el=document.createElement("div");
   el.id="deckScreen";
@@ -13092,9 +13098,13 @@ function done(){
     topicIx=i; DECK=ALL[TOPICS[i]].cards; ix=0; draw();
   }
 
-  function open(){ el.classList.add("on"); document.body.style.overflow="hidden";
+  let prevOverflow="";
+  function open(){ el.classList.add("on"); prevOverflow=document.body.style.overflow;
+    document.body.style.overflow="hidden";
+    document.body.classList.add("overlay-open");
     try{ history.pushState({overlay:"deckScreen"}, ""); }catch(e){} menu(); }
-  function close(fromBack){ el.classList.remove("on"); document.body.style.overflow="";
+  function close(fromBack){ el.classList.remove("on"); document.body.style.overflow=prevOverflow||"";
+    document.body.classList.remove("overlay-open");
     if(!fromBack){ try{ if(history.state && history.state.overlay) history.back(); }catch(e){} }
                     if(typeof render==="function") render(); }
   window.openDecks=open;
@@ -13889,7 +13899,7 @@ window.GROWNUP_DECKS = [
   }
 
   const CSS=`
-  #gdScreen{position:fixed;inset:0;z-index:61;background:#12161d;color:#eef1f5;display:none;
+  #gdScreen{position:fixed;inset:0;z-index:301;background:#12161d;color:#eef1f5;display:none;
     flex-direction:column;font-family:inherit}
   #gdScreen.on{display:flex}
   #gdScreen .inner{flex:1;display:flex;flex-direction:column;max-width:600px;width:100%;
@@ -13978,9 +13988,13 @@ window.GROWNUP_DECKS = [
   const $=i=>document.getElementById(i);
   let deck=null, ix=0;
 
-  function open(){ el.classList.add("on"); document.body.style.overflow="hidden";
+  let prevOverflow="";
+  function open(){ el.classList.add("on"); prevOverflow=document.body.style.overflow;
+    document.body.style.overflow="hidden";
+    document.body.classList.add("overlay-open");
     try{ history.pushState({overlay:"gdScreen"}, ""); }catch(e){} menu(); }
-  function close(fromBack){ el.classList.remove("on"); document.body.style.overflow="";
+  function close(fromBack){ el.classList.remove("on"); document.body.style.overflow=prevOverflow||"";
+    document.body.classList.remove("overlay-open");
     if(!fromBack){ try{ if(history.state && history.state.overlay) history.back(); }catch(e){} }
                     if(typeof render==="function") render(); refresh(); }
   window.openGrownupDecks=open;
