@@ -525,7 +525,9 @@
   .menuscrim{touch-action:none;overscroll-behavior:none;position:fixed;inset:0;z-index:143;background:rgba(24,22,60,.45);
              backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px)}
   .menusheet{position:fixed;left:12px;right:12px;top:calc(62px + env(safe-area-inset-top));
-             z-index:145;display:grid;gap:7px;max-width:420px;margin:0;padding:12px;max-height:72vh;overflow-y:auto;
+             z-index:145;display:grid;gap:7px;max-width:420px;margin:0;padding:12px;
+             max-height:calc(100svh - 84px - env(safe-area-inset-top));overflow-y:auto;
+             overscroll-behavior:contain;-webkit-overflow-scrolling:touch;touch-action:pan-y;
              background:#fff;border:1px solid #e1e3f4;border-radius:18px;box-shadow:0 24px 60px rgba(24,22,60,.38)}
   .menusheet button{width:100%;text-align:left;padding:13px 15px;font-size:14px}
   #menuBadge:empty{display:none}
@@ -566,7 +568,7 @@
   .hometile .hbadge{position:absolute;top:10px;right:10px;background:#d85b5b;color:#fff;
                     font-size:11px;font-weight:800;min-width:20px;height:20px;border-radius:99px;
                     display:flex;align-items:center;justify-content:center;padding:0 6px}
-  .menufab{position:fixed;left:14px;top:calc(14px + env(safe-area-inset-top));z-index:140;
+  .menufab{position:fixed;left:14px;top:calc(14px + env(safe-area-inset-top));z-index:146;
            width:auto;padding:10px 14px;border-radius:14px;background:#fff;color:#3e46ad;
            font-weight:800;font-size:15px;box-shadow:0 6px 18px rgba(24,22,60,.14);border:1px solid #e6e8f0}
   .editbar{position:fixed;left:0;right:0;top:0;z-index:160;display:flex;align-items:center;
@@ -690,20 +692,30 @@
   .addedrow code{font-size:11px;color:#19744a;word-break:break-all}
 
   /* ---------- Parenting tips ---------- */
-  .tips{background:#fff;border-radius:22px;padding:18px;box-shadow:var(--shadow);margin-bottom:16px;border-top:6px solid #7c83ef}
-  .tipshead{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px}
-  .tipshead h2{margin:0;font-size:18px}
-  .tipcats{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
-  .tipcats button{width:auto;background:#f2f3fb;color:#4a5170;font-size:12px;padding:6px 11px;border-radius:99px;font-weight:600}
+  /* The advice used to be a white card with a coloured edge — the same shape as
+     every tile around it, so it read as furniture. It now uses the reminder
+     card's language, because that is the thing on this page people actually
+     stop and look at. */
+  .tips{margin-bottom:16px}
+  .rcard.tipcard{min-height:0;padding:22px 20px 18px}
+  .rcard.tipcard h3{margin:0 0 8px}
+  .tiptry{margin-top:15px;background:rgba(255,255,255,.62);border-radius:15px;padding:12px 14px}
+  .tiptry strong{display:block;font-size:10.5px;font-weight:800;letter-spacing:.09em;
+                 text-transform:uppercase;opacity:.65;margin-bottom:4px}
+  .tiptry span{font-size:15px;line-height:1.5;font-weight:700}
+  .tipmore{width:100%;margin-top:15px;background:rgba(255,255,255,.72);border:0;
+           border-radius:14px;padding:13px;font-size:14.5px;font-weight:800;
+           color:inherit;cursor:pointer;min-height:48px}
+  .tipmore:active{transform:scale(.985)}
+  .tipeyebrow{margin:0 0 8px;padding:0 4px;font-size:11px;font-weight:800;
+              letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+  .tipcats{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:4px}
+  .tipcats button{width:auto;background:#f2f3fb;color:#4a5170;font-size:12px;padding:7px 12px;
+                  border-radius:99px;font-weight:700;min-height:36px}
   .tipcats button.on{background:var(--accent);color:#fff}
-  .tipbody{background:#f8f8ff;border:1px solid #e7e8f7;border-radius:16px;padding:15px}
-  .tipkind{font-size:10px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#6b63c9}
-  .tipbody h3{margin:5px 0 6px;font-size:17px}
-  .tipbody p{margin:0;font-size:14px;line-height:1.55;color:#3f4560}
-  .trythis{margin-top:12px;background:#fff;border-left:3px solid var(--good);border-radius:0 10px 10px 0;padding:10px 13px}
+  .tipnote{margin:10px 0 0;font-size:12.5px;line-height:1.5;color:var(--muted)}
   .trythis strong{display:block;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:#19744a;margin-bottom:3px}
   .trythis span{font-size:14px;line-height:1.5}
-  .tipnote{font-size:12px;color:var(--muted);margin:10px 0 0}
 
   /* ---------- Parent eyebrow reminders ---------- */
   .eyebrow{display:flex;align-items:flex-start;gap:9px;background:#fffaf0;border:1px solid #f0dcb2;
@@ -742,12 +754,34 @@
   /* ---------- Child view ---------- */
   #kidView{--k1:#ff8bb0;--k2:#ffd166;--k3:#5ad2c4;--k4:#8b7cf6;--kink:#2a2350}
   #kidView h2{font-family:system-ui,-apple-system,Segoe UI,sans-serif}
-  .subjfold{margin:0}
+  /* ---- Learn: one shelf, one open door ---- */
+  .subjfold{margin:0 0 10px;border-radius:20px;overflow:hidden;border:1px solid #e6e8f0;background:#fff}
   .subjfold>summary{list-style:none;cursor:pointer;position:relative}
   .subjfold>summary::-webkit-details-marker{display:none}
-  .subjfold>summary::after{content:"\203a";position:absolute;right:22px;top:50%;
-    transform:translateY(-50%) rotate(90deg);font-size:22px;font-weight:800;color:var(--muted)}
-  .subjfold[open]>summary::after{transform:translateY(-50%) rotate(-90deg)}
+  .subjhead{display:flex;align-items:center;gap:13px;padding:15px 46px 15px 16px;min-height:64px}
+  .subjicon{font-size:26px;line-height:1;flex:none}
+  .subjmain{flex:1;min-width:0;display:block}
+  .subjname{display:block;font-size:17px;font-weight:800;line-height:1.25}
+  .subjsub{display:block;font-size:12.5px;font-weight:700;opacity:.72;margin-top:2px}
+  .subjbar{display:block;height:5px;border-radius:99px;background:rgba(24,22,60,.10);margin-top:9px;overflow:hidden}
+  .subjbar i{display:block;height:100%;border-radius:99px;transition:width .4s cubic-bezier(.2,.8,.2,1)}
+  .subjchev{position:absolute;right:18px;top:50%;width:11px;height:11px;border-right:2.5px solid currentColor;
+            border-bottom:2.5px solid currentColor;opacity:.5;
+            transform:translateY(-70%) rotate(-45deg);transition:transform .22s ease}
+  .subjfold[open]>summary .subjchev{transform:translateY(-30%) rotate(45deg)}
+  .subjbody:not(:empty){padding:2px 12px 12px}
+  .subjfold.s-quran    .subjhead{background:linear-gradient(150deg,#e3f6ef,#cfeee2);color:#0b5545}
+  .subjfold.s-quran    .subjbar i{background:#1c8a6c}
+  .subjfold.s-fulfulde .subjhead{background:linear-gradient(150deg,#fff4dd,#ffe8bd);color:#6a4a05}
+  .subjfold.s-fulfulde .subjbar i{background:#d99b1d}
+  .subjfold.s-maths    .subjhead{background:linear-gradient(150deg,#e8e9ff,#d6d8fb);color:#2b2e73}
+  .subjfold.s-maths    .subjbar i{background:#5b63d8}
+  .subjfold.s-english  .subjhead{background:linear-gradient(150deg,#ffeaf0,#ffd7e3);color:#7a2242}
+  .subjfold.s-english  .subjbar i{background:#d4547e}
+  .subjfold.s-science  .subjhead{background:linear-gradient(150deg,#e9f6dd,#d4ecc1);color:#345a1f}
+  .subjfold.s-science  .subjbar i{background:#5f9b3c}
+  .subjfold.s-other    .subjhead{background:linear-gradient(150deg,#f3ecff,#e5d9ff);color:#452a7a}
+  .subjfold.s-other    .subjbar i{background:#7a63d6}
   .kidhero{position:relative;overflow:hidden;border-radius:28px;padding:22px;margin-bottom:16px;color:#fff;
            background:linear-gradient(120deg,#8b7cf6 0%,#5ad2c4 55%,#ffd166 100%);box-shadow:0 12px 30px rgba(90,70,200,.22)}
   .kidhero .bubble{position:absolute;border-radius:50%;background:rgba(255,255,255,.16);pointer-events:none}
@@ -901,6 +935,26 @@
   .rcard .rlead{margin:0 0 10px;font-size:19px;line-height:1.5;font-weight:700}
   .rcard .rsub{margin:0;font-size:15.5px;line-height:1.6}
   .rcard .rsrc{margin-top:14px;font-size:13px;font-weight:700;opacity:.72}
+  /* t7 sand — deen */
+  .rcard.t7{background:linear-gradient(150deg,#f6f1e2,#eae1c8)}
+  .rcard.t7 .rtag{background:#d9cba0;color:#5a4a1c}.rcard.t7 h3,.rcard.t7 .rlead{color:#584919}.rcard.t7 .rsub,.rcard.t7 .rsrc{color:#6d5b26}
+  /* Every overlay closes with the same control in the same corner. Three
+     different ✕ buttons that each did something slightly different was the
+     reason leaving one felt like starting again. */
+  .ovx{font-size:21px!important;font-weight:800!important;line-height:1!important}
+  .playeyebrow{margin:22px 0 8px;padding:0 4px;font-size:11px;font-weight:800;
+               letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+  .playcard{display:flex;align-items:center;gap:14px;border-radius:22px;padding:17px 16px;
+            margin-bottom:11px;cursor:pointer;border:1px solid rgba(24,22,60,.06);
+            box-shadow:0 8px 22px rgba(24,22,60,.08)}
+  .playcard:active{transform:scale(.985)}
+  .playcard.warm{background:linear-gradient(150deg,#fff4dd,#ffe6bb);color:#6a4a05}
+  .playcard.cool{background:linear-gradient(150deg,#e8e9ff,#d7d9fc);color:#2b2e73}
+  .playglyph{font-size:30px;line-height:1;flex:none}
+  .playmain{flex:1;min-width:0;display:block}
+  .playname{display:block;font-size:17px;font-weight:800;line-height:1.25}
+  .playsub{display:block;font-size:13px;font-weight:600;line-height:1.45;opacity:.78;margin-top:3px}
+  .playchev{font-size:28px;opacity:.45;flex:none}
   .rcard.tap{cursor:pointer}
   .rcard.tap:active{transform:scale(.985)}
   /* t1 warm gold - reminders about mercy and character */
@@ -1271,8 +1325,9 @@
   <button class="light" onclick="kidMenuGo('kidSpendScreen')">🎁 Spend my points</button>
   <button class="light" onclick="kidMenuGo('kidLearnScreen')">📖 Learn</button>
   <button class="light" onclick="kidMenuGo('kidPointsScreen')">⭐ My points</button>
-  <p class="menugroup">More</p>
   <button class="light" onclick="closeKidMenu();showDeenPanel()">🤲 Duas &amp; bedtime</button>
+  <button class="light" onclick="closeKidMenu();showPlayPanel()">🧩 Do together</button>
+  <p class="menugroup">More</p>
   <button class="light" onclick="closeKidMenu();showTreePanel()">🌳 My family</button>
   <button class="light" onclick="closeKidMenu();showRulesPanel()">📜 House rules</button>
   <button class="light" onclick="closeKidMenu();startTour(kidTourKey(sessionMember()))">❓ How this works</button>
@@ -1373,12 +1428,20 @@
       <button class="light" id="btnOverview" onclick="showOverviewPanel()">📊 Overview</button>
       <button class="light" id="btnProgress" onclick="showProgressPanel()">📖 Learn</button>
 
+      <p class="menugroup">Together</p>
+      <button class="light" id="btnDeen" onclick="showDeenPanel()">🤲 Duas &amp; bedtime</button>
+      <button class="light" id="btnPlay" onclick="showPlayPanel()">🧩 Do together</button>
+      <button class="light" id="btnRules" onclick="showRulesPanel()">📜 House rules</button>
+
       <p class="menugroup">People</p>
       <button class="light" id="btnFamily" onclick="showAccountPanel()">👨‍👩‍👧 Family members</button>
-      <button class="light" id="btnDeen" onclick="showDeenPanel()">🤲 Duas &amp; bedtime</button>
       <button class="light" id="btnTree" onclick="showTreePanel()">🌳 Family tree</button>
       <button class="light" id="btnTutors" onclick="showTutorPanel()">📚 Tutors</button>
-      <button class="light" id="btnGrownups" onclick="showGrownupsPanel()">🤝 The grown-ups</button>
+
+      <p class="menugroup">Just for the grown-ups</p>
+      <button class="light" id="btnGrownups" onclick="showGrownupsPanel()">🤝 Your reward list</button>
+      <button class="light" id="btnPledges" onclick="showPledgesPanel()">🤞 Pledges</button>
+      <button class="light" id="btnMyCourses" onclick="showCoursesPanel()">📓 My courses</button>
 
       <p class="menugroup">Set up</p>
       <button class="light" id="btnRewardsMenu" onclick="showRewardsPanel()">🎁 Rewards &amp; activities</button>
@@ -1386,7 +1449,6 @@
       <button class="light" id="btnRefreshLists" onclick="applyRecommendedLists()">✨ Update to recommended lists</button>
 
       <p class="menugroup">Help</p>
-      <button class="light" id="btnRules" onclick="showRulesPanel()">📜 House rules</button>
       <button class="light" id="btnHowItWorks" onclick="openHowItWorks()">❓ How this works</button>
       <button class="light" id="btnResetDay" onclick="resetDay()">↻ Reset today</button>
       <button class="light" id="btnSignOut" onclick="signOutDevice()">🔒 Sign out</button>
@@ -1484,7 +1546,7 @@
   </div>
 
   <div id="progressPanel" class="panel hidden">
-    <button class="panelback" onclick="goHome()">← Home</button>
+    <button class="panelback" onclick="panelBack()">← Home</button>
     <h2>📖 Learn</h2>
     <p class="small">What each child has covered and what they can do unaided. Every mark shows who made it.</p>
     <div id="progressBody" style="margin-top:10px"></div>
@@ -1550,9 +1612,32 @@
   </div>
 
   <div id="grownupsPanel" class="panel hidden">
-    <button class="panelback" onclick="goHome()">← Home</button>
+    <button class="panelback" onclick="panelBack()">← Home</button>
+    <h2>🤝 Your reward list</h2>
+    <p class="small">What the two of you can claim, and what your partner has put on the list.</p>
     <div id="grownupsExtra"></div>
     <div id="grownupsPanelBody"></div>
+  </div>
+
+  <div id="pledgesPanel" class="panel hidden">
+    <button class="panelback" onclick="panelBack()">← Home</button>
+    <h2>🤞 Pledges</h2>
+    <p class="small">Something you offer each other for the week. No asking needed — it is already promised.</p>
+    <div id="pledgeHost"></div>
+  </div>
+
+  <div id="coursesPanel" class="panel hidden">
+    <button class="panelback" onclick="panelBack()">← Back</button>
+    <h2>📓 My courses</h2>
+    <p class="small">Anything you are working through yourself — a book, a juz plan, a class. You add the steps and tick them off. Nothing here earns points.</p>
+    <div id="courseHost"></div>
+  </div>
+
+  <div id="playPanel" class="panel hidden">
+    <button class="panelback" onclick="panelBack()">← Home</button>
+    <h2>🧩 Do together</h2>
+    <p class="small">Things to make and play side by side. Nothing is scored and nothing is homework.</p>
+    <div id="playBody"></div>
   </div>
 
   <div id="pickPanel" class="panel hidden">
@@ -2953,8 +3038,10 @@ function defaultYearFor(child){
   return (!Number.isNaN(n) && YEAR_BY_AGE[n]) || "y1";
 }
 function yearShown(subject, child){
-  const key=(child?child.id:"")+"|"+subject.subject;
-  return learnYear[key] || defaultYearFor(child);
+  // Sorted by the child's age, and not overridable. A parent flipping to Year 6
+  // was reading a syllabus their seven-year-old has not met yet and treating
+  // the blanks as gaps.
+  return defaultYearFor(child);
 }
 function setLearnYear(childId, subjectId, yid){
   learnYear[childId+"|"+subjectId]=yid;
@@ -3354,6 +3441,15 @@ const GOAL_IDEAS = [
 /* Ideas for parents, grouped so the card can lean towards connection when
    things have gone quiet. Each one is a short idea plus something concrete to
    actually do — a tip with no action attached gets read once and forgotten. */
+const TIP_THEME = {
+  time:{theme:"t2", glyph:"☀️", label:"Time together"},
+  praise:{theme:"t1", glyph:"🌟", label:"Encouraging"},
+  behaviour:{theme:"t5", glyph:"🧭", label:"Behaviour"},
+  calm:{theme:"t3", glyph:"🌙", label:"Calm moments"},
+  talk:{theme:"t4", glyph:"💬", label:"Talking"},
+  learn:{theme:"t6", glyph:"📚", label:"Learning at home"},
+  deen:{theme:"t7", glyph:"🕌", label:"Deen"},
+};
 const PARENTING_TIPS = [
   // ----- time together -----
   {cat:"time", title:"Ten minutes that are entirely theirs",
@@ -3363,66 +3459,153 @@ const PARENTING_TIPS = [
    body:"When a child directs the game and you follow, they practise being listened to. Children who feel heard in play tend to be easier to reach when something matters.",
    try:"For one session, don't direct, correct or quiz — just describe what they're doing and join in."},
   {cat:"time", title:"The ordinary moments carry the most",
-   body:"Car journeys, washing up, the walk to school. Children rarely open up on demand, but they talk while doing something side by side, when nobody is looking at them.",
-   try:"Pick one routine this week and quietly make it your talking time. Don't announce it."},
-  {cat:"time", title:"One-to-one, not only all together",
-   body:"In a group, a quieter child learns that being easy means being overlooked. A little solo time changes what they think they have to do to be noticed.",
-   try:"Take one child on an ordinary errand this week — just them, no occasion needed."},
+   body:"Car journeys, washing up, the walk to school. Children rarely open up on demand, but they talk while their hands are busy and nobody is looking at them.",
+   try:"Give one daily chore to one child at a time and do it together, side by side."},
+  {cat:"time", title:"One child at a time",
+   body:"In a house with several children, time alone with a parent is the rarest thing there is. Even fifteen minutes without a sibling in the room changes what a child will say.",
+   try:"Rotate: each week, one child gets an errand with you on their own."},
   {cat:"time", title:"Say yes to the small ask",
-   body:"\u201cWatch this!\u201d is a bid for connection, and it comes dozens of times a day. Turning towards those small bids matters more than any grand gesture.",
-   try:"Next time they ask you to look, stop what you're doing and look properly. Say what you saw."},
-  {cat:"time", title:"Bedtime is the honest hour",
-   body:"Children will say things in the dark they'd never say at the kitchen table — worries, questions, things that happened at school. It needs unhurried silence to surface.",
-   try:"Start bedtime five minutes earlier and stay quiet a little longer than feels natural."},
-
-  // ----- encouragement -----
-  {cat:"praise", title:"Praise the effort, not the child",
-   body:"\u201cYou kept going when it got hard\u201d builds something \u201cyou're so clever\u201d doesn't. Praise aimed at ability makes children avoid anything they might fail at.",
-   try:"Next time you're impressed, describe what they did rather than what they are."},
-  {cat:"praise", title:"Be specific or it doesn't teach",
-   body:"\u201cGood boy\u201d tells a child you're pleased but not what to repeat. Naming the action and its effect turns a nice moment into something they can do again.",
-   try:"Name the thing and who it helped: \u201cyou let your sister go first, and it stopped a row.\u201d"},
-  {cat:"praise", title:"Catch them being good",
-   body:"Most attention goes to what's going wrong, so children learn that trouble is the reliable way to be noticed. Ordinary cooperation usually passes in silence.",
-   try:"Find one small thing today that went right and mention it, however unremarkable."},
-  {cat:"praise", title:"Let them overhear it",
-   body:"Praise a child hears you give to someone else lands differently — it can't be politeness, so they believe it.",
-   try:"Tell the other parent something they did well, within earshot, and don't make eye contact."},
-  {cat:"praise", title:"Keep the warmth off the scoreboard",
-   body:"Points recognise effort; affection shouldn't have to be earned. If closeness only follows good behaviour, a bad week starts to feel like a withdrawal of love.",
-   try:"Give some affection today at a moment that has nothing to do with points at all."},
-  {cat:"praise", title:"Tell them why it mattered",
-   body:"Behaviour sticks when a child understands the reason, not just the reward. The explanation is what they take with them when nobody is watching.",
-   try:"Add the why: \u201cthat was kind, because he'd had a hard morning and you noticed.\u201d"},
-
-  // ----- guiding behaviour -----
-  {cat:"behaviour", title:"Describe, don't accuse",
-   body:"\u201cThe shoes are in the doorway\u201d gets a child moving. \u201cYou never tidy up\u201d gets you an argument about whether that's true.",
-   try:"Say what you see and stop talking. Give them the chance to work out the rest."},
-  {cat:"behaviour", title:"Connect before you correct",
-   body:"A child who feels told off stops listening and starts defending. A few seconds of contact first means the correction actually gets heard.",
-   try:"Get down to their eye level and say their name before you say anything about the behaviour."},
-  {cat:"behaviour", title:"Offer the choice, not the order",
-   body:"Much of what looks like defiance is a child with no say in anything. Two options you're happy with gives them control without giving up the outcome.",
-   try:"\u201cCoat on now, or coat on at the door?\u201d Both answers are ones you can live with."},
-  {cat:"behaviour", title:"Repair afterwards",
-   body:"Every parent loses their temper. What children learn from is not whether it happened but whether anyone came back and put it right.",
-   try:"Own your part without excusing theirs: \u201cI shouted, and I'm sorry. Let's start again.\u201d"},
-  {cat:"behaviour", title:"Let routines do the arguing",
-   body:"When the order of the evening is fixed and predictable, it stops being your decision to resist. The routine becomes the thing saying no, not you.",
-   try:"Pick the worst flashpoint of your day and make its sequence identical for a week."},
-  {cat:"behaviour", title:"Name the feeling, then hold the line",
-   body:"Acknowledging how a child feels isn't the same as giving in. Children accept a boundary far more easily once they believe you understood why they didn't want it.",
-   try:"\u201cYou're furious it's finished. It's still finished.\u201d Say both parts, in that order."}
+   body:"\"Come and look at this\" is an invitation. Turning towards it costs a minute and tells them you are reachable.",
+   try:"Next time one of them calls you over, go — even if it's nothing."},
+  {cat:"time", title:"Eat together where you can",
+   body:"Shared meals are the most reliable predictor of children talking to their parents. It isn't the food; it's the sitting still, facing each other.",
+   try:"Pick the three evenings a week you can protect, and protect those."},
+  {cat:"time", title:"Have something that is only yours and theirs",
+   body:"A running joke, a Saturday walk, a thing you always do. Children hold onto rituals far longer than they hold onto treats.",
+   try:"Start one small thing this week and repeat it until it's a habit."},
+  // ----- encouraging -----
+  {cat:"praise", title:"Name what they did, not what they are",
+   body:"\"You kept going when it got hard\" gives a child something to repeat. \"You're clever\" gives them something to protect — and children protect labels by avoiding anything that might dent them.",
+   try:"Describe the action and the effort, and leave the adjective off."},
+  {cat:"praise", title:"Notice the thing nobody asked for",
+   body:"Praise for what was demanded is heard as compliance. Praise for something unprompted is heard as being seen.",
+   try:"Once today, mention something they did that you never asked for."},
+  {cat:"praise", title:"Say it in front of someone else",
+   body:"A child overhearing you tell their grandmother what they did carries it for weeks.",
+   try:"Tell one other adult, within earshot, something good about them."},
+  {cat:"praise", title:"Thank them properly",
+   body:"Children are thanked less often than adults. A real thank-you, with the reason attached, lands differently from \"good boy\".",
+   try:"Say: \"Thank you for doing that — it made my evening easier.\""},
+  {cat:"praise", title:"Repair is worth more than getting it right",
+   body:"A child who has already made a mess and then puts it right has done the harder thing. That is the moment worth noticing.",
+   try:"Praise the putting-right at least as warmly as you'd praise the never-doing-it."},
+  {cat:"praise", title:"Write it down",
+   body:"A note in a lunchbox or on a pillow is read more than once. Spoken praise is gone the moment it's said.",
+   try:"Leave one written line this week saying what you noticed."},
+  // ----- behaviour -----
+  {cat:"behaviour", title:"Give the instruction once, then act",
+   body:"Repeating yourself teaches children that instructions don't mean anything until the fifth time and the raised voice.",
+   try:"Say it once, calmly, then follow through without saying it again."},
+  {cat:"behaviour", title:"Tell them what to do, not what to stop",
+   body:"\"Walk\" is easier to obey than \"stop running\". A child has to work out the opposite of a negative before they can act on it.",
+   try:"Rephrase your three most common instructions as the thing you want."},
+  {cat:"behaviour", title:"Warn before you change activity",
+   body:"Most refusals at the door are not defiance; they're a child being pulled out of something without notice.",
+   try:"Give a two-minute warning before every transition today."},
+  {cat:"behaviour", title:"Deal with it later, not in front of everyone",
+   body:"Correcting a child in front of siblings adds shame to the lesson, and shame is what they remember instead of the lesson.",
+   try:"Take them aside, or wait until bedtime."},
+  {cat:"behaviour", title:"Never take points away",
+   body:"Taking back what was earned teaches a child that good things are unsafe. Let the record stand and deal with the behaviour separately.",
+   try:"If you're tempted to deduct, write a note in the app instead."},
+  {cat:"behaviour", title:"Behaviour is usually a message",
+   body:"Tired, hungry, jealous, frightened, or out of their depth. The behaviour is the last thing to appear and the first thing we react to.",
+   try:"Before you respond, ask yourself which of those five it might be."},
+  {cat:"behaviour", title:"Let the small things go",
+   body:"A house where everything is corrected is exhausting for everyone in it. Choose the two or three things that matter and let the rest pass.",
+   try:"Pick the two rules you'll hold firmly this week, and loosen the rest."},
+  {cat:"behaviour", title:"Be the calm they borrow",
+   body:"A child's ability to settle is limited by the calmest person in the room. Lowering your voice does more than raising it ever has.",
+   try:"When it escalates, sit down and drop your voice below theirs."},
+  // ----- calm moments -----
+  {cat:"calm", title:"Bedtime works when it's boring",
+   body:"The same order every night does most of the work. Novelty at bedtime wakes children up.",
+   try:"Fix the order — wash, pyjamas, dua, story, lights — and don't vary it."},
+  {cat:"calm", title:"Get the morning ready the night before",
+   body:"Most morning conflict is logistics wearing a costume. Bags, clothes and shoes decided at night removes the argument entirely.",
+   try:"Lay out tomorrow's things tonight, with them, not for them."},
+  {cat:"calm", title:"The last five minutes of the day matter",
+   body:"What you say as the light goes off is what they take into sleep. Keep it warm even on a bad day.",
+   try:"End every day by naming one thing you liked about them."},
+  {cat:"calm", title:"Let them be bored",
+   body:"Boredom is where children start inventing. Filling every gap trains them to wait for the next thing to be provided.",
+   try:"Leave one stretch this weekend with nothing planned."},
+  {cat:"calm", title:"Screens end better with a landing",
+   body:"Switching a screen off mid-thing feels to a child like being interrupted mid-sentence. Ending at a natural break avoids most of the fight.",
+   try:"Agree the stopping point before it goes on, not while it's on."},
+  {cat:"calm", title:"Protect their sleep before anything else",
+   body:"Almost everything else — mood, patience, school, appetite — sits on top of sleep. A tired child cannot be reasoned into being a rested one.",
+   try:"Move bedtime fifteen minutes earlier for a week and watch what changes."},
+  // ----- talking -----
+  {cat:"talk", title:"Ask a smaller question",
+   body:"\"How was school?\" is too big to answer. \"Who did you sit with at lunch?\" gets a real reply.",
+   try:"Swap one broad question for one specific one today."},
+  {cat:"talk", title:"Let the feeling exist first",
+   body:"A child who is upset cannot hear a solution. Naming what they feel does more than fixing what caused it.",
+   try:"Try: \"That sounds really unfair\" — and then say nothing for a moment."},
+  {cat:"talk", title:"Don't rush to fix it",
+   body:"Most of the time they want a witness, not a plan. Offering the plan too early ends the conversation.",
+   try:"Ask: \"Do you want help, or do you just want me to listen?\""},
+  {cat:"talk", title:"Answer the question they actually asked",
+   body:"Children often ask small questions about big things. Answering briefly and honestly usually satisfies them; a lecture teaches them not to ask again.",
+   try:"Answer in one sentence, then wait to see if they want more."},
+  {cat:"talk", title:"Apologise when you get it wrong",
+   body:"A parent who says sorry teaches a child that repair is possible and that being wrong is survivable.",
+   try:"If you snapped today, say so before bed, without excuses."},
+  {cat:"talk", title:"Talk about your own day",
+   body:"Children learn how to describe their inner life by hearing it described. Tell them something real, at their level.",
+   try:"Share one thing that went well and one that didn't."},
+  // ----- learning at home -----
+  {cat:"learn", title:"Sit near them, not over them",
+   body:"Presence helps; supervision doesn't. A parent at the same table doing their own thing keeps a child working far longer than one checking every line.",
+   try:"Bring your own book or work to the table while they do theirs."},
+  {cat:"learn", title:"Don't correct every mistake",
+   body:"Marking as they go stops the thinking. Let them finish, then look at it together.",
+   try:"Wait until the end, and pick the one thing worth talking about."},
+  {cat:"learn", title:"Ask them to teach you",
+   body:"Explaining something out loud is how a child finds out whether they actually know it.",
+   try:"Say: \"Show me how you did that one — I've forgotten.\""},
+  {cat:"learn", title:"Short and often beats long and rare",
+   body:"Fifteen minutes most days does more than two hours on a Sunday. Memory is built by returning, not by staying.",
+   try:"Pick a slot that already exists in your day and attach it to that."},
+  {cat:"learn", title:"Read together past the age they can read alone",
+   body:"Being read to gives a child access to language above their own reading level, and the closeness is the point as much as the words.",
+   try:"Keep one shared book going, even a chapter a week."},
+  {cat:"learn", title:"Praise the going-back, not the getting-right",
+   body:"Revisiting something half-remembered is the actual work of learning, and it feels like failure from the inside.",
+   try:"When something comes back for review, treat it as normal, not as a slip."},
+  // ----- deen -----
+  {cat:"deen", title:"Pray where they can see you",
+   body:"Children copy what is normal in the house long before they understand it. Being present at your prayer teaches more than being told about it.",
+   try:"Let them stand beside you for one prayer today, however briefly."},
+  {cat:"deen", title:"Little and consistent",
+   body:"A short surah returned to every day outlasts a long one pushed once. The Prophet ط loved the deed done regularly, however small.",
+   try:"Choose one small thing and keep it for a month."},
+  {cat:"deen", title:"Explain the why, gently",
+   body:"A child who knows why we say a dua before eating says it differently from one who has only been told to.",
+   try:"Give the reason once, in a sentence, without turning it into a lesson."},
+  {cat:"deen", title:"Make the masjid a good memory",
+   body:"How a child feels about a place at seven tends to be how they feel about it at seventeen.",
+   try:"Attach something warm to the trip — a walk, a treat, time with you."},
+  {cat:"deen", title:"Kindness counts as worship too",
+   body:"Helping a sibling, feeding a cat, holding a door. Framing these as part of the deen widens what a child thinks it is.",
+   try:"Next time they're kind, name it as something Allah loves."},
+  {cat:"deen", title:"Let them hear you ask for them",
+   body:"A child who overhears themselves being made dua for learns something about their place in the family that no talk will teach.",
+   try:"Say a short dua for them out loud tonight."},
 ];
 const TIP_CATS = [
   {key:"all", label:"All"},
   {key:"time", label:"Time together"},
   {key:"praise", label:"Encouraging"},
-  {key:"behaviour", label:"Behaviour"}
+  {key:"talk", label:"Talking"},
+  {key:"behaviour", label:"Behaviour"},
+  {key:"calm", label:"Calm moments"},
+  {key:"learn", label:"Learning at home"},
+  {key:"deen", label:"Deen"}
 ];
 
-const APP_VERSION = "v102";
+const APP_VERSION = "v104";
 const today = new Date().toISOString().slice(0,10);
 let app = {families:[],currentFamily:null,currentChild:null};
 let categories = [];
@@ -4262,38 +4445,75 @@ function legendHTML(){
          <b>\u21ba Time to revisit</b> \u2014 it was secure a while ago, so it is worth checking you still remember.</p>
     </section>`;
 }
+/* Every subject has its own colour, and every subject is a closed door until
+   you choose it. Before this the page was one undifferentiated scroll of five
+   syllabuses at once, which is a lot to hand a seven-year-old \u2014 or a parent
+   at nine in the evening. */
+const SUBJECT_TONE = {
+  quran:    "s-quran",
+  fulfulde: "s-fulfulde",
+  maths:    "s-maths",
+  english:  "s-english",
+  science:  "s-science"
+};
+let learnOpen = {};
+/* One at a time. Two subjects open is already a scroll, and the point of the
+   shelf is that you choose one thing. */
+function toggleSubject(childId, subjectId, on){
+  if(on) learnOpen = {};
+  learnOpen[childId+"|"+subjectId] = on;
+}
+function subjectIsOpen(childId, subjectId){
+  return learnOpen[childId+"|"+subjectId] === true;
+}
 function learnScreenHTML(child){
   if(!child) return "";
   const me=sessionMember();
   const canSecure=mayMarkSecure(me, child);
-  const adultView=isParentRole(me)||isTutorRole(me);
   return teachersCardHTML(child) + legendHTML() + CURRICULUM.map(subject=>{
+    // The year is the child's year, worked out from their age, for everybody
+    // who looks. A parent comparing years across the whole curriculum was
+    // reading somebody else's syllabus and calling it their child's progress.
     const shown=strandsShown(subject, child);
     const done=shown.reduce((a,st)=>a+strandProgress(child,subject,st).secure,0);
     const total=shown.reduce((a,st)=>a+st.objectives.length,0);
-    // A child sees their own year and only their own year. The picker was how
-    // they got out of it - useful for a parent comparing years, confusing for
-    // a child who could wander into Year 6 and conclude they were behind.
-    const picker=(subject.byYear && adultView)
-      ? `<div class="yearpick">${subject.strands.map(st=>`<button class="${
-          st.id===yearShown(subject,child)?"on":""}" onclick="setLearnYear('${child.id}','${subject.subject}','${st.id}')">${
-          st.name.replace("Year ","Y")}</button>`).join("")}</div>`
-      : "";
-    const yearName=(subject.byYear && !adultView)
-      ? (shown[0] ? shown[0].name : "") : "";
-    const head=`<section class="kidhero"><div class="kidherorow"><div>
-        <p class="kidhi">${subject.icon} ${escapeHtml(subject.name)}</p>
-        <p class="kidsub">${yearName?escapeHtml(yearName)+" \u00b7 ":""}${done} of ${total} secure</p>
-      </div></div>${picker}</section>`;
-    const ladders=shown.map(st=>ladderHTML(child, subject, st, canSecure)).join("");
-    // A pack can bring hundreds of objectives. Those subjects arrive folded, so
-    // the page still opens on the family's own curriculum rather than on a wall
-    // of somebody else's syllabus.
-    return subject.collapsed
-      ? `<details class="subjfold">${head.replace("<section","<summary><section").replace("</section>","</section></summary>")}${ladders}</details>`
-      : head + ladders;
+    const pct=total?Math.round(done/total*100):0;
+    const yearName=subject.byYear ? (shown[0] ? shown[0].name : "") : "";
+    const tone=SUBJECT_TONE[subject.subject] || "s-other";
+    const open=subjectIsOpen(child.id, subject.subject);
+    const head=`<summary class="subjhead ${tone}">
+        <span class="subjicon">${subject.icon}</span>
+        <span class="subjmain">
+          <span class="subjname">${escapeHtml(subject.name)}</span>
+          <span class="subjsub">${yearName?escapeHtml(yearName)+" \u00b7 ":""}${done} of ${total} secure</span>
+          <span class="subjbar"><i style="width:${pct}%"></i></span>
+        </span>
+        <span class="subjchev" aria-hidden="true"></span>
+      </summary>`;
+    const ladders=open ? shown.map(st=>ladderHTML(child, subject, st, canSecure)).join("") : "";
+    return `<details class="subjfold ${tone}"${open?" open":""}
+        ontoggle="toggleSubject('${child.id}','${subject.subject}',this.open);setTimeout(renderLearnHost,0)">
+        ${head}<div class="subjbody">${ladders}</div></details>`;
   }).join("")
-  + `<p class="kidfooter">Tap <strong>Practised</strong> when you\u2019ve worked on something. Only a grown-up can mark it secure.</p>`;
+  + `<p class="kidfooter">Tap a subject to open it. Mark <strong>Practised</strong> when you\u2019ve worked on something \u2014 only a grown-up can mark it secure.</p>`;
+}
+/* One re-render for whichever Learn surface is on screen: the child\u2019s tab or
+   the parent\u2019s panel. Opening a subject only fills that subject in. */
+function renderLearnHost(){
+  const panel=document.getElementById("progressPanel");
+  if(panel && !panel.classList.contains("hidden") && typeof renderProgressPanel==="function"){
+    renderProgressPanel(); return;
+  }
+  const kl=document.getElementById("kidLearnBody");
+  const scr=document.getElementById("kidLearnScreen");
+  if(kl && scr && !scr.classList.contains("hidden")){
+    const child=(typeof sessionMember==="function") ? sessionMember() : null;
+    if(child){
+      window.__learnForChild = true;
+      kl.innerHTML = learnScreenHTML(child);
+      window.__learnForChild = false;
+    }
+  }
 }
 
 /* ---------- The note ----------
@@ -5719,8 +5939,8 @@ async function toggleExcusedToday(childId){
    open. Getting this wrong in either direction closes a screen the moment
    somebody opens it. */
 const KID_ONLY_SCREENS = ["kidSpendScreen","kidLearnScreen","kidPointsScreen"];
-const SHARED_SCREENS   = ["rulesPanel","treePanel","deenPanel"];
-const SCREENS = ["accountPanel","overviewPanel","activityPanel","requestsPanel","progressPanel","rewardsPanel","grownupsPanel","pickPanel","quickPanel","reviewPanel","rulesPanel","tutorPanel","treePanel","deenPanel",
+const SHARED_SCREENS   = ["rulesPanel","treePanel","deenPanel","playPanel"];
+const SCREENS = ["accountPanel","overviewPanel","activityPanel","requestsPanel","progressPanel","rewardsPanel","grownupsPanel","pledgesPanel","coursesPanel","playPanel","pickPanel","quickPanel","reviewPanel","rulesPanel","tutorPanel","treePanel","deenPanel",
                  "kidSpendScreen","kidLearnScreen","kidPointsScreen"];
 let screenNow = null;
 /* Only the parent's full-screen .panel elements scroll inside themselves, so
@@ -5941,9 +6161,31 @@ function showScreen(id){
   const topBtn=document.getElementById("panelTop");
   if(topBtn) topBtn.classList.add("hidden");
   watchPanelScroll();
+  try{ syncPanelBackLabels(); }catch(e){}
   render();
 }
-function goHome(){ closeMenu(); showScreen(null); }
+function goHome(){ closeMenu(); returnTo=null; showScreen(null); }
+/* Panels used to have one exit and it was the front door. Opening My courses
+   from Learn and pressing back put you on the dashboard, so getting back to
+   where you were meant starting again. */
+let returnTo = null;
+function openPanelFrom(id){
+  returnTo = screenNow || null;
+  closeMenu();
+  showScreen(id);
+}
+function panelBack(){
+  const to = returnTo; returnTo = null;
+  closeMenu();
+  showScreen(to || null);
+}
+function syncPanelBackLabels(){
+  document.querySelectorAll(".panel").forEach(p=>{
+    const b=p.querySelector(".panelback");
+    if(b && b.getAttribute("onclick")==="panelBack()")
+      b.textContent = (screenNow===p.id && returnTo) ? "\u2190 Back" : "\u2190 Home";
+  });
+}
 function panelToTop(){
   const p=screenNow && document.getElementById(screenNow);
   if(!p) return;
@@ -6006,8 +6248,54 @@ function setMenuScrim(on){
 }
 function openPanel(id){
   if(!requireParent()) return;
+  returnTo = null;
   closeMenu();
   showScreen(screenNow===id ? null : id);
+}
+function showPledgesPanel(){
+  openPanelFrom("pledgesPanel");
+  if(typeof renderPledges==="function") renderPledges();
+}
+function showCoursesPanel(){
+  openPanelFrom("coursesPanel");
+  if(typeof renderCourses==="function") renderCourses();
+}
+function showPlayPanel(){
+  openPanelFrom("playPanel");
+  renderPlayPanel();
+}
+/* Two audiences, one place. Puzzles were split across the grown-ups' panel
+   and the children's Learn shelf, which is why neither felt like a thing you
+   could decide to go and do. */
+function renderPlayPanel(){
+  const body=document.getElementById("playBody");
+  if(!body) return;
+  const me=sessionMember();
+  const grown=me && !isChildRole(me);
+  const withKids=(window.DECKS && typeof window.openDecks==="function")
+    ? `<section class="playcard warm" onclick="openDecks()">
+        <span class="playglyph" aria-hidden="true">\u{1f9e9}</span>
+        <span class="playmain"><span class="playname">With the children</span>
+          <span class="playsub">18 decks of riddles, odd-one-out and act-it-out. You read; everyone guesses.</span></span>
+        <span class="playchev" aria-hidden="true">\u203a</span></section>` : "";
+  const withPartner=(grown && window.GROWNUP_DECKS && typeof window.openGrownupDecks==="function")
+    ? `<section class="playcard cool" onclick="openGrownupDecks()">
+        <span class="playglyph" aria-hidden="true">\u{1f9e0}</span>
+        <span class="playmain"><span class="playname">${escapeHtml(grownDeckLabel())}</span>
+          <span class="playsub">Forty lateral-thinking puzzles across four decks, and they get harder. Hint first, answer second.</span></span>
+        <span class="playchev" aria-hidden="true">\u203a</span></section>` : "";
+  body.innerHTML = withKids + withPartner ||
+    '<p class="small">Nothing to play here yet.</p>';
+}
+/* "Puzzle decks \u2014 for you" was true and told you nothing. If there are two
+   grown-ups in the family, say so by name. */
+function grownDeckLabel(){
+  const me=sessionMember();
+  const f=currentFamily();
+  const others=(f?f.children:[]).filter(c=>isParentRole(c) && (!me || c.id!==me.id));
+  if(others.length===1) return "With you and " + others[0].name;
+  if(others.length>1)   return "With the grown-ups";
+  return "For the grown-ups";
 }
 function showRewardsPanel(){
   openPanel("rewardsPanel");
@@ -7514,23 +7802,23 @@ function renderTips(){
   const tip = currentTip();
   if(!tip){ card.classList.add("hidden"); return; }
   card.classList.remove("hidden");
-  const kindLabel = (TIP_CATS.find(c => c.key === tip.cat) || {}).label || "Idea";
+  const t = TIP_THEME[tip.cat] || {theme:"t1", glyph:"\ud83d\udca1", label:"Idea"};
+  const pool = tipPool().length;
   const nudge = (tipCat === "all" && anyChildStruggling())
-    ? '<p class="tipnote">A quiet stretch on the graph is often about connection before it\u2019s about behaviour \u2014 the time-together ideas are worth trying first.</p>'
+    ? '<p class="tipnote">A quiet stretch on the graph is more often about connection than about behaviour \u2014 the time-together ideas are worth trying first.</p>'
     : "";
   card.innerHTML = `
-    <div class="tipshead">
-      <h2>\ud83d\udc9b Being with them</h2>
-      <button class="light" style="width:auto;font-size:13px" onclick="nextTip()">Another idea</button>
-    </div>
+    <section class="rcard tipcard ${t.theme}">
+      <span class="rglyph" aria-hidden="true">${t.glyph}</span>
+      <span class="rtag">${escapeHtml(t.label)}</span>
+      <h3>${escapeHtml(tip.title)}</h3>
+      <p class="rsub">${escapeHtml(tip.body)}</p>
+      <div class="tiptry"><strong>Try this</strong><span>${escapeHtml(tip.try)}</span></div>
+      <button class="tipmore" onclick="nextTip()">Another idea \u21bb</button>
+    </section>
+    <p class="tipeyebrow">\ud83d\udc9b Being with them \u00b7 ${pool} ideas</p>
     <div class="tipcats">
       ${TIP_CATS.map(c => `<button class="${c.key===tipCat?"on":""}" onclick="setTipCat('${c.key}')">${c.label}</button>`).join("")}
-    </div>
-    <div class="tipbody">
-      <div class="tipkind">${escapeHtml(kindLabel)}</div>
-      <h3>${escapeHtml(tip.title)}</h3>
-      <p>${escapeHtml(tip.body)}</p>
-      <div class="trythis"><strong>Try this</strong><span>${escapeHtml(tip.try)}</span></div>
     </div>
     ${nudge}`;
 }
@@ -8332,10 +8620,12 @@ function renderParentAdminView(parent){
         ${tile("\ud83d\udd25","Quick points","Everyone on one screen","showQuickPanel()")}
         ${tile("\ud83d\udde3\ufe0f","Review together","Go through the week with them","showReviewPanel()")}
         ${tile("\ud83d\udd14","Requests", pend.length?pend.length+" waiting on you":"Nothing waiting","showRequestsPanel()", pend.length||0)}
-        ${tile("\ud83d\udcd6","Learn","Qur\u2019an, Fulfulde and the puzzle decks","showProgressPanel()")}
+        ${tile("\ud83d\udcd6","Learn","Your own, and how they\u2019re getting on","showProgressPanel()")}
         ${tile("\ud83d\udcca","Overview","Everyone\u2019s week at a glance","showOverviewPanel()")}
         ${tile("\ud83c\udf81","Rewards","What the points are for","showRewardsPanel()")}
         ${tile("\ud83e\udd1d","The grown-ups","Your own list, and your partner","showGrownupsPanel()", offers.length||0)}
+        ${tile("\ud83e\udd1e","Pledges","Something you promise each other","showPledgesPanel()")}
+        ${tile("\ud83e\udde9","Do together","Cook, play and puzzle with them","showPlayPanel()")}
         ${tile("\ud83d\udc68\u200d\ud83d\udc69\u200d\ud83d\udc67","Family and friends","Logins, invites and tutors","showPicker('people')")}
         ${tile("\ud83d\udccb","History","What was awarded today","showActivityPanel()", outsideAwards(7).length||0)}
         ${tile("\ud83d\udcdc","House rules","How points work, for both of you","showRulesPanel()")}
@@ -9409,6 +9699,9 @@ let swRegistration = null;
 
 document.addEventListener("keydown", (e)=>{ if(e.key === "Escape" && openCat) closeCatModal(); });
 window.addEventListener("popstate", ()=>{
+  // An overlay closing pops its own history entry. That pop is the overlay's,
+  // not a request to leave the panel underneath it.
+  if(window.__overlayPop){ window.__overlayPop=false; return; }
   if(statsChildId){ closeChildStats(); return; }
   if(openCat){ closeCatModal(); return; }
   if(screenNow) showScreen(null);
@@ -9787,6 +10080,14 @@ async function signOutDevice(){
   const me=sessionMember();
   const who = me ? me.name : "this account";
   if(!confirm("Sign out "+who+" on this device?\n\nWhoever uses it next signs in with their own email and password.")) return;
+  // The menu was still open, the scrim still up and the body still fixed while
+  // this awaited. A slow network left a dark screen with nothing to press.
+  try{ closeMenu(); }catch(e){}
+  try{ if(typeof closeKidMenu==="function") closeKidMenu(); }catch(e){}
+  try{ lockPage(false); }catch(e){}
+  const scrim=document.getElementById("menuScrim"); if(scrim) scrim.classList.add("hidden");
+  document.body.classList.remove("locked","overlay-open"); document.body.style.top="";
+  document.body.style.overflow="";
   try{ await window.fpc.signOut(); }catch(e){ console.error("Sign out failed:", e); }
   // Full reload so no projected family data survives into the next person's session.
   location.reload();
@@ -12377,7 +12678,7 @@ window.FULFULDE_M1_VIDEO = {
   const el=document.createElement('div');
   el.id='packScreen'; el.className='hidden';
   el.innerHTML=`
-    <div class="pk-top"><button class="pk-x" id="pkQuit">\u2715</button>
+    <div class="pk-top"><button class="pk-x ovx" id="pkQuit" aria-label="Back">\u2190</button>
       <div class="pk-beads" id="pkBeads"></div><div style="width:38px"></div></div>
     <div class="pk-task" id="pkTask"></div>
     <div class="pk-stage" id="pkStage"></div>
@@ -12737,9 +13038,16 @@ window.DECK_PICS = {"birthday": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0c
       blurb:"Eighteen decks of riddles and puzzles to play together. Mark one when you have played it; a grown-up marks it secure once the words come without help.",
       objectives: TOPICS.map(id=>[ALL[id].emoji+" "+ALL[id].title]) }]
   };
+  /* Kept as a subject object so the existing marking, permissions and
+     progress reads still work, but no longer pushed onto CURRICULUM: playing
+     a deck is an activity, not a course, and it was sitting on the Learn shelf
+     next to the national curriculum. Play together is its own place now. */
+  window.TALKTOGETHER_SUBJECT = SUBJECT;
   try{
-    if(typeof CURRICULUM!=="undefined" && !CURRICULUM.some(s=>s.subject==="talktogether"))
-      CURRICULUM.push(SUBJECT);
+    if(typeof CURRICULUM!=="undefined"){
+      const at=CURRICULUM.findIndex(x=>x.subject==="talktogether");
+      if(at>=0) CURRICULUM.splice(at,1);
+    }
   }catch(e){}
 
   const st=document.createElement("style"); st.textContent="\n:root{--paper:#fdfbf6;--ink:#1d2b32;--soft:#7c8890;--line:#efe9dd;--gold:#e8a33d;--go:#2f8f6f}\n*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}\n#deckScreen{position:fixed;inset:0;z-index:300;background:var(--paper);color:var(--ink);\n display:none;flex-direction:column;user-select:none;\n font-family:system-ui,-apple-system,\"Segoe UI\",sans-serif}\n#deckScreen.on{display:flex}\n#deckScreen .inner{flex:1;display:flex;flex-direction:column;max-width:600px;width:100%;margin:0 auto;min-height:0}\n#deckScreen .top{display:flex;align-items:center;gap:12px;padding:16px 18px 4px}\n#deckScreen .dkx{width:44px;height:44px;border-radius:14px;background:#efe9dd;border:0;color:#5c6b72;font-size:17px;cursor:pointer;flex:none}\n#deckScreen .count{font-size:12px;color:var(--soft);font-weight:600;letter-spacing:.04em}\n#deckScreen .dots{display:flex;gap:6px;flex:1;justify-content:center;flex-wrap:wrap}\n#deckScreen .dot{width:8px;height:8px;border-radius:99px;background:#e2dccf}\n#deckScreen .dot.done{background:var(--gold)}#deckScreen .dot.now{background:var(--ink);transform:scale(1.4)}\n#deckScreen .stage{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;\n gap:14px;padding:12px 18px 24px;min-height:0;overflow-y:auto}\n#deckScreen .stage>*{flex:0 0 auto;margin-left:auto;margin-right:auto}\n#deckScreen .card{width:100%;max-width:360px;background:#fff;border:1px solid var(--line);border-radius:28px;\n padding:24px 22px;box-shadow:0 10px 28px rgba(29,43,50,.09);text-align:center}\n#deckScreen .lab{font-size:11px;letter-spacing:.11em;text-transform:uppercase;color:#a2968a;font-weight:700}\n#deckScreen .clue{font-size:21px;line-height:1.4;font-weight:600;margin:16px 0 0}\n#deckScreen .clue.next{color:var(--soft);font-weight:500;font-size:19px;margin-top:12px}\n#deckScreen .big{font-size:38px;font-weight:700;letter-spacing:-.02em;margin:6px 0 0}\n#deckScreen .disc{width:150px;height:150px;border-radius:50%;background:#fdf0e2;display:grid;place-items:center;\n margin:4px auto 0}\n#deckScreen .disc img{width:66%}\n#deckScreen .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;width:100%;max-width:340px}\n#deckScreen .opt{background:#fff;border:1px solid var(--line);border-radius:22px;padding:14px;cursor:pointer;\n box-shadow:0 6px 18px rgba(29,43,50,.07);transition:transform .15s}\n#deckScreen .opt:active{transform:scale(.97)}\n#deckScreen .opt img{width:64%;max-width:82px}\n#deckScreen .opt.gone{opacity:0;pointer-events:none}\n#deckScreen .opt.small img{width:56%;max-width:64px}\n#deckScreen .opt.chosen{border-color:var(--gold);box-shadow:0 0 0 3px #fbeeda}\n#deckScreen .grid.four{grid-template-columns:repeat(4,1fr);gap:9px;max-width:360px}\n#deckScreen .grid.four .opt{padding:10px;border-radius:18px}\n#deckScreen .inline{margin-top:16px;background:#fdf6ea;border:1px solid #f0e2c8;border-radius:99px;\n padding:9px 16px;font-size:14px;font-weight:600;color:#8a6d33;cursor:pointer}\n#deckScreen .spent{margin-top:16px;font-size:12.5px;color:#b3aa9d}\n#deckScreen .opt.right{border-color:#8fd6a4;box-shadow:0 0 0 3px #d9f2e1}\n#deckScreen .opt.wrong{opacity:.3}\n#deckScreen .bins{display:grid;grid-template-columns:1fr 1fr;gap:10px;width:100%;max-width:360px}\n#deckScreen .bin{background:#fff;border:1px dashed #ddd4c4;border-radius:20px;padding:10px;min-height:120px}\n#deckScreen .bin h4{margin:0 0 8px;font-size:11.5px;color:var(--soft);font-weight:700;line-height:1.35}\n#deckScreen .bin .in{display:flex;flex-wrap:wrap;gap:6px;justify-content:center}\n#deckScreen .tok{width:44px;height:44px;border-radius:14px;background:#fdf0e2;display:grid;place-items:center;cursor:pointer}\n#deckScreen .tok img{width:70%}\n#deckScreen .tok.ok{background:#d9f2e1}#deckScreen .tok.no{background:#fbe0da}\n#deckScreen .tok{touch-action:none;transition:box-shadow .15s,background .15s}\n#deckScreen .tok.picked{box-shadow:0 0 0 3px var(--gold);background:#fdf0e2}\n#deckScreen .tok.dragging{z-index:5;position:relative;box-shadow:0 10px 20px rgba(29,43,50,.25);opacity:.95}\n#deckScreen .bin{transition:background .15s,border-color .15s}\n#deckScreen .bin.over{background:#f4fbf7;border-color:var(--go);border-style:solid}\n#deckScreen .tray{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;max-width:360px}\n#deckScreen .btn{width:100%;max-width:360px;border:0;border-radius:18px;padding:16px;font-size:17px;font-weight:700;\n background:var(--ink);color:#fff;cursor:pointer}\n#deckScreen .btn.ghost{background:#fff;color:var(--soft);border:1px solid var(--line)}\n#deckScreen .btn.go{background:var(--go)}\n#deckScreen .bottom{padding:8px 18px calc(24px + env(safe-area-inset-bottom));display:flex;flex-direction:column;\n gap:10px;align-items:center}\n#deckScreen .note{font-size:12.5px;color:var(--soft);line-height:1.5;text-align:center;max-width:340px}\n#deckScreen .nextup{display:flex;align-items:center;gap:12px;background:#1d2b32;color:#fff;border-radius:20px;padding:15px 16px;margin-bottom:16px;cursor:pointer}\n#deckScreen .nextup .nlab{font-size:10.5px;letter-spacing:.13em;text-transform:uppercase;color:#9db3ba;font-weight:700}\n#deckScreen .nextup .ntitle{font-size:18px;font-weight:700;margin-top:3px}\n#deckScreen .nextup .nwhy{font-size:12px;color:#9db3ba;margin-top:2px}\n#deckScreen .nextup .btn{background:#e8a33d;color:#3d2a00;min-height:44px}\n#deckScreen .tile{display:flex;gap:13px;align-items:center;background:#fff;border:1px solid var(--line);border-radius:18px;padding:13px 14px;margin-bottom:9px;cursor:pointer;box-shadow:0 2px 8px rgba(29,43,50,.05);transition:transform .12s,border-color .15s}\n#deckScreen .tile:active{transform:scale(.99)}\n#deckScreen .tile .em{width:46px;height:46px;border-radius:14px;flex:none;display:grid;place-items:center;font-size:23px;background:#fdf0e2}\n#deckScreen .tile h3{margin:0;font-size:16px;font-weight:700}\n#deckScreen .tile p{margin:2px 0 0;font-size:12px;color:var(--soft);line-height:1.4}\n#deckScreen .tile .go{color:#cfc7b8;font-size:20px;font-weight:800;flex:none}\n#deckScreen .state{font-size:11.5px;font-weight:800;padding:6px 10px;border-radius:99px;white-space:nowrap;flex:none}\n#deckScreen .state.sec{background:#cdefe2;color:#0c6b4f}\n#deckScreen .state.cov{background:#dbe4ff;color:#2f3a9c}\n#deckScreen .tile.done{border-color:#bfe6d6}\n#deckScreen .credit{font-size:10.5px;color:#b3aa9d;line-height:1.5;margin-top:16px}\n#deckScreen .win{text-align:center}\n#deckScreen .win .star{font-size:74px}\n@media (prefers-reduced-motion:reduce){#deckScreen *{transition:none!important;animation:none!important}}\n"; document.head.appendChild(st);
@@ -12747,7 +13055,7 @@ window.DECK_PICS = {"birthday": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0c
   const el=document.createElement("div");
   el.id="deckScreen";
   el.innerHTML=`<div class="inner">
-    <div class="top"><button class="dkx" id="dkBack">\u2715</button>
+    <div class="top"><button class="dkx ovx" id="dkBack" aria-label="Back">\u2190</button>
       <span class="count" id="dkCount"></span>
       <div class="dots" id="dkDots"></div><span class="count" style="opacity:0">00</span></div>
     <div class="stage" id="dkStage"></div>
@@ -13144,7 +13452,7 @@ function done(){
     try{ history.pushState({overlay:"deckScreen"}, ""); }catch(e){} menu(); }
   function close(fromBack){ el.classList.remove("on"); document.body.style.overflow=prevOverflow||"";
     document.body.classList.remove("overlay-open");
-    if(!fromBack){ try{ if(history.state && history.state.overlay) history.back(); }catch(e){} }
+    if(!fromBack){ try{ if(history.state && history.state.overlay){ window.__overlayPop=true; history.back(); } }catch(e){} }
                     if(typeof render==="function") render(); }
   window.openDecks=open;
   const back=$("dkBack");
@@ -13160,11 +13468,14 @@ function done(){
       if(!window.__learnForChild) return inner(c);
       let played=0;
       TOPICS.forEach((_,i)=>{ if(statusOf(i)) played++; });
-      const tile=`<section class="kidhero" style="background:linear-gradient(135deg,#fff,#fdf3e3);border-color:#f0e3cb;cursor:pointer" onclick="openDecks()">
-        <div class="kidherorow"><div>
-          <p class="kidhi">\u{1f9e9} Puzzle decks</p>
-          <p class="kidsub">18 decks \u00b7 ${played} played \u00b7 one of you reads, everyone guesses</p>
-        </div><div style="font-size:30px">\u203a</div></div></section>`;
+      /* Clearly outside the shelf of courses: this is something to play, and
+         a grown-up has to be there to read it. */
+      const tile=`<p class="playeyebrow">Not schoolwork \u2014 something to play</p>
+        <section class="playcard warm" onclick="openDecks()">
+        <span class="playglyph" aria-hidden="true">\u{1f9e9}</span>
+        <span class="playmain"><span class="playname">Puzzle decks</span>
+          <span class="playsub">18 decks \u00b7 ${played} played \u00b7 a grown-up reads, everyone guesses</span></span>
+        <span class="playchev" aria-hidden="true">\u203a</span></section>`;
       return inner(c) + tile;
     };
     learnScreenHTML = window.learnScreenHTML;
@@ -13374,21 +13685,9 @@ function done(){
   }
   window.renderPledges = renderPledges;
 
-  /* Sits above the grown-ups' rewards in the same panel. Wrapped, not edited. */
-  if(typeof showGrownupsPanel==="function"){
-    const inner=showGrownupsPanel;
-    window.showGrownupsPanel=function(){
-      inner.apply(this, arguments);
-      const body=document.getElementById("grownupsPanelBody");
-      if(body && !document.getElementById("pledgeHost")){
-        const host=document.createElement("div");
-        host.id="pledgeHost";
-        body.insertBefore(host, body.firstChild);
-      }
-      renderPledges();
-    };
-    showGrownupsPanel = window.showGrownupsPanel;
-  }
+  /* Its own screen now, reached from the dashboard and the menu. It used to be
+     tab two of four inside the grown-ups' panel, which is a long way from
+     "something you promise each other this week". */
 
   /* A claim should reach the other parent without them going looking for it.
      Piggybacks the existing render, so no new notification machinery. */
@@ -13647,21 +13946,7 @@ function done(){
   }
   window.renderCourses = refresh;
 
-  /* Sits in the grown-ups' panel, under the pledges. Wrapped, not edited. */
-  if(typeof showGrownupsPanel==="function"){
-    const inner=showGrownupsPanel;
-    window.showGrownupsPanel=function(){
-      inner.apply(this, arguments);
-      const body=document.getElementById("grownupsPanelBody");
-      if(body && !document.getElementById("courseHost")){
-        const host=document.createElement("div");
-        host.id="courseHost";
-        body.appendChild(host);
-      }
-      refresh();
-    };
-    showGrownupsPanel = window.showGrownupsPanel;
-  }
+  /* Its own screen, reached from Learn \u2192 My learning and from the menu. */
 })();
 
 </script>
@@ -14005,7 +14290,7 @@ window.GROWNUP_DECKS = [
   const el=document.createElement("div");
   el.id="gdScreen";
   el.innerHTML=`<div class="inner">
-    <div class="gd-top"><button class="gd-x" id="gdBack">\u2715</button>
+    <div class="gd-top"><button class="gd-x ovx" id="gdBack" aria-label="Back">\u2190</button>
       <span class="gd-count" id="gdCount"></span>
       <div class="gd-dots" id="gdDots"></div><span class="gd-count" style="opacity:0">00</span></div>
     <div class="gd-stage" id="gdStage"></div>
@@ -14041,7 +14326,7 @@ window.GROWNUP_DECKS = [
     try{ history.pushState({overlay:"gdScreen"}, ""); }catch(e){} menu(); }
   function close(fromBack){ el.classList.remove("on"); document.body.style.overflow=prevOverflow||"";
     document.body.classList.remove("overlay-open");
-    if(!fromBack){ try{ if(history.state && history.state.overlay) history.back(); }catch(e){} }
+    if(!fromBack){ try{ if(history.state && history.state.overlay){ window.__overlayPop=true; history.back(); } }catch(e){} }
                     if(typeof render==="function") render(); refresh(); }
   window.openGrownupDecks=open;
   const back=$("gdBack");
@@ -14213,29 +14498,18 @@ window.GROWNUP_DECKS = [
   }
   window.renderGrownupDecks=refresh;
 
-  if(typeof showGrownupsPanel==="function"){
-    const inner=showGrownupsPanel;
-    window.showGrownupsPanel=function(){
-      inner.apply(this, arguments);
-      const body=document.getElementById("grownupsPanelBody");
-      if(body && !document.getElementById("gdHost")){
-        const host=document.createElement("div");
-        host.id="gdHost";
-        body.appendChild(host);
-      }
-      refresh();
-    };
-    showGrownupsPanel = window.showGrownupsPanel;
-  }
+  /* No longer a section inside the grown-ups' panel: the decks are one of the
+     two cards on Play together. */
 })();
 
 </script>
 <!-- ===== addons/grownups-tabs.js ===== -->
 <script>
 /* ---------- Tabs for the grown-ups' panel ----------
-   The panel had grown to four stacked sections — rewards, pledges, courses,
-   puzzle decks — and every one of them wanted to be at the top. Four sections
-   is the point at which stacking stops working and you need one at a time.
+   Historical. The panel once held four stacked sections — rewards, pledges,
+   courses, puzzle decks — and this gave them one tab each. Three of the four
+   have since moved out to their own screens, so with a single section left the
+   bar hides itself rather than showing one lonely tab.
 
    This loads LAST on purpose. Each of the other add-ons wraps
    showGrownupsPanel and creates its host inside that wrapper; because wrappers
@@ -14250,10 +14524,11 @@ window.GROWNUP_DECKS = [
 
   /* id, label, and the elements that belong to it. Order is the tab order. */
   const TABS=[
-    {id:"rewards", label:"Rewards", ids:["grownupsExtra","parentRewardSection"]},
-    {id:"pledges", label:"Pledges", ids:["pledgeHost"]},
-    {id:"courses", label:"Courses", ids:["courseHost"]},
-    {id:"puzzles", label:"Puzzles", ids:["gdHost"]}
+    /* Pledges, courses and puzzle decks moved out to their own screens. Four
+       tabs inside a panel called "The grown-ups" was the reason opening My
+       courses looked like it contained the reward list. With one section left
+       the bar removes itself. */
+    {id:"rewards", label:"Rewards", ids:["grownupsExtra","parentRewardSection"]}
   ];
 
   const CSS=`
@@ -14453,21 +14728,18 @@ window.GROWNUP_DECKS = [
         "openFulfulde()");
     }
 
-    if(window.GROWNUP_DECKS && typeof window.openGrownupDecks === "function"){
-      const n = myKeys("grownupdeck.").length;
-      h += card("\u{1f9e0}", "Puzzle decks \u2014 for you",
-        n ? n + " played \u00b7 hint first, answer second" : "Lateral thinking, one deck at a time",
-        "openGrownupDecks()");
-    }
+    h += card("\u{1f4d3}", "My courses",
+      "A book, a juz plan, a class \u2014 your own steps, ticked off by you",
+      "showCoursesPanel()");
 
-    if(window.DECKS && typeof window.openDecks === "function"){
-      h += card("\u{1f9e9}", "Puzzle decks \u2014 with the children",
-        "18 decks \u00b7 one of you reads, everyone guesses", "openDecks()");
+    /* Puzzles are not a course, so they are not on this shelf. One link to the
+       place they actually live. */
+    if((window.DECKS && typeof window.openDecks === "function") ||
+       (window.GROWNUP_DECKS && typeof window.openGrownupDecks === "function")){
+      h += card("\u{1f9e9}", "Do together",
+        "Cooking and puzzles \u2014 things to do side by side, nothing scored",
+        "showPlayPanel()");
     }
-
-    h += card("\u{1f4d3}", "My own courses",
-      "A reading list, a juz plan, anything you are working through",
-      "openMyCourses()");
 
     h += quranHTML();
 
@@ -14480,9 +14752,11 @@ window.GROWNUP_DECKS = [
 
   /* Jump straight to the Courses tab of the grown-ups' panel, rather than
      landing them on Rewards and asking them to find it. */
+  /* Kept so anything still calling it lands somewhere sensible. My courses is
+     its own screen now rather than tab three of the grown-ups' panel. */
   window.openMyCourses = function(){
-    try{ localStorage.setItem("fpc_grownup_tab", "courses"); }catch(e){}
-    if(typeof showGrownupsPanel === "function") showGrownupsPanel();
+    if(typeof showCoursesPanel === "function") showCoursesPanel();
+    else if(typeof showGrownupsPanel === "function") showGrownupsPanel();
   };
 
   /* ---- the wrapper ---- */
@@ -14530,6 +14804,445 @@ window.GROWNUP_DECKS = [
       return inner.apply(this, arguments);
     };
     checkMilestone = window.checkMilestone;
+  }
+})();
+</script>
+<!-- ===== addons/together.js ===== -->
+<script>
+/* ---------- Do it together ----------
+   A runner for anything you do side by side, one step at a time: read the
+   step, do it, tick it, move on, finish with a moment worth having.
+
+   Recipes are the first pack, not the point. The steps carry an optional
+   timer and an adult-only flag, which is all a science experiment or a craft
+   project needs too \u2014 a second pack is a data file, not another screen.
+
+   Nothing here awards points and nothing here changes the rules. Finishing
+   writes the same progress ledger entry the Qur'an ladder already writes, so
+   it syncs across devices on permissions that are already published.
+
+   Art rule inherited from the bedtime stories: food, pots and plants only.
+   No people are drawn. */
+(function(){
+  const $  = id => document.getElementById(id);
+  const esc = s => (typeof escapeHtml==="function") ? escapeHtml(String(s)) : String(s);
+
+  /* ---------- art ---------- */
+  const ART = {
+    bowl:`<circle cx="60" cy="34" r="15" fill="#ffe6b8"/><path d="M14 44h92c0 24-20 40-46 40S14 68 14 44z" fill="#e8eaf6" stroke="#c3c8e6" stroke-width="2.5"/><path d="M30 52c8 6 22 9 30 9" stroke="#fff" stroke-width="4" fill="none" stroke-linecap="round"/>`,
+    pan:`<rect x="16" y="40" width="70" height="30" rx="13" fill="#4b5566"/><rect x="84" y="49" width="30" height="8" rx="4" fill="#8a94a6"/><ellipse cx="51" cy="41" rx="34" ry="8" fill="#6b7688"/><circle cx="45" cy="40" r="9" fill="#ffd98a"/>`,
+    oven:`<rect x="20" y="22" width="80" height="66" rx="10" fill="#eceff6" stroke="#c3c8e6" stroke-width="2.5"/><rect x="30" y="40" width="60" height="38" rx="7" fill="#3a4353"/><path d="M40 60h40" stroke="#ffb04a" stroke-width="5" stroke-linecap="round"/><circle cx="34" cy="31" r="4" fill="#c3c8e6"/><circle cx="48" cy="31" r="4" fill="#c3c8e6"/>`,
+    veg:`<circle cx="34" cy="58" r="20" fill="#e2604f"/><path d="M34 38c0-8 5-11 5-11" stroke="#4f8f3d" stroke-width="4" fill="none" stroke-linecap="round"/><ellipse cx="76" cy="60" rx="15" ry="20" fill="#7cb342"/><path d="M76 40c4-6 10-6 10-6" stroke="#4f8f3d" stroke-width="4" fill="none" stroke-linecap="round"/>`,
+    dough:`<ellipse cx="58" cy="60" rx="40" ry="24" fill="#f5e2bd" stroke="#e0c894" stroke-width="2.5"/><circle cx="44" cy="56" r="4" fill="#e6d0a2"/><circle cx="66" cy="64" r="3.5" fill="#e6d0a2"/><circle cx="74" cy="52" r="3" fill="#e6d0a2"/>`,
+    pot:`<path d="M20 38h76v34c0 8-8 14-38 14S20 80 20 72z" fill="#7d8ba0"/><rect x="14" y="30" width="88" height="9" rx="4.5" fill="#9aa7ba"/><path d="M44 22c0-6 6-6 6-12M62 24c0-6 6-6 6-12" stroke="#c9d2e0" stroke-width="3.5" fill="none" stroke-linecap="round"/>`,
+    cup:`<path d="M28 34h48v30c0 11-11 18-24 18s-24-7-24-18z" fill="#fff" stroke="#c3c8e6" stroke-width="2.5"/><path d="M76 42h10a10 10 0 0 1 0 20h-10" fill="none" stroke="#c3c8e6" stroke-width="2.5"/><path d="M36 46h32v16c0 7-7 11-16 11s-16-4-16-11z" fill="#c98b4b"/>`,
+    plate:`<ellipse cx="60" cy="58" rx="44" ry="26" fill="#fff" stroke="#c3c8e6" stroke-width="2.5"/><ellipse cx="60" cy="56" rx="30" ry="17" fill="#f6ead2"/><circle cx="52" cy="54" r="6" fill="#e2604f"/><circle cx="68" cy="59" r="5" fill="#7cb342"/>`
+  };
+  function art(key, tone){
+    const d=ART[key]||ART.plate;
+    return `<svg class="tg-art" viewBox="0 0 120 100" role="img" aria-hidden="true"
+      style="background:${tone||"#f6f7fb"}">${d}</svg>`;
+  }
+
+  /* ---------- the pack ----------
+     Chosen for how much of the work a child can safely do, not for the
+     cuisine. adult:true is every step with a blade, a flame or an oven door. */
+  const RECIPES = [
+    { id:"pancakes", name:"Weekend pancakes", art:"pan", tone:"#fff4dd",
+      mins:20, serves:"4", blurb:"Almost all of it is whisking and pouring, which is the whole point.",
+      need:["1 mug plain flour","1 egg","1 mug milk","A pinch of salt","Butter or oil for the pan","Honey or fruit to serve"],
+      steps:[
+        {t:"Tip the flour in",d:"Flour and the pinch of salt into a big bowl. Let them do the tipping \u2014 the mess is part of it.",art:"bowl"},
+        {t:"Make a well",d:"Push the flour to the sides so there is a dip in the middle. Crack the egg into the dip.",art:"bowl"},
+        {t:"Whisk and pour",d:"Whisk the egg into the flour, adding the milk a little at a time until it looks like thin cream. Lumps are fine.",art:"bowl",timer:120},
+        {t:"Let it rest",d:"Leave the batter alone. Good time to lay the table together.",timer:600,art:"cup"},
+        {t:"Heat the pan",d:"Medium heat, a little butter. This one is yours, not theirs.",adult:true,art:"pan"},
+        {t:"One ladle at a time",d:"Pour, swirl, wait for the top to go from shiny to dull \u2014 about a minute. Then flip.",adult:true,timer:60,art:"pan"},
+        {t:"Stack and top",d:"They take over here. Honey, banana, whatever is in the fruit bowl.",art:"plate"}
+      ]},
+    { id:"flatbread", name:"Two-ingredient flatbreads", art:"dough", tone:"#f6f1e2",
+      mins:25, serves:"4", blurb:"Kneading is the best job in any kitchen and it is entirely child-safe.",
+      need:["2 mugs self-raising flour","1 mug plain yoghurt","A pinch of salt","A little extra flour for the table"],
+      steps:[
+        {t:"Flour and yoghurt",d:"Both into a bowl with the salt. Mix with a spoon until it stops being a liquid.",art:"bowl"},
+        {t:"Knead it",d:"Floured table, clean hands, push and fold for five minutes. Take turns. It stops being sticky and starts being smooth.",timer:300,art:"dough"},
+        {t:"Rest the dough",d:"Cover the bowl with a tea towel and leave it. Wash up while you wait.",timer:600,art:"dough"},
+        {t:"Divide and roll",d:"Six balls, each rolled flat as a saucer. Perfectly round is not the aim.",art:"dough"},
+        {t:"Dry pan, high heat",d:"No oil. Two minutes a side until it puffs and speckles. Adult at the pan.",adult:true,timer:120,art:"pan"},
+        {t:"Wrap them warm",d:"Stack them in a clean tea towel so they stay soft while the rest cook.",art:"plate"}
+      ]},
+    { id:"soup", name:"Everything-in soup", art:"pot", tone:"#e9f6dd",
+      mins:40, serves:"4", blurb:"Whatever is going soft in the vegetable drawer. A good one for talking.",
+      need:["1 onion","2 carrots","2 potatoes","Any other vegetables that need using","1 stock cube","A drizzle of oil"],
+      steps:[
+        {t:"Sort the vegetables",d:"They wash and sort; you do all the cutting. Talk about which ones grow underground.",adult:true,art:"veg"},
+        {t:"Soften the onion",d:"Oil in the pot, onion in, gentle heat until it turns clear rather than brown.",adult:true,timer:420,art:"pot"},
+        {t:"Everything else in",d:"They can tip the chopped vegetables in from the board. Stir.",art:"pot"},
+        {t:"Water and stock",d:"Enough water to cover, stock cube crumbled in. Bring it up to a simmer.",adult:true,art:"pot"},
+        {t:"Simmer",d:"Twenty minutes. Long enough to read something together.",timer:1200,art:"pot"},
+        {t:"Taste it together",d:"Let them taste and say what it needs. Salt? Pepper? Their answer counts.",art:"bowl"}
+      ]},
+    { id:"cookies", name:"Five-ingredient cookies", art:"oven", tone:"#fff4dd",
+      mins:30, serves:"12", blurb:"Measuring, mixing and rolling into balls \u2014 all of it theirs.",
+      need:["125g butter, soft","100g sugar","1 egg","200g self-raising flour","A handful of chocolate chips or raisins"],
+      steps:[
+        {t:"Heat the oven",d:"180\u00b0C. Your job, always.",adult:true,art:"oven"},
+        {t:"Beat butter and sugar",d:"Wooden spoon, big bowl, until it goes pale and fluffy. Hard work \u2014 take turns.",timer:180,art:"bowl"},
+        {t:"Egg in",d:"Crack it into a cup first so any shell is easy to fish out. Then beat it in.",art:"bowl"},
+        {t:"Flour and the good bits",d:"Fold the flour in, then the chocolate or raisins. Stop as soon as it comes together.",art:"bowl"},
+        {t:"Roll and space them",d:"Walnut-sized balls, well apart on the tray \u2014 they spread more than anyone expects.",art:"dough"},
+        {t:"Bake",d:"Twelve minutes. Still soft in the middle when they come out; they firm up as they cool.",adult:true,timer:720,art:"oven"},
+        {t:"Wait before eating",d:"Five minutes on the tray. The hardest step in this book.",timer:300,art:"plate"}
+      ]},
+    { id:"salad", name:"Chop-and-shake salad", art:"veg", tone:"#e9f6dd",
+      mins:15, serves:"4", blurb:"No heat at all. A good first thing for a small child to own completely.",
+      need:["Cucumber","Tomatoes","A little red onion","Lemon","Olive oil","Salt"],
+      steps:[
+        {t:"Wash everything",d:"Cold water, colander, their job entirely.",art:"veg"},
+        {t:"The cutting",d:"You cut, they arrange. Or a table knife and cucumber if they are ready for it \u2014 your call.",adult:true,art:"veg"},
+        {t:"Dressing in a jar",d:"Oil, lemon juice, pinch of salt in a jar with a lid. Screw it on tight and let them shake it hard.",timer:30,art:"cup"},
+        {t:"Dress and toss",d:"Pour it over, two spoons, turn it all gently until everything shines.",art:"bowl"}
+      ]},
+    { id:"porridge", name:"Proper porridge", art:"pot", tone:"#f6f1e2",
+      mins:12, serves:"2", blurb:"A weekday one. Ten minutes, and the stirring belongs to them.",
+      need:["1 mug porridge oats","2 mugs milk or water","A pinch of salt","Honey, banana or dates to finish"],
+      steps:[
+        {t:"Oats and liquid",d:"Both into the pan with the pinch of salt. They measure and pour.",art:"pot"},
+        {t:"Low heat, keep stirring",d:"Gentle heat. Their job is the wooden spoon and not stopping.",adult:true,timer:300,art:"pot"},
+        {t:"Watch it thicken",d:"When the spoon leaves a trail behind it, it is ready.",art:"pot"},
+        {t:"Their bowl, their toppings",d:"Let them decide entirely. Even if it is a lot of honey.",art:"bowl"}
+      ]},
+    { id:"smoothie", name:"Whatever-fruit smoothie", art:"cup", tone:"#ffeaf0",
+      mins:8, serves:"2", blurb:"Eight minutes, no heat, and they can run it start to finish.",
+      need:["1 banana","A handful of any other fruit, fresh or frozen","Half a mug of yoghurt","A splash of milk","Honey if it needs it"],
+      steps:[
+        {t:"Peel and break",d:"Banana peeled and snapped into pieces by hand. No knife needed.",art:"veg"},
+        {t:"Everything in",d:"Fruit, yoghurt, milk into the blender. Lid on properly \u2014 check it together.",art:"cup"},
+        {t:"Blend",d:"Short bursts. Adult on the button, child counting.",adult:true,timer:45,art:"cup"},
+        {t:"Taste and pour",d:"Too thick? A splash more milk. Not sweet enough? A little honey. Then pour.",art:"cup"}
+      ]},
+    { id:"riceandeggs", name:"Fried rice with eggs", art:"pan", tone:"#e8e9ff",
+      mins:20, serves:"4", blurb:"Best made with yesterday's rice. Cracking and whisking the eggs is theirs.",
+      need:["3 mugs cooked cold rice","3 eggs","Frozen peas and sweetcorn","2 spring onions","Soy sauce","A little oil"],
+      steps:[
+        {t:"Crack and whisk",d:"Eggs into a bowl, whisked with a fork until no streaks are left. Entirely their job.",art:"bowl"},
+        {t:"Break up the rice",d:"Cold rice clumps. Clean hands are the best tool for this.",art:"bowl"},
+        {t:"Eggs first",d:"Hot pan, a little oil, eggs in, scramble them and tip them back into the bowl.",adult:true,timer:90,art:"pan"},
+        {t:"Rice and vegetables",d:"More oil, rice in, peas and sweetcorn from frozen. Keep it moving.",adult:true,timer:240,art:"pan"},
+        {t:"Bring it together",d:"Eggs back in, a splash of soy, spring onions scattered over. They do the scattering.",art:"plate"}
+      ]}
+  ];
+  window.TOGETHER_PACKS = { recipes: RECIPES };
+
+  /* ---------- CSS ---------- */
+  const CSS=`
+  #tgScreen{position:fixed;inset:0;z-index:170;background:#f6f7fb;display:none;
+    flex-direction:column;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
+  #tgScreen.on{display:flex}
+  .tg-top{display:flex;align-items:center;gap:10px;padding:calc(10px + env(safe-area-inset-top)) 14px 10px;
+    background:#fff;border-bottom:1px solid #e6e8f0;flex:none}
+  .tg-x{width:44px;height:44px;flex:none;border-radius:14px;border:1px solid #e6e8f0;background:#fff;
+    color:#3e46ad;cursor:pointer}
+  .tg-title{flex:1;min-width:0;font-size:15px;font-weight:800;color:#243044;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .tg-beads{display:flex;gap:4px;padding:10px 14px 0;flex-wrap:wrap;flex:none}
+  .tg-beads i{height:5px;flex:1;min-width:9px;border-radius:99px;background:#dfe2ee}
+  .tg-beads i.done{background:#3aa06f}
+  .tg-beads i.now{background:#5b63d8}
+  .tg-body{flex:1;overflow-y:auto;overscroll-behavior:contain;
+    padding:14px 16px calc(20px + env(safe-area-inset-bottom))}
+  .tg-inner{max-width:620px;margin:0 auto}
+  .tg-art{width:100%;height:150px;border-radius:20px;display:block;margin-bottom:14px}
+  .tg-num{font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#8a90a6}
+  .tg-h{margin:6px 0 8px;font-size:24px;line-height:1.2;font-weight:800;color:#243044}
+  .tg-d{margin:0;font-size:16.5px;line-height:1.6;color:#3f4560}
+  .tg-adult{display:inline-flex;align-items:center;gap:7px;background:#fff2e6;border:1px solid #f3cfa6;
+    color:#8a4b12;border-radius:99px;padding:7px 13px;font-size:12.5px;font-weight:800;margin:12px 0 0}
+  .tg-need{background:#fff;border:1px solid #e6e8f0;border-radius:18px;padding:6px 16px;margin:0 0 14px}
+  .tg-need li{padding:11px 0;font-size:15.5px;line-height:1.4;color:#243044;list-style:none;
+    border-bottom:1px solid #f2f3f8}
+  .tg-need li:last-child{border-bottom:0}
+  .tg-bottom{flex:none;padding:12px 16px calc(14px + env(safe-area-inset-bottom));
+    background:#fff;border-top:1px solid #e6e8f0}
+  .tg-bottom .tg-inner{display:grid;gap:8px}
+  .tg-go{width:100%;border:0;border-radius:16px;padding:16px;font-size:16px;font-weight:800;
+    background:linear-gradient(135deg,#5b63d8,#7a63d6);color:#fff;cursor:pointer;min-height:54px}
+  .tg-go:active{transform:scale(.985)}
+  .tg-back{width:100%;border:1px solid #e6e8f0;border-radius:16px;padding:13px;font-size:14px;
+    font-weight:700;background:#fff;color:#5c6b72;cursor:pointer;min-height:46px}
+  .tg-timer{background:#fff;border:1px solid #e6e8f0;border-radius:20px;padding:16px;margin:16px 0 0;text-align:center}
+  .tg-clock{font-size:44px;font-weight:800;letter-spacing:.02em;color:#243044;
+    font-variant-numeric:tabular-nums;line-height:1.1}
+  .tg-clock.ring{color:#c2410c}
+  .tg-tbtn{width:100%;margin-top:12px;border:0;border-radius:14px;padding:13px;font-size:14.5px;
+    font-weight:800;background:#eef0ff;color:#3e46ad;cursor:pointer;min-height:48px}
+  .tg-tnote{margin:10px 0 0;font-size:11.5px;line-height:1.5;color:#8a90a6}
+  .tg-win{text-align:center;padding:14px 0}
+  .tg-wemoji{font-size:60px;line-height:1}
+  .tg-wh{margin:10px 0 6px;font-size:27px;font-weight:800;color:#243044}
+  .tg-wp{margin:0 0 18px;font-size:15.5px;line-height:1.55;color:#5c6b72}
+  .tg-who{display:flex;flex-wrap:wrap;gap:7px;justify-content:center;margin-bottom:6px}
+  .tg-who button{width:auto;background:#eef0ff;color:#3e46ad;border:0;border-radius:99px;
+    padding:11px 16px;font-size:14px;font-weight:800;cursor:pointer;min-height:44px}
+  .tg-who button.on{background:#3aa06f;color:#fff}
+  .tgcard{display:flex;align-items:center;gap:13px;background:#fff;border:1px solid #e6e8f0;
+    border-radius:20px;padding:13px;margin-bottom:10px;cursor:pointer}
+  .tgcard:active{transform:scale(.99)}
+  .tgcard svg{width:74px;height:60px;border-radius:14px;flex:none}
+  .tgcard .m{flex:1;min-width:0}
+  .tgcard .n{display:block;font-size:16px;font-weight:800;color:#243044;line-height:1.25}
+  .tgcard .s{display:block;font-size:12.5px;color:#6a7184;font-weight:600;line-height:1.45;margin-top:3px}
+  .tgcard .k{display:block;font-size:11.5px;color:#3aa06f;font-weight:800;margin-top:4px}
+  @media (prefers-reduced-motion:reduce){#tgScreen *{transition:none!important}}
+  `;
+  const st=document.createElement("style"); st.textContent=CSS; document.head.appendChild(st);
+
+  /* ---------- state ---------- */
+  let pack=null, step=0, prevOverflow="", chosen={};
+  const TKEY = (p,i)=>"nm_tg_t:"+p+":"+i;
+  let tick=null;
+
+  const el=document.createElement("div");
+  el.id="tgScreen";
+  el.setAttribute("role","dialog");
+  el.setAttribute("aria-modal","true");
+  el.setAttribute("aria-label","Do it together");
+  el.innerHTML=`<div class="tg-top">
+      <button class="tg-x ovx" id="tgBack" aria-label="Back">\u2190</button>
+      <span class="tg-title" id="tgTitle"></span></div>
+    <div class="tg-beads" id="tgBeads"></div>
+    <div class="tg-body"><div class="tg-inner" id="tgStage"></div></div>
+    <div class="tg-bottom"><div class="tg-inner" id="tgBottom"></div></div>`;
+  document.body.appendChild(el);
+
+  /* ---------- timers ----------
+     A counting interval is not the clock. A phone suspends JavaScript the
+     moment the screen locks, which is exactly when somebody puts a tray in the
+     oven and puts the phone down. The start time is written down and the
+     remaining time is worked out from the actual clock on every repaint, so
+     coming back to a sleeping phone shows the truth. */
+  function startedAt(i){
+    try{ const v=localStorage.getItem(TKEY(pack.id,i)); return v?parseInt(v,10):0; }catch(e){ return 0; }
+  }
+  function startTimer(i){
+    try{ localStorage.setItem(TKEY(pack.id,i), String(Date.now())); }catch(e){}
+    paint();
+  }
+  function clearTimer(i){
+    try{ localStorage.removeItem(TKEY(pack.id,i)); }catch(e){}
+    paint();
+  }
+  function remaining(i, secs){
+    const t=startedAt(i);
+    if(!t) return null;
+    return Math.max(0, secs - Math.floor((Date.now()-t)/1000));
+  }
+  function mmss(s){
+    const m=Math.floor(s/60), r=s%60;
+    return m+":"+(r<10?"0":"")+r;
+  }
+
+  /* ---------- render ---------- */
+  function beads(){
+    const n=pack.steps.length;
+    let h="";
+    for(let i=0;i<n;i++) h+=`<i class="${i<step?"done":i===step?"now":""}"></i>`;
+    $("tgBeads").innerHTML = step<0 ? "" : h;
+  }
+
+  function needHTML(){
+    return `${art(pack.art, pack.tone)}
+      <p class="tg-num">What you need \u00b7 serves ${esc(pack.serves)} \u00b7 about ${pack.mins} minutes</p>
+      <h2 class="tg-h">${esc(pack.name)}</h2>
+      <p class="tg-d" style="margin-bottom:16px">${esc(pack.blurb)}</p>
+      <ul class="tg-need">${pack.need.map(x=>`<li>${esc(x)}</li>`).join("")}</ul>
+      <p class="tg-tnote">Read it through together before you start. Decide now which jobs are theirs.</p>`;
+  }
+
+  function stepHTML(){
+    const s=pack.steps[step];
+    let h=`${art(s.art||pack.art, pack.tone)}
+      <p class="tg-num">Step ${step+1} of ${pack.steps.length}</p>
+      <h2 class="tg-h">${esc(s.t)}</h2>
+      <p class="tg-d">${esc(s.d)}</p>`;
+    if(s.adult) h+=`<p class="tg-adult">\u26a0\ufe0f A grown-up does this one</p>`;
+    if(s.timer){
+      const left=remaining(step, s.timer);
+      if(left===null){
+        h+=`<div class="tg-timer">
+            <div class="tg-clock">${mmss(s.timer)}</div>
+            <button class="tg-tbtn" onclick="tgStartTimer()">Start the timer</button>
+            <p class="tg-tnote">Set your phone's own timer too. This one keeps correct time while the
+              app is closed, but it cannot make a sound to fetch you back.</p>
+          </div>`;
+      }else if(left>0){
+        h+=`<div class="tg-timer">
+            <div class="tg-clock">${mmss(left)}</div>
+            <button class="tg-tbtn" onclick="tgClearTimer()">Stop</button>
+          </div>`;
+      }else{
+        h+=`<div class="tg-timer">
+            <div class="tg-clock ring">Time\u2019s up</div>
+            <button class="tg-tbtn" onclick="tgClearTimer()">Reset</button>
+          </div>`;
+      }
+    }
+    return h;
+  }
+
+  function kids(){
+    try{
+      const f=currentFamily();
+      return (f?f.children:[]).filter(c=>typeof isChildRole==="function" && isChildRole(c));
+    }catch(e){ return []; }
+  }
+
+  function winHTML(){
+    const list=kids();
+    const me=(typeof sessionMember==="function") ? sessionMember() : null;
+    const meIsChild = me && typeof isChildRole==="function" && isChildRole(me);
+    const who = (list.length && !meIsChild)
+      ? `<p class="tg-num" style="margin-bottom:9px">Who cooked with you?</p>
+         <div class="tg-who">${list.map(c=>`<button class="${chosen[c.id]?"on":""}"
+            onclick="tgPick('${c.id}')">${esc(c.name)}${chosen[c.id]?" \u2713":""}</button>`).join("")}</div>
+         <p class="tg-tnote" style="margin-bottom:4px">No points \u2014 this just goes in the record so you can
+           see what you have made together.</p>` : "";
+    return `<div class="tg-win">
+        <div class="tg-wemoji">\ud83c\udf7d\ufe0f</div>
+        <h2 class="tg-wh">You made it.</h2>
+        <p class="tg-wp">${esc(pack.name)}, start to finish, together.<br>
+          Sit down and eat it before anything else happens.</p>
+        ${who}
+      </div>`;
+  }
+
+  function bottom(){
+    const b=$("tgBottom");
+    if(step<0){
+      b.innerHTML=`<button class="tg-go" onclick="tgNext()">Let\u2019s start \u2192</button>`;
+    }else if(step>=pack.steps.length){
+      b.innerHTML=`<button class="tg-go" onclick="tgClose()">Done</button>`;
+    }else{
+      const last=step===pack.steps.length-1;
+      b.innerHTML=`<button class="tg-go" onclick="tgNext()">${last?"We\u2019ve finished \ud83c\udf89":"Done \u2014 next step"}</button>
+        <button class="tg-back" onclick="tgPrev()">\u2190 ${step===0?"Back to what you need":"Previous step"}</button>`;
+    }
+  }
+
+  function paint(){
+    if(!pack) return;
+    $("tgTitle").textContent = pack.name;
+    beads();
+    $("tgStage").innerHTML = step<0 ? needHTML()
+      : step>=pack.steps.length ? winHTML() : stepHTML();
+    bottom();
+    const s = (step>=0 && step<pack.steps.length) ? pack.steps[step] : null;
+    if(tick){ clearInterval(tick); tick=null; }
+    if(s && s.timer && startedAt(step)) tick=setInterval(()=>{
+      const st2=$("tgStage");
+      if(!st2 || !el.classList.contains("on")){ clearInterval(tick); tick=null; return; }
+      const left=remaining(step, s.timer);
+      const c=st2.querySelector(".tg-clock");
+      if(!c) return;
+      if(left>0){ c.textContent=mmss(left); }
+      else{ clearInterval(tick); tick=null; paint(); try{ if(typeof chime==="function") chime("milestone"); }catch(e){} }
+    }, 1000);
+  }
+
+  /* ---------- controls ---------- */
+  window.tgStartTimer = ()=>startTimer(step);
+  window.tgClearTimer = ()=>clearTimer(step);
+  window.tgPrev = ()=>{ if(step>-1){ step--; scrollTop(); paint(); } };
+  window.tgNext = ()=>{
+    step++;
+    scrollTop();
+    if(step>=pack.steps.length) finish();
+    paint();
+  };
+  window.tgPick = async function(id){
+    chosen[id]=!chosen[id];
+    paint();
+    if(chosen[id] && typeof markObjective==="function"){
+      try{ await markObjective(id, "together."+pack.id, "covered"); }catch(e){}
+    }
+  };
+  function scrollTop(){
+    const b=el.querySelector(".tg-body");
+    if(b) b.scrollTop=0;
+  }
+  function finish(){
+    try{ pack.steps.forEach((s,i)=>{ if(s.timer) localStorage.removeItem(TKEY(pack.id,i)); }); }catch(e){}
+    try{ if(typeof dropConfetti==="function") dropConfetti(); }catch(e){}
+    try{ if(typeof chime==="function") chime("milestone"); }catch(e){}
+  }
+
+  function open(id){
+    pack = RECIPES.filter(r=>r.id===id)[0] || RECIPES[0];
+    step = -1; chosen = {};
+    prevOverflow = document.body.style.overflow;
+    document.body.style.overflow="hidden";
+    document.body.classList.add("overlay-open");
+    el.classList.add("on");
+    try{ history.pushState({overlay:"together"}, ""); }catch(e){}
+    paint();
+  }
+  function close(fromBack){
+    if(tick){ clearInterval(tick); tick=null; }
+    el.classList.remove("on");
+    document.body.style.overflow=prevOverflow||"";
+    document.body.classList.remove("overlay-open");
+    if(!fromBack){
+      try{ if(history.state && history.state.overlay){ window.__overlayPop=true; history.back(); } }catch(e){}
+    }
+    if(typeof render==="function") render();
+    renderCookList();
+  }
+  window.openTogether = open;
+  window.tgClose = ()=>close();
+  $("tgBack").onclick = ()=>{ if(step>-1){ step=-1; scrollTop(); paint(); } else close(); };
+  if(window.addEventListener) window.addEventListener("popstate", ()=>{
+    if(el.classList.contains("on")) close(true);
+  });
+
+  /* ---------- the list, inside Do together ---------- */
+  function cookedCount(r){
+    try{
+      const f=currentFamily();
+      return (f?f.children:[]).filter(c=>c.progress && c.progress["together."+r.id]).length;
+    }catch(e){ return 0; }
+  }
+  function listHTML(){
+    return RECIPES.map(r=>{
+      const n=cookedCount(r);
+      return `<section class="tgcard" onclick="openTogether('${r.id}')">
+        ${art(r.art, r.tone)}
+        <span class="m"><span class="n">${esc(r.name)}</span>
+          <span class="s">${esc(r.blurb)}</span>
+          <span class="s">About ${r.mins} minutes \u00b7 ${r.steps.length} steps</span>
+          ${n?`<span class="k">\u2713 Made together</span>`:""}</span>
+      </section>`;
+    }).join("");
+  }
+  function renderCookList(){
+    const host=document.getElementById("cookHost");
+    if(host) host.innerHTML = listHTML();
+  }
+  window.renderCookList = renderCookList;
+
+  /* Wrapped, not edited: Do together gains a Cook section above the puzzles. */
+  if(typeof renderPlayPanel==="function"){
+    const inner=renderPlayPanel;
+    window.renderPlayPanel=function(){
+      inner.apply(this, arguments);
+      const body=document.getElementById("playBody");
+      if(!body) return;
+      body.insertAdjacentHTML("afterbegin",
+        `<p class="playeyebrow" style="margin-top:0">Cook something</p>
+         <div id="cookHost"></div>
+         <p class="playeyebrow">Play something</p>`);
+      renderCookList();
+    };
+    renderPlayPanel = window.renderPlayPanel;
   }
 })();
 </script>
