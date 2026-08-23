@@ -1673,8 +1673,8 @@
 
   <div id="coursesPanel" class="panel hidden">
     <button class="panelback" onclick="panelBack()">← Back</button>
-    <h2>📓 My courses</h2>
-    <p class="small">Anything you are working through yourself — a book, a juz plan, a class. You add the steps and tick them off. Nothing here earns points.</p>
+    <h2 id="coursesTitle">📓 My courses</h2>
+    <p class="small">A book, a juz plan, a class — anything you’re working through yourself. You add the steps and tick them off. No points, and nobody marks it but you.</p>
     <div id="courseHost"></div>
   </div>
 
@@ -3657,7 +3657,7 @@ const TIP_CATS = [
   {key:"deen", label:"Deen"}
 ];
 
-const APP_VERSION = "v110";
+const APP_VERSION = "v111";
 const today = new Date().toISOString().slice(0,10);
 let app = {families:[],currentFamily:null,currentChild:null};
 let categories = [];
@@ -6334,6 +6334,11 @@ function showPledgesPanel(){
 }
 function showCoursesPanel(){
   openPanelFrom("coursesPanel");
+  /* Whose courses. "My courses" is true but says nothing when two grown-ups
+     share a household and both have their own. */
+  const t=document.getElementById("coursesTitle");
+  const m=sessionMember();
+  if(t) t.textContent = "\ud83d\udcd3 " + (m && m.name ? m.name + "\u2019s courses" : "My courses");
   if(typeof renderCourses==="function") renderCourses();
 }
 function showPlayPanel(){
@@ -13976,8 +13981,11 @@ function done(){
   };
   function html(){
     const list=mine();
-    const chips=SUGGESTIONS.map((s,i)=>
-      `<button class="chip" onclick="courseQuickAdd(${i})">${esc(s[0])}</button>`).join("");
+    const taken=new Set(list.map(c=>String(c.title||"").toLowerCase()));
+    const chips=SUGGESTIONS.map((s,i)=>[s,i])
+      .filter(([s])=>!taken.has(String(s[0]).toLowerCase()))
+      .map(([s,i])=>`<button class="chip" onclick="courseQuickAdd(${i})">${esc(s[0])}</button>`).join("")
+      || `<span class="small">You have started all of the suggestions.</span>`;
     const body = !list.length
       ? `<p class="small">Nothing yet. A reading list, a course you're taking, a training plan \u2014
           anything you're working through.</p>`
@@ -13997,8 +14005,10 @@ function done(){
               <span style="flex:1;min-width:0;text-align:left">
                 <strong>${esc(c.title)}</strong>
                 <span class="small" style="display:block">${
-                  c.steps.length ? done.size+" of "+c.steps.length+" done" : "no steps yet"}</span>
-                <span class="cbar"><i style="width:${pct}%"></i></span>
+                  !c.steps.length ? "Nothing on it yet \u2014 open it and add the first step"
+                  : done.size===c.steps.length ? "\u2713 Finished \u00b7 all " + c.steps.length + " done"
+                  : done.size+" of "+c.steps.length+" done"}</span>
+                ${c.steps.length ? `<span class="cbar"><i style="width:${pct}%"></i></span>` : ""}
               </span>
               <span class="cchev" aria-hidden="true"></span>
             </button>
@@ -14020,22 +14030,20 @@ function done(){
           </div>`;
         }).join("");
 
-    return `<section class="reward" id="courseSection" style="background:#f7f4ff;border-color:#ddd5f5">
-      <div class="eyebrow cool">Your own</div>
-      <h2>\u{1f393} What you're working through
-        <span class="small" style="font-weight:400">\u2014 grown-ups only</span></h2>
-      <p>The children have a ladder for what they're learning. This one is yours.
-         No points, and nobody marks it but you.</p>
+    /* No wrapper, no second heading: this sits directly on its own panel,
+       which already says whose it is. */
+    return `<div id="courseSection">
       ${body}
-      <div style="margin-top:14px">
-        <p class="small" style="margin:0 0 4px">\u{1f4a1} Start from one of these:</p>
+      <details class="courseadd"${list.length?"":" open"}>
+        <summary>\uff0b Start something new</summary>
+        <p class="small" style="margin:10px 0 6px">Pick one of these, or name your own.</p>
         <div class="quickchips">${chips}</div>
         <div class="editrow" style="margin-top:10px">
-          <input id="courseName" placeholder="Or name your own \u2014 e.g. My reading this year">
+          <input id="courseName" placeholder="e.g. My reading this year">
           <button class="primary" style="width:auto" onclick="courseAddFromForm()">Add</button>
         </div>
-      </div>
-    </section>`;
+      </details>
+    </div>`;
   }
 
   const CSS=`
@@ -14073,6 +14081,12 @@ function done(){
   #courseSection .xbtn{background:none;border:0;font-size:15px;cursor:pointer;opacity:.5;
     padding:10px;min-width:44px;min-height:44px}
   #courseSection .xbtn.small{font-size:17px}
+  #courseSection{min-width:0}
+  #courseSection *{min-width:0}
+  .coursehead strong,.coursehead .small{overflow-wrap:anywhere}
+  .courseadd{background:#f7f4ff;border:1px solid #e4ddf7;border-radius:18px;padding:2px 14px 14px;margin-top:14px}
+  .courseadd>summary{list-style:none;cursor:pointer;padding:13px 0;font-size:15px;font-weight:800;color:#5b47ad}
+  .courseadd>summary::-webkit-details-marker{display:none}
   #courseSection .quickchips{display:flex;flex-wrap:wrap;gap:6px}
   #courseSection .chip{background:#fff;border:1px solid #ddd5f5;border-radius:99px;padding:7px 11px;
     font-size:13px;cursor:pointer}`;
