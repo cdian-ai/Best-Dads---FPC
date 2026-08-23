@@ -1013,11 +1013,24 @@
   .objstate.s-cov{background:#dbe4ff;color:#2f3a9c}
   .objstate.s-sec{background:#cdefe2;color:#0c6b4f}
   .objstate.s-rev{background:#ffe6c7;color:#98520a}
-  .learnhow{background:#fff;border:1px solid #e6e8f0;border-radius:20px;padding:15px 17px;margin-bottom:16px}
-  .learnhow h3{margin:0 0 8px;font-size:16px}
+  .learnhow{background:#fff;border:1px solid #e6e8f0;border-radius:20px;padding:4px 17px 12px;margin-bottom:16px}
+  .learnhow>summary{list-style:none;cursor:pointer;padding:11px 0;position:relative}
+  .learnhow>summary::-webkit-details-marker{display:none}
+  .learnhow>summary::after{content:"";position:absolute;right:2px;top:50%;width:9px;height:9px;
+    border-right:2.5px solid #a8aec2;border-bottom:2.5px solid #a8aec2;
+    transform:translateY(-70%) rotate(45deg);transition:transform .2s ease}
+  .learnhow[open]>summary::after{transform:translateY(-30%) rotate(-135deg)}
+  .learnhow h3{margin:0;font-size:16px;display:inline}
   .learnhow p{margin:0 0 7px;font-size:14px;line-height:1.55;color:var(--muted)}
-  .learnhow p:last-child{margin-bottom:0}
   .learnhow b{color:var(--ink)}
+  .lgrow{display:flex;align-items:flex-start;gap:11px;padding:9px 0;font-size:13.5px;
+    line-height:1.5;color:var(--muted)}
+  .lgrow+.lgrow{border-top:1px solid #f1f2f8}
+  .lgmark{flex:none;width:26px;height:26px;border-radius:9px;display:flex;align-items:center;
+    justify-content:center;font-size:13px;font-weight:800;background:#eef0f6;color:#8a90a6}
+  .lgmark.s-cov{background:#e4e9ff;color:#3e46ad}
+  .lgmark.s-sec{background:#cdefe2;color:#0c6b4f}
+  .lgmark.s-rev{background:#ffeccc;color:#8a5a10}
 
   /* ---------- Sound, where a child can find it ---------- */
   .soundrow{display:flex;align-items:center;justify-content:space-between;gap:12px;
@@ -3621,7 +3634,7 @@ const TIP_CATS = [
   {key:"deen", label:"Deen"}
 ];
 
-const APP_VERSION = "v107";
+const APP_VERSION = "v108";
 const today = new Date().toISOString().slice(0,10);
 let app = {families:[],currentFamily:null,currentChild:null};
 let categories = [];
@@ -4451,15 +4464,30 @@ function teachersCardHTML(child){
 /* The key used to float at the top of every subject, describing four words
    that appeared nowhere near it. Each row now carries its own state, so this
    only has to explain who may change what. */
-function legendHTML(){
-  return `<section class="learnhow">
-      <h3>\u2753 How this works</h3>
+/* Four labels in two paragraphs meant each mark wrapped onto the end of the
+   line above it \u2014 the Practised dot appeared to belong to "Not started yet",
+   which is where the stray black dot came from. One label per row, each with
+   its mark in its own column, so a mark can never drift onto its neighbour. */
+function avatarChipHTML(m){
+  return m && m.photo
+    ? `<img src="${m.photo}" alt="">`
+    : '<span class="avatar-placeholder">\ud83d\udc64</span>';
+}
+function legendHTML(open){
+  const row=(mark, cls, name, text) =>
+    `<div class="lgrow"><span class="lgmark ${cls}">${mark}</span>
+       <span><b>${name}</b> \u2014 ${text}</span></div>`;
+  return `<details class="learnhow"${open?" open":""}>
+      <summary><h3>\u2753 How this works</h3></summary>
       <p>Every line below is one thing to learn, and each has its own label.</p>
-      <p><b>Not started yet</b> \u2014 nobody has marked it.
-         <b>\u25cf Practised</b> \u2014 you have worked on it. You can tap this yourself, and undo it if you tap it by mistake.</p>
-      <p><b>\u2713 Secure</b> \u2014 a grown-up watched you do it on your own. Only Mum, Dad or your teacher can set or remove this one.
-         <b>\u21ba Time to revisit</b> \u2014 it was secure a while ago, so it is worth checking you still remember.</p>
-    </section>`;
+      ${row("", "s-none", "Not started yet", "nobody has marked it.")}
+      ${row("\u25cf", "s-cov", "Practised",
+        "you have worked on it. You can tap this yourself, and undo it if you tap it by mistake.")}
+      ${row("\u2713", "s-sec", "Secure",
+        "a grown-up watched you do it on your own. Only Mum, Dad or a teacher can set or remove this one.")}
+      ${row("\u21ba", "s-rev", "Time to revisit",
+        "it was secure a while ago, so it is worth checking you still remember.")}
+    </details>`;
 }
 /* Every subject has its own colour, and every subject is a closed door until
    you choose it. Before this the page was one undifferentiated scroll of five
@@ -4494,7 +4522,7 @@ function learnScreenHTML(child){
   if(!child) return "";
   const me=sessionMember();
   const canSecure=mayMarkSecure(me, child);
-  return teachersCardHTML(child) + legendHTML() + CURRICULUM.map(subject=>{
+  return teachersCardHTML(child) + CURRICULUM.map(subject=>{
     // The year is the child's year, worked out from their age, for everybody
     // who looks. A parent comparing years across the whole curriculum was
     // reading somebody else's syllabus and calling it their child's progress.
@@ -4717,7 +4745,8 @@ function renderReviewPanel(){
   const band=bandForChild(who);
   body.innerHTML =
     `<div class="chiprow" style="margin-bottom:12px">${kids.map(c=>`<button class="whochip ${
-      c.id===who.id?"on":""}" onclick="selectChild('${c.id}');showReviewPanel()">${escapeHtml(c.name)}</button>`).join("")}</div>
+      c.id===who.id?"on":""}" onclick="selectChild('${c.id}');showReviewPanel()">${
+      avatarChipHTML(c)}<span>${escapeHtml(c.name)}</span></button>`).join("")}</div>
      <section class="card">
        <h2 style="margin:0 0 2px">${escapeHtml(who.name)}\u2019s week</h2>
        <div class="statgrid">
@@ -6398,9 +6427,13 @@ function renderProgressPanel(){
   const kids=f ? f.children.filter(isChildRole) : [];
   if(!kids.length){ body.innerHTML='<p class="small">No children added yet.</p>'; return; }
   const who=currentChild() && isChildRole(currentChild()) ? currentChild() : kids[0];
-  body.innerHTML =
-    `<div class="chiprow" style="margin-bottom:12px">${kids.map(c=>`<button class="whochip ${
-      c.id===who.id?"on":""}" onclick="selectChild('${c.id}');showProgressPanel()">${escapeHtml(c.name)}</button>`).join("")}</div>`
+  /* The legend explains the marks you are about to read, so it comes before
+     the names rather than after them. The chips carry faces: four names in a
+     column is a list, four faces is your children. */
+  body.innerHTML = legendHTML()
+    + `<div class="chiprow" style="margin-bottom:12px">${kids.map(c=>`<button class="whochip ${
+      c.id===who.id?"on":""}" onclick="selectChild('${c.id}');showProgressPanel()">${
+      avatarChipHTML(c)}<span>${escapeHtml(c.name)}</span></button>`).join("")}</div>`
     + learnScreenHTML(who);
 }
 /* Firebase's failure modes are indistinguishable to a user unless you name
@@ -13831,6 +13864,7 @@ function done(){
     title=String(title||"").trim();
     if(!title) return;
     const id=newId("cs");
+    openCourse=id;
     await writeLedger({childId:m.id, points:0, type:"course",
       label:"Course: "+title, catKey:"course|"+id, actionName:title});
     for(const t of (steps||[])){
@@ -13890,6 +13924,14 @@ function done(){
   };
 
   /* ---- view ---- */
+  const COURSE_TONES=["c-violet","c-teal","c-gold","c-rose","c-green","c-blue"];
+  let openCourse=null;
+  /* A new course opens itself and closes whatever was open, so adding one
+     shows you the thing you just made rather than a longer wall. */
+  window.courseFold=function(id){
+    openCourse = (openCourse===id) ? null : id;
+    refresh();
+  };
   function html(){
     const list=mine();
     const chips=SUGGESTIONS.map((s,i)=>
@@ -13897,29 +13939,41 @@ function done(){
     const body = !list.length
       ? `<p class="small">Nothing yet. A reading list, a course you're taking, a training plan \u2014
           anything you're working through.</p>`
-      : list.map(c=>{
+      : list.map((c,i)=>{
           const done=doneSteps(c);
           const pct = c.steps.length ? Math.round(done.size/c.steps.length*100) : 0;
-          return `<div class="coursecard">
-            <div class="coursehead">
-              <div style="flex:1;min-width:0">
+          /* Every course arrived fully unrolled, so three courses was three
+             stacked lists of steps and you could not see what you had. They
+             fold now, and each takes a colour from a fixed palette so one
+             course is visually one thing. */
+          const tone = COURSE_TONES[i % COURSE_TONES.length];
+          const open = openCourse === c.id;
+          return `<div class="coursecard ${tone}${open?" open":""}">
+            <button type="button" class="coursehead" aria-expanded="${open}"
+              onclick="courseFold('${c.id}')">
+              <span class="cdot"></span>
+              <span style="flex:1;min-width:0;text-align:left">
                 <strong>${esc(c.title)}</strong>
                 <span class="small" style="display:block">${
                   c.steps.length ? done.size+" of "+c.steps.length+" done" : "no steps yet"}</span>
-              </div>
-              <button class="xbtn" onclick="courseRemove('${c.id}')">\u{1f5d1}</button>
-            </div>
-            <div class="cbar"><i style="width:${pct}%"></i></div>
-            ${c.steps.map(s=>`
-              <div class="steprow${done.has(s.id)?" done":""}">
-                <button class="tick" onclick="courseToggle('${c.id}','${s.id}')">${
-                  done.has(s.id)?"\u2713":""}</button>
-                <span>${esc(s.text)}</span>
-                <button class="xbtn small" onclick="courseRemoveStep('${c.id}','${s.id}')">\u00d7</button>
-              </div>`).join("")}
-            <div class="editrow" style="margin-top:8px">
-              <input id="step_${c.id}" placeholder="Add a step \u2014 a book, a week, a module">
-              <button class="light" style="width:auto" onclick="courseAddStep('${c.id}')">Add</button>
+                <span class="cbar"><i style="width:${pct}%"></i></span>
+              </span>
+              <span class="cchev" aria-hidden="true"></span>
+            </button>
+            <div class="coursebody">
+              ${open ? c.steps.map(s=>`
+                <div class="steprow${done.has(s.id)?" done":""}">
+                  <button class="tick" onclick="courseToggle('${c.id}','${s.id}')">${
+                    done.has(s.id)?"\u2713":""}</button>
+                  <span>${esc(s.text)}</span>
+                  <button class="xbtn small" onclick="courseRemoveStep('${c.id}','${s.id}')">\u00d7</button>
+                </div>`).join("")
+              + `<div class="editrow" style="margin-top:8px">
+                  <input id="step_${c.id}" placeholder="Add a step \u2014 a book, a week, a module">
+                  <button class="light" style="width:auto" onclick="courseAddStep('${c.id}')">Add</button>
+                </div>
+                <button class="xbtn" style="width:auto;margin-top:4px"
+                  onclick="courseRemove('${c.id}')">\u{1f5d1} Remove this course</button>` : ""}
             </div>
           </div>`;
         }).join("");
@@ -13944,10 +13998,29 @@ function done(){
 
   const CSS=`
   @media (prefers-reduced-motion:reduce){#courseSection *{transition:none!important}}
-  .coursecard{background:#fff;border:1px solid #e4ddf7;border-radius:16px;padding:13px;margin-bottom:10px}
-  .coursehead{display:flex;align-items:flex-start;gap:8px}
-  .cbar{height:6px;border-radius:99px;background:#eee9fb;overflow:hidden;margin:10px 0 12px}
+  .coursecard{background:#fff;border:1px solid #e4ddf7;border-radius:18px;margin-bottom:10px;
+    overflow:hidden;border-left-width:6px}
+  .coursehead{display:flex;align-items:flex-start;gap:11px;width:100%;padding:14px;border:0;
+    background:transparent;font:inherit;color:inherit;cursor:pointer;text-align:left;position:relative}
+  .cdot{flex:none;width:12px;height:12px;border-radius:4px;margin-top:4px}
+  .cchev{flex:none;width:9px;height:9px;margin-top:8px;border-right:2.5px solid #a8aec2;
+    border-bottom:2.5px solid #a8aec2;transform:rotate(45deg);transition:transform .2s ease}
+  .coursecard.open .cchev{transform:rotate(-135deg)}
+  .coursebody:not(:empty){padding:0 14px 12px}
+  .cbar{display:block;height:6px;border-radius:99px;background:#eee9fb;overflow:hidden;margin:9px 0 0}
   .cbar i{display:block;height:100%;background:#7a63d6;transition:width .4s cubic-bezier(.2,.8,.2,1)}
+  .coursecard.c-violet{border-left-color:#7a63d6} .coursecard.c-violet .cdot{background:#7a63d6}
+  .coursecard.c-violet .cbar i{background:#7a63d6}
+  .coursecard.c-teal{border-left-color:#1c8a6c}   .coursecard.c-teal .cdot{background:#1c8a6c}
+  .coursecard.c-teal .cbar i{background:#1c8a6c}
+  .coursecard.c-gold{border-left-color:#d99b1d}   .coursecard.c-gold .cdot{background:#d99b1d}
+  .coursecard.c-gold .cbar i{background:#d99b1d}
+  .coursecard.c-rose{border-left-color:#d4547e}   .coursecard.c-rose .cdot{background:#d4547e}
+  .coursecard.c-rose .cbar i{background:#d4547e}
+  .coursecard.c-green{border-left-color:#5f9b3c}  .coursecard.c-green .cdot{background:#5f9b3c}
+  .coursecard.c-green .cbar i{background:#5f9b3c}
+  .coursecard.c-blue{border-left-color:#3e7fd8}   .coursecard.c-blue .cdot{background:#3e7fd8}
+  .coursecard.c-blue .cbar i{background:#3e7fd8}
   .steprow{display:flex;align-items:center;gap:9px;padding:10px 0;min-height:44px;font-size:14.5px;line-height:1.4}
   .steprow+.steprow{border-top:1px solid #f3f0fb}
   .steprow.done span{color:#8a92a0;text-decoration:line-through}
@@ -14761,7 +14834,9 @@ window.GROWNUP_DECKS = [
   function myLearningHTML(){
     const m = me();
     if(!m) return `<p class="small">Sign in to see your own learning.</p>`;
-    let h = "";
+    /* The same marks mean the same things on your own ladder, so the same
+       explainer belongs here. It arrives folded \u2014 you only need it once. */
+    let h = (typeof legendHTML === "function") ? legendHTML() : "";
 
     /* Qur'an first, and the only one here that opens in place \u2014 it is a
        ladder rather than a door to somewhere else. */
