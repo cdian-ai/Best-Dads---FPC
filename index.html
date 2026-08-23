@@ -756,9 +756,10 @@
   #kidView h2{font-family:system-ui,-apple-system,Segoe UI,sans-serif}
   /* ---- Learn: one shelf, one open door ---- */
   .subjfold{margin:0 0 10px;border-radius:20px;overflow:hidden;border:1px solid #e6e8f0;background:#fff}
-  .subjfold>summary{list-style:none;cursor:pointer;position:relative}
-  .subjfold>summary::-webkit-details-marker{display:none}
-  .subjhead{display:flex;align-items:center;gap:13px;padding:15px 46px 15px 16px;min-height:64px}
+  .subjhead{position:relative;display:flex;align-items:center;gap:13px;width:100%;
+            padding:15px 46px 15px 16px;min-height:64px;border:0;cursor:pointer;
+            text-align:left;font:inherit;color:inherit;background:transparent}
+  .subjhead:active{transform:none}
   .subjicon{font-size:26px;line-height:1;flex:none}
   .subjmain{flex:1;min-width:0;display:block}
   .subjname{display:block;font-size:17px;font-weight:800;line-height:1.25}
@@ -768,7 +769,8 @@
   .subjchev{position:absolute;right:18px;top:50%;width:11px;height:11px;border-right:2.5px solid currentColor;
             border-bottom:2.5px solid currentColor;opacity:.5;
             transform:translateY(-70%) rotate(-45deg);transition:transform .22s ease}
-  .subjfold[open]>summary .subjchev{transform:translateY(-30%) rotate(45deg)}
+  .subjfold.open .subjchev{transform:translateY(-30%) rotate(45deg)}
+  .subjfold.link .subjchev{transform:translateY(-50%) rotate(-45deg)}
   .subjbody:not(:empty){padding:2px 12px 12px}
   .subjfold.s-quran    .subjhead{background:linear-gradient(150deg,#e3f6ef,#cfeee2);color:#0b5545}
   .subjfold.s-quran    .subjbar i{background:#1c8a6c}
@@ -782,6 +784,12 @@
   .subjfold.s-science  .subjbar i{background:#5f9b3c}
   .subjfold.s-other    .subjhead{background:linear-gradient(150deg,#f3ecff,#e5d9ff);color:#452a7a}
   .subjfold.s-other    .subjbar i{background:#7a63d6}
+  .subjfold.s-courses  .subjhead{background:linear-gradient(150deg,#f3ecff,#e5d9ff);color:#452a7a}
+  .subjfold.s-courses  .subjbar i{background:#7a63d6}
+  .subjfold.s-play     .subjhead{background:linear-gradient(150deg,#e3f6ef,#cdeee1);color:#0b5545}
+  .subjfold.s-play     .subjbar i{background:#1c8a6c}
+  .subjfold.s-deen     .subjhead{background:linear-gradient(150deg,#f6f1e2,#eae1c8);color:#584919}
+  .subjfold.s-deen     .subjbar i{background:#b8992f}
   .kidhero{position:relative;overflow:hidden;border-radius:28px;padding:22px;margin-bottom:16px;color:#fff;
            background:linear-gradient(120deg,#8b7cf6 0%,#5ad2c4 55%,#ffd166 100%);box-shadow:0 12px 30px rgba(90,70,200,.22)}
   .kidhero .bubble{position:absolute;border-radius:50%;background:rgba(255,255,255,.16);pointer-events:none}
@@ -3605,7 +3613,7 @@ const TIP_CATS = [
   {key:"deen", label:"Deen"}
 ];
 
-const APP_VERSION = "v104";
+const APP_VERSION = "v105";
 const today = new Date().toISOString().slice(0,10);
 let app = {families:[],currentFamily:null,currentChild:null};
 let categories = [];
@@ -4457,14 +4465,22 @@ const SUBJECT_TONE = {
   science:  "s-science"
 };
 let learnOpen = {};
-/* One at a time. Two subjects open is already a scroll, and the point of the
-   shelf is that you choose one thing. */
-function toggleSubject(childId, subjectId, on){
-  if(on) learnOpen = {};
-  learnOpen[childId+"|"+subjectId] = on;
-}
+/* This was a <details> with an ontoggle handler that re-rendered the shelf.
+   WebKit fires toggle when a <details open> is inserted, so the re-render
+   raised the event that caused the re-render: the first subject opened, the
+   next landed on top of it, and the page stopped answering. A plain button
+   and our own state does the same job and means the same thing in every
+   browser. One open at a time — two is already a scroll. */
+function subjectKey(childId, subjectId){ return childId+"|"+subjectId; }
 function subjectIsOpen(childId, subjectId){
-  return learnOpen[childId+"|"+subjectId] === true;
+  return learnOpen[subjectKey(childId, subjectId)] === true;
+}
+function tapSubject(childId, subjectId){
+  const k=subjectKey(childId, subjectId);
+  const was=learnOpen[k]===true;
+  learnOpen = {};
+  if(!was) learnOpen[k]=true;
+  renderLearnHost();
 }
 function learnScreenHTML(child){
   if(!child) return "";
@@ -4481,7 +4497,8 @@ function learnScreenHTML(child){
     const yearName=subject.byYear ? (shown[0] ? shown[0].name : "") : "";
     const tone=SUBJECT_TONE[subject.subject] || "s-other";
     const open=subjectIsOpen(child.id, subject.subject);
-    const head=`<summary class="subjhead ${tone}">
+    const head=`<button type="button" class="subjhead" aria-expanded="${open}"
+        onclick="tapSubject('${child.id}','${subject.subject}')">
         <span class="subjicon">${subject.icon}</span>
         <span class="subjmain">
           <span class="subjname">${escapeHtml(subject.name)}</span>
@@ -4489,11 +4506,10 @@ function learnScreenHTML(child){
           <span class="subjbar"><i style="width:${pct}%"></i></span>
         </span>
         <span class="subjchev" aria-hidden="true"></span>
-      </summary>`;
+      </button>`;
     const ladders=open ? shown.map(st=>ladderHTML(child, subject, st, canSecure)).join("") : "";
-    return `<details class="subjfold ${tone}"${open?" open":""}
-        ontoggle="toggleSubject('${child.id}','${subject.subject}',this.open);setTimeout(renderLearnHost,0)">
-        ${head}<div class="subjbody">${ladders}</div></details>`;
+    return `<section class="subjfold ${tone}${open?" open":""}">
+        ${head}<div class="subjbody">${ladders}</div></section>`;
   }).join("")
   + `<p class="kidfooter">Tap a subject to open it. Mark <strong>Practised</strong> when you\u2019ve worked on something \u2014 only a grown-up can mark it secure.</p>`;
 }
@@ -14687,16 +14703,33 @@ window.GROWNUP_DECKS = [
     return out;
   }
 
-  function card(emoji, title, sub, onclick){
-    return `<section class="kidhero" style="cursor:pointer" onclick="${onclick}">
-      <div class="kidherorow"><div>
-        <p class="kidhi">${emoji} ${esc(title)}</p>
-        <p class="kidsub">${esc(sub)}</p>
-      </div><div style="font-size:30px;color:#c4c8d8">\u203a</div></div></section>`;
+  /* ---- the same shelf the children's side uses ----
+     My learning was five identical white cards. The children's Learn page had
+     already been rebuilt as a colour-coded shelf that opens one subject at a
+     time, and there was no reason for a parent's own page to be the odd one
+     out. Rows that open in place use the same fold; rows that go somewhere
+     else use the same head with the chevron pointing right. */
+  function shelfHead(tone, icon, name, sub, pct, click, open){
+    const bar = (typeof pct === "number")
+      ? `<span class="subjbar"><i style="width:${pct}%"></i></span>` : "";
+    return `<button type="button" class="subjhead"${open===undefined?"":` aria-expanded="${open}"`}
+        onclick="${click}">
+        <span class="subjicon">${icon}</span>
+        <span class="subjmain">
+          <span class="subjname">${esc(name)}</span>
+          <span class="subjsub">${esc(sub)}</span>
+          ${bar}
+        </span>
+        <span class="subjchev" aria-hidden="true"></span>
+      </button>`;
+  }
+  /* Goes somewhere else rather than opening in place. */
+  function shelfLink(tone, icon, name, sub, click){
+    return `<section class="subjfold link ${tone}">
+      ${shelfHead(tone, icon, name, sub, null, click)}</section>`;
   }
 
-  /* ---- the Qur'an ladder, rendered against my own record ----
-     ladderHTML takes any member and reads their progress, so a grown-up marking
+  /* ladderHTML takes any member and reads their progress, so a grown-up marking
      their own Qaida uses exactly the same rows, the same states and the same
      14/42/90-day review decay as a child. Nothing new to keep in step. */
   function quranHTML(){
@@ -14707,11 +14740,13 @@ window.GROWNUP_DECKS = [
     const strands = subject.strands || [];
     const done  = strands.reduce((a,s)=>a + (typeof strandProgress==="function" ? strandProgress(m,subject,s).secure : 0), 0);
     const total = strands.reduce((a,s)=>a + s.objectives.length, 0);
-    const head = `<section class="kidhero"><div class="kidherorow"><div>
-        <p class="kidhi">${subject.icon} ${esc(subject.name)}</p>
-        <p class="kidsub">Your own \u00b7 ${done} of ${total} secure</p>
-      </div></div></section>`;
-    return head + strands.map(s => ladderHTML(m, subject, s, true)).join("");
+    const pct   = total ? Math.round(done/total*100) : 0;
+    const open  = (typeof subjectIsOpen==="function") && subjectIsOpen(m.id, "quran");
+    const body  = open ? strands.map(s => ladderHTML(m, subject, s, true)).join("") : "";
+    return `<section class="subjfold s-quran${open?" open":""}">
+      ${shelfHead("s-quran", subject.icon, subject.name, "Your own \u00b7 " + done + " of " + total + " secure",
+                  pct, "tapSubject('"+m.id+"','quran')", open)}
+      <div class="subjbody">${body}</div></section>`;
   }
 
   function myLearningHTML(){
@@ -14719,29 +14754,32 @@ window.GROWNUP_DECKS = [
     if(!m) return `<p class="small">Sign in to see your own learning.</p>`;
     let h = "";
 
+    /* Qur'an first, and the only one here that opens in place \u2014 it is a
+       ladder rather than a door to somewhere else. */
+    h += quranHTML();
+
     if(window.FULFULDE_M1 && typeof window.openFulfulde === "function"){
       const pack = window.FULFULDE_M1;
-      const n = myKeys("fulfulde.").length;
-      h += card("\u{1f4d7}", pack.title || "Fulfulde",
-        n ? n + " set" + (n===1?"":"s") + " practised \u00b7 tap to carry on"
+      const k = myKeys("fulfulde.").length;
+      h += shelfLink("s-fulfulde", "\u{1f4d7}", pack.title || "Fulfulde",
+        k ? k + " set" + (k===1?"":"s") + " practised \u00b7 tap to carry on"
           : "Start at the beginning \u00b7 audio on every item",
         "openFulfulde()");
     }
 
-    h += card("\u{1f4d3}", "My courses",
+    h += shelfLink("s-courses", "\u{1f4d3}", "My courses",
       "A book, a juz plan, a class \u2014 your own steps, ticked off by you",
       "showCoursesPanel()");
 
-    /* Puzzles are not a course, so they are not on this shelf. One link to the
-       place they actually live. */
+    /* Puzzles are not a course, so they are not on this shelf as one. This is
+       a link to where they actually live. */
     if((window.DECKS && typeof window.openDecks === "function") ||
-       (window.GROWNUP_DECKS && typeof window.openGrownupDecks === "function")){
-      h += card("\u{1f9e9}", "Do together",
+       (window.GROWNUP_DECKS && typeof window.openGrownupDecks === "function") ||
+       (typeof window.openTogether === "function")){
+      h += shelfLink("s-play", "\u{1f9e9}", "Do together",
         "Cooking and puzzles \u2014 things to do side by side, nothing scored",
         "showPlayPanel()");
     }
-
-    h += quranHTML();
 
     h += `<p class="mylearn-note">Everything here is marked by you, for you. It earns no points \u2014
       the map is the point. Looking for what the children have covered?
@@ -14750,8 +14788,6 @@ window.GROWNUP_DECKS = [
     return h;
   }
 
-  /* Jump straight to the Courses tab of the grown-ups' panel, rather than
-     landing them on Rewards and asking them to find it. */
   /* Kept so anything still calling it lands somewhere sensible. My courses is
      its own screen now rather than tab three of the grown-ups' panel. */
   window.openMyCourses = function(){
