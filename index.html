@@ -96,6 +96,28 @@
   .givav img,.givav .avatar-placeholder{width:52px;height:52px;border-radius:16px;object-fit:cover;
     display:flex;align-items:center;justify-content:center;font-size:22px;background:#e4e6f5}
   .givgift{width:auto!important;flex:none;padding:11px 13px}
+  .givsub{display:block;font-size:12.5px;font-weight:700;color:var(--muted);margin-top:2px}
+  /* Review together: flat, in the same language as the awarding screen — no
+     stack of cards each with its own coloured bar across the top. */
+  .revstats{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin:0 0 14px}
+  .revstats div{background:#fff;border:1px solid #e9ebf3;border-radius:18px;padding:14px 8px;text-align:center}
+  .revstats strong{display:block;font-size:23px;line-height:1.1;color:var(--ink)}
+  .revstats span{font-size:11.5px;font-weight:700;color:var(--muted)}
+  .revday{margin:20px 0 8px;padding:0 4px;font-size:11px;font-weight:800;letter-spacing:.06em;
+    text-transform:uppercase;color:var(--muted)}
+  .revlist{display:grid;gap:8px}
+  .revrow{display:flex;align-items:center;gap:12px;background:#fff;border:1px solid #e9ebf3;
+    border-radius:16px;padding:13px 15px}
+  .revwhat{flex:1;min-width:0;font-size:15.5px;font-weight:700;color:var(--ink);line-height:1.4}
+  .revpts{flex:none;text-align:right;font-size:16px;font-weight:800;color:#1c8a6c;line-height:1.1}
+  .revpts em{display:block;font-style:normal;font-size:11px;font-weight:700;color:var(--muted);margin-top:3px}
+  .revempty{font-size:14px;line-height:1.6;color:var(--muted);background:#fff;border:1px solid #e9ebf3;
+    border-radius:18px;padding:16px}
+  .revask{background:linear-gradient(150deg,#fff6df,#ffeec4);border:1px solid #f0dcb2;
+    border-radius:22px;padding:18px;margin-top:22px}
+  .revask h3{margin:0 0 6px;font-size:17px;color:#5e4304}
+  .revask p{margin:0 0 14px;font-size:14.5px;line-height:1.6;color:#7a5c15}
+  .revask .primary{width:100%}
   .noticetabs{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin:0 0 14px}
   .noticetabs button{width:auto;background:#eef0ff;color:#3e46ad;font-size:13.5px;font-weight:700;
     padding:13px 6px;border:0;border-radius:14px;cursor:pointer;min-height:46px}
@@ -3694,7 +3716,7 @@ const TIP_CATS = [
   {key:"deen", label:"Deen"}
 ];
 
-const APP_VERSION = "v118";
+const APP_VERSION = "v119";
 const today = new Date().toISOString().slice(0,10);
 let app = {families:[],currentFamily:null,currentChild:null};
 let categories = [];
@@ -4809,33 +4831,32 @@ function renderReviewPanel(){
   mine.forEach(e=>{ const d=tsToDateStr(e.ts); (byDay[d]=byDay[d]||[]).push(e); });
   const days=Object.keys(byDay).sort().reverse();
   const band=bandForChild(who);
+  /* Four full-width name rows used to take most of the screen before the week
+     you came to read. Same header as the awarding screen: back, name, face. */
   body.innerHTML =
-    `<div class="chiprow" style="margin-bottom:12px">${kids.map(c=>`<button class="whochip ${
-      c.id===who.id?"on":""}" onclick="selectChild('${c.id}');showReviewPanel()">${
-      avatarChipHTML(c)}<span>${escapeHtml(c.name)}</span></button>`).join("")}</div>
-     <section class="card">
-       <h2 style="margin:0 0 2px">${escapeHtml(who.name)}\u2019s week</h2>
-       <div class="statgrid">
-         <div><strong>${weeklyTotalFor(who, weekDates)}</strong><span>Points</span></div>
-         <div><strong>${mine.length}</strong><span>Things noticed</span></div>
-         <div><strong>${who.balance||0}</strong><span>Saved up</span></div>
-       </div>
-       <span class="moodpill ${band.cls}">${band.label}</span>
-     </section>
+    whoHeaderHTML(who, kids, {back:"goHome()", sub:"This week"})
+  + `<div class="revstats">
+       <div><strong>${weeklyTotalFor(who, weekDates)}</strong><span>Points</span></div>
+       <div><strong>${mine.length}</strong><span>Noticed</span></div>
+       <div><strong>${who.balance||0}</strong><span>Saved up</span></div>
+     </div>
+     <span class="moodpill ${band.cls}" style="display:inline-block;margin:0 0 18px">${band.label}</span>
      ${days.length ? days.map(d=>{
         const dd=new Date(d+"T12:00:00");
-        return `<section class="card"><h2 style="margin:0 0 8px;font-size:16px">${
-          dd.toLocaleDateString(undefined,{weekday:"long", day:"numeric", month:"short"})}</h2>
-          <div style="display:grid;gap:7px">${byDay[d].map(e=>`<div class="logrow">
-            <div><div>${escapeHtml(e.label)}</div>
-              <div class="logmeta">${e.points>=0?"+":""}${e.points} \u00b7 ${escapeHtml(e.by||"")}</div></div>
-          </div>`).join("")}</div></section>`;
+        return `<p class="revday">${
+          dd.toLocaleDateString(undefined,{weekday:"long", day:"numeric", month:"short"})}</p>
+          <div class="revlist">${byDay[d].map(e=>`<div class="revrow">
+            <span class="revwhat">${escapeHtml(e.label)}</span>
+            <span class="revpts">${e.points>=0?"+":""}${e.points}<em>${escapeHtml(e.by||"")}</em></span>
+          </div>`).join("")}</div>`;
       }).join("")
-      : '<p class="small">Nothing recorded this week yet.</p>'}
-     <section class="card" style="border-top-color:#e0b13c">
-       <h2 style="margin:0 0 4px">\u{1f64b} Anything I missed?</h2>
-       <p class="small" style="margin:0">Ask them now. This is the moment for it \u2014 not when you\u2019re awarding. If they\u2019re right, add it while you\u2019re sitting together.</p>
-       <button class="primary" style="margin-top:12px;width:100%" onclick="showQuickPanel()">\ud83d\udd25 Add something now</button>
+      : `<p class="revempty">Nothing recorded this week yet. Sit down together anyway \u2014
+          the asking is the point, not the list.</p>`}
+     <section class="revask">
+       <h3>\u{1f64b} Anything I missed?</h3>
+       <p>Ask them now. This is the moment for it \u2014 not when you\u2019re awarding.
+          If they\u2019re right, add it while you\u2019re sitting together.</p>
+       <button class="primary" onclick="showQuickPanel()">\ud83d\udd25 Add something now</button>
      </section>`;
 }
 
@@ -8565,33 +8586,17 @@ function render(){
       ? `<img src="${child.photo}" alt="">`
       : '<span class="avatar-placeholder">\ud83d\udc64</span>';
     const kid = isChildRole(child) && !isParentRole(child);
-    /* The name is the switcher: tap it, pick someone else, stay where you are.
-       Nobody has to go back to a list to change who they are awarding. */
+    /* The same header the review screen uses. One component, so the two
+       screens cannot drift apart. */
     const f0=currentFamily();
     const others=(f0?f0.children:[]).filter(c=>
       (isChildRole(c) || (isParentRole(c) && c.id!==sessionMemberId && hasLogin(c))));
-    const multi = others.length>1;
     cards.insertAdjacentHTML("beforeend",
-      `<div class="givehead" style="grid-column:1/-1">
-        <button class="light givback" onclick="backToParentHome()" aria-label="Back">\u2190</button>
-        <div class="givwho">
-          <button class="givname" onclick="toggleWhoMenu()" aria-haspopup="listbox"
-            aria-expanded="false" id="givNameBtn" ${multi?"":"disabled"}>
-            <strong>${escapeHtml(child.name)}</strong>${multi?'<span class="givcaret"></span>':""}
-          </button>
-          ${kid ? `<button class="givlink" onclick="openChildStats('${child.id}')">\u{1f4ca} Full picture</button>` : ""}
-        </div>
-        <span class="givav">${av}</span>
-        ${isParentRole(child) ? `<button class="confirm givgift" onclick="openGiftDialog()" aria-label="Send a surprise">\u{1f381}</button>` : ""}
-        <div class="whomenu hidden" id="whoMenu" role="listbox">
-          ${others.map(c=>`<button role="option" aria-selected="${c.id===child.id}"
-            class="${c.id===child.id?"on":""}" onclick="pickWho('${c.id}')">
-            ${c.photo?`<img src="${c.photo}" alt="">`:'<span class="avatar-placeholder">\ud83d\udc64</span>'}
-            <span>${escapeHtml(c.name)}</span>
-            ${c.id===child.id?'<span class="whotick">\u2713</span>':""}
-          </button>`).join("")}
-        </div>
-      </div>`);
+      `<div style="grid-column:1/-1">${whoHeaderHTML(child, others, {
+        back: "backToParentHome()",
+        link: kid ? `<button class="givlink" onclick="openChildStats('${child.id}')">\u{1f4ca} Full picture</button>` : "",
+        extra: isParentRole(child) ? `<button class="confirm givgift" onclick="openGiftDialog()" aria-label="Send a surprise">\u{1f381}</button>` : ""
+      })}</div>`);
   }
   const cats = activeCats();
   let tileWrap = null;
@@ -9309,6 +9314,37 @@ function saveCelebrated(set){
    off is she?", so this half is read-only and sorted by what is within reach. */
 let __noticeTab = "earn";
 function noticeTab(){ return __noticeTab; }
+/* One person-header for every screen that is about one child: back on the
+   left, the name as a dropdown, the face on the right. Built once so the two
+   screens cannot drift apart. */
+function whoHeaderHTML(child, people, opts){
+  opts = opts || {};
+  const av = child.photo
+    ? `<img src="${child.photo}" alt="">`
+    : '<span class="avatar-placeholder">\ud83d\udc64</span>';
+  const multi = people.length>1;
+  return `<div class="givehead">
+      <button class="light givback" onclick="${opts.back||"goHome()"}" aria-label="Back">\u2190</button>
+      <div class="givwho">
+        <button class="givname" onclick="toggleWhoMenu()" aria-haspopup="listbox"
+          aria-expanded="false" id="givNameBtn" ${multi?"":"disabled"}>
+          <strong>${escapeHtml(child.name)}</strong>${multi?'<span class="givcaret"></span>':""}
+        </button>
+        ${opts.sub ? `<span class="givsub">${opts.sub}</span>` : ""}
+        ${opts.link || ""}
+      </div>
+      <span class="givav">${av}</span>
+      ${opts.extra || ""}
+      <div class="whomenu hidden" id="whoMenu" role="listbox">
+        ${people.map(c=>`<button role="option" aria-selected="${c.id===child.id}"
+          class="${c.id===child.id?"on":""}" onclick="pickWho('${c.id}')">
+          ${c.photo?`<img src="${c.photo}" alt="">`:'<span class="avatar-placeholder">\ud83d\udc64</span>'}
+          <span>${escapeHtml(c.name)}</span>
+          ${c.id===child.id?'<span class="whotick">\u2713</span>':""}
+        </button>`).join("")}
+      </div>
+    </div>`;
+}
 let __whoMenuOpen=false;
 function toggleWhoMenu(){
   const m=document.getElementById("whoMenu");
@@ -9326,6 +9362,9 @@ function closeWhoMenu(){
 function pickWho(id){
   closeWhoMenu();
   selectChild(id);
+  /* selectChild re-renders the dashboard; a panel has to be told. */
+  if(screenNow==="reviewPanel" && typeof renderReviewPanel==="function") renderReviewPanel();
+  if(screenNow==="progressPanel" && typeof renderProgressPanel==="function") renderProgressPanel();
 }
 /* Tapping anywhere else closes it, the way a menu should. */
 document.addEventListener("click", (e)=>{
