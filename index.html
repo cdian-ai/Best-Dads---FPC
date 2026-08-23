@@ -1429,6 +1429,7 @@
       <p class="menugroup">Today</p>
       <button class="light" id="btnQuickMenu" onclick="showQuickPanel()">🔥 Quick points</button>
       <button class="light" id="btnRequests" onclick="showRequestsPanel()">🔔 Requests</button>
+      <button class="light" id="btnTasks" onclick="showTasksPanel()">📌 Asked of them</button>
       <button class="light" id="btnReviewMenu" onclick="showReviewPanel()">🗣️ Review together</button>
       <button class="light" id="btnActivity" onclick="showActivityPanel()">📋 History</button>
 
@@ -1639,6 +1640,13 @@
     <h2>📓 My courses</h2>
     <p class="small">Anything you are working through yourself — a book, a juz plan, a class. You add the steps and tick them off. Nothing here earns points.</p>
     <div id="courseHost"></div>
+  </div>
+
+  <div id="tasksPanel" class="panel hidden">
+    <button class="panelback" onclick="panelBack()">← Home</button>
+    <h2>📌 Asked of them</h2>
+    <p class="small">Homework, a surah, tidying up — anything you want them to see next time they open the app. Nothing is deducted if it doesn’t happen.</p>
+    <div id="tasksBody"></div>
   </div>
 
   <div id="playPanel" class="panel hidden">
@@ -3613,7 +3621,7 @@ const TIP_CATS = [
   {key:"deen", label:"Deen"}
 ];
 
-const APP_VERSION = "v106";
+const APP_VERSION = "v107";
 const today = new Date().toISOString().slice(0,10);
 let app = {families:[],currentFamily:null,currentChild:null};
 let categories = [];
@@ -5956,7 +5964,7 @@ async function toggleExcusedToday(childId){
    somebody opens it. */
 const KID_ONLY_SCREENS = ["kidSpendScreen","kidLearnScreen","kidPointsScreen"];
 const SHARED_SCREENS   = ["rulesPanel","treePanel","deenPanel","playPanel"];
-const SCREENS = ["accountPanel","overviewPanel","activityPanel","requestsPanel","progressPanel","rewardsPanel","grownupsPanel","pledgesPanel","coursesPanel","playPanel","pickPanel","quickPanel","reviewPanel","rulesPanel","tutorPanel","treePanel","deenPanel",
+const SCREENS = ["accountPanel","overviewPanel","activityPanel","requestsPanel","progressPanel","rewardsPanel","grownupsPanel","pledgesPanel","coursesPanel","playPanel","tasksPanel","pickPanel","quickPanel","reviewPanel","rulesPanel","tutorPanel","treePanel","deenPanel",
                  "kidSpendScreen","kidLearnScreen","kidPointsScreen"];
 let screenNow = null;
 /* Only the parent's full-screen .panel elements scroll inside themselves, so
@@ -8636,6 +8644,7 @@ function renderParentAdminView(parent){
         ${tile("\ud83d\udd25","Quick points","Everyone on one screen","showQuickPanel()")}
         ${tile("\ud83d\udde3\ufe0f","Review together","Go through the week with them","showReviewPanel()")}
         ${tile("\ud83d\udd14","Requests", pend.length?pend.length+" waiting on you":"Nothing waiting","showRequestsPanel()", pend.length||0)}
+        ${tile("\ud83d\udccc","Asked of them","Homework and jobs for today","showTasksPanel()")}
         ${tile("\ud83d\udcd6","Learn","Your own, and how they\u2019re getting on","showProgressPanel()")}
         ${tile("\ud83d\udcca","Overview","Everyone\u2019s week at a glance","showOverviewPanel()")}
         ${tile("\ud83c\udf81","Rewards","What the points are for","showRewardsPanel()")}
@@ -15391,6 +15400,284 @@ window.GROWNUP_DECKS = [
       renderCookList();
     };
     renderPlayPanel = window.renderPlayPanel;
+  }
+})();
+</script>
+<!-- ===== addons/tasks.js ===== -->
+<script>
+/* ---------- Asked of you ----------
+   A task is an existing action with a child and a day attached to it, or a
+   line of free text when nothing on the list fits. That is the whole idea:
+   the app already knows "Complete homework" is worth 3 points, so a task does
+   not need its own points model, its own list, or its own vocabulary. It
+   needs a name and a date.
+
+   Stored the way pledges and courses are stored: append-only ledger entries
+   folded back into state. Nothing new in Firestore, no rules to publish.
+     task|<id>      created, carrying the child, the title and the action
+     taskdone|<id>  the child says they have done it
+     taskoff|<id>   withdrawn by a grown-up, or paid and closed
+
+   Deliberately not built: overdue states, repeat nudges, anything red. A task
+   that did not happen today is not a failure to display back at a child. It
+   simply stops being today's. */
+(function(){
+  const $ = id => document.getElementById(id);
+  const esc = s => (typeof escapeHtml==="function") ? escapeHtml(String(s)) : String(s);
+  const me = () => (typeof sessionMember==="function") ? sessionMember() : null;
+  const ledger = () => {
+    const f=(typeof currentFamily==="function") ? currentFamily() : null;
+    const out=[];
+    (f?f.children:[]).forEach(c=>(c.activityLog||[]).forEach(e=>out.push(e)));
+    return out;
+  };
+  const grown = m => m && typeof isParentRole==="function" &&
+    (isParentRole(m) || (typeof isTutorRole==="function" && isTutorRole(m)));
+  const newId = () => "tk"+Date.now().toString(36)+Math.floor(Math.random()*900+100);
+  const dayStr = d => (typeof dateStr==="function") ? dateStr(d) : new Date(d).toISOString().slice(0,10);
+  const todayStr = () => dayStr(new Date());
+
+  /* ---- fold the ledger into tasks ---- */
+  function tasks(){
+    const out=new Map(), dead=new Set(), done=new Map();
+    ledger().slice().sort((a,b)=>a.ts-b.ts).forEach(e=>{
+      const k=String(e.catKey||"");
+      if(e.type==="taskoff"  && k.indexOf("taskoff|")===0){ dead.add(k.split("|")[1]); return; }
+      if(e.type==="taskdone" && k.indexOf("taskdone|")===0){ done.set(k.split("|")[1], e); return; }
+      if(e.type==="task"     && k.indexOf("task|")===0){
+        const id=k.split("|")[1];
+        out.set(id, { id, childId:e.childId, title:e.actionName||e.label||"",
+                      actionName:e.taskAction||null, points:e.taskPoints||0,
+                      due:e.taskDue||dayStr(e.ts), askedBy:e.byName||"", ts:e.ts });
+        dead.delete(id);
+      }
+    });
+    return [...out.values()]
+      .filter(t=>!dead.has(t.id))
+      .map(t=>Object.assign({}, t, {done: done.get(t.id)||null}));
+  }
+  window.allTasks = tasks;
+  const forChild = id => tasks().filter(t=>t.childId===id);
+  const openFor  = id => forChild(id).filter(t=>!t.done && t.due<=todayStr());
+
+  async function writeLedger(entry){
+    const m=me();
+    if(!m || typeof window.fpc==="undefined") return false;
+    try{
+      await window.fpc.addLedgerEntry(familyId, Object.assign({
+        byUid: window.fpc.uid(), byName: m.name,
+        byRole: (typeof relationLabel==="function") ? relationLabel(m) : ""
+      }, entry));
+      return true;
+    }catch(e){ console.error("task write refused:", e); return false; }
+  }
+
+  /* ---- CSS ---- */
+  const CSS=`
+  .tkcard{background:#fff;border:1px solid #e6e8f0;border-radius:20px;padding:14px 15px;margin-bottom:10px}
+  .tkrow{display:flex;align-items:flex-start;gap:12px}
+  .tktick{width:34px;height:34px;flex:none;border-radius:11px;border:2px solid #c9cdf0;background:#fff;
+    color:#3e46ad;font-size:16px;font-weight:800;cursor:pointer;line-height:1;padding:0}
+  .tkcard.is-done .tktick{background:#3aa06f;border-color:#3aa06f;color:#fff}
+  .tkmain{flex:1;min-width:0}
+  .tkname{display:block;font-size:16px;font-weight:800;color:#243044;line-height:1.3}
+  .tkcard.is-done .tkname{color:#8a92a0;text-decoration:line-through}
+  .tkwho{display:block;font-size:12.5px;color:#6a7184;font-weight:600;margin-top:3px;line-height:1.45}
+  .tkpts{display:inline-block;background:#eef0ff;color:#3e46ad;border-radius:99px;padding:4px 10px;
+    font-size:11.5px;font-weight:800;margin-top:7px}
+  .tkcard.is-done .tkpts{background:#e3f6ef;color:#1c8a6c}
+  .tkx{background:none;border:0;font-size:15px;opacity:.45;cursor:pointer;padding:9px;min-width:40px;min-height:40px}
+  .tkask{background:linear-gradient(150deg,#eef0ff,#e2e5fb);border:1px solid #d3d7f5;border-radius:22px;
+    padding:16px;margin-bottom:14px}
+  .tkask h3{margin:0 0 4px;font-size:16px;font-weight:800;color:#2b2e73}
+  .tkask p{margin:0 0 12px;font-size:13px;color:#4a5170;line-height:1.5}
+  .tkask select,.tkask input[type=text],.tkask input[type=date]{width:100%;padding:12px 13px;font-size:15px;
+    border:1px solid #d3d7f5;border-radius:13px;background:#fff;margin-bottom:9px;min-height:46px}
+  .tkchips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+  .tkchips button{width:auto;background:#fff;border:1px solid #d3d7f5;color:#3e46ad;border-radius:99px;
+    padding:9px 13px;font-size:13px;font-weight:700;cursor:pointer;min-height:42px}
+  .tkchips button.on{background:var(--accent);color:#fff;border-color:var(--accent)}
+  .tkempty{font-size:13.5px;color:#8a90a6;line-height:1.55;margin:2px 0 0}
+  .kidtask{background:linear-gradient(150deg,#fff4dd,#ffe8bd);border:1px solid #f0dcb2;
+    border-radius:22px;padding:16px;margin-bottom:14px}
+  .kidtask h3{margin:0 0 3px;font-size:17px;font-weight:800;color:#6a4a05}
+  .kidtask .sub{margin:0 0 12px;font-size:13px;color:#8a6a1c;line-height:1.5}
+  .kidtask .tkcard{border-color:#f0dcb2}
+  `;
+  const st=document.createElement("style"); st.textContent=CSS; document.head.appendChild(st);
+
+  /* ---- the grown-up's view ---- */
+  let askChild=null, askMode="action";
+
+  function actionOptions(){
+    const out=[];
+    (app.categories||[]).forEach(cat=>(cat.actions||[]).forEach(a=>{
+      out.push({name:a[0], points:a[1], icon:cat.icon||""});
+    }));
+    return out;
+  }
+
+  function askHTML(kids){
+    if(!kids.length) return "";
+    if(!askChild || !kids.some(c=>c.id===askChild)) askChild=kids[0].id;
+    const acts=actionOptions();
+    return `<section class="tkask">
+      <h3>Ask someone to do something</h3>
+      <p>It shows on their own screen next time they open Notice Me. Nothing is
+         taken away if it does not happen.</p>
+      <div class="tkchips">${kids.map(c=>`<button class="${c.id===askChild?"on":""}"
+        onclick="tkPickChild('${c.id}')">${esc(c.name)}</button>`).join("")}</div>
+      <div class="tkchips">
+        <button class="${askMode==="action"?"on":""}" onclick="tkMode('action')">From the list \u00b7 earns points</button>
+        <button class="${askMode==="free"?"on":""}" onclick="tkMode('free')">Something else \u00b7 no points</button>
+      </div>
+      ${askMode==="action"
+        ? `<select id="tkAction">${acts.map(a=>
+            `<option value="${esc(a.name)}|${a.points}">${a.icon} ${esc(a.name)} \u2014 ${a.points} pts</option>`).join("")}</select>`
+        : `<input type="text" id="tkFree" placeholder="What needs doing?" maxlength="80">`}
+      <input type="date" id="tkDue" value="${todayStr()}">
+      <button class="primary" style="width:100%" onclick="tkAdd()">Ask them</button>
+    </section>`;
+  }
+
+  window.tkPickChild = id => { askChild=id; renderTasksPanel(); };
+  window.tkMode = m => { askMode=m; renderTasksPanel(); };
+
+  window.tkAdd = async function(){
+    if(!grown(me())) return;
+    const due=($("tkDue")||{}).value || todayStr();
+    let title="", action=null, points=0;
+    if(askMode==="action"){
+      const v=($("tkAction")||{}).value||"";
+      if(!v) return;
+      const bits=v.split("|");
+      title=bits[0]; action=bits[0]; points=parseInt(bits[1],10)||0;
+    }else{
+      title=String((($("tkFree")||{}).value)||"").trim();
+      if(!title) return;
+    }
+    const id=newId();
+    const ok=await writeLedger({ childId:askChild, points:0, type:"task",
+      label:"Asked: "+title, catKey:"task|"+id, actionName:title,
+      taskAction:action, taskPoints:points, taskDue:due });
+    if(ok){ const f=$("tkFree"); if(f) f.value=""; renderTasksPanel(); if(typeof render==="function") render(); }
+  };
+
+  window.tkCancel = async function(id){
+    if(!grown(me())) return;
+    await writeLedger({ childId:askChild, points:0, type:"taskoff",
+      label:"Task withdrawn", catKey:"taskoff|"+id });
+    renderTasksPanel(); if(typeof render==="function") render();
+  };
+
+  /* The child says it is done. That is a claim, not an award: the points are
+     handed over by a grown-up the way every other point in this app is. */
+  window.tkDone = async function(id){
+    const list=tasks(); const t=list.filter(x=>x.id===id)[0];
+    const m=me();
+    if(!t || t.done) return;
+    if(!m || (m.id!==t.childId && !grown(m))) return;
+    await writeLedger({ childId:t.childId, points:0, type:"taskdone",
+      label:"Done: "+t.title, catKey:"taskdone|"+id });
+    try{ if(typeof chime==="function") chime("milestone"); }catch(e){}
+    renderTasksPanel(); renderKidTasks(); if(typeof render==="function") render();
+  };
+
+  function taskCardHTML(t, canTick, canCancel){
+    const who = t.done
+      ? (t.points ? "Done \u00b7 " + t.points + " points to hand over when you\u2019re ready"
+                  : "Done \u00b7 nothing to award")
+      : (t.askedBy ? "Asked by " + esc(t.askedBy) : "Asked of you")
+        + (t.due>todayStr() ? " \u00b7 for " + esc(t.due) : "");
+    return `<div class="tkcard${t.done?" is-done":""}">
+      <div class="tkrow">
+        <button class="tktick" ${canTick?`onclick="tkDone('${t.id}')"`:"disabled"}
+          aria-label="Mark done">${t.done?"\u2713":""}</button>
+        <span class="tkmain">
+          <span class="tkname">${esc(t.title)}</span>
+          <span class="tkwho">${who}</span>
+          ${t.points?`<span class="tkpts">${t.points} points</span>`:""}
+        </span>
+        ${canCancel && !t.done ? `<button class="tkx" title="Withdraw"
+          onclick="tkCancel('${t.id}')">\u2715</button>`:""}
+      </div></div>`;
+  }
+
+  function renderTasksPanel(){
+    const body=$("tasksBody");
+    if(!body) return;
+    const m=me();
+    if(!grown(m)){ body.innerHTML='<p class="small">Only a grown-up can set these.</p>'; return; }
+    const f=(typeof currentFamily==="function") ? currentFamily() : null;
+    const kids=(f?f.children:[]).filter(c=>typeof isChildRole==="function" && isChildRole(c));
+    let h=askHTML(kids);
+    kids.forEach(c=>{
+      const mine=forChild(c.id).filter(t=>!t.done || dayStr(t.done.ts)===todayStr());
+      h+=`<p class="playeyebrow">${esc(c.name)}</p>`;
+      h+= mine.length ? mine.map(t=>taskCardHTML(t, true, true)).join("")
+        : `<p class="tkempty">Nothing asked of ${esc(c.name)} today.</p>`;
+    });
+    body.innerHTML=h;
+  }
+  window.renderTasksPanel = renderTasksPanel;
+
+  window.showTasksPanel = function(){
+    if(typeof openPanelFrom==="function") openPanelFrom("tasksPanel");
+    else if(typeof showScreen==="function") showScreen("tasksPanel");
+    renderTasksPanel();
+  };
+
+  /* ---- the child's view ----
+     One card, on their own home screen, that says what was asked and by whom.
+     No badge that counts up, no colour that turns angry. */
+  function renderKidTasks(){
+    const host=$("kidTaskHost");
+    if(!host) return;
+    const m=me();
+    if(!m || (typeof isChildRole==="function" && !isChildRole(m))){ host.innerHTML=""; return; }
+    const open=openFor(m.id);
+    const doneToday=forChild(m.id).filter(t=>t.done && dayStr(t.done.ts)===todayStr());
+    if(!open.length && !doneToday.length){ host.innerHTML=""; return; }
+    host.innerHTML=`<section class="kidtask">
+      <h3>\u{1f4cc} Asked of you</h3>
+      <p class="sub">${open.length
+        ? "Tap the box when you\u2019ve done it. Nothing bad happens if you don\u2019t."
+        : "All done for today \u2014 nice one."}</p>
+      ${open.map(t=>taskCardHTML(t, true, false)).join("")}
+      ${doneToday.map(t=>taskCardHTML(t, false, false)).join("")}
+    </section>`;
+  }
+  window.renderKidTasks = renderKidTasks;
+
+  /* Mount the child's card at the top of their home, under the hero. */
+  if(typeof renderKidView==="function"){
+    const inner=renderKidView;
+    window.renderKidView=function(){
+      const r=inner.apply(this, arguments);
+      try{
+        if(!$("kidTaskHost")){
+          const goal=$("kidGoal");
+          if(goal && goal.parentElement){
+            const d=document.createElement("div"); d.id="kidTaskHost";
+            goal.parentElement.insertBefore(d, goal);
+          }
+        }
+        renderKidTasks();
+      }catch(e){}
+      return r;
+    };
+    renderKidView = window.renderKidView;
+  }
+
+  /* A grown-up's dashboard shows what is outstanding, quietly. */
+  if(typeof render==="function"){
+    const inner=render;
+    window.render=function(){
+      const r=inner.apply(this, arguments);
+      try{ renderKidTasks(); }catch(e){}
+      return r;
+    };
+    render = window.render;
   }
 })();
 </script>
