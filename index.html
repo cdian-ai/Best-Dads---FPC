@@ -745,7 +745,7 @@
   .subjfold{margin:0}
   .subjfold>summary{list-style:none;cursor:pointer;position:relative}
   .subjfold>summary::-webkit-details-marker{display:none}
-  .subjfold>summary::after{content:"\u203a";position:absolute;right:22px;top:50%;
+  .subjfold>summary::after{content:"\203a";position:absolute;right:22px;top:50%;
     transform:translateY(-50%) rotate(90deg);font-size:22px;font-weight:800;color:var(--muted)}
   .subjfold[open]>summary::after{transform:translateY(-50%) rotate(-90deg)}
   .kidhero{position:relative;overflow:hidden;border-radius:28px;padding:22px;margin-bottom:16px;color:#fff;
@@ -3422,7 +3422,7 @@ const TIP_CATS = [
   {key:"behaviour", label:"Behaviour"}
 ];
 
-const APP_VERSION = "v101";
+const APP_VERSION = "v102";
 const today = new Date().toISOString().slice(0,10);
 let app = {families:[],currentFamily:null,currentChild:null};
 let categories = [];
@@ -14344,6 +14344,194 @@ window.GROWNUP_DECKS = [
   });
 })();
 
+</script>
+<!-- ===== addons/parent-learn.js ===== -->
+<script>
+/* ---------- Learn, for the grown-up ----------
+   Learn opened straight onto the children's ladder. A parent who wanted to
+   practise their own Fulfulde or Qur'an had nowhere to go: their own material
+   sat behind three tabs of the grown-ups' panel, and the one screen actually
+   called "Learn" belonged to somebody else.
+
+   Learn now opens on the parent's own learning. The children's ladder has not
+   moved anywhere new - it is behind the child selector it already had, one tap
+   across.
+
+   Add-only. This wraps renderProgressPanel rather than editing it: on the
+   children's tab it calls the original untouched, so the chips, the year
+   pickers, the tutor cards and the milestone prompts behave exactly as before.
+
+   Two small fixes ride along, both of which only became visible once a grown-up
+   could mark their own row:
+     - onMark re-renders the Learn panel. It only called render(), which does
+       not touch this panel, so a tick did not appear until you left and came
+       back. That was true for the children's ladder too.
+     - checkMilestone pays nothing on your own ladder. Finishing your own Qaida
+       should not prompt you to award yourself the milestone bonus.
+*/
+(function(){
+  const KEY = "fpc_learn_tab";
+  const $   = id => document.getElementById(id);
+  const esc = s => (typeof escapeHtml === "function") ? escapeHtml(s) : String(s);
+  const me  = () => (typeof sessionMember === "function") ? sessionMember() : null;
+
+  /* ---- which tab ---- */
+  function tab(){
+    try{ const v = localStorage.getItem(KEY); if(v === "kids" || v === "me") return v; }catch(e){}
+    return "me";
+  }
+  function setTab(t){
+    try{ localStorage.setItem(KEY, t); }catch(e){}
+    if(typeof renderProgressPanel === "function") renderProgressPanel();
+  }
+  window.setLearnTab = setTab;
+
+  const CSS = `
+  #learnTabs{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin:0 0 14px}
+  #learnTabs button{background:#eef0ff;color:#3e46ad;font-size:13px;font-weight:700;
+    padding:13px 6px;width:auto;border:0;border-radius:14px;cursor:pointer;min-height:46px}
+  #learnTabs button.on{background:var(--accent);color:#fff}
+  .mylearn-note{font-size:12.5px;color:#8a90a6;line-height:1.5;margin:14px 0 0}
+  `;
+  const st = document.createElement("style"); st.textContent = CSS; document.head.appendChild(st);
+
+  function tabsHTML(){
+    const t = tab();
+    return `<div id="learnTabs" role="tablist">
+      <button role="tab" aria-selected="${t==="me"}"   class="${t==="me"?"on":""}"
+        onclick="setLearnTab('me')">\u{1f64b} My learning</button>
+      <button role="tab" aria-selected="${t==="kids"}" class="${t==="kids"?"on":""}"
+        onclick="setLearnTab('kids')">\u{1f9d2} The children</button>
+    </div>`;
+  }
+
+  /* ---- counting my own progress ---- */
+  function myKeys(prefix){
+    const m = me(), out = [];
+    if(m && m.progress) Object.keys(m.progress).forEach(k=>{ if(k.indexOf(prefix)===0) out.push(k); });
+    return out;
+  }
+
+  function card(emoji, title, sub, onclick){
+    return `<section class="kidhero" style="cursor:pointer" onclick="${onclick}">
+      <div class="kidherorow"><div>
+        <p class="kidhi">${emoji} ${esc(title)}</p>
+        <p class="kidsub">${esc(sub)}</p>
+      </div><div style="font-size:30px;color:#c4c8d8">\u203a</div></div></section>`;
+  }
+
+  /* ---- the Qur'an ladder, rendered against my own record ----
+     ladderHTML takes any member and reads their progress, so a grown-up marking
+     their own Qaida uses exactly the same rows, the same states and the same
+     14/42/90-day review decay as a child. Nothing new to keep in step. */
+  function quranHTML(){
+    if(typeof CURRICULUM === "undefined" || typeof ladderHTML !== "function") return "";
+    const m = me(); if(!m) return "";
+    const subject = CURRICULUM.filter(s => s.subject === "quran")[0];
+    if(!subject) return "";
+    const strands = subject.strands || [];
+    const done  = strands.reduce((a,s)=>a + (typeof strandProgress==="function" ? strandProgress(m,subject,s).secure : 0), 0);
+    const total = strands.reduce((a,s)=>a + s.objectives.length, 0);
+    const head = `<section class="kidhero"><div class="kidherorow"><div>
+        <p class="kidhi">${subject.icon} ${esc(subject.name)}</p>
+        <p class="kidsub">Your own \u00b7 ${done} of ${total} secure</p>
+      </div></div></section>`;
+    return head + strands.map(s => ladderHTML(m, subject, s, true)).join("");
+  }
+
+  function myLearningHTML(){
+    const m = me();
+    if(!m) return `<p class="small">Sign in to see your own learning.</p>`;
+    let h = "";
+
+    if(window.FULFULDE_M1 && typeof window.openFulfulde === "function"){
+      const pack = window.FULFULDE_M1;
+      const n = myKeys("fulfulde.").length;
+      h += card("\u{1f4d7}", pack.title || "Fulfulde",
+        n ? n + " set" + (n===1?"":"s") + " practised \u00b7 tap to carry on"
+          : "Start at the beginning \u00b7 audio on every item",
+        "openFulfulde()");
+    }
+
+    if(window.GROWNUP_DECKS && typeof window.openGrownupDecks === "function"){
+      const n = myKeys("grownupdeck.").length;
+      h += card("\u{1f9e0}", "Puzzle decks \u2014 for you",
+        n ? n + " played \u00b7 hint first, answer second" : "Lateral thinking, one deck at a time",
+        "openGrownupDecks()");
+    }
+
+    if(window.DECKS && typeof window.openDecks === "function"){
+      h += card("\u{1f9e9}", "Puzzle decks \u2014 with the children",
+        "18 decks \u00b7 one of you reads, everyone guesses", "openDecks()");
+    }
+
+    h += card("\u{1f4d3}", "My own courses",
+      "A reading list, a juz plan, anything you are working through",
+      "openMyCourses()");
+
+    h += quranHTML();
+
+    h += `<p class="mylearn-note">Everything here is marked by you, for you. It earns no points \u2014
+      the map is the point. Looking for what the children have covered?
+      Tap <strong>\u{1f9d2} The children</strong> above and pick a name.</p>`;
+
+    return h;
+  }
+
+  /* Jump straight to the Courses tab of the grown-ups' panel, rather than
+     landing them on Rewards and asking them to find it. */
+  window.openMyCourses = function(){
+    try{ localStorage.setItem("fpc_grownup_tab", "courses"); }catch(e){}
+    if(typeof showGrownupsPanel === "function") showGrownupsPanel();
+  };
+
+  /* ---- the wrapper ---- */
+  if(typeof renderProgressPanel === "function"){
+    const inner = renderProgressPanel;
+    window.renderProgressPanel = function(){
+      const body = $("progressBody");
+      if(!body) return inner.apply(this, arguments);
+
+      const panel = $("progressPanel");
+      const sub = panel ? panel.querySelector("p.small") : null;
+
+      if(tab() === "kids"){
+        inner.apply(this, arguments);           /* untouched: chips + ladder */
+        if(sub) sub.textContent = "What each child has covered and what they can do unaided. Every mark shows who made it.";
+      }else{
+        body.innerHTML = myLearningHTML();
+        if(sub) sub.textContent = "Your own learning. The children\u2019s is on the other tab.";
+      }
+      body.insertAdjacentHTML("afterbegin", tabsHTML());
+    };
+    renderProgressPanel = window.renderProgressPanel;
+  }
+
+  /* ---- a tick should appear when you tap it ---- */
+  if(typeof onMark === "function"){
+    const inner = onMark;
+    window.onMark = async function(){
+      const r = await inner.apply(this, arguments);
+      const p = $("progressPanel");
+      if(p && !p.classList.contains("hidden") && typeof renderProgressPanel === "function"){
+        renderProgressPanel();
+      }
+      return r;
+    };
+    onMark = window.onMark;
+  }
+
+  /* ---- your own ladder pays nothing ---- */
+  if(typeof checkMilestone === "function"){
+    const inner = checkMilestone;
+    window.checkMilestone = async function(child){
+      const m = me();
+      if(m && child && child.id === m.id) return;
+      return inner.apply(this, arguments);
+    };
+    checkMilestone = window.checkMilestone;
+  }
+})();
 </script>
 </body>
 </html>
