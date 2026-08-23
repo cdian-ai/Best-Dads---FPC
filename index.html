@@ -1022,6 +1022,20 @@
   .objstate.s-cov{background:#dbe4ff;color:#2f3a9c}
   .objstate.s-sec{background:#cdefe2;color:#0c6b4f}
   .objstate.s-rev{background:#ffe6c7;color:#98520a}
+  /* Names on the left, the child you are reading about on the right. */
+  .learnwho{display:flex;align-items:flex-start;gap:14px;margin-bottom:14px}
+  .lwchips{flex:1;min-width:0;display:flex;flex-direction:column;gap:7px}
+  .lwchips .whochip{width:100%}
+  .lwport{flex:none;width:104px;margin:0;text-align:center}
+  .lwport img,.lwport .avatar-placeholder{width:104px;height:104px;border-radius:26px;
+    object-fit:cover;display:flex;align-items:center;justify-content:center;font-size:38px;
+    background:#e4e6f5;box-shadow:0 6px 18px rgba(24,22,60,.10)}
+  .lwport figcaption{margin-top:8px;font-size:14px;font-weight:800;color:var(--ink);
+    line-height:1.25;overflow-wrap:break-word}
+  @media (max-width:360px){
+    .lwport{width:84px}
+    .lwport img,.lwport .avatar-placeholder{width:84px;height:84px;border-radius:22px}
+  }
   .learnhow{background:#fff;border:1px solid #e6e8f0;border-radius:20px;padding:4px 17px 12px;margin-bottom:16px}
   .learnhow>summary{list-style:none;cursor:pointer;padding:11px 0;position:relative}
   .learnhow>summary::-webkit-details-marker{display:none}
@@ -3643,7 +3657,7 @@ const TIP_CATS = [
   {key:"deen", label:"Deen"}
 ];
 
-const APP_VERSION = "v109";
+const APP_VERSION = "v110";
 const today = new Date().toISOString().slice(0,10);
 let app = {families:[],currentFamily:null,currentChild:null};
 let categories = [];
@@ -6439,10 +6453,20 @@ function renderProgressPanel(){
   /* The legend explains the marks you are about to read, so it comes before
      the names rather than after them. The chips carry faces: four names in a
      column is a list, four faces is your children. */
+  /* One child at a time, and you can see which. A column of four names told
+     you nothing about whose ladder you were reading once you had scrolled past
+     the chips; the portrait stays at the top of the page you are actually on. */
   body.innerHTML = legendHTML()
-    + `<div class="chiprow" style="margin-bottom:12px">${kids.map(c=>`<button class="whochip ${
-      c.id===who.id?"on":""}" onclick="selectChild('${c.id}');showProgressPanel()">${
-      avatarChipHTML(c)}<span>${escapeHtml(c.name)}</span></button>`).join("")}</div>`
+    + `<div class="learnwho">
+        <div class="lwchips">${kids.map(c=>`<button class="whochip ${
+          c.id===who.id?"on":""}" onclick="selectChild('${c.id}');showProgressPanel()">${
+          avatarChipHTML(c)}<span>${escapeHtml(c.name)}</span></button>`).join("")}</div>
+        <figure class="lwport">
+          ${who.photo ? `<img src="${who.photo}" alt="">`
+                      : '<span class="avatar-placeholder">\ud83d\udc64</span>'}
+          <figcaption>${escapeHtml(who.name)}</figcaption>
+        </figure>
+      </div>`
     + learnScreenHTML(who);
 }
 /* Firebase's failure modes are indistinguishable to a user unless you name
@@ -15542,16 +15566,17 @@ window.GROWNUP_DECKS = [
 
   /* ---- fold the ledger into notes ---- */
   function notes(){
-    const out=new Map(), dead=new Set(), deadItem=new Set(), done=new Map();
+    const out=new Map(), dead=new Set(), deadItem=new Set(), done=new Map(), paid=new Set();
     ledger().slice().sort((a,b)=>a.ts-b.ts).forEach(e=>{
       const k=String(e.catKey||"");
       if(e.type==="noteoff"  && k.indexOf("noteoff|")===0){ dead.add(k.split("|")[1]); return; }
+      if(e.type==="award" && k.indexOf("notepaid|")===0){ paid.add(k.split("|")[1]); return; }
       if(e.type==="itemoff"  && k.indexOf("itemoff|")===0){ deadItem.add(k.split("|").slice(1).join("|")); return; }
       if(e.type==="itemdone" && k.indexOf("itemdone|")===0){ done.set(k.split("|").slice(1).join("|"), e); return; }
       if(e.type==="note" && k.indexOf("note|")===0){
         const id=k.split("|")[1];
         out.set(id, { id, childId:e.childId, message:e.actionName||"", due:e.noteDue||dayStr(e.ts),
-                      askedBy:e.byName||"", ts:e.ts, items:[] });
+                      askedBy:e.byName||"", bonus:e.noteBonus||0, paid:false, ts:e.ts, items:[] });
         dead.delete(id); return;
       }
       if(e.type==="noteitem" && k.indexOf("noteitem|")===0){
@@ -15576,6 +15601,7 @@ window.GROWNUP_DECKS = [
     return [...out.values()]
       .filter(nt=>!dead.has(nt.id))
       .map(nt=>Object.assign({}, nt, {
+        paid: paid.has(nt.id),
         items: nt.items
           .filter(it=>!deadItem.has(nt.id+"|"+it.id))
           .map(it=>Object.assign({}, it, {done: done.get(nt.id+"|"+it.id)||null}))
@@ -15604,6 +15630,8 @@ window.GROWNUP_DECKS = [
   .nthead{background:linear-gradient(150deg,#fff4dd,#ffe8bd);padding:15px 16px;border-bottom:1px solid #f0dcb2}
   .ntmsg{margin:0;font-size:16.5px;font-weight:800;color:#6a4a05;line-height:1.35}
   .ntfrom{margin:4px 0 0;font-size:12.5px;font-weight:700;color:#8a6a1c}
+  .ntbonus{margin:9px 0 0;background:rgba(255,255,255,.7);border-radius:12px;padding:8px 11px;
+    font-size:13px;font-weight:800;color:#6a4a05}
   .ntbody{padding:4px 16px 14px}
   .ntrow{display:flex;align-items:flex-start;gap:12px;padding:12px 0;border-bottom:1px solid #f2f3f8}
   .ntrow:last-child{border-bottom:0}
@@ -15645,13 +15673,24 @@ window.GROWNUP_DECKS = [
     return out;
   }
 
+  let busy=false;
+  function working(on){
+    busy=on;
+    const b=$("notesBody");
+    if(b) b.style.opacity = on ? ".55" : "";
+  }
   window.ntStart = async function(){
-    if(!grown(me())) return;
+    if(!grown(me()) || busy) return;
     const msg=String((($("ntMsg")||{}).value)||"").trim();
     const due=($("ntDue")||{}).value || today();
+    const bonus=parseInt((($("ntBonus")||{}).value)||"0", 10) || 0;
     const id=newId("nt");
-    await writeLedger({ childId:pickChild, points:0, type:"note",
-      label:"Note for the day", catKey:"note|"+id, actionName:msg, noteDue:due });
+    working(true);
+    const ok=await writeLedger({ childId:pickChild, points:0, type:"note",
+      label:"Note for the day", catKey:"note|"+id, actionName:msg,
+      noteDue:due, noteBonus:bonus });
+    working(false);
+    if(!ok) alert("That couldn\u2019t be saved. Check your connection and try again.");
     renderNotesPanel(); if(typeof render==="function") render();
   };
 
@@ -15706,6 +15745,44 @@ window.GROWNUP_DECKS = [
     renderNotesPanel(); renderKidNote(); if(typeof render==="function") render();
   };
 
+  /* Why a bonus exists at all: a note that mixes "homework, 3 points" with
+     "put the bins out, nothing" invites a child to do the first and skip the
+     second. The bonus is attached to finishing the note, not to any one line,
+     so the unpaid jobs are worth doing because they are part of it.
+
+     It is an offer made in advance and visible on the note, never something
+     taken away. If it does not get finished, nothing happens \u2014 the child
+     simply keeps the points for what they did do. */
+  window.ntPayout = async function(noteId){
+    const m=me();
+    if(!grown(m) || busy) return;
+    const nt=notes().filter(x=>x.id===noteId)[0];
+    if(!nt || nt.paid) return;
+    const left=nt.items.filter(i=>!i.done).length;
+    if(left) return;
+    const child=(typeof memberById==="function") ? memberById(nt.childId) : null;
+    const lines=nt.items.filter(i=>i.points>0);
+    const total=lines.reduce((a,i)=>a+i.points,0)+(nt.bonus||0);
+    if(!confirm("Hand over "+total+" point"+(total===1?"":"s")+" to "
+        +((child&&child.name)||"them")+" for finishing the note?")) return;
+    working(true);
+    for(const it of lines){
+      await writeLedger({ childId:nt.childId, points:it.points, type:"award",
+        label:it.text, catKey:"custom|"+it.text, actionName:it.text });
+    }
+    if(nt.bonus>0){
+      await writeLedger({ childId:nt.childId, points:nt.bonus, type:"award",
+        label:"Finished the whole note", catKey:"notepaid|"+nt.id,
+        actionName:"Finished the whole note" });
+    }else{
+      await writeLedger({ childId:nt.childId, points:0, type:"award",
+        label:"Finished the whole note", catKey:"notepaid|"+nt.id,
+        actionName:"Finished the whole note" });
+    }
+    working(false);
+    renderNotesPanel(); if(typeof render==="function") render();
+  };
+
   function itemRow(nt, it, canTick, canEdit){
     return `<div class="ntrow${it.done?" is-done":""}">
       <button class="nttick" ${canTick && !it.done ? `onclick="ntTick('${nt.id}','${it.id}')"` : "disabled"}
@@ -15723,17 +15800,26 @@ window.GROWNUP_DECKS = [
   function noteHTML(nt, canTick, canEdit){
     const left=nt.items.filter(i=>!i.done).length;
     const all=nt.items.length && !left;
+    const bonusLine = nt.bonus>0
+      ? `<p class="ntbonus">\u2b50 ${nt.bonus} extra for finishing the whole note</p>` : "";
+    let foot="";
+    if(all && nt.paid) foot=`<p class="ntdone">\u2713 All done, and paid.</p>`;
+    else if(all && canEdit) foot=`<button class="primary" style="width:100%;margin-top:12px"
+        onclick="ntPayout('${nt.id}')">Hand over ${
+          nt.items.reduce((a,i)=>a+i.points,0)+(nt.bonus||0)} points</button>`;
+    else if(all) foot=`<p class="ntdone">\u2713 All done \u2014 nice one.</p>`;
     return `<section class="ntcard">
       <div class="nthead">
         <p class="ntmsg">${nt.message ? esc(nt.message) : "Asked of you today"}</p>
         <p class="ntfrom">${nt.askedBy ? "From " + esc(nt.askedBy) : ""}${
           nt.due>today() ? " \u00b7 for " + esc(nt.due) : ""}</p>
+        ${bonusLine}
       </div>
       <div class="ntbody">
         ${nt.items.length
           ? nt.items.map(it=>itemRow(nt, it, canTick, canEdit)).join("")
           : `<p class="ntempty" style="margin-top:12px">Nothing on this note yet.</p>`}
-        ${all ? `<p class="ntdone">\u2713 All done \u2014 nice one.</p>` : ""}
+        ${foot}
       </div>
     </section>`;
   }
@@ -15780,6 +15866,14 @@ window.GROWNUP_DECKS = [
           they\u2019ll read at the top \u2014 that is what makes it a note rather than a list of orders.</p>
         <input type="text" id="ntMsg" maxlength="90" placeholder="e.g. Back at six \u2014 Dad">
         <input type="date" id="ntDue" value="${today()}">
+        <label class="ntfull" style="display:block;margin:2px 0 6px">Extra points for finishing
+          <strong>everything</strong> on it \u2014 including the jobs that pay nothing.</label>
+        <select id="ntBonus">
+          <option value="0">No bonus</option>
+          <option value="5" selected>5 extra</option>
+          <option value="10">10 extra</option>
+          <option value="15">15 extra</option>
+        </select>
         <button class="primary" style="width:100%" onclick="ntStart()">Start a note for ${esc(child.name)}</button>
       </div>`;
     }else{
@@ -15835,6 +15929,14 @@ window.GROWNUP_DECKS = [
     window.render=function(){
       const r=inner.apply(this, arguments);
       try{ renderKidNote(); }catch(e){}
+      /* This was the missing half. Every write here is a round trip to
+         Firestore; the panel redrew immediately, before the data came back,
+         and then nothing redrew it when it did. Starting a note therefore
+         looked like it had done nothing at all. */
+      try{
+        const p=$("notesPanel");
+        if(p && !p.classList.contains("hidden")) renderNotesPanel();
+      }catch(e){}
       return r;
     };
     render = window.render;
