@@ -66,6 +66,18 @@
   .cattile.k2 .ticon{background:#ffeaf0} .cattile.k3 .ticon{background:#fff4dd}
   .cattile.k4 .ticon{background:#e9f6dd} .cattile.k5 .ticon{background:#f3ecff}
   .whobar{display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap;margin:0 0 6px}
+  /* The awarding screen's own header, in place of the dashboard's cover photo. */
+  .givehead{display:flex;align-items:center;gap:12px;margin:0 0 14px}
+  .givback{width:44px!important;height:44px;flex:none;padding:0;font-size:19px;font-weight:800;
+    border-radius:14px}
+  .givwho{flex:1;min-width:0}
+  .givwho strong{display:block;font-size:20px;line-height:1.2;overflow-wrap:anywhere}
+  .givlink{width:auto;background:none;border:0;padding:4px 0 0;font-size:12.5px;font-weight:700;
+    color:var(--accent);cursor:pointer;min-height:0}
+  .givav{flex:none}
+  .givav img,.givav .avatar-placeholder{width:52px;height:52px;border-radius:16px;object-fit:cover;
+    display:flex;align-items:center;justify-content:center;font-size:22px;background:#e4e6f5}
+  .givgift{width:auto!important;flex:none;padding:11px 13px}
   .noticetabs{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin:0 0 14px}
   .noticetabs button{width:auto;background:#eef0ff;color:#3e46ad;font-size:13.5px;font-weight:700;
     padding:13px 6px;border:0;border-radius:14px;cursor:pointer;min-height:46px}
@@ -3670,7 +3682,7 @@ const TIP_CATS = [
   {key:"deen", label:"Deen"}
 ];
 
-const APP_VERSION = "v114";
+const APP_VERSION = "v115";
 const today = new Date().toISOString().slice(0,10);
 let app = {families:[],currentFamily:null,currentChild:null};
 let categories = [];
@@ -3920,6 +3932,12 @@ function renderFamilyCover(){
   const empty=document.getElementById("coverEmpty");
   const edit=document.getElementById("coverEdit");
   if(!cover || !empty) return;
+  /* Opening a child is its own screen. The family portrait belongs to the
+     dashboard you came from \u2014 here it is just a large picture of the wrong
+     people between you and the list. */
+  if(typeof viewChildId!=="undefined" && viewChildId){
+    cover.classList.add("hidden"); empty.classList.add("hidden"); return;
+  }
   const f=currentFamily();
   if(!f){ cover.classList.add("hidden"); empty.classList.add("hidden"); return; }
   if(f.photo){
@@ -5715,7 +5733,8 @@ function renderChampionFloat(){
   if(!fab) return;
   const me=sessionMember();
   const champ=championNow();
-  if(!ready || !me || !champ || !championVisibleFor(me, champ)){
+  if(!ready || !me || !champ || !championVisibleFor(me, champ)
+     || (typeof viewChildId!=="undefined" && viewChildId)){
     fab.classList.add("hidden"); fab.innerHTML=""; return;
   }
   const amChampion = isChildRole(me) && champ.leaders.some(c=>c.id===me.id);
@@ -6994,6 +7013,10 @@ function childStatsHTML(c){
         <span class="moodpill ${band.cls}" style="margin-top:6px;display:inline-block">${band.label} \u00b7 ${latest.score}/100</span>
       </div>
     </div>
+    <!-- Share sits with the picture it sends. On the awarding screen it was a
+         button with no visible subject next to it. -->
+    <button class="light" style="width:100%;margin-bottom:14px"
+      onclick="shareStatus('${c.id}')">\u2197 Share ${escapeHtml(c.name)}\u2019s week</button>
     <div class="graphcard">
       ${latest.noHistory
         ? '<p class="graphnote">No points logged yet, so there is nothing to chart. The trend starts with the first points you award.</p>'
@@ -8556,11 +8579,22 @@ function render(){
     /* "Giving points to X" repeated the instruction the list header already
        gives, in a card of its own, which pushed the actual categories down the
        page. The buttons are what was worth keeping. */
+    /* Back sits top-left, the same place every panel in the app puts it. The
+       child you are awarding is named and pictured beside it, and the way into
+       their full picture travels with them rather than floating in the list. */
+    const av = child.photo
+      ? `<img src="${child.photo}" alt="">`
+      : '<span class="avatar-placeholder">\ud83d\udc64</span>';
+    const kid = isChildRole(child) && !isParentRole(child);
     cards.insertAdjacentHTML("beforeend",
-      `<div class="whobar" style="grid-column:1/-1">
-          ${isParentRole(child) ? `<button class="confirm" style="width:auto" onclick="openGiftDialog()">\u{1f381} Send a surprise</button>` : ""}
-          <button class="light" style="width:auto" onclick="shareStatus('${child.id}')">\u2197 Share</button>
-          <button class="light" style="width:auto" onclick="backToParentHome()">\u2190 Back</button>
+      `<div class="givehead" style="grid-column:1/-1">
+        <button class="light givback" onclick="backToParentHome()">\u2190</button>
+        <div class="givwho">
+          <strong>${escapeHtml(child.name)}</strong>
+          ${kid ? `<button class="givlink" onclick="openChildStats('${child.id}')">\u{1f4ca} Full picture</button>` : ""}
+        </div>
+        <span class="givav">${av}</span>
+        ${isParentRole(child) ? `<button class="confirm givgift" onclick="openGiftDialog()">\u{1f381}</button>` : ""}
       </div>`);
   }
   const cats = activeCats();
@@ -8591,13 +8625,7 @@ function render(){
     const nh=document.getElementById("noticeHead");
     if(nb && nh && tab==="earn" && nb.parentElement!==nh) nh.appendChild(nb);
     if(nb) nb.classList.toggle("hidden", tab!=="earn");
-    if(child && isChildRole(child) && !isParentRole(child)){
-      nh.insertAdjacentHTML("beforeend",
-        `<p class="small" style="margin:10px 0 2px">
-          <a href="#" onclick="openChildStats('${child.id}');return false;"
-             style="color:var(--accent);font-weight:700;text-decoration:none">
-            \u{1f4ca} ${escapeHtml(child.name)}\u2019s full picture \u2192</a></p>`);
-    }
+
     if(tab==="spend"){
       cards.insertAdjacentHTML("beforeend",
         `<div style="grid-column:1/-1">${spendListHTML(child)}</div>`);
