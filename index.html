@@ -51,14 +51,21 @@
      thumb-lengths, and a square is a big enough target for a child. */
   .cattiles{grid-column:1/-1;display:grid;grid-template-columns:repeat(2,1fr);gap:14px;
             max-width:560px;margin:0 auto;width:100%}
-  .cattile{aspect-ratio:1/1;background:white;border-radius:22px;box-shadow:var(--shadow);
-           border-top:6px solid var(--accent2);overflow:hidden}
-  .cattilebtn{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;
-              width:100%;height:100%;background:none;padding:12px 10px;border-radius:0;
+  /* Was a white square with a drop shadow and a coloured bar across the top.
+     Flat now, with the icon on a tinted disc that gives each category its own
+     colour — the colour identifies it, so the border does not have to. */
+  .cattile{aspect-ratio:1/1;background:#fff;border-radius:24px;box-shadow:none;
+           border:1px solid #e9ebf3;overflow:hidden}
+  .cattilebtn{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:11px;
+              width:100%;height:100%;background:none;padding:14px 10px;border-radius:0;
               font:inherit;color:inherit;text-align:center}
-  .cattilebtn:hover{background:#f7f8fc}
   .cattilebtn:active{transform:scale(.97)}
-  .ticon{font-size:42px;line-height:1}
+  .ticon{width:64px;height:64px;border-radius:50%;display:flex;align-items:center;
+         justify-content:center;font-size:32px;line-height:1;background:#eef0f6}
+  .cattile.k0 .ticon{background:#e3f6ef} .cattile.k1 .ticon{background:#e8e9ff}
+  .cattile.k2 .ticon{background:#ffeaf0} .cattile.k3 .ticon{background:#fff4dd}
+  .cattile.k4 .ticon{background:#e9f6dd} .cattile.k5 .ticon{background:#f3ecff}
+  .whobar{display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap;margin:0 0 6px}
   .tname{font-size:14.5px;font-weight:800;line-height:1.25;overflow-wrap:break-word;
          display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
   .cattilebtn:focus-visible{outline:3px solid var(--accent);outline-offset:-3px}
@@ -736,8 +743,10 @@
   .graphhead h2{margin:0;font-size:18px}
   .moodpill{font-weight:800;font-size:13px;padding:7px 13px;border-radius:999px;white-space:nowrap}
   .mood-green{background:#e4f7ed;color:#19744a}
-  .mood-amber{background:#fff2e0;color:#9a5b12}
-  .mood-red{background:#ffeced;color:#a63e3e}
+  .mood-amber{background:#fff4e6;color:#8a5b1c}
+  /* Was a red alarm pill. The quiet state is a prompt to go and notice
+     something, so it reads as a note, not a warning. */
+  .mood-red{background:#eef0f6;color:#5c6479}
   .mood-new{background:#f0eeff;color:#4b43a8}
   .graphcard svg{width:100%;height:auto;display:block;margin-top:6px}
   .graphnote{font-size:12px;color:var(--muted);margin:8px 0 0}
@@ -1442,7 +1451,7 @@
       <p class="menugroup">Today</p>
       <button class="light" id="btnQuickMenu" onclick="showQuickPanel()">🔥 Quick points</button>
       <button class="light" id="btnRequests" onclick="showRequestsPanel()">🔔 Requests</button>
-      <button class="light" id="btnTasks" onclick="showTasksPanel()">📌 Asked of them</button>
+      <button class="light" id="btnTasks" onclick="showNotesPanel()">📌 The note</button>
       <button class="light" id="btnReviewMenu" onclick="showReviewPanel()">🗣️ Review together</button>
       <button class="light" id="btnActivity" onclick="showActivityPanel()">📋 History</button>
 
@@ -1655,11 +1664,11 @@
     <div id="courseHost"></div>
   </div>
 
-  <div id="tasksPanel" class="panel hidden">
+  <div id="notesPanel" class="panel hidden">
     <button class="panelback" onclick="panelBack()">← Home</button>
-    <h2>📌 Asked of them</h2>
-    <p class="small">Homework, a surah, tidying up — anything you want them to see next time they open the app. Nothing is deducted if it doesn’t happen.</p>
-    <div id="tasksBody"></div>
+    <h2>📌 The note</h2>
+    <p class="small">One note per child, up to six things on it — mix what earns points with what doesn’t. They read it next time they open the app. Nothing is deducted if it doesn’t happen.</p>
+    <div id="notesBody"></div>
   </div>
 
   <div id="playPanel" class="panel hidden">
@@ -3634,7 +3643,7 @@ const TIP_CATS = [
   {key:"deen", label:"Deen"}
 ];
 
-const APP_VERSION = "v108";
+const APP_VERSION = "v109";
 const today = new Date().toISOString().slice(0,10);
 let app = {families:[],currentFamily:null,currentChild:null};
 let categories = [];
@@ -5993,7 +6002,7 @@ async function toggleExcusedToday(childId){
    somebody opens it. */
 const KID_ONLY_SCREENS = ["kidSpendScreen","kidLearnScreen","kidPointsScreen"];
 const SHARED_SCREENS   = ["rulesPanel","treePanel","deenPanel","playPanel"];
-const SCREENS = ["accountPanel","overviewPanel","activityPanel","requestsPanel","progressPanel","rewardsPanel","grownupsPanel","pledgesPanel","coursesPanel","playPanel","tasksPanel","pickPanel","quickPanel","reviewPanel","rulesPanel","tutorPanel","treePanel","deenPanel",
+const SCREENS = ["accountPanel","overviewPanel","activityPanel","requestsPanel","progressPanel","rewardsPanel","grownupsPanel","pledgesPanel","coursesPanel","playPanel","notesPanel","pickPanel","quickPanel","reviewPanel","rulesPanel","tutorPanel","treePanel","deenPanel",
                  "kidSpendScreen","kidLearnScreen","kidPointsScreen"];
 let screenNow = null;
 /* Only the parent's full-screen .panel elements scroll inside themselves, so
@@ -8482,7 +8491,10 @@ function render(){
   // fortnight's shape before deciding what to award today.
   if(child && isChildRole(child) && !editMode){
     bw.classList.remove("hidden");
-    bw.innerHTML = behaviourCardHTML(child, false);
+    /* Not on the tile screen either: a parent giving points does not need the
+       verdict in the way, and a child looking over a shoulder certainly does
+       not. Overview is where the trend is read. */
+    bw.classList.add("hidden"); bw.innerHTML="";
   }else{
     bw.classList.add("hidden"); bw.innerHTML="";
   }
@@ -8491,28 +8503,29 @@ function render(){
   const s = child ? stateForChild(child) : {};
   let total=0,done=0,scores=[];
   if(child && me && isParentRole(me) && child.id !== me.id && !editMode){
+    /* "Giving points to X" repeated the instruction the list header already
+       gives, in a card of its own, which pushed the actual categories down the
+       page. The buttons are what was worth keeping. */
     cards.insertAdjacentHTML("beforeend",
-      `<div class="card" style="grid-column:1/-1;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;border-top-color:var(--accent)">
-        <div>
-          <h2 style="margin:0">Giving points to ${escapeHtml(child.name)}</h2>
-          <p style="margin:2px 0 0">${isParentRole(child)
-            ? "The grown-ups' own list — the children never see any of this."
-            : "Only Mum and Dad accounts can award points. Tap ＋ on anything "+escapeHtml(child.name)+" has done well."}</p>
-        </div>
-        <div style="display:flex;gap:8px;flex-wrap:wrap">
-          ${isParentRole(child) ? `<button class="confirm" style="width:auto" onclick="openGiftDialog()">🎁 Send a surprise</button>` : ""}
-          <button class="light" style="width:auto" onclick="shareStatus('${child.id}')">↗ Share</button>
-          <button class="light" style="width:auto" onclick="backToParentHome()">← Back</button>
-        </div>
+      `<div class="whobar" style="grid-column:1/-1">
+          ${isParentRole(child) ? `<button class="confirm" style="width:auto" onclick="openGiftDialog()">\u{1f381} Send a surprise</button>` : ""}
+          <button class="light" style="width:auto" onclick="shareStatus('${child.id}')">\u2197 Share</button>
+          <button class="light" style="width:auto" onclick="backToParentHome()">\u2190 Back</button>
       </div>`);
   }
   const cats = activeCats();
   let tileWrap = null;
   if(!editMode){
     const who = child ? escapeHtml(child.name) : "them";
+    /* "Categories" is a filing word, and this is the warmest screen in the app:
+       the list of things you are hoping to catch them doing. The app is called
+       Notice Me — this is the answer to "notice what?". */
+    const lede = (child && isParentRole(child))
+      ? "The grown-ups’ own list. The children never see any of this."
+      : `Tap one to see what ${who} can earn points for, and to add more of your own.`;
     cards.insertAdjacentHTML("beforeend", `<div style="grid-column:1/-1">
-      <h2 style="margin:0 0 4px;font-size:20px">Categories</h2>
-      <p class="small" style="margin:0 0 12px">Tap one to see what ${who} can earn points for, and to add more actions to that list.</p>
+      <h2 style="margin:0 0 4px;font-size:20px">⭐ What we notice</h2>
+      <p class="small" style="margin:0 0 14px">${lede}</p>
     </div>`);
     tileWrap = document.createElement("div");
     tileWrap.className = "cattiles";
@@ -8546,7 +8559,7 @@ function render(){
       const val=valueFor(s, cat, name); catTotal+=val; total+=val; if(val>0)done++;
     });
     scores.push([catTotal,cat.name]);
-    card.className="cattile";
+    card.className="cattile k"+(ci%6);
     card.innerHTML=`<button class="cattilebtn" onclick="openCatModal(${ci})" aria-haspopup="dialog">
         <span class="ticon">${cat.icon}</span>
         <span class="tname">${escapeHtml(cat.name)}</span>
@@ -8677,7 +8690,7 @@ function renderParentAdminView(parent){
         ${tile("\ud83d\udd25","Quick points","Everyone on one screen","showQuickPanel()")}
         ${tile("\ud83d\udde3\ufe0f","Review together","Go through the week with them","showReviewPanel()")}
         ${tile("\ud83d\udd14","Requests", pend.length?pend.length+" waiting on you":"Nothing waiting","showRequestsPanel()", pend.length||0)}
-        ${tile("\ud83d\udccc","Asked of them","Homework and jobs for today","showTasksPanel()")}
+        ${tile("\ud83d\udccc","The note","What you\u2019ve asked of them today","showNotesPanel()")}
         ${tile("\ud83d\udcd6","Learn","Your own, and how they\u2019re getting on","showProgressPanel()")}
         ${tile("\ud83d\udcca","Overview","Everyone\u2019s week at a glance","showOverviewPanel()")}
         ${tile("\ud83c\udf81","Rewards","What the points are for","showRewardsPanel()")}
@@ -9609,7 +9622,12 @@ function renderKidView(child){
   document.getElementById("kidToday").textContent = todayPts;
   document.getElementById("kidWeek").textContent = week;
   document.getElementById("kidStreak").textContent = streakFor(child);
-  document.getElementById("kidGraphWrap").innerHTML = behaviourCardHTML(child, true);
+  /* A child should not open their own app and be told by a chart that they
+     are red and slipping. This is a parent's diagnostic \u2014 a prompt to go and
+     notice something \u2014 not a verdict to hand a seven-year-old. It lives in
+     Overview now, where a grown-up goes to look at the week on purpose. */
+  const kgw=document.getElementById("kidGraphWrap");
+  if(kgw){ kgw.innerHTML=""; kgw.classList.add("hidden"); }
   const kl=document.getElementById("kidLearnBody");
   if(kl){
     /* learnScreenHTML is rendered in three places: here, the parent's Progress
@@ -15478,28 +15496,38 @@ window.GROWNUP_DECKS = [
   }
 })();
 </script>
-<!-- ===== addons/tasks.js ===== -->
+<!-- ===== addons/notes.js ===== -->
 <script>
-/* ---------- Asked of you ----------
-   A task is an existing action with a child and a day attached to it, or a
-   line of free text when nothing on the list fits. That is the whole idea:
-   the app already knows "Complete homework" is worth 3 points, so a task does
-   not need its own points model, its own list, or its own vocabulary. It
-   needs a name and a date.
+/* ---------- The note ----------
+   v107 made each ask its own card, so a five-item morning was five taps for a
+   parent and five separate demands arriving on a child's phone. Wrong unit.
 
-   Stored the way pledges and courses are stored: append-only ledger entries
-   folded back into state. Nothing new in Firestore, no rules to publish.
-     task|<id>      created, carrying the child, the title and the action
-     taskdone|<id>  the child says they have done it
-     taskoff|<id>   withdrawn by a grown-up, or paid and closed
+   The note is the unit. One card per child, holding up to six items, some
+   paying points and some not, with a line of your own writing at the top.
+   "Back at six \u2014 Dad", then homework, tidy your room, put the bins out.
+   That is a note from a parent, which is a different thing from four demands.
 
-   Deliberately not built: overdue states, repeat nudges, anything red. A task
-   that did not happen today is not a failure to display back at a child. It
-   simply stops being today's. */
+   The limit falls out of the structure rather than a quota: one open note per
+   child, so a fifth thing means editing your note, not making another card.
+   No cap ever tells a parent off at the door.
+
+   Stored as ledger entries folded back into state, the way pledges and courses
+   already are. Nothing new in Firestore, no rules to publish.
+     note|<id>            created, carrying the child and the message
+     noteitem|<id>|<iid>  one line on it, with its action and points
+     noteoff|<id>         withdrawn, or closed off
+     itemoff|<id>|<iid>   one line removed
+     itemdone|<id>|<iid>  the child says that line is done
+
+   v107's single tasks fold in as one-item notes, so nothing already set is
+   lost.
+
+   Deliberately not built: overdue states, repeat nudges, anything red. */
 (function(){
   const $ = id => document.getElementById(id);
   const esc = s => (typeof escapeHtml==="function") ? escapeHtml(String(s)) : String(s);
   const me = () => (typeof sessionMember==="function") ? sessionMember() : null;
+  const MAX_ITEMS = 6;
   const ledger = () => {
     const f=(typeof currentFamily==="function") ? currentFamily() : null;
     const out=[];
@@ -15508,32 +15536,55 @@ window.GROWNUP_DECKS = [
   };
   const grown = m => m && typeof isParentRole==="function" &&
     (isParentRole(m) || (typeof isTutorRole==="function" && isTutorRole(m)));
-  const newId = () => "tk"+Date.now().toString(36)+Math.floor(Math.random()*900+100);
-  const dayStr = d => (typeof dateStr==="function") ? dateStr(d) : new Date(d).toISOString().slice(0,10);
-  const todayStr = () => dayStr(new Date());
+  const newId = p => p+Date.now().toString(36)+Math.floor(Math.random()*900+100);
+  const dayStr = d => (typeof dateStr==="function") ? dateStr(new Date(d)) : new Date(d).toISOString().slice(0,10);
+  const today = () => dayStr(new Date());
 
-  /* ---- fold the ledger into tasks ---- */
-  function tasks(){
-    const out=new Map(), dead=new Set(), done=new Map();
+  /* ---- fold the ledger into notes ---- */
+  function notes(){
+    const out=new Map(), dead=new Set(), deadItem=new Set(), done=new Map();
     ledger().slice().sort((a,b)=>a.ts-b.ts).forEach(e=>{
       const k=String(e.catKey||"");
-      if(e.type==="taskoff"  && k.indexOf("taskoff|")===0){ dead.add(k.split("|")[1]); return; }
-      if(e.type==="taskdone" && k.indexOf("taskdone|")===0){ done.set(k.split("|")[1], e); return; }
-      if(e.type==="task"     && k.indexOf("task|")===0){
+      if(e.type==="noteoff"  && k.indexOf("noteoff|")===0){ dead.add(k.split("|")[1]); return; }
+      if(e.type==="itemoff"  && k.indexOf("itemoff|")===0){ deadItem.add(k.split("|").slice(1).join("|")); return; }
+      if(e.type==="itemdone" && k.indexOf("itemdone|")===0){ done.set(k.split("|").slice(1).join("|"), e); return; }
+      if(e.type==="note" && k.indexOf("note|")===0){
         const id=k.split("|")[1];
-        out.set(id, { id, childId:e.childId, title:e.actionName||e.label||"",
-                      actionName:e.taskAction||null, points:e.taskPoints||0,
-                      due:e.taskDue||dayStr(e.ts), askedBy:e.byName||"", ts:e.ts });
-        dead.delete(id);
+        out.set(id, { id, childId:e.childId, message:e.actionName||"", due:e.noteDue||dayStr(e.ts),
+                      askedBy:e.byName||"", ts:e.ts, items:[] });
+        dead.delete(id); return;
       }
+      if(e.type==="noteitem" && k.indexOf("noteitem|")===0){
+        const [,nid,iid]=k.split("|");
+        const nt=out.get(nid);
+        if(nt) nt.items.push({ id:iid, text:e.actionName||e.label||"",
+                               action:e.itemAction||null, points:e.itemPoints||0 });
+        return;
+      }
+      /* v107 single tasks, read as a note with one line on it. */
+      if(e.type==="task" && k.indexOf("task|")===0){
+        const id=k.split("|")[1];
+        out.set(id, { id, childId:e.childId, message:"", due:e.taskDue||dayStr(e.ts),
+                      askedBy:e.byName||"", ts:e.ts, legacy:true,
+                      items:[{ id:"i0", text:e.actionName||e.label||"",
+                               action:e.taskAction||null, points:e.taskPoints||0 }] });
+        dead.delete(id); return;
+      }
+      if(e.type==="taskoff"  && k.indexOf("taskoff|")===0){ dead.add(k.split("|")[1]); return; }
+      if(e.type==="taskdone" && k.indexOf("taskdone|")===0){ done.set(k.split("|")[1]+"|i0", e); return; }
     });
     return [...out.values()]
-      .filter(t=>!dead.has(t.id))
-      .map(t=>Object.assign({}, t, {done: done.get(t.id)||null}));
+      .filter(nt=>!dead.has(nt.id))
+      .map(nt=>Object.assign({}, nt, {
+        items: nt.items
+          .filter(it=>!deadItem.has(nt.id+"|"+it.id))
+          .map(it=>Object.assign({}, it, {done: done.get(nt.id+"|"+it.id)||null}))
+      }));
   }
-  window.allTasks = tasks;
-  const forChild = id => tasks().filter(t=>t.childId===id);
-  const openFor  = id => forChild(id).filter(t=>!t.done && t.due<=todayStr());
+  window.allNotes = notes;
+  const openNoteFor = id => notes().filter(nt=>nt.childId===id && nt.due<=today())
+    .sort((a,b)=>b.ts-a.ts)[0] || null;
+  const liveNoteFor = id => notes().filter(nt=>nt.childId===id).sort((a,b)=>b.ts-a.ts)[0] || null;
 
   async function writeLedger(entry){
     const m=me();
@@ -15544,212 +15595,246 @@ window.GROWNUP_DECKS = [
         byRole: (typeof relationLabel==="function") ? relationLabel(m) : ""
       }, entry));
       return true;
-    }catch(e){ console.error("task write refused:", e); return false; }
+    }catch(e){ console.error("note write refused:", e); return false; }
   }
 
   /* ---- CSS ---- */
   const CSS=`
-  .tkcard{background:#fff;border:1px solid #e6e8f0;border-radius:20px;padding:14px 15px;margin-bottom:10px}
-  .tkrow{display:flex;align-items:flex-start;gap:12px}
-  .tktick{width:34px;height:34px;flex:none;border-radius:11px;border:2px solid #c9cdf0;background:#fff;
-    color:#3e46ad;font-size:16px;font-weight:800;cursor:pointer;line-height:1;padding:0}
-  .tkcard.is-done .tktick{background:#3aa06f;border-color:#3aa06f;color:#fff}
-  .tkmain{flex:1;min-width:0}
-  .tkname{display:block;font-size:16px;font-weight:800;color:#243044;line-height:1.3}
-  .tkcard.is-done .tkname{color:#8a92a0;text-decoration:line-through}
-  .tkwho{display:block;font-size:12.5px;color:#6a7184;font-weight:600;margin-top:3px;line-height:1.45}
-  .tkpts{display:inline-block;background:#eef0ff;color:#3e46ad;border-radius:99px;padding:4px 10px;
-    font-size:11.5px;font-weight:800;margin-top:7px}
-  .tkcard.is-done .tkpts{background:#e3f6ef;color:#1c8a6c}
-  .tkx{background:none;border:0;font-size:15px;opacity:.45;cursor:pointer;padding:9px;min-width:40px;min-height:40px}
-  .tkask{background:linear-gradient(150deg,#eef0ff,#e2e5fb);border:1px solid #d3d7f5;border-radius:22px;
-    padding:16px;margin-bottom:14px}
-  .tkask h3{margin:0 0 4px;font-size:16px;font-weight:800;color:#2b2e73}
-  .tkask p{margin:0 0 12px;font-size:13px;color:#4a5170;line-height:1.5}
-  .tkask select,.tkask input[type=text],.tkask input[type=date]{width:100%;padding:12px 13px;font-size:15px;
-    border:1px solid #d3d7f5;border-radius:13px;background:#fff;margin-bottom:9px;min-height:46px}
-  .tkchips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
-  .tkchips button{width:auto;background:#fff;border:1px solid #d3d7f5;color:#3e46ad;border-radius:99px;
+  .ntcard{background:#fff;border:1px solid #e6e8f0;border-radius:22px;padding:0;margin-bottom:14px;overflow:hidden}
+  .nthead{background:linear-gradient(150deg,#fff4dd,#ffe8bd);padding:15px 16px;border-bottom:1px solid #f0dcb2}
+  .ntmsg{margin:0;font-size:16.5px;font-weight:800;color:#6a4a05;line-height:1.35}
+  .ntfrom{margin:4px 0 0;font-size:12.5px;font-weight:700;color:#8a6a1c}
+  .ntbody{padding:4px 16px 14px}
+  .ntrow{display:flex;align-items:flex-start;gap:12px;padding:12px 0;border-bottom:1px solid #f2f3f8}
+  .ntrow:last-child{border-bottom:0}
+  .nttick{width:32px;height:32px;flex:none;border-radius:10px;border:2px solid #c9cdf0;background:#fff;
+    color:#3e46ad;font-size:15px;font-weight:800;cursor:pointer;line-height:1;padding:0}
+  .ntrow.is-done .nttick{background:#3aa06f;border-color:#3aa06f;color:#fff}
+  .ntmain{flex:1;min-width:0}
+  .nttext{display:block;font-size:15.5px;font-weight:700;color:#243044;line-height:1.4}
+  .ntrow.is-done .nttext{color:#8a92a0;text-decoration:line-through}
+  .ntpts{display:inline-block;background:#eef0ff;color:#3e46ad;border-radius:99px;padding:3px 9px;
+    font-size:11px;font-weight:800;margin-top:5px}
+  .ntrow.is-done .ntpts{background:#e3f6ef;color:#1c8a6c}
+  .ntfree{display:inline-block;background:#f2f3f8;color:#6a7184;border-radius:99px;padding:3px 9px;
+    font-size:11px;font-weight:800;margin-top:5px}
+  .ntx{background:none;border:0;font-size:14px;opacity:.4;cursor:pointer;padding:8px;min-width:38px;min-height:38px}
+  .ntdone{margin:12px 0 0;font-size:13px;font-weight:700;color:#1c8a6c;text-align:center}
+  .ntadd{background:#f7f8fc;border:1px solid #e6e8f0;border-radius:18px;padding:13px;margin-top:10px}
+  .ntadd select,.ntadd input[type=text],.ntadd input[type=date]{width:100%;padding:11px 12px;font-size:15px;
+    border:1px solid #d9dce8;border-radius:12px;background:#fff;margin-bottom:8px;min-height:44px}
+  .ntchips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:9px}
+  .ntchips button{width:auto;background:#fff;border:1px solid #d3d7f5;color:#3e46ad;border-radius:99px;
     padding:9px 13px;font-size:13px;font-weight:700;cursor:pointer;min-height:42px}
-  .tkchips button.on{background:var(--accent);color:#fff;border-color:var(--accent)}
-  .tkempty{font-size:13.5px;color:#8a90a6;line-height:1.55;margin:2px 0 0}
-  .kidtask{background:linear-gradient(150deg,#fff4dd,#ffe8bd);border:1px solid #f0dcb2;
-    border-radius:22px;padding:16px;margin-bottom:14px}
-  .kidtask h3{margin:0 0 3px;font-size:17px;font-weight:800;color:#6a4a05}
-  .kidtask .sub{margin:0 0 12px;font-size:13px;color:#8a6a1c;line-height:1.5}
-  .kidtask .tkcard{border-color:#f0dcb2}
+  .ntchips button.on{background:var(--accent);color:#fff;border-color:var(--accent)}
+  .ntfull{margin:8px 0 0;font-size:12.5px;color:#8a90a6;line-height:1.5}
+  .ntempty{font-size:13.5px;color:#8a90a6;line-height:1.55;margin:2px 0 12px}
   `;
   const st=document.createElement("style"); st.textContent=CSS; document.head.appendChild(st);
 
-  /* ---- the grown-up's view ---- */
-  let askChild=null, askMode="action";
+  /* ---- the grown-up's side ---- */
+  let pickChild=null, mode="action";
+  window.ntPickChild = id => { pickChild=id; renderNotesPanel(); };
+  window.ntMode = m => { mode=m; renderNotesPanel(); };
 
   function actionOptions(){
     const out=[];
-    (app.categories||[]).forEach(cat=>(cat.actions||[]).forEach(a=>{
+    (typeof app!=="undefined" ? (app.categories||[]) : []).forEach(cat=>(cat.actions||[]).forEach(a=>{
       out.push({name:a[0], points:a[1], icon:cat.icon||""});
     }));
     return out;
   }
 
-  function askHTML(kids){
-    if(!kids.length) return "";
-    if(!askChild || !kids.some(c=>c.id===askChild)) askChild=kids[0].id;
-    const acts=actionOptions();
-    return `<section class="tkask">
-      <h3>Ask someone to do something</h3>
-      <p>It shows on their own screen next time they open Notice Me. Nothing is
-         taken away if it does not happen.</p>
-      <div class="tkchips">${kids.map(c=>`<button class="${c.id===askChild?"on":""}"
-        onclick="tkPickChild('${c.id}')">${esc(c.name)}</button>`).join("")}</div>
-      <div class="tkchips">
-        <button class="${askMode==="action"?"on":""}" onclick="tkMode('action')">From the list \u00b7 earns points</button>
-        <button class="${askMode==="free"?"on":""}" onclick="tkMode('free')">Something else \u00b7 no points</button>
+  window.ntStart = async function(){
+    if(!grown(me())) return;
+    const msg=String((($("ntMsg")||{}).value)||"").trim();
+    const due=($("ntDue")||{}).value || today();
+    const id=newId("nt");
+    await writeLedger({ childId:pickChild, points:0, type:"note",
+      label:"Note for the day", catKey:"note|"+id, actionName:msg, noteDue:due });
+    renderNotesPanel(); if(typeof render==="function") render();
+  };
+
+  window.ntAddItem = async function(noteId){
+    if(!grown(me())) return;
+    const nt=notes().filter(x=>x.id===noteId)[0];
+    if(!nt || nt.items.length>=MAX_ITEMS) return;
+    let text="", action=null, points=0;
+    if(mode==="action"){
+      const v=($("ntAction")||{}).value||"";
+      if(!v) return;
+      const bits=v.split("|");
+      text=bits[0]; action=bits[0]; points=parseInt(bits[1],10)||0;
+    }else{
+      text=String((($("ntFree")||{}).value)||"").trim();
+      if(!text) return;
+    }
+    const iid=newId("it");
+    await writeLedger({ childId:nt.childId, points:0, type:"noteitem",
+      label:"Asked: "+text, catKey:"noteitem|"+noteId+"|"+iid,
+      actionName:text, itemAction:action, itemPoints:points });
+    const f=$("ntFree"); if(f) f.value="";
+    renderNotesPanel(); if(typeof render==="function") render();
+  };
+
+  window.ntRemoveItem = async function(noteId, iid, childId){
+    if(!grown(me())) return;
+    await writeLedger({ childId, points:0, type:"itemoff",
+      label:"Line removed", catKey:"itemoff|"+noteId+"|"+iid });
+    renderNotesPanel(); if(typeof render==="function") render();
+  };
+
+  window.ntRemove = async function(noteId, childId){
+    if(!grown(me())) return;
+    await writeLedger({ childId, points:0, type:"noteoff",
+      label:"Note withdrawn", catKey:"noteoff|"+noteId });
+    renderNotesPanel(); if(typeof render==="function") render();
+  };
+
+  /* The child says a line is done. A claim, not an award: the points are still
+     handed over by a grown-up, the way every other point in this app is. */
+  window.ntTick = async function(noteId, iid){
+    const nt=notes().filter(x=>x.id===noteId)[0];
+    if(!nt) return;
+    const it=nt.items.filter(x=>x.id===iid)[0];
+    const m=me();
+    if(!it || it.done) return;
+    if(!m || (m.id!==nt.childId && !grown(m))) return;
+    await writeLedger({ childId:nt.childId, points:0, type:"itemdone",
+      label:"Done: "+it.text, catKey:"itemdone|"+noteId+"|"+iid });
+    try{ if(typeof chime==="function") chime("milestone"); }catch(e){}
+    renderNotesPanel(); renderKidNote(); if(typeof render==="function") render();
+  };
+
+  function itemRow(nt, it, canTick, canEdit){
+    return `<div class="ntrow${it.done?" is-done":""}">
+      <button class="nttick" ${canTick && !it.done ? `onclick="ntTick('${nt.id}','${it.id}')"` : "disabled"}
+        aria-label="Mark done">${it.done?"\u2713":""}</button>
+      <span class="ntmain">
+        <span class="nttext">${esc(it.text)}</span>
+        ${it.points ? `<span class="ntpts">${it.points} points</span>`
+                    : `<span class="ntfree">no points</span>`}
+      </span>
+      ${canEdit && !it.done ? `<button class="ntx" title="Take this line off"
+        onclick="ntRemoveItem('${nt.id}','${it.id}','${nt.childId}')">\u2715</button>` : ""}
+    </div>`;
+  }
+
+  function noteHTML(nt, canTick, canEdit){
+    const left=nt.items.filter(i=>!i.done).length;
+    const all=nt.items.length && !left;
+    return `<section class="ntcard">
+      <div class="nthead">
+        <p class="ntmsg">${nt.message ? esc(nt.message) : "Asked of you today"}</p>
+        <p class="ntfrom">${nt.askedBy ? "From " + esc(nt.askedBy) : ""}${
+          nt.due>today() ? " \u00b7 for " + esc(nt.due) : ""}</p>
       </div>
-      ${askMode==="action"
-        ? `<select id="tkAction">${acts.map(a=>
-            `<option value="${esc(a.name)}|${a.points}">${a.icon} ${esc(a.name)} \u2014 ${a.points} pts</option>`).join("")}</select>`
-        : `<input type="text" id="tkFree" placeholder="What needs doing?" maxlength="80">`}
-      <input type="date" id="tkDue" value="${todayStr()}">
-      <button class="primary" style="width:100%" onclick="tkAdd()">Ask them</button>
+      <div class="ntbody">
+        ${nt.items.length
+          ? nt.items.map(it=>itemRow(nt, it, canTick, canEdit)).join("")
+          : `<p class="ntempty" style="margin-top:12px">Nothing on this note yet.</p>`}
+        ${all ? `<p class="ntdone">\u2713 All done \u2014 nice one.</p>` : ""}
+      </div>
     </section>`;
   }
 
-  window.tkPickChild = id => { askChild=id; renderTasksPanel(); };
-  window.tkMode = m => { askMode=m; renderTasksPanel(); };
-
-  window.tkAdd = async function(){
-    if(!grown(me())) return;
-    const due=($("tkDue")||{}).value || todayStr();
-    let title="", action=null, points=0;
-    if(askMode==="action"){
-      const v=($("tkAction")||{}).value||"";
-      if(!v) return;
-      const bits=v.split("|");
-      title=bits[0]; action=bits[0]; points=parseInt(bits[1],10)||0;
-    }else{
-      title=String((($("tkFree")||{}).value)||"").trim();
-      if(!title) return;
+  function addBoxHTML(nt){
+    if(nt.items.length>=MAX_ITEMS){
+      return `<div class="ntadd"><p class="ntfull" style="margin:0">
+        Six things is a full note. Beyond that a list stops being a list \u2014 take
+        one off if there is something more important.</p></div>`;
     }
-    const id=newId();
-    const ok=await writeLedger({ childId:askChild, points:0, type:"task",
-      label:"Asked: "+title, catKey:"task|"+id, actionName:title,
-      taskAction:action, taskPoints:points, taskDue:due });
-    if(ok){ const f=$("tkFree"); if(f) f.value=""; renderTasksPanel(); if(typeof render==="function") render(); }
-  };
-
-  window.tkCancel = async function(id){
-    if(!grown(me())) return;
-    await writeLedger({ childId:askChild, points:0, type:"taskoff",
-      label:"Task withdrawn", catKey:"taskoff|"+id });
-    renderTasksPanel(); if(typeof render==="function") render();
-  };
-
-  /* The child says it is done. That is a claim, not an award: the points are
-     handed over by a grown-up the way every other point in this app is. */
-  window.tkDone = async function(id){
-    const list=tasks(); const t=list.filter(x=>x.id===id)[0];
-    const m=me();
-    if(!t || t.done) return;
-    if(!m || (m.id!==t.childId && !grown(m))) return;
-    await writeLedger({ childId:t.childId, points:0, type:"taskdone",
-      label:"Done: "+t.title, catKey:"taskdone|"+id });
-    try{ if(typeof chime==="function") chime("milestone"); }catch(e){}
-    renderTasksPanel(); renderKidTasks(); if(typeof render==="function") render();
-  };
-
-  function taskCardHTML(t, canTick, canCancel){
-    const who = t.done
-      ? (t.points ? "Done \u00b7 " + t.points + " points to hand over when you\u2019re ready"
-                  : "Done \u00b7 nothing to award")
-      : (t.askedBy ? "Asked by " + esc(t.askedBy) : "Asked of you")
-        + (t.due>todayStr() ? " \u00b7 for " + esc(t.due) : "");
-    return `<div class="tkcard${t.done?" is-done":""}">
-      <div class="tkrow">
-        <button class="tktick" ${canTick?`onclick="tkDone('${t.id}')"`:"disabled"}
-          aria-label="Mark done">${t.done?"\u2713":""}</button>
-        <span class="tkmain">
-          <span class="tkname">${esc(t.title)}</span>
-          <span class="tkwho">${who}</span>
-          ${t.points?`<span class="tkpts">${t.points} points</span>`:""}
-        </span>
-        ${canCancel && !t.done ? `<button class="tkx" title="Withdraw"
-          onclick="tkCancel('${t.id}')">\u2715</button>`:""}
-      </div></div>`;
+    const acts=actionOptions();
+    return `<div class="ntadd">
+      <div class="ntchips">
+        <button class="${mode==="action"?"on":""}" onclick="ntMode('action')">From the list \u00b7 earns points</button>
+        <button class="${mode==="free"?"on":""}" onclick="ntMode('free')">Something else \u00b7 no points</button>
+      </div>
+      ${mode==="action"
+        ? `<select id="ntAction">${acts.map(a=>
+            `<option value="${esc(a.name)}|${a.points}">${a.icon} ${esc(a.name)} \u2014 ${a.points} pts</option>`).join("")}</select>`
+        : `<input type="text" id="ntFree" placeholder="e.g. put the bins out" maxlength="70">`}
+      <button class="light" style="width:100%" onclick="ntAddItem('${nt.id}')">Add to the note</button>
+      <p class="ntfull">${nt.items.length} of ${MAX_ITEMS} \u00b7 mix things that earn points with things that don\u2019t.</p>
+    </div>`;
   }
 
-  function renderTasksPanel(){
-    const body=$("tasksBody");
+  function renderNotesPanel(){
+    const body=$("notesBody");
     if(!body) return;
     const m=me();
-    if(!grown(m)){ body.innerHTML='<p class="small">Only a grown-up can set these.</p>'; return; }
+    if(!grown(m)){ body.innerHTML='<p class="small">Only a grown-up can write these.</p>'; return; }
     const f=(typeof currentFamily==="function") ? currentFamily() : null;
     const kids=(f?f.children:[]).filter(c=>typeof isChildRole==="function" && isChildRole(c));
-    let h=askHTML(kids);
-    kids.forEach(c=>{
-      const mine=forChild(c.id).filter(t=>!t.done || dayStr(t.done.ts)===todayStr());
-      h+=`<p class="playeyebrow">${esc(c.name)}</p>`;
-      h+= mine.length ? mine.map(t=>taskCardHTML(t, true, true)).join("")
-        : `<p class="tkempty">Nothing asked of ${esc(c.name)} today.</p>`;
-    });
+    if(!kids.length){ body.innerHTML='<p class="small">No children added yet.</p>'; return; }
+    if(!pickChild || !kids.some(c=>c.id===pickChild)) pickChild=kids[0].id;
+    const child=kids.filter(c=>c.id===pickChild)[0];
+    const nt=liveNoteFor(pickChild);
+
+    let h=`<div class="ntchips" style="margin-bottom:14px">${kids.map(c=>`<button class="${
+      c.id===pickChild?"on":""}" onclick="ntPickChild('${c.id}')">${esc(c.name)}</button>`).join("")}</div>`;
+
+    if(!nt){
+      h+=`<div class="ntadd">
+        <p class="ntfull" style="margin:0 0 9px">One note per child at a time. Write a line
+          they\u2019ll read at the top \u2014 that is what makes it a note rather than a list of orders.</p>
+        <input type="text" id="ntMsg" maxlength="90" placeholder="e.g. Back at six \u2014 Dad">
+        <input type="date" id="ntDue" value="${today()}">
+        <button class="primary" style="width:100%" onclick="ntStart()">Start a note for ${esc(child.name)}</button>
+      </div>`;
+    }else{
+      h+=noteHTML(nt, true, true) + addBoxHTML(nt)
+        + `<button class="ntx" style="width:auto;margin-top:6px"
+             onclick="ntRemove('${nt.id}','${nt.childId}')">\u{1f5d1} Clear this note</button>`;
+    }
     body.innerHTML=h;
   }
-  window.renderTasksPanel = renderTasksPanel;
+  window.renderNotesPanel = renderNotesPanel;
 
-  window.showTasksPanel = function(){
-    if(typeof openPanelFrom==="function") openPanelFrom("tasksPanel");
-    else if(typeof showScreen==="function") showScreen("tasksPanel");
-    renderTasksPanel();
+  window.showNotesPanel = function(){
+    if(typeof openPanelFrom==="function") openPanelFrom("notesPanel");
+    else if(typeof showScreen==="function") showScreen("notesPanel");
+    renderNotesPanel();
   };
+  /* v107's opener, kept so nothing dangles. */
+  window.showTasksPanel = window.showNotesPanel;
 
-  /* ---- the child's view ----
-     One card, on their own home screen, that says what was asked and by whom.
-     No badge that counts up, no colour that turns angry. */
-  function renderKidTasks(){
-    const host=$("kidTaskHost");
+  /* ---- the child's side: one card, on their own home ---- */
+  function renderKidNote(){
+    const host=$("kidNoteHost");
     if(!host) return;
     const m=me();
     if(!m || (typeof isChildRole==="function" && !isChildRole(m))){ host.innerHTML=""; return; }
-    const open=openFor(m.id);
-    const doneToday=forChild(m.id).filter(t=>t.done && dayStr(t.done.ts)===todayStr());
-    if(!open.length && !doneToday.length){ host.innerHTML=""; return; }
-    host.innerHTML=`<section class="kidtask">
-      <h3>\u{1f4cc} Asked of you</h3>
-      <p class="sub">${open.length
-        ? "Tap the box when you\u2019ve done it. Nothing bad happens if you don\u2019t."
-        : "All done for today \u2014 nice one."}</p>
-      ${open.map(t=>taskCardHTML(t, true, false)).join("")}
-      ${doneToday.map(t=>taskCardHTML(t, false, false)).join("")}
-    </section>`;
+    const nt=openNoteFor(m.id);
+    if(!nt || !nt.items.length){ host.innerHTML=""; return; }
+    host.innerHTML=noteHTML(nt, true, false);
   }
-  window.renderKidTasks = renderKidTasks;
+  window.renderKidNote = renderKidNote;
 
-  /* Mount the child's card at the top of their home, under the hero. */
   if(typeof renderKidView==="function"){
     const inner=renderKidView;
     window.renderKidView=function(){
       const r=inner.apply(this, arguments);
       try{
-        if(!$("kidTaskHost")){
+        if(!$("kidNoteHost")){
           const goal=$("kidGoal");
           if(goal && goal.parentElement){
-            const d=document.createElement("div"); d.id="kidTaskHost";
+            const d=document.createElement("div"); d.id="kidNoteHost";
             goal.parentElement.insertBefore(d, goal);
           }
         }
-        renderKidTasks();
+        renderKidNote();
       }catch(e){}
       return r;
     };
     renderKidView = window.renderKidView;
   }
 
-  /* A grown-up's dashboard shows what is outstanding, quietly. */
   if(typeof render==="function"){
     const inner=render;
     window.render=function(){
       const r=inner.apply(this, arguments);
-      try{ renderKidTasks(); }catch(e){}
+      try{ renderKidNote(); }catch(e){}
       return r;
     };
     render = window.render;
