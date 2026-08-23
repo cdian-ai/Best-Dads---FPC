@@ -1644,7 +1644,7 @@
   <div id="playPanel" class="panel hidden">
     <button class="panelback" onclick="panelBack()">← Home</button>
     <h2>🧩 Do together</h2>
-    <p class="small">Things to make and play side by side. Nothing is scored and nothing is homework.</p>
+    <p class="small">Places to go, things to make, games to play — side by side. Nothing here costs points.</p>
     <div id="playBody"></div>
   </div>
 
@@ -3613,7 +3613,7 @@ const TIP_CATS = [
   {key:"deen", label:"Deen"}
 ];
 
-const APP_VERSION = "v105";
+const APP_VERSION = "v106";
 const today = new Date().toISOString().slice(0,10);
 let app = {families:[],currentFamily:null,currentChild:null};
 let categories = [];
@@ -14771,16 +14771,6 @@ window.GROWNUP_DECKS = [
       "A book, a juz plan, a class \u2014 your own steps, ticked off by you",
       "showCoursesPanel()");
 
-    /* Puzzles are not a course, so they are not on this shelf as one. This is
-       a link to where they actually live. */
-    if((window.DECKS && typeof window.openDecks === "function") ||
-       (window.GROWNUP_DECKS && typeof window.openGrownupDecks === "function") ||
-       (typeof window.openTogether === "function")){
-      h += shelfLink("s-play", "\u{1f9e9}", "Do together",
-        "Cooking and puzzles \u2014 things to do side by side, nothing scored",
-        "showPlayPanel()");
-    }
-
     h += `<p class="mylearn-note">Everything here is marked by you, for you. It earns no points \u2014
       the map is the point. Looking for what the children have covered?
       Tap <strong>\u{1f9d2} The children</strong> above and pick a name.</p>`;
@@ -14872,8 +14862,15 @@ window.GROWNUP_DECKS = [
     dough:`<ellipse cx="58" cy="60" rx="40" ry="24" fill="#f5e2bd" stroke="#e0c894" stroke-width="2.5"/><circle cx="44" cy="56" r="4" fill="#e6d0a2"/><circle cx="66" cy="64" r="3.5" fill="#e6d0a2"/><circle cx="74" cy="52" r="3" fill="#e6d0a2"/>`,
     pot:`<path d="M20 38h76v34c0 8-8 14-38 14S20 80 20 72z" fill="#7d8ba0"/><rect x="14" y="30" width="88" height="9" rx="4.5" fill="#9aa7ba"/><path d="M44 22c0-6 6-6 6-12M62 24c0-6 6-6 6-12" stroke="#c9d2e0" stroke-width="3.5" fill="none" stroke-linecap="round"/>`,
     cup:`<path d="M28 34h48v30c0 11-11 18-24 18s-24-7-24-18z" fill="#fff" stroke="#c3c8e6" stroke-width="2.5"/><path d="M76 42h10a10 10 0 0 1 0 20h-10" fill="none" stroke="#c3c8e6" stroke-width="2.5"/><path d="M36 46h32v16c0 7-7 11-16 11s-16-4-16-11z" fill="#c98b4b"/>`,
-    plate:`<ellipse cx="60" cy="58" rx="44" ry="26" fill="#fff" stroke="#c3c8e6" stroke-width="2.5"/><ellipse cx="60" cy="56" rx="30" ry="17" fill="#f6ead2"/><circle cx="52" cy="54" r="6" fill="#e2604f"/><circle cx="68" cy="59" r="5" fill="#7cb342"/>`
+    plate:`<ellipse cx="60" cy="58" rx="44" ry="26" fill="#fff" stroke="#c3c8e6" stroke-width="2.5"/><ellipse cx="60" cy="56" rx="30" ry="17" fill="#f6ead2"/><circle cx="52" cy="54" r="6" fill="#e2604f"/><circle cx="68" cy="59" r="5" fill="#7cb342"/>`,
+    park:`<rect x="52" y="58" width="9" height="26" fill="#8d6e4f"/><circle cx="56" cy="42" r="24" fill="#5fa347"/><circle cx="38" cy="52" r="15" fill="#6fb254"/><circle cx="76" cy="52" r="13" fill="#6fb254"/><rect x="10" y="80" width="100" height="6" rx="3" fill="#cfe3bd"/><circle cx="94" cy="74" r="9" fill="#e8a33d"/>`,
+    mosque:`<rect x="30" y="50" width="60" height="34" rx="5" fill="#eef1f7" stroke="#c3c8e6" stroke-width="2"/><path d="M36 50a24 24 0 0 1 48 0z" fill="#6aa89a"/><path d="M60 20c0 4-3 5-3 8h6c0-3-3-4-3-8z" fill="#e0b13c"/><rect x="18" y="40" width="9" height="44" rx="4" fill="#dbe1ec"/><rect x="93" y="40" width="9" height="44" rx="4" fill="#dbe1ec"/><rect x="54" y="66" width="12" height="18" rx="6" fill="#6aa89a"/>`,
+    books:`<rect x="24" y="34" width="16" height="50" rx="3" fill="#d4547e"/><rect x="42" y="42" width="15" height="42" rx="3" fill="#5b63d8"/><rect x="59" y="30" width="17" height="54" rx="3" fill="#5f9b3c"/><rect x="78" y="46" width="15" height="38" rx="3" fill="#e8a33d"/><rect x="14" y="84" width="92" height="6" rx="3" fill="#c3c8e6"/>`,
+    water:`<rect x="16" y="44" width="88" height="40" rx="12" fill="#bfe3f5" stroke="#8ec8e6" stroke-width="2.5"/><path d="M20 58c8-6 14 6 22 0s14 6 22 0 14 6 22 0" stroke="#5fb3dd" stroke-width="4" fill="none" stroke-linecap="round"/><path d="M20 72c8-6 14 6 22 0s14 6 22 0 14 6 22 0" stroke="#7fc6e8" stroke-width="4" fill="none" stroke-linecap="round"/>`,
+    basket:`<path d="M22 48h76l-8 34c-1 5-5 8-10 8H40c-5 0-9-3-10-8z" fill="#c98b4b"/><path d="M40 48c0-12 9-20 20-20s20 8 20 20" fill="none" stroke="#a06f38" stroke-width="4"/><circle cx="46" cy="44" r="7" fill="#e2604f"/><circle cx="62" cy="42" r="7" fill="#7cb342"/><circle cx="77" cy="45" r="6" fill="#e8a33d"/>`,
+    path:`<path d="M46 88c0-20 28-24 28-42S52 26 52 12" stroke="#d8c9a8" stroke-width="14" fill="none" stroke-linecap="round"/><circle cx="24" cy="60" r="13" fill="#6fb254"/><circle cx="98" cy="46" r="11" fill="#5fa347"/><circle cx="96" cy="74" r="9" fill="#6fb254"/><circle cx="26" cy="30" r="9" fill="#7cb342"/>`
   };
+  function ARTBODY(key){ return ART[key]||ART.plate; }
   function art(key, tone){
     const d=ART[key]||ART.plate;
     return `<svg class="tg-art" viewBox="0 0 120 100" role="img" aria-hidden="true"
@@ -14885,7 +14882,8 @@ window.GROWNUP_DECKS = [
      cuisine. adult:true is every step with a blade, a flame or an oven door. */
   const RECIPES = [
     { id:"pancakes", name:"Weekend pancakes", art:"pan", tone:"#fff4dd",
-      mins:20, serves:"4", blurb:"Almost all of it is whisking and pouring, which is the whole point.",
+      kind:"cook", mins:20, serves:"4", blurb:"Almost all of it is whisking and pouring, which is the whole point.",
+      kit:["A big mixing bowl","A whisk or a fork","A ladle or a mug","A frying pan","A fish slice"],
       need:["1 mug plain flour","1 egg","1 mug milk","A pinch of salt","Butter or oil for the pan","Honey or fruit to serve"],
       steps:[
         {t:"Tip the flour in",d:"Flour and the pinch of salt into a big bowl. Let them do the tipping \u2014 the mess is part of it.",art:"bowl"},
@@ -14897,7 +14895,8 @@ window.GROWNUP_DECKS = [
         {t:"Stack and top",d:"They take over here. Honey, banana, whatever is in the fruit bowl.",art:"plate"}
       ]},
     { id:"flatbread", name:"Two-ingredient flatbreads", art:"dough", tone:"#f6f1e2",
-      mins:25, serves:"4", blurb:"Kneading is the best job in any kitchen and it is entirely child-safe.",
+      kind:"cook", mins:25, serves:"4", blurb:"Kneading is the best job in any kitchen and it is entirely child-safe.",
+      kit:["A mixing bowl","A tea towel","A rolling pin (or a clean bottle)","A frying pan"],
       need:["2 mugs self-raising flour","1 mug plain yoghurt","A pinch of salt","A little extra flour for the table"],
       steps:[
         {t:"Flour and yoghurt",d:"Both into a bowl with the salt. Mix with a spoon until it stops being a liquid.",art:"bowl"},
@@ -14908,7 +14907,8 @@ window.GROWNUP_DECKS = [
         {t:"Wrap them warm",d:"Stack them in a clean tea towel so they stay soft while the rest cook.",art:"plate"}
       ]},
     { id:"soup", name:"Everything-in soup", art:"pot", tone:"#e9f6dd",
-      mins:40, serves:"4", blurb:"Whatever is going soft in the vegetable drawer. A good one for talking.",
+      kind:"cook", mins:40, serves:"4", blurb:"Whatever is going soft in the vegetable drawer. A good one for talking.",
+      kit:["A big pot","A chopping board","A sharp knife (grown-up)","A wooden spoon","A vegetable peeler"],
       need:["1 onion","2 carrots","2 potatoes","Any other vegetables that need using","1 stock cube","A drizzle of oil"],
       steps:[
         {t:"Sort the vegetables",d:"They wash and sort; you do all the cutting. Talk about which ones grow underground.",adult:true,art:"veg"},
@@ -14919,7 +14919,8 @@ window.GROWNUP_DECKS = [
         {t:"Taste it together",d:"Let them taste and say what it needs. Salt? Pepper? Their answer counts.",art:"bowl"}
       ]},
     { id:"cookies", name:"Five-ingredient cookies", art:"oven", tone:"#fff4dd",
-      mins:30, serves:"12", blurb:"Measuring, mixing and rolling into balls \u2014 all of it theirs.",
+      kind:"cook", mins:30, serves:"12", blurb:"Measuring, mixing and rolling into balls \u2014 all of it theirs.",
+      kit:["A big mixing bowl","A wooden spoon","Kitchen scales","A baking tray","Baking paper"],
       need:["125g butter, soft","100g sugar","1 egg","200g self-raising flour","A handful of chocolate chips or raisins"],
       steps:[
         {t:"Heat the oven",d:"180\u00b0C. Your job, always.",adult:true,art:"oven"},
@@ -14931,7 +14932,8 @@ window.GROWNUP_DECKS = [
         {t:"Wait before eating",d:"Five minutes on the tray. The hardest step in this book.",timer:300,art:"plate"}
       ]},
     { id:"salad", name:"Chop-and-shake salad", art:"veg", tone:"#e9f6dd",
-      mins:15, serves:"4", blurb:"No heat at all. A good first thing for a small child to own completely.",
+      kind:"cook", mins:15, serves:"4", blurb:"No heat at all. A good first thing for a small child to own completely.",
+      kit:["A colander","A chopping board","A knife (grown-up)","A jar with a lid","A big serving bowl"],
       need:["Cucumber","Tomatoes","A little red onion","Lemon","Olive oil","Salt"],
       steps:[
         {t:"Wash everything",d:"Cold water, colander, their job entirely.",art:"veg"},
@@ -14940,7 +14942,8 @@ window.GROWNUP_DECKS = [
         {t:"Dress and toss",d:"Pour it over, two spoons, turn it all gently until everything shines.",art:"bowl"}
       ]},
     { id:"porridge", name:"Proper porridge", art:"pot", tone:"#f6f1e2",
-      mins:12, serves:"2", blurb:"A weekday one. Ten minutes, and the stirring belongs to them.",
+      kind:"cook", mins:12, serves:"2", blurb:"A weekday one. Ten minutes, and the stirring belongs to them.",
+      kit:["A saucepan","A wooden spoon","A mug for measuring","Two bowls"],
       need:["1 mug porridge oats","2 mugs milk or water","A pinch of salt","Honey, banana or dates to finish"],
       steps:[
         {t:"Oats and liquid",d:"Both into the pan with the pinch of salt. They measure and pour.",art:"pot"},
@@ -14949,7 +14952,8 @@ window.GROWNUP_DECKS = [
         {t:"Their bowl, their toppings",d:"Let them decide entirely. Even if it is a lot of honey.",art:"bowl"}
       ]},
     { id:"smoothie", name:"Whatever-fruit smoothie", art:"cup", tone:"#ffeaf0",
-      mins:8, serves:"2", blurb:"Eight minutes, no heat, and they can run it start to finish.",
+      kind:"cook", mins:8, serves:"2", blurb:"Eight minutes, no heat, and they can run it start to finish.",
+      kit:["A blender","A chopping board","Two glasses"],
       need:["1 banana","A handful of any other fruit, fresh or frozen","Half a mug of yoghurt","A splash of milk","Honey if it needs it"],
       steps:[
         {t:"Peel and break",d:"Banana peeled and snapped into pieces by hand. No knife needed.",art:"veg"},
@@ -14958,7 +14962,8 @@ window.GROWNUP_DECKS = [
         {t:"Taste and pour",d:"Too thick? A splash more milk. Not sweet enough? A little honey. Then pour.",art:"cup"}
       ]},
     { id:"riceandeggs", name:"Fried rice with eggs", art:"pan", tone:"#e8e9ff",
-      mins:20, serves:"4", blurb:"Best made with yesterday's rice. Cracking and whisking the eggs is theirs.",
+      kind:"cook", mins:20, serves:"4", blurb:"Best made with yesterday's rice. Cracking and whisking the eggs is theirs.",
+      kit:["A bowl","A fork or whisk","A large frying pan or wok","A spatula"],
       need:["3 mugs cooked cold rice","3 eggs","Frozen peas and sweetcorn","2 spring onions","Soy sauce","A little oil"],
       steps:[
         {t:"Crack and whisk",d:"Eggs into a bowl, whisked with a fork until no streaks are left. Entirely their job.",art:"bowl"},
@@ -14968,7 +14973,73 @@ window.GROWNUP_DECKS = [
         {t:"Bring it together",d:"Eggs back in, a splash of soy, spring onions scattered over. They do the scattering.",art:"plate"}
       ]}
   ];
-  window.TOGETHER_PACKS = { recipes: RECIPES };
+
+  /* ---------- going somewhere ----------
+     Same pack shape as a recipe, which is the whole argument for building a
+     runner rather than a recipe screen: an outing is a thing to take, a few
+     things to do while you are there, and a moment at the end. No points.
+     Time with them is not a purchase. */
+  const OUTINGS = [
+    { id:"park", name:"An hour at the park", art:"park", tone:"#e9f6dd", kind:"go",
+      mins:60, serves:"everyone", blurb:"The cheapest good afternoon there is. Bring one thing to do and let the rest happen.",
+      kit:["Coats and something waterproof","A ball, or a kite","Water and a snack","A bag for what they collect"],
+      need:["Somewhere green within walking distance","An hour you are not going to cut short"],
+      steps:[
+        {t:"Let them lead the way",d:"They choose the route and where you stop first. It takes longer. That is the point.",art:"path"},
+        {t:"One collecting game",d:"Five different leaves, something red, the smoothest stone. Small children will do this for an hour.",art:"park"},
+        {t:"Sit down for ten minutes",d:"Bench, snack, no phone. This is usually when they start telling you things.",art:"park"},
+        {t:"Let them decide when to go",d:"Give a five-minute warning rather than announcing it is over.",art:"path"}
+      ]},
+    { id:"masjid", name:"To the masjid together", art:"mosque", tone:"#e3f6ef", kind:"go",
+      mins:45, serves:"everyone", blurb:"How a child feels about a place at seven tends to be how they feel about it at seventeen.",
+      kit:["Clean clothes laid out beforehand","A prayer mat if they have their own","Water"],
+      need:["A prayer you are not rushing for","A few minutes afterwards that are not spent hurrying home"],
+      steps:[
+        {t:"Get ready without hurrying",d:"Rushing is what a child remembers. Leave earlier than you need to.",art:"mosque"},
+        {t:"Let them stand beside you",d:"However briefly, and however much they fidget. Being there is the lesson.",art:"mosque"},
+        {t:"Answer one question afterwards",d:"They usually have one. Answer it in a sentence, honestly, without turning it into a talk.",art:"books"},
+        {t:"Make the trip a good memory",d:"A walk back the long way, or something small on the way home. Attach warmth to the place.",art:"path"}
+      ]},
+    { id:"library", name:"An hour at the library", art:"books", tone:"#e8e9ff", kind:"go",
+      mins:60, serves:"everyone", blurb:"Free, warm, and the one outing where they get to choose everything.",
+      kit:["Library cards","A bag big enough for what they pick"],
+      need:["Your local library's opening hours \u2014 many close early"],
+      steps:[
+        {t:"Let them choose badly",d:"Whatever they pick is the right book. Steering them towards better ones is how reading becomes a chore.",art:"books"},
+        {t:"You pick one too",d:"Sit and read yours while they browse. Children copy what they see, not what they are told.",art:"books"},
+        {t:"Read the first page there",d:"Before you leave, read one page of one of theirs together.",art:"books"}
+      ]},
+    { id:"walk", name:"A walk with nothing planned", art:"path", tone:"#f6f1e2", kind:"go",
+      mins:30, serves:"everyone", blurb:"Children rarely open up on demand, but they talk while walking and not facing you.",
+      kit:["Shoes that can get muddy","A torch, if it is getting dark"],
+      need:["Half an hour and no destination"],
+      steps:[
+        {t:"No destination on purpose",d:"Turn left when they say left. Getting slightly lost is part of it.",art:"path"},
+        {t:"Ask one small question",d:"Not \u201chow was school\u201d. Try \u201cwho did you sit with at lunch\u201d and then be quiet.",art:"path"},
+        {t:"Let the silences sit",d:"The talking usually starts after the second silence. Do not fill it.",art:"park"}
+      ]},
+    { id:"market", name:"Shopping, but properly", art:"basket", tone:"#fff4dd", kind:"go",
+      mins:45, serves:"everyone", blurb:"Turn the weekly shop into the thing you did together instead of the thing you got through.",
+      kit:["A written list they can hold","A small bag that is theirs to carry","Coins, if they are old enough to pay"],
+      need:["A shop you are not in a hurry to leave"],
+      steps:[
+        {t:"Give them the list",d:"They read it, they find the items, they cross them off. Slower, and entirely worth it.",art:"basket"},
+        {t:"One thing they choose",d:"Their pick for the family, within a limit you set. They take it seriously.",art:"basket"},
+        {t:"Let them pay for something",d:"Handing over money and counting change is a real skill and they know it matters.",art:"basket"},
+        {t:"Cook one thing you bought",d:"Best possible ending \u2014 and there are recipes in here for exactly that.",art:"pan"}
+      ]},
+    { id:"swim", name:"Swimming", art:"water", tone:"#e8e9ff", kind:"go",
+      mins:90, serves:"everyone", blurb:"One of the few places where you are in it with them rather than watching from the side.",
+      kit:["Swimming things and towels","A pound coin for the locker","A snack for afterwards \u2014 they will be starving","A plastic bag for wet things"],
+      need:["Your pool's family session times"],
+      steps:[
+        {t:"Get in with them",d:"Not the poolside. In. This is the entire difference between an outing and a lift.",art:"water"},
+        {t:"One game, their rules",d:"They invent it, you play it, you do not improve it.",art:"water"},
+        {t:"Eat straight afterwards",d:"Everyone is nicer once they have eaten. Plan for it rather than discovering it.",art:"plate"}
+      ]}
+  ];
+  window.TOGETHER_PACKS = { recipes: RECIPES, outings: OUTINGS };
+  const ALL_PACKS = () => RECIPES.concat(OUTINGS);
 
   /* ---------- CSS ---------- */
   const CSS=`
@@ -14994,10 +15065,18 @@ window.GROWNUP_DECKS = [
   .tg-d{margin:0;font-size:16.5px;line-height:1.6;color:#3f4560}
   .tg-adult{display:inline-flex;align-items:center;gap:7px;background:#fff2e6;border:1px solid #f3cfa6;
     color:#8a4b12;border-radius:99px;padding:7px 13px;font-size:12.5px;font-weight:800;margin:12px 0 0}
-  .tg-need{background:#fff;border:1px solid #e6e8f0;border-radius:18px;padding:6px 16px;margin:0 0 14px}
-  .tg-need li{padding:11px 0;font-size:15.5px;line-height:1.4;color:#243044;list-style:none;
-    border-bottom:1px solid #f2f3f8}
+  .tg-need{background:#fff;border:1px solid #e6e8f0;border-radius:18px;padding:4px 16px;margin:0 0 14px}
+  .tg-need li{display:flex;align-items:flex-start;gap:11px;padding:12px 0;font-size:15.5px;
+    line-height:1.45;color:#243044;list-style:none;border-bottom:1px solid #f2f3f8}
   .tg-need li:last-child{border-bottom:0}
+  .tg-need li::before{content:"";flex:none;width:9px;height:9px;margin-top:7px;border-radius:3px;
+    background:#c9cdf0}
+  .tg-need.kit li::before{background:#f0c98a;border-radius:2px}
+  .tg-label{display:flex;align-items:center;gap:9px;margin:0 0 8px;font-size:11px;font-weight:800;
+    letter-spacing:.08em;text-transform:uppercase;color:#8a90a6}
+  .tg-label i{width:9px;height:9px;border-radius:3px;background:#c9cdf0;font-style:normal}
+  .tg-label.kit i{background:#f0c98a;border-radius:2px}
+  .tg-hero{width:100%;height:190px;border-radius:24px;display:block;margin:0 auto 16px}
   .tg-bottom{flex:none;padding:12px 16px calc(14px + env(safe-area-inset-bottom));
     background:#fff;border-top:1px solid #e6e8f0}
   .tg-bottom .tg-inner{display:grid;gap:8px}
@@ -15021,14 +15100,20 @@ window.GROWNUP_DECKS = [
   .tg-who button{width:auto;background:#eef0ff;color:#3e46ad;border:0;border-radius:99px;
     padding:11px 16px;font-size:14px;font-weight:800;cursor:pointer;min-height:44px}
   .tg-who button.on{background:#3aa06f;color:#fff}
-  .tgcard{display:flex;align-items:center;gap:13px;background:#fff;border:1px solid #e6e8f0;
-    border-radius:20px;padding:13px;margin-bottom:10px;cursor:pointer}
+  /* The thumbnail was a 74px square on the left and you could not tell a pan
+     from a bowl. The picture is now the top half of the card, full width and
+     centred, at a size where a pan looks like a pan. */
+  .tgcard{display:block;background:#fff;border:1px solid #e6e8f0;border-radius:22px;
+    padding:0;margin-bottom:12px;cursor:pointer;overflow:hidden;text-align:center;
+    box-shadow:0 6px 18px rgba(24,22,60,.06)}
   .tgcard:active{transform:scale(.99)}
-  .tgcard svg{width:74px;height:60px;border-radius:14px;flex:none}
-  .tgcard .m{flex:1;min-width:0}
-  .tgcard .n{display:block;font-size:16px;font-weight:800;color:#243044;line-height:1.25}
-  .tgcard .s{display:block;font-size:12.5px;color:#6a7184;font-weight:600;line-height:1.45;margin-top:3px}
-  .tgcard .k{display:block;font-size:11.5px;color:#3aa06f;font-weight:800;margin-top:4px}
+  .tgcard svg{width:100%;height:132px;display:block;border-radius:0}
+  .tgcard .m{display:block;padding:14px 16px 16px}
+  .tgcard .n{display:block;font-size:17.5px;font-weight:800;color:#243044;line-height:1.25}
+  .tgcard .s{display:block;font-size:13.5px;color:#6a7184;font-weight:600;line-height:1.5;margin-top:5px}
+  .tgcard .meta{display:block;font-size:12px;color:#8a90a6;font-weight:700;margin-top:7px}
+  .tgcard .k{display:inline-block;font-size:11.5px;color:#1c8a6c;background:#e3f6ef;
+    border-radius:99px;padding:5px 11px;font-weight:800;margin-top:9px}
   @media (prefers-reduced-motion:reduce){#tgScreen *{transition:none!important}}
   `;
   const st=document.createElement("style"); st.textContent=CSS; document.head.appendChild(st);
@@ -15086,13 +15171,32 @@ window.GROWNUP_DECKS = [
     $("tgBeads").innerHTML = step<0 ? "" : h;
   }
 
+  /* Equipment and ingredients used to be one undifferentiated list, so you
+     found out you needed a rolling pin somewhere around step four. Two lists,
+     told apart by colour, equipment first \u2014 that is the one you have to go
+     and find. */
   function needHTML(){
-    return `${art(pack.art, pack.tone)}
-      <p class="tg-num">What you need \u00b7 serves ${esc(pack.serves)} \u00b7 about ${pack.mins} minutes</p>
-      <h2 class="tg-h">${esc(pack.name)}</h2>
-      <p class="tg-d" style="margin-bottom:16px">${esc(pack.blurb)}</p>
+    const cook = pack.kind !== "go";
+    const meta = cook
+      ? `Serves ${esc(pack.serves)} \u00b7 about ${pack.mins} minutes \u00b7 ${pack.steps.length} steps`
+      : `About ${pack.mins} minutes \u00b7 ${pack.steps.length} things to do`;
+    const kitLabel  = cook ? "What you need out" : "What to take";
+    const needLabel = cook ? "Ingredients" : "Before you go";
+    let h = `<svg class="tg-hero" viewBox="0 0 120 100" role="img" aria-hidden="true"
+        style="background:${pack.tone||"#f6f7fb"}">${ARTBODY(pack.art)}</svg>
+      <h2 class="tg-h" style="text-align:center">${esc(pack.name)}</h2>
+      <p class="tg-num" style="text-align:center;margin-bottom:14px">${meta}</p>
+      <p class="tg-d" style="margin-bottom:20px">${esc(pack.blurb)}</p>`;
+    if(pack.kit && pack.kit.length){
+      h += `<p class="tg-label kit"><i></i>${kitLabel}</p>
+        <ul class="tg-need kit">${pack.kit.map(x=>`<li>${esc(x)}</li>`).join("")}</ul>`;
+    }
+    h += `<p class="tg-label"><i></i>${needLabel}</p>
       <ul class="tg-need">${pack.need.map(x=>`<li>${esc(x)}</li>`).join("")}</ul>
-      <p class="tg-tnote">Read it through together before you start. Decide now which jobs are theirs.</p>`;
+      <p class="tg-tnote">${cook
+        ? "Read it through together before you start, and decide now which jobs are theirs."
+        : "Nothing here costs points. This is time, not a reward."}</p>`;
+    return h;
   }
 
   function stepHTML(){
@@ -15138,16 +15242,17 @@ window.GROWNUP_DECKS = [
     const me=(typeof sessionMember==="function") ? sessionMember() : null;
     const meIsChild = me && typeof isChildRole==="function" && isChildRole(me);
     const who = (list.length && !meIsChild)
-      ? `<p class="tg-num" style="margin-bottom:9px">Who cooked with you?</p>
+      ? `<p class="tg-num" style="margin-bottom:9px">Who was with you?</p>
          <div class="tg-who">${list.map(c=>`<button class="${chosen[c.id]?"on":""}"
             onclick="tgPick('${c.id}')">${esc(c.name)}${chosen[c.id]?" \u2713":""}</button>`).join("")}</div>
          <p class="tg-tnote" style="margin-bottom:4px">No points \u2014 this just goes in the record so you can
-           see what you have made together.</p>` : "";
+           see what you have done together.</p>` : "";
     return `<div class="tg-win">
-        <div class="tg-wemoji">\ud83c\udf7d\ufe0f</div>
-        <h2 class="tg-wh">You made it.</h2>
+        <div class="tg-wemoji">${pack.kind==="go" ? "\ud83d\udc9b" : "\ud83c\udf7d\ufe0f"}</div>
+        <h2 class="tg-wh">${pack.kind==="go" ? "That was time well spent." : "You made it."}</h2>
         <p class="tg-wp">${esc(pack.name)}, start to finish, together.<br>
-          Sit down and eat it before anything else happens.</p>
+          ${pack.kind==="go" ? "Nothing was earned and nothing was spent. That was the point."
+                             : "Sit down and eat it before anything else happens."}</p>
         ${who}
       </div>`;
   }
@@ -15213,7 +15318,7 @@ window.GROWNUP_DECKS = [
   }
 
   function open(id){
-    pack = RECIPES.filter(r=>r.id===id)[0] || RECIPES[0];
+    pack = ALL_PACKS().filter(r=>r.id===id)[0] || RECIPES[0];
     step = -1; chosen = {};
     prevOverflow = document.body.style.overflow;
     document.body.style.overflow="hidden";
@@ -15247,21 +15352,26 @@ window.GROWNUP_DECKS = [
       return (f?f.children:[]).filter(c=>c.progress && c.progress["together."+r.id]).length;
     }catch(e){ return 0; }
   }
-  function listHTML(){
-    return RECIPES.map(r=>{
-      const n=cookedCount(r);
-      return `<section class="tgcard" onclick="openTogether('${r.id}')">
-        ${art(r.art, r.tone)}
-        <span class="m"><span class="n">${esc(r.name)}</span>
-          <span class="s">${esc(r.blurb)}</span>
-          <span class="s">About ${r.mins} minutes \u00b7 ${r.steps.length} steps</span>
-          ${n?`<span class="k">\u2713 Made together</span>`:""}</span>
-      </section>`;
-    }).join("");
+  function cardHTML(r){
+    const n=cookedCount(r);
+    const cook = r.kind !== "go";
+    const meta = cook
+      ? `About ${r.mins} minutes \u00b7 ${r.steps.length} steps \u00b7 serves ${esc(r.serves)}`
+      : `About ${r.mins} minutes \u00b7 ${r.steps.length} things to do`;
+    return `<section class="tgcard" onclick="openTogether('${r.id}')">
+      <svg viewBox="0 0 120 100" role="img" aria-hidden="true"
+        style="background:${r.tone||"#f6f7fb"}">${ARTBODY(r.art)}</svg>
+      <span class="m"><span class="n">${esc(r.name)}</span>
+        <span class="s">${esc(r.blurb)}</span>
+        <span class="meta">${meta}</span>
+        ${n?`<span class="k">\u2713 Done together</span>`:""}</span>
+    </section>`;
   }
   function renderCookList(){
-    const host=document.getElementById("cookHost");
-    if(host) host.innerHTML = listHTML();
+    const c=document.getElementById("cookHost");
+    if(c) c.innerHTML = RECIPES.map(cardHTML).join("");
+    const g=document.getElementById("goHost");
+    if(g) g.innerHTML = OUTINGS.map(cardHTML).join("");
   }
   window.renderCookList = renderCookList;
 
@@ -15273,7 +15383,9 @@ window.GROWNUP_DECKS = [
       const body=document.getElementById("playBody");
       if(!body) return;
       body.insertAdjacentHTML("afterbegin",
-        `<p class="playeyebrow" style="margin-top:0">Cook something</p>
+        `<p class="playeyebrow" style="margin-top:0">Go somewhere</p>
+         <div id="goHost"></div>
+         <p class="playeyebrow">Cook something</p>
          <div id="cookHost"></div>
          <p class="playeyebrow">Play something</p>`);
       renderCookList();
