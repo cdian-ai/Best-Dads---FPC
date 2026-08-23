@@ -135,8 +135,10 @@
     background:linear-gradient(180deg,rgba(0,0,0,0) 35%,rgba(0,0,0,.55) 100%)}
   .familycover .covername{position:absolute;left:16px;bottom:12px;color:#fff;font-weight:800;font-size:19px;
     text-shadow:0 1px 6px rgba(0,0,0,.5);max-width:calc(100% - 70px);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  .coveredit{position:absolute;top:10px;right:10px;width:auto;padding:8px 11px;border-radius:12px;
-             background:rgba(255,255,255,.92);font-size:15px}
+  /* Bottom-right: the top of a family photo is where the faces are. */
+  .coveredit{position:absolute;bottom:10px;right:10px;top:auto;width:auto;padding:8px 11px;
+             border-radius:12px;background:rgba(255,255,255,.92);font-size:15px;
+             box-shadow:0 2px 8px rgba(36,48,68,.18)}
   .coverempty{display:flex;align-items:center;justify-content:center;gap:8px;height:88px;border-radius:20px;
               margin-top:14px;border:2px dashed #d6d9ea;background:#fbfbfd;color:var(--muted);font-size:13px;cursor:pointer}
 
@@ -556,11 +558,13 @@
   .hometile .hicon{font-size:26px;line-height:1}
   .hometile .hname{font-size:15px;font-weight:800;line-height:1.2}
   .hometile .hsub{font-size:11.5px;color:var(--muted);font-weight:600;line-height:1.35}
+  /* The full-width tile now matches the ones beneath it rather than announcing
+     itself with a gradient, and carries no shadow. It stays rectangular. */
   .hometile.wide{grid-column:1/-1;flex-direction:row;align-items:center;gap:14px;min-height:0;
-                 background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;border:0}
-  .hometile.wide .hicon{font-size:30px}
+                 background:#fff;color:var(--ink);border:1px solid #e6e8f0;box-shadow:none}
+  .hometile.wide .hicon{font-size:30px;color:var(--accent)}
   .hometile.wide .hname{font-size:19px}
-  .hometile.wide .hsub{color:rgba(255,255,255,.9)}
+  .hometile.wide .hsub{color:var(--muted)}
   .hometile .hbadge{position:absolute;top:10px;right:10px;background:#d85b5b;color:#fff;
                     font-size:11px;font-weight:800;min-width:20px;height:20px;border-radius:99px;
                     display:flex;align-items:center;justify-content:center;padding:0 6px}
@@ -740,6 +744,12 @@
   /* ---------- Child view ---------- */
   #kidView{--k1:#ff8bb0;--k2:#ffd166;--k3:#5ad2c4;--k4:#8b7cf6;--kink:#2a2350}
   #kidView h2{font-family:system-ui,-apple-system,Segoe UI,sans-serif}
+  .subjfold{margin:0}
+  .subjfold>summary{list-style:none;cursor:pointer;position:relative}
+  .subjfold>summary::-webkit-details-marker{display:none}
+  .subjfold>summary::after{content:"\u203a";position:absolute;right:22px;top:50%;
+    transform:translateY(-50%) rotate(90deg);font-size:22px;font-weight:800;color:var(--muted)}
+  .subjfold[open]>summary::after{transform:translateY(-50%) rotate(-90deg)}
   .kidhero{position:relative;overflow:hidden;border-radius:28px;padding:22px;margin-bottom:16px;color:#fff;
            background:linear-gradient(120deg,#8b7cf6 0%,#5ad2c4 55%,#ffd166 100%);box-shadow:0 12px 30px rgba(90,70,200,.22)}
   .kidhero .bubble{position:absolute;border-radius:50%;background:rgba(255,255,255,.16);pointer-events:none}
@@ -1364,6 +1374,8 @@
       <p class="menugroup">How they’re doing</p>
       <button class="light" id="btnOverview" onclick="showOverviewPanel()">📊 Overview</button>
       <button class="light" id="btnProgress" onclick="showProgressPanel()">📖 Progress</button>
+      <!-- Filled in by whichever language packs and decks are loaded. -->
+      <div id="menuLearn"></div>
 
       <p class="menugroup">People</p>
       <button class="light" id="btnFamily" onclick="showAccountPanel()">👨‍👩‍👧 Family members</button>
@@ -3414,7 +3426,7 @@ const TIP_CATS = [
   {key:"behaviour", label:"Behaviour"}
 ];
 
-const APP_VERSION = "v99";
+const APP_VERSION = "v100";
 const today = new Date().toISOString().slice(0,10);
 let app = {families:[],currentFamily:null,currentChild:null};
 let categories = [];
@@ -4273,11 +4285,17 @@ function learnScreenHTML(child){
       : "";
     const yearName=(subject.byYear && !adultView)
       ? (shown[0] ? shown[0].name : "") : "";
-    return `<section class="kidhero"><div class="kidherorow"><div>
+    const head=`<section class="kidhero"><div class="kidherorow"><div>
         <p class="kidhi">${subject.icon} ${escapeHtml(subject.name)}</p>
         <p class="kidsub">${yearName?escapeHtml(yearName)+" \u00b7 ":""}${done} of ${total} secure</p>
-      </div></div>${picker}</section>`
-      + shown.map(st=>ladderHTML(child, subject, st, canSecure)).join("");
+      </div></div>${picker}</section>`;
+    const ladders=shown.map(st=>ladderHTML(child, subject, st, canSecure)).join("");
+    // A pack can bring hundreds of objectives. Those subjects arrive folded, so
+    // the page still opens on the family's own curriculum rather than on a wall
+    // of somebody else's syllabus.
+    return subject.collapsed
+      ? `<details class="subjfold">${head.replace("<section","<summary><section").replace("</section>","</section></summary>")}${ladders}</details>`
+      : head + ladders;
   }).join("")
   + `<p class="kidfooter">Tap <strong>Practised</strong> when you\u2019ve worked on something. Only a grown-up can mark it secure.</p>`;
 }
@@ -9249,7 +9267,15 @@ function renderKidView(child){
   document.getElementById("kidStreak").textContent = streakFor(child);
   document.getElementById("kidGraphWrap").innerHTML = behaviourCardHTML(child, true);
   const kl=document.getElementById("kidLearnBody");
-  if(kl) kl.innerHTML = learnScreenHTML(child);
+  if(kl){
+    /* learnScreenHTML is rendered in three places: here, the parent's Progress
+       panel, and the tutor view. Language packs add a big "open the course" card,
+       which belongs only here — elsewhere the subject already appears in the
+       ladder, which is why courses showed up twice. */
+    window.__learnForChild = true;
+    kl.innerHTML = learnScreenHTML(child);
+    window.__learnForChild = false;
+  }
   const kg=document.getElementById("kidGoal");
   if(kg) kg.innerHTML = goalCardHTML(activeGoal(), true);
   const fn=document.getElementById("familyNotices");
@@ -12252,7 +12278,7 @@ window.FULFULDE_M1_VIDEO = {
      covered/secure, tutor permissions and the milestone bonus for free. */
   const SECTION_IDS=[...new Set(ALL_SETS.map(s=>s.sec))];
   const SUBJECT={
-    subject:"fulfulde", icon:"\u{1f4d7}", name:"Fulfulde \u2014 Janngu Fulfulde 1",
+    subject:"fulfulde", collapsed:true, icon:"\u{1f4d7}", name:"Fulfulde \u2014 Janngu Fulfulde 1",
     strands: SECTION_IDS.map(sid=>{
       const mine=ALL_SETS.filter(s=>s.sec===sid);
       return {
@@ -12614,12 +12640,29 @@ window.FULFULDE_M1_VIDEO = {
     $('pkHome').onclick=()=>{ draw(); };
   }
 
+  /* A parent reaches the course from the menu. The card on the Learn screen is
+     for the child; the menu entry is how a grown-up opens it to look. */
+  (function(){
+    const slot=document.getElementById("menuLearn");
+    if(!slot || slot.querySelector("[data-open='openFulfulde']")) return;
+    const b=document.createElement("button");
+    b.className="light"; b.dataset.open="openFulfulde";
+    b.textContent="\u{1f4d7} Janngu Fulfulde";
+    b.onclick=()=>{ if(typeof closeMenu==="function") closeMenu(); openFulfulde(); };
+    slot.appendChild(b);
+  })();
+
   /* ---------- the way in ----------
      Wraps learnScreenHTML rather than editing it, so an app update that changes
      that function does not silently drop the course. */
   if(typeof learnScreenHTML==='function'){
     const inner=learnScreenHTML;
     window.learnScreenHTML=function(c){
+      /* learnScreenHTML is shared: the child's Learn screen renders it, and so
+         does the parent's Progress panel. The card belongs on the first and not
+         the second, where the subject already appears in the ladder \u2014 that
+         is why the course was listed twice. */
+      if(!window.__learnForChild) return inner(c);
       const done=coveredIds().size;
       const tile=`<section class="kidhero" style="background:linear-gradient(135deg,#0f3b3a,#17544f);color:#fff;cursor:pointer" onclick="openFulfulde()">
         <div class="kidherorow"><div>
@@ -12694,7 +12737,7 @@ window.DECK_PICS = {"birthday": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0c
 
   /* the ladder: one objective per topic, no milestone, so nothing pays */
   const SUBJECT={
-    subject:"talktogether", icon:"\u{1f9e9}", name:"Puzzle decks",
+    subject:"talktogether", collapsed:true, icon:"\u{1f9e9}", name:"Puzzle decks",
     strands:[{ id:"topics", name:"Topics",
       blurb:"Eighteen decks of riddles and puzzles to play together. Mark one when you have played it; a grown-up marks it secure once the words come without help.",
       objectives: TOPICS.map(id=>[ALL[id].emoji+" "+ALL[id].title]) }]
@@ -13111,9 +13154,26 @@ function done(){
   const back=$("dkBack");
   if(back) back.onclick=()=>{ if(DECK.length){ menu(); } else close(); };
 
+  /* A parent reaches the decks from the menu. The card on the Learn screen is
+     for the child; this is how a grown-up opens it to look. */
+  (function(){
+    const slot=document.getElementById("menuLearn");
+    if(!slot || (slot.querySelector && slot.querySelector("[data-open='openDecks']"))) return;
+    const b=document.createElement("button");
+    b.className="light"; b.dataset.open="openDecks";
+    b.textContent="\u{1f9e9} Puzzle decks";
+    b.onclick=()=>{ if(typeof closeMenu==="function") closeMenu(); open(); };
+    slot.appendChild(b);
+  })();
+
   if(typeof learnScreenHTML==="function"){
     const inner=learnScreenHTML;
     window.learnScreenHTML=function(c){
+      /* learnScreenHTML is shared: the child's Learn screen renders it, and so
+         does the parent's Progress panel. The card belongs on the first and not
+         the second, where the subject already appears in the ladder \u2014 that
+         is why the course was listed twice. */
+      if(!window.__learnForChild) return inner(c);
       let played=0;
       TOPICS.forEach((_,i)=>{ if(statusOf(i)) played++; });
       const tile=`<section class="kidhero" style="background:linear-gradient(135deg,#fff,#fdf3e3);border-color:#f0e3cb;cursor:pointer" onclick="openDecks()">
