@@ -465,7 +465,7 @@
   .duacard.now{border-left-color:#e0b13c;background:linear-gradient(180deg,#fffaef,#fff)}
   .attncard{display:flex;align-items:center;gap:13px;background:#fff;border:1px solid #e6e8f0;
             border-left:7px solid #7c83ef;border-radius:20px;padding:15px;margin-bottom:16px;
-            box-shadow:var(--shadow)}
+            box-shadow:none}
   .attncard.urgent{border-left-color:#d85b5b}
   .attncard .attnem{font-size:28px;line-height:1}
   .attncard .attnstar{width:52px;height:48px;flex-shrink:0}
@@ -558,13 +558,11 @@
   .hometile .hicon{font-size:26px;line-height:1}
   .hometile .hname{font-size:15px;font-weight:800;line-height:1.2}
   .hometile .hsub{font-size:11.5px;color:var(--muted);font-weight:600;line-height:1.35}
-  /* The full-width tile now matches the ones beneath it rather than announcing
-     itself with a gradient, and carries no shadow. It stays rectangular. */
   .hometile.wide{grid-column:1/-1;flex-direction:row;align-items:center;gap:14px;min-height:0;
-                 background:#fff;color:var(--ink);border:1px solid #e6e8f0;box-shadow:none}
-  .hometile.wide .hicon{font-size:30px;color:var(--accent)}
+                 background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;border:0}
+  .hometile.wide .hicon{font-size:30px}
   .hometile.wide .hname{font-size:19px}
-  .hometile.wide .hsub{color:var(--muted)}
+  .hometile.wide .hsub{color:rgba(255,255,255,.9)}
   .hometile .hbadge{position:absolute;top:10px;right:10px;background:#d85b5b;color:#fff;
                     font-size:11px;font-weight:800;min-width:20px;height:20px;border-radius:99px;
                     display:flex;align-items:center;justify-content:center;padding:0 6px}
@@ -1373,9 +1371,7 @@
 
       <p class="menugroup">How they’re doing</p>
       <button class="light" id="btnOverview" onclick="showOverviewPanel()">📊 Overview</button>
-      <button class="light" id="btnProgress" onclick="showProgressPanel()">📖 Progress</button>
-      <!-- Filled in by whichever language packs and decks are loaded. -->
-      <div id="menuLearn"></div>
+      <button class="light" id="btnProgress" onclick="showProgressPanel()">📖 Learn</button>
 
       <p class="menugroup">People</p>
       <button class="light" id="btnFamily" onclick="showAccountPanel()">👨‍👩‍👧 Family members</button>
@@ -1489,7 +1485,7 @@
 
   <div id="progressPanel" class="panel hidden">
     <button class="panelback" onclick="goHome()">← Home</button>
-    <h2>📖 Progress</h2>
+    <h2>📖 Learn</h2>
     <p class="small">What each child has covered and what they can do unaided. Every mark shows who made it.</p>
     <div id="progressBody" style="margin-top:10px"></div>
   </div>
@@ -3426,7 +3422,7 @@ const TIP_CATS = [
   {key:"behaviour", label:"Behaviour"}
 ];
 
-const APP_VERSION = "v100";
+const APP_VERSION = "v101";
 const today = new Date().toISOString().slice(0,10);
 let app = {families:[],currentFamily:null,currentChild:null};
 let categories = [];
@@ -8336,7 +8332,7 @@ function renderParentAdminView(parent){
         ${tile("\ud83d\udd25","Quick points","Everyone on one screen","showQuickPanel()")}
         ${tile("\ud83d\udde3\ufe0f","Review together","Go through the week with them","showReviewPanel()")}
         ${tile("\ud83d\udd14","Requests", pend.length?pend.length+" waiting on you":"Nothing waiting","showRequestsPanel()", pend.length||0)}
-        ${tile("\ud83d\udcd6","Progress","Qur\u2019an and what they can do","showProgressPanel()")}
+        ${tile("\ud83d\udcd6","Learn","Qur\u2019an, Fulfulde and the puzzle decks","showProgressPanel()")}
         ${tile("\ud83d\udcca","Overview","Everyone\u2019s week at a glance","showOverviewPanel()")}
         ${tile("\ud83c\udf81","Rewards","What the points are for","showRewardsPanel()")}
         ${tile("\ud83e\udd1d","The grown-ups","Your own list, and your partner","showGrownupsPanel()", offers.length||0)}
@@ -12278,7 +12274,7 @@ window.FULFULDE_M1_VIDEO = {
      covered/secure, tutor permissions and the milestone bonus for free. */
   const SECTION_IDS=[...new Set(ALL_SETS.map(s=>s.sec))];
   const SUBJECT={
-    subject:"fulfulde", collapsed:true, icon:"\u{1f4d7}", name:"Fulfulde \u2014 Janngu Fulfulde 1",
+    subject:"fulfulde", icon:"\u{1f4d7}", name:"Fulfulde \u2014 Janngu Fulfulde 1",
     strands: SECTION_IDS.map(sid=>{
       const mine=ALL_SETS.filter(s=>s.sec===sid);
       return {
@@ -12290,10 +12286,14 @@ window.FULFULDE_M1_VIDEO = {
       };
     })
   };
-  if(window.CURRICULUM && !window.CURRICULUM.some(s=>s.subject==="fulfulde"))
-    window.CURRICULUM.push(SUBJECT);
-  else if(typeof CURRICULUM!=="undefined" && !CURRICULUM.some(s=>s.subject==="fulfulde"))
-    CURRICULUM.push(SUBJECT);
+  /* Straight after Qur'an: the two language ladders belong together, and the
+     school subjects follow. The puzzle decks add themselves last. */
+  try{
+    if(typeof CURRICULUM!=="undefined" && !CURRICULUM.some(s=>s.subject==="fulfulde")){
+      const at=CURRICULUM.findIndex(s=>s.subject==="quran");
+      at>=0 ? CURRICULUM.splice(at+1, 0, SUBJECT) : CURRICULUM.push(SUBJECT);
+    }
+  }catch(e){}
 
   const objIdFor=set=>{
     const strand=SUBJECT.strands.find(st=>st.id===set.sec.replace(/\./g,'-'));
@@ -12302,67 +12302,74 @@ window.FULFULDE_M1_VIDEO = {
   };
 
   /* ---------- screen ---------- */
+  /* Same template as the puzzle decks: white paper, the app's own ink, one
+     accent. The dark green board came from the earlier Qaida prototype and made
+     this the only screen in the app that went dark. */
   const CSS=`
-  /* The app's own tab bar and panels live at z-index 150-210. An overlay at 60
-     sat underneath them, which is why the Next button was hidden behind the tab
-     bar and why taps landed on app furniture instead of the exercise. */
   body.overlay-open .tabbar{display:none!important}
-  #packScreen{position:fixed;inset:0;z-index:300;background:#0f3b3a;color:#fff;display:flex;
+  #packScreen{position:fixed;inset:0;z-index:300;background:#f7f8fc;color:#243044;display:flex;
     flex-direction:column;font-family:inherit}
   #packScreen.hidden{display:none}
-  .pk-top{display:flex;align-items:center;gap:12px;padding:14px 16px 4px}
-  .pk-x{width:44px;height:44px;border-radius:14px;background:rgba(255,255,255,.14);border:0;
-    color:#fff;font-size:17px;cursor:pointer;flex:none}
-  .pk-beads{display:flex;gap:7px;flex:1;justify-content:center}
-  .pk-bead{width:11px;height:11px;border-radius:99px;background:rgba(255,255,255,.26);transition:.25s}
-  .pk-bead.done{background:#f0b429}.pk-bead.now{background:#fff;transform:scale(1.45)}
-  .pk-task{text-align:center;font-size:15px;font-weight:600;color:#cfe6e3;padding:8px 20px 2px;min-height:24px}
-  .pk-stage{flex:1;display:grid;place-items:center;padding:6px 18px;min-height:0;width:100%;overflow-y:auto}
-  .pk-bottom{padding:8px 18px calc(24px + env(safe-area-inset-bottom))}
-  .pk-next{width:100%;border:0;border-radius:22px;padding:18px;font-size:21px;font-weight:800;
-    background:#f0b429;color:#3d2a00;box-shadow:0 5px 0 #c98f14;cursor:pointer}
-  .pk-next:disabled{background:rgba(255,255,255,.15);color:rgba(255,255,255,.42);box-shadow:none}
-  .pk-card{border-radius:34px;display:grid;place-items:center;position:relative;color:#fff;
-    font-weight:800;box-shadow:0 10px 0 rgba(0,0,0,.18);cursor:pointer;transition:transform .2s}
-  .pk-card:active{transform:scale(.96)}
-  .pk-hero{width:100%;max-width:330px;aspect-ratio:1/1.05;font-size:clamp(74px,25vw,124px)}
-  .pk-pick{aspect-ratio:1/1;font-size:clamp(40px,13vw,64px);border-radius:28px}
+  .pk-top{display:flex;align-items:center;gap:12px;padding:16px 18px 4px;max-width:600px;width:100%;margin:0 auto}
+  .pk-x{width:44px;height:44px;border-radius:14px;background:#eceef6;border:0;color:#5a6478;
+    font-size:17px;cursor:pointer;flex:none}
+  .pk-beads{display:flex;gap:7px;flex:1;justify-content:center;flex-wrap:wrap}
+  .pk-bead{width:9px;height:9px;border-radius:99px;background:#dfe2ee;transition:.25s}
+  .pk-bead.done{background:#5b63d8}
+  .pk-bead.now{background:#243044;transform:scale(1.5)}
+  .pk-task{text-align:center;font-size:14.5px;font-weight:600;color:#6a7086;padding:14px 24px 2px;min-height:24px}
+  .pk-stage{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+    gap:14px;padding:10px 20px 30px;min-height:0;width:100%;max-width:600px;margin:0 auto;overflow-y:auto}
+  .pk-stage>*{flex:0 0 auto;margin-left:auto;margin-right:auto}
+  .pk-bottom{padding:10px 20px calc(26px + env(safe-area-inset-bottom));max-width:600px;width:100%;margin:0 auto}
+  .pk-next{width:100%;border:0;border-radius:18px;padding:17px;font-size:19px;font-weight:700;
+    background:#5b63d8;color:#fff;cursor:pointer}
+  .pk-next:disabled{background:#e7e9f3;color:#a8adc4}
+  .pk-card{background:#fff;border:1px solid #e6e8f0;border-radius:28px;position:relative;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;
+    box-shadow:0 8px 24px rgba(36,48,68,.08);cursor:pointer;text-align:center;color:#243044;
+    transition:transform .18s}
+  .pk-card:active{transform:scale(.97)}
+  .pk-hero{width:100%;max-width:330px;aspect-ratio:1/1.05;font-size:clamp(74px,25vw,124px);
+    font-weight:800;letter-spacing:-.02em}
+  .pk-pick{aspect-ratio:1/1;font-size:clamp(40px,13vw,64px);border-radius:24px;font-weight:800}
   .pk-say{animation:pkpop .45s cubic-bezier(.2,.9,.3,1.4)}
-  @keyframes pkpop{0%{transform:scale(1)}40%{transform:scale(1.15)}100%{transform:scale(1)}}
-  .pk-right{outline:6px solid #7ee08a;outline-offset:4px}
+  @keyframes pkpop{0%{transform:scale(1)}40%{transform:scale(1.12)}100%{transform:scale(1)}}
+  .pk-right{border-color:#8fd6a4;box-shadow:0 0 0 3px #cdefe2}
   .pk-wrong{opacity:.32}
-  .pk-ear{position:absolute;bottom:16px;font-size:26px;opacity:.85}
-  .pk-heard::after{content:'\\2605';position:absolute;top:14px;right:20px;font-size:24px}
+  .pk-ear{position:absolute;bottom:14px;font-size:22px;opacity:.35}
+  .pk-heard::after{content:'\\2605';position:absolute;top:14px;right:20px;font-size:20px;color:#e0b13c}
   .pk-g3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;width:100%;max-width:360px}
   .pk-g2{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;width:100%;max-width:340px}
-  .pk-vow{display:flex;gap:9px;margin-top:18px;justify-content:center}
-  .pk-v{width:56px;height:56px;border-radius:20px;background:rgba(255,255,255,.15);color:#fff;
-    font-size:26px;font-weight:800;display:grid;place-items:center;cursor:pointer;transition:.18s}
-  .pk-v.on{background:#f0b429;color:#3d2a00;transform:scale(1.12)}
-  .pk-slots{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-bottom:20px}
-  .pk-slot{min-width:78px;height:82px;border-radius:22px;border:3px dashed rgba(255,255,255,.35);
-    display:grid;place-items:center;font-size:30px;font-weight:800}
-  .pk-slot.full{border-style:solid;border-color:transparent}
+  .pk-vow{display:flex;gap:9px;margin-top:16px;justify-content:center}
+  .pk-v{width:56px;height:56px;border-radius:18px;background:#eceef6;color:#5a6478;font-size:26px;
+    font-weight:800;display:grid;place-items:center;cursor:pointer;transition:.18s}
+  .pk-v.on{background:#5b63d8;color:#fff;transform:scale(1.1)}
+  .pk-slots{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-bottom:18px}
+  .pk-slot{min-width:78px;height:82px;border-radius:20px;border:3px dashed #d6d9ea;display:grid;
+    place-items:center;font-size:30px;font-weight:800;color:#243044}
+  .pk-slot.full{border-style:solid;border-color:#5b63d8}
   .pk-bank{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
-  .pk-chip{padding:16px 20px;border-radius:22px;font-size:28px;font-weight:800;color:#fff;
-    box-shadow:0 6px 0 rgba(0,0,0,.18);cursor:pointer}
+  .pk-chip{padding:15px 19px;border-radius:18px;font-size:26px;font-weight:800;color:#fff;
+    background:#5b63d8;box-shadow:0 5px 0 #464ead;cursor:pointer}
   .pk-chip.gone{opacity:.25;pointer-events:none}
-  .pk-word{font-size:34px;font-weight:800;text-align:center;margin-top:16px;min-height:42px}
-  .pk-menu{padding:18px 16px 40px;overflow-y:auto}
-  .pk-tile{display:flex;gap:13px;align-items:center;background:rgba(255,255,255,.07);
-    border-radius:22px;padding:15px;margin-bottom:11px;cursor:pointer}
-  .pk-tile .pk-ic{width:52px;height:52px;border-radius:18px;flex:none;display:grid;
-    place-items:center;font-size:24px}
-  .pk-tile h3{font-size:17px;margin:0}
-  .pk-tile p{margin:2px 0 0;font-size:12.5px;color:#a8c8c5;line-height:1.4}
-  .pk-vbox{background:#0a2b2a;border-radius:22px;aspect-ratio:16/9;display:grid;place-items:center;
-    border:2px dashed rgba(255,255,255,.22);margin-bottom:20px;font-size:40px}
-  .pk-vbox iframe{width:100%;height:100%;border:0;border-radius:22px}
-  .pk-win{text-align:center;padding:24px}
-  .pk-star{font-size:88px;animation:pkb .7s cubic-bezier(.2,.9,.3,1.4)}
-  @keyframes pkb{0%{transform:scale(0) rotate(-30deg)}60%{transform:scale(1.2)}100%{transform:scale(1)}}
-  .pk-sm{background:rgba(255,255,255,.14);color:#fff;border:0;border-radius:20px;padding:16px;
-    font-size:17px;font-weight:700;cursor:pointer}
+  .pk-word{font-size:32px;font-weight:800;text-align:center;margin-top:14px;min-height:40px}
+  .pk-menu{padding:8px 18px 40px;align-items:stretch;justify-content:flex-start}
+  .pk-tile{display:flex;gap:13px;align-items:center;background:#fff;border:1px solid #e6e8f0;
+    border-radius:18px;padding:14px;margin-bottom:9px;cursor:pointer;width:100%;
+    box-shadow:0 2px 8px rgba(36,48,68,.05)}
+  .pk-tile .pk-ic{width:46px;height:46px;border-radius:14px;flex:none;display:grid;place-items:center;
+    font-size:19px;font-weight:800;background:#eceef6;color:#5b63d8}
+  .pk-tile h3{font-size:16px;margin:0;font-weight:700}
+  .pk-tile p{margin:2px 0 0;font-size:12px;color:#8a90a6;line-height:1.4}
+  .pk-tile .go{color:#c4c8d8;font-size:19px;font-weight:800}
+  .pk-vbox{background:#eceef6;border-radius:20px;aspect-ratio:16/9;display:grid;place-items:center;
+    border:2px dashed #d6d9ea;margin-bottom:18px;font-size:34px;color:#8a90a6}
+  .pk-vbox iframe{width:100%;height:100%;border:0;border-radius:20px}
+  .pk-win{text-align:center;padding:18px}
+  .pk-star{font-size:76px}
+  .pk-sm{background:#fff;color:#5a6478;border:1px solid #e6e8f0;border-radius:16px;padding:15px;
+    font-size:15.5px;font-weight:650;cursor:pointer;width:100%;margin-top:10px}
   @media (prefers-reduced-motion:reduce){#packScreen *{animation:none!important;transition:none!important}}
   `;
   const style=document.createElement('style'); style.textContent=CSS; document.head.appendChild(style);
@@ -12640,18 +12647,6 @@ window.FULFULDE_M1_VIDEO = {
     $('pkHome').onclick=()=>{ draw(); };
   }
 
-  /* A parent reaches the course from the menu. The card on the Learn screen is
-     for the child; the menu entry is how a grown-up opens it to look. */
-  (function(){
-    const slot=document.getElementById("menuLearn");
-    if(!slot || slot.querySelector("[data-open='openFulfulde']")) return;
-    const b=document.createElement("button");
-    b.className="light"; b.dataset.open="openFulfulde";
-    b.textContent="\u{1f4d7} Janngu Fulfulde";
-    b.onclick=()=>{ if(typeof closeMenu==="function") closeMenu(); openFulfulde(); };
-    slot.appendChild(b);
-  })();
-
   /* ---------- the way in ----------
      Wraps learnScreenHTML rather than editing it, so an app update that changes
      that function does not silently drop the course. */
@@ -12664,11 +12659,11 @@ window.FULFULDE_M1_VIDEO = {
          is why the course was listed twice. */
       if(!window.__learnForChild) return inner(c);
       const done=coveredIds().size;
-      const tile=`<section class="kidhero" style="background:linear-gradient(135deg,#0f3b3a,#17544f);color:#fff;cursor:pointer" onclick="openFulfulde()">
+      const tile=`<section class="kidhero" style="cursor:pointer" onclick="openFulfulde()">
         <div class="kidherorow"><div>
-          <p class="kidhi" style="color:#fff">\u{1f4d7} ${esc(PACK.title)}</p>
-          <p class="kidsub" style="color:#bcd6d3">${SETS.length} of ${ALL_SETS.length} sets ready \u00b7 ${done} practised \u00b7 tap to start</p>
-        </div><div style="font-size:30px">\u203a</div></div></section>`;
+          <p class="kidhi">\u{1f4d7} ${esc(PACK.title)}</p>
+          <p class="kidsub">${SETS.length} of ${ALL_SETS.length} sets ready \u00b7 ${done} practised \u00b7 tap to start</p>
+        </div><div style="font-size:30px;color:#c4c8d8">\u203a</div></div></section>`;
       /* After the app's own content, not before it. The card was pushing the
          teachers card and the legend down the screen, so the Learn page opened
          on a course rather than on the guidance it is meant to open on. */
@@ -12737,7 +12732,7 @@ window.DECK_PICS = {"birthday": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0c
 
   /* the ladder: one objective per topic, no milestone, so nothing pays */
   const SUBJECT={
-    subject:"talktogether", collapsed:true, icon:"\u{1f9e9}", name:"Puzzle decks",
+    subject:"talktogether", icon:"\u{1f9e9}", name:"Puzzle decks",
     strands:[{ id:"topics", name:"Topics",
       blurb:"Eighteen decks of riddles and puzzles to play together. Mark one when you have played it; a grown-up marks it secure once the words come without help.",
       objectives: TOPICS.map(id=>[ALL[id].emoji+" "+ALL[id].title]) }]
@@ -12747,7 +12742,7 @@ window.DECK_PICS = {"birthday": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0c
       CURRICULUM.push(SUBJECT);
   }catch(e){}
 
-  const st=document.createElement("style"); st.textContent="\n:root{--paper:#fdfbf6;--ink:#1d2b32;--soft:#7c8890;--line:#efe9dd;--gold:#e8a33d;--go:#2f8f6f}\n*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}\n#deckScreen{position:fixed;inset:0;z-index:300;background:var(--paper);color:var(--ink);\n display:none;flex-direction:column;user-select:none;\n font-family:system-ui,-apple-system,\"Segoe UI\",sans-serif}\n#deckScreen.on{display:flex}\n#deckScreen .inner{flex:1;display:flex;flex-direction:column;max-width:600px;width:100%;margin:0 auto;min-height:0}\n#deckScreen .top{display:flex;align-items:center;gap:12px;padding:16px 18px 4px}\n#deckScreen .dkx{width:44px;height:44px;border-radius:14px;background:#efe9dd;border:0;color:#5c6b72;font-size:17px;cursor:pointer;flex:none}\n#deckScreen .count{font-size:12px;color:var(--soft);font-weight:600;letter-spacing:.04em}\n#deckScreen .dots{display:flex;gap:6px;flex:1;justify-content:center;flex-wrap:wrap}\n#deckScreen .dot{width:8px;height:8px;border-radius:99px;background:#e2dccf}\n#deckScreen .dot.done{background:var(--gold)}#deckScreen .dot.now{background:var(--ink);transform:scale(1.4)}\n#deckScreen .stage{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;\n gap:14px;padding:12px 18px 24px;min-height:0;overflow-y:auto}\n#deckScreen .stage>*{flex:0 0 auto;margin-left:auto;margin-right:auto}\n#deckScreen .card{width:100%;max-width:360px;background:#fff;border:1px solid var(--line);border-radius:28px;\n padding:24px 22px;box-shadow:0 10px 28px rgba(29,43,50,.09);text-align:center}\n#deckScreen .lab{font-size:11px;letter-spacing:.11em;text-transform:uppercase;color:#a2968a;font-weight:700}\n#deckScreen .clue{font-size:21px;line-height:1.4;font-weight:600;margin:16px 0 0}\n#deckScreen .clue.next{color:var(--soft);font-weight:500;font-size:19px;margin-top:12px}\n#deckScreen .big{font-size:38px;font-weight:700;letter-spacing:-.02em;margin:6px 0 0}\n#deckScreen .disc{width:150px;height:150px;border-radius:50%;background:#fdf0e2;display:grid;place-items:center;\n margin:4px auto 0}\n#deckScreen .disc img{width:66%}\n#deckScreen .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;width:100%;max-width:340px}\n#deckScreen .opt{background:#fff;border:1px solid var(--line);border-radius:22px;padding:14px;cursor:pointer;\n box-shadow:0 6px 18px rgba(29,43,50,.07);transition:transform .15s}\n#deckScreen .opt:active{transform:scale(.97)}\n#deckScreen .opt img{width:64%;max-width:82px}\n#deckScreen .opt.gone{opacity:0;pointer-events:none}\n#deckScreen .opt.small img{width:56%;max-width:64px}\n#deckScreen .opt.chosen{border-color:var(--gold);box-shadow:0 0 0 3px #fbeeda}\n#deckScreen .grid.four{grid-template-columns:repeat(4,1fr);gap:9px;max-width:360px}\n#deckScreen .grid.four .opt{padding:10px;border-radius:18px}\n#deckScreen .inline{margin-top:16px;background:#fdf6ea;border:1px solid #f0e2c8;border-radius:99px;\n padding:9px 16px;font-size:14px;font-weight:600;color:#8a6d33;cursor:pointer}\n#deckScreen .spent{margin-top:16px;font-size:12.5px;color:#b3aa9d}\n#deckScreen .opt.right{border-color:#8fd6a4;box-shadow:0 0 0 3px #d9f2e1}\n#deckScreen .opt.wrong{opacity:.3}\n#deckScreen .bins{display:grid;grid-template-columns:1fr 1fr;gap:10px;width:100%;max-width:360px}\n#deckScreen .bin{background:#fff;border:1px dashed #ddd4c4;border-radius:20px;padding:10px;min-height:120px}\n#deckScreen .bin h4{margin:0 0 8px;font-size:11.5px;color:var(--soft);font-weight:700;line-height:1.35}\n#deckScreen .bin .in{display:flex;flex-wrap:wrap;gap:6px;justify-content:center}\n#deckScreen .tok{width:44px;height:44px;border-radius:14px;background:#fdf0e2;display:grid;place-items:center;cursor:pointer}\n#deckScreen .tok img{width:70%}\n#deckScreen .tok.ok{background:#d9f2e1}#deckScreen .tok.no{background:#fbe0da}\n#deckScreen .tok{touch-action:none;transition:box-shadow .15s,background .15s}\n#deckScreen .tok.picked{box-shadow:0 0 0 3px var(--gold);background:#fdf0e2}\n#deckScreen .tok.dragging{z-index:5;position:relative;box-shadow:0 10px 20px rgba(29,43,50,.25);opacity:.95}\n#deckScreen .bin{transition:background .15s,border-color .15s}\n#deckScreen .bin.over{background:#f4fbf7;border-color:var(--go);border-style:solid}\n#deckScreen .tray{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;max-width:360px}\n#deckScreen .btn{width:100%;max-width:360px;border:0;border-radius:18px;padding:16px;font-size:17px;font-weight:700;\n background:var(--ink);color:#fff;cursor:pointer}\n#deckScreen .btn.ghost{background:#fff;color:var(--soft);border:1px solid var(--line)}\n#deckScreen .btn.go{background:var(--go)}\n#deckScreen .bottom{padding:8px 18px calc(24px + env(safe-area-inset-bottom));display:flex;flex-direction:column;\n gap:10px;align-items:center}\n#deckScreen .note{font-size:12.5px;color:var(--soft);line-height:1.5;text-align:center;max-width:340px}\n#deckScreen .nextup{display:flex;align-items:center;gap:12px;background:#1d2b32;color:#fff;border-radius:20px;padding:15px 16px;margin-bottom:16px;cursor:pointer}\n#deckScreen .nextup .nlab{font-size:10.5px;letter-spacing:.13em;text-transform:uppercase;color:#9db3ba;font-weight:700}\n#deckScreen .nextup .ntitle{font-size:18px;font-weight:700;margin-top:3px}\n#deckScreen .nextup .nwhy{font-size:12px;color:#9db3ba;margin-top:2px}\n#deckScreen .nextup .btn{background:#e8a33d;color:#3d2a00;min-height:44px}\n#deckScreen .win{text-align:center}\n#deckScreen .win .star{font-size:74px}\n@media (prefers-reduced-motion:reduce){#deckScreen *{transition:none!important;animation:none!important}}\n"; document.head.appendChild(st);
+  const st=document.createElement("style"); st.textContent="\n:root{--paper:#fdfbf6;--ink:#1d2b32;--soft:#7c8890;--line:#efe9dd;--gold:#e8a33d;--go:#2f8f6f}\n*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}\n#deckScreen{position:fixed;inset:0;z-index:300;background:var(--paper);color:var(--ink);\n display:none;flex-direction:column;user-select:none;\n font-family:system-ui,-apple-system,\"Segoe UI\",sans-serif}\n#deckScreen.on{display:flex}\n#deckScreen .inner{flex:1;display:flex;flex-direction:column;max-width:600px;width:100%;margin:0 auto;min-height:0}\n#deckScreen .top{display:flex;align-items:center;gap:12px;padding:16px 18px 4px}\n#deckScreen .dkx{width:44px;height:44px;border-radius:14px;background:#efe9dd;border:0;color:#5c6b72;font-size:17px;cursor:pointer;flex:none}\n#deckScreen .count{font-size:12px;color:var(--soft);font-weight:600;letter-spacing:.04em}\n#deckScreen .dots{display:flex;gap:6px;flex:1;justify-content:center;flex-wrap:wrap}\n#deckScreen .dot{width:8px;height:8px;border-radius:99px;background:#e2dccf}\n#deckScreen .dot.done{background:var(--gold)}#deckScreen .dot.now{background:var(--ink);transform:scale(1.4)}\n#deckScreen .stage{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;\n gap:14px;padding:12px 18px 24px;min-height:0;overflow-y:auto}\n#deckScreen .stage>*{flex:0 0 auto;margin-left:auto;margin-right:auto}\n#deckScreen .card{width:100%;max-width:360px;background:#fff;border:1px solid var(--line);border-radius:28px;\n padding:24px 22px;box-shadow:0 10px 28px rgba(29,43,50,.09);text-align:center}\n#deckScreen .lab{font-size:11px;letter-spacing:.11em;text-transform:uppercase;color:#a2968a;font-weight:700}\n#deckScreen .clue{font-size:21px;line-height:1.4;font-weight:600;margin:16px 0 0}\n#deckScreen .clue.next{color:var(--soft);font-weight:500;font-size:19px;margin-top:12px}\n#deckScreen .big{font-size:38px;font-weight:700;letter-spacing:-.02em;margin:6px 0 0}\n#deckScreen .disc{width:150px;height:150px;border-radius:50%;background:#fdf0e2;display:grid;place-items:center;\n margin:4px auto 0}\n#deckScreen .disc img{width:66%}\n#deckScreen .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;width:100%;max-width:340px}\n#deckScreen .opt{background:#fff;border:1px solid var(--line);border-radius:22px;padding:14px;cursor:pointer;\n box-shadow:0 6px 18px rgba(29,43,50,.07);transition:transform .15s}\n#deckScreen .opt:active{transform:scale(.97)}\n#deckScreen .opt img{width:64%;max-width:82px}\n#deckScreen .opt.gone{opacity:0;pointer-events:none}\n#deckScreen .opt.small img{width:56%;max-width:64px}\n#deckScreen .opt.chosen{border-color:var(--gold);box-shadow:0 0 0 3px #fbeeda}\n#deckScreen .grid.four{grid-template-columns:repeat(4,1fr);gap:9px;max-width:360px}\n#deckScreen .grid.four .opt{padding:10px;border-radius:18px}\n#deckScreen .inline{margin-top:16px;background:#fdf6ea;border:1px solid #f0e2c8;border-radius:99px;\n padding:9px 16px;font-size:14px;font-weight:600;color:#8a6d33;cursor:pointer}\n#deckScreen .spent{margin-top:16px;font-size:12.5px;color:#b3aa9d}\n#deckScreen .opt.right{border-color:#8fd6a4;box-shadow:0 0 0 3px #d9f2e1}\n#deckScreen .opt.wrong{opacity:.3}\n#deckScreen .bins{display:grid;grid-template-columns:1fr 1fr;gap:10px;width:100%;max-width:360px}\n#deckScreen .bin{background:#fff;border:1px dashed #ddd4c4;border-radius:20px;padding:10px;min-height:120px}\n#deckScreen .bin h4{margin:0 0 8px;font-size:11.5px;color:var(--soft);font-weight:700;line-height:1.35}\n#deckScreen .bin .in{display:flex;flex-wrap:wrap;gap:6px;justify-content:center}\n#deckScreen .tok{width:44px;height:44px;border-radius:14px;background:#fdf0e2;display:grid;place-items:center;cursor:pointer}\n#deckScreen .tok img{width:70%}\n#deckScreen .tok.ok{background:#d9f2e1}#deckScreen .tok.no{background:#fbe0da}\n#deckScreen .tok{touch-action:none;transition:box-shadow .15s,background .15s}\n#deckScreen .tok.picked{box-shadow:0 0 0 3px var(--gold);background:#fdf0e2}\n#deckScreen .tok.dragging{z-index:5;position:relative;box-shadow:0 10px 20px rgba(29,43,50,.25);opacity:.95}\n#deckScreen .bin{transition:background .15s,border-color .15s}\n#deckScreen .bin.over{background:#f4fbf7;border-color:var(--go);border-style:solid}\n#deckScreen .tray{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;max-width:360px}\n#deckScreen .btn{width:100%;max-width:360px;border:0;border-radius:18px;padding:16px;font-size:17px;font-weight:700;\n background:var(--ink);color:#fff;cursor:pointer}\n#deckScreen .btn.ghost{background:#fff;color:var(--soft);border:1px solid var(--line)}\n#deckScreen .btn.go{background:var(--go)}\n#deckScreen .bottom{padding:8px 18px calc(24px + env(safe-area-inset-bottom));display:flex;flex-direction:column;\n gap:10px;align-items:center}\n#deckScreen .note{font-size:12.5px;color:var(--soft);line-height:1.5;text-align:center;max-width:340px}\n#deckScreen .nextup{display:flex;align-items:center;gap:12px;background:#1d2b32;color:#fff;border-radius:20px;padding:15px 16px;margin-bottom:16px;cursor:pointer}\n#deckScreen .nextup .nlab{font-size:10.5px;letter-spacing:.13em;text-transform:uppercase;color:#9db3ba;font-weight:700}\n#deckScreen .nextup .ntitle{font-size:18px;font-weight:700;margin-top:3px}\n#deckScreen .nextup .nwhy{font-size:12px;color:#9db3ba;margin-top:2px}\n#deckScreen .nextup .btn{background:#e8a33d;color:#3d2a00;min-height:44px}\n#deckScreen .tile{display:flex;gap:13px;align-items:center;background:#fff;border:1px solid var(--line);border-radius:18px;padding:13px 14px;margin-bottom:9px;cursor:pointer;box-shadow:0 2px 8px rgba(29,43,50,.05);transition:transform .12s,border-color .15s}\n#deckScreen .tile:active{transform:scale(.99)}\n#deckScreen .tile .em{width:46px;height:46px;border-radius:14px;flex:none;display:grid;place-items:center;font-size:23px;background:#fdf0e2}\n#deckScreen .tile h3{margin:0;font-size:16px;font-weight:700}\n#deckScreen .tile p{margin:2px 0 0;font-size:12px;color:var(--soft);line-height:1.4}\n#deckScreen .tile .go{color:#cfc7b8;font-size:20px;font-weight:800;flex:none}\n#deckScreen .state{font-size:11.5px;font-weight:800;padding:6px 10px;border-radius:99px;white-space:nowrap;flex:none}\n#deckScreen .state.sec{background:#cdefe2;color:#0c6b4f}\n#deckScreen .state.cov{background:#dbe4ff;color:#2f3a9c}\n#deckScreen .tile.done{border-color:#bfe6d6}\n#deckScreen .credit{font-size:10.5px;color:#b3aa9d;line-height:1.5;margin-top:16px}\n#deckScreen .win{text-align:center}\n#deckScreen .win .star{font-size:74px}\n@media (prefers-reduced-motion:reduce){#deckScreen *{transition:none!important;animation:none!important}}\n"; document.head.appendChild(st);
 
   const el=document.createElement("div");
   el.id="deckScreen";
@@ -13125,10 +13120,11 @@ function done(){
         <div class="tile" data-i="${i}">
           <div class="em">${ALL[id].emoji}</div>
           <div style="flex:1;min-width:0"><h3>${esc(ALL[id].title)}</h3>
-            <p>${ALL[id].cards.length} puzzles${
-              statusOf(i)==="secure" ? " \u00b7 secure \u2605"
-              : statusOf(i) ? " \u00b7 played \u2713" : ""}</p></div>
-          <div class="go">\u203a</div></div>`).join("")}
+            <p>${ALL[id].cards.length} puzzles</p></div>
+          ${statusOf(i)==="secure"
+            ? `<span class="state sec">\u2713 Secure</span>`
+            : statusOf(i) ? `<span class="state cov">\u25cf Played</span>`
+            : `<span class="go">\u203a</span>`}</div>`).join("")}
       <p class="credit">Symbols: OpenMoji (CC BY-SA 4.0) and Mulberry Symbols,
         copyright 2018\u20132026 Steve Lee (CC BY-SA 4.0).</p></div>`;
     Array.prototype.forEach.call($("dkStage").querySelectorAll(".tile"),
@@ -13153,18 +13149,6 @@ function done(){
   window.openDecks=open;
   const back=$("dkBack");
   if(back) back.onclick=()=>{ if(DECK.length){ menu(); } else close(); };
-
-  /* A parent reaches the decks from the menu. The card on the Learn screen is
-     for the child; this is how a grown-up opens it to look. */
-  (function(){
-    const slot=document.getElementById("menuLearn");
-    if(!slot || (slot.querySelector && slot.querySelector("[data-open='openDecks']"))) return;
-    const b=document.createElement("button");
-    b.className="light"; b.dataset.open="openDecks";
-    b.textContent="\u{1f9e9} Puzzle decks";
-    b.onclick=()=>{ if(typeof closeMenu==="function") closeMenu(); open(); };
-    slot.appendChild(b);
-  })();
 
   if(typeof learnScreenHTML==="function"){
     const inner=learnScreenHTML;
@@ -13959,60 +13943,62 @@ window.GROWNUP_DECKS = [
   }
 
   const CSS=`
-  #gdScreen{position:fixed;inset:0;z-index:301;background:#12161d;color:#eef1f5;display:none;
+  #gdScreen{position:fixed;inset:0;z-index:301;background:#f7f8fc;color:#243044;display:none;
     flex-direction:column;font-family:inherit}
   #gdScreen.on{display:flex}
   #gdScreen .inner{flex:1;display:flex;flex-direction:column;max-width:600px;width:100%;
     margin:0 auto;min-height:0}
   .gd-top{display:flex;align-items:center;gap:12px;padding:16px 18px 4px}
-  .gd-x{width:44px;height:44px;border-radius:12px;background:rgba(255,255,255,.1);border:0;
-    color:#eef1f5;font-size:16px;cursor:pointer;flex:none}
-  .gd-count{font-size:12px;color:#8d9aa8;font-weight:600;letter-spacing:.04em}
+  .gd-x{width:44px;height:44px;border-radius:14px;background:#eceef6;border:0;
+    color:#5a6478;font-size:16px;cursor:pointer;flex:none}
+  .gd-count{font-size:12px;color:#8a90a6;font-weight:600;letter-spacing:.04em}
   .gd-dots{display:flex;gap:6px;flex:1;justify-content:center;flex-wrap:wrap}
-  .gd-dot{width:7px;height:7px;border-radius:99px;background:rgba(255,255,255,.18)}
-  .gd-dot.done{background:#c9a227}.gd-dot.now{background:#fff;transform:scale(1.5)}
+  .gd-dot{width:7px;height:7px;border-radius:99px;background:#dfe2ee}
+  .gd-dot.done{background:#5b63d8}.gd-dot.now{background:#243044;transform:scale(1.5)}
   .gd-stage{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
     gap:14px;padding:14px 18px 20px;min-height:0;overflow-y:auto}
   .gd-stage>*{flex:0 0 auto;margin-left:auto;margin-right:auto}
-  .gd-card{width:100%;max-width:400px;background:#1b212b;border:1px solid #2a3340;border-radius:22px;
-    padding:24px 22px;box-shadow:0 14px 34px rgba(0,0,0,.35)}
-  .gd-lab{font-size:11px;letter-spacing:.13em;text-transform:uppercase;color:#c9a227;font-weight:700}
+  .gd-card{width:100%;max-width:400px;background:#fff;border:1px solid #e6e8f0;border-radius:22px;
+    padding:24px 22px;box-shadow:0 8px 24px rgba(36,48,68,.08)}
+  .gd-lab{font-size:11px;letter-spacing:.13em;text-transform:uppercase;color:#8a6d33;font-weight:700}
   .gd-q{font-size:19px;line-height:1.5;margin:14px 0 0;font-weight:500}
   .gd-hint{font-size:15px;line-height:1.55;margin:16px 0 0;padding-top:14px;
-    border-top:1px solid #2a3340;color:#9fb0c0}
-  .gd-hint b{color:#c9a227;font-weight:700;display:block;font-size:11px;letter-spacing:.13em;
+    border-top:1px solid #eceef6;color:#6a7086}
+  .gd-hint b{color:#8a6d33;font-weight:700;display:block;font-size:11px;letter-spacing:.13em;
     text-transform:uppercase;margin-bottom:6px}
   .gd-a{font-size:17px;line-height:1.55;margin:16px 0 0;padding-top:14px;
-    border-top:1px solid #2a3340;color:#eef1f5;font-weight:500}
-  .gd-a b{color:#7ad4a0;font-weight:700;display:block;font-size:11px;letter-spacing:.13em;
+    border-top:1px solid #eceef6;color:#243044;font-weight:500}
+  .gd-a b{color:#0c6b4f;font-weight:700;display:block;font-size:11px;letter-spacing:.13em;
     text-transform:uppercase;margin-bottom:6px}
-  .gd-note{font-size:13.5px;line-height:1.55;margin:12px 0 0;color:#8d9aa8;font-style:italic}
-  .gd-inline{margin-top:18px;background:#242c38;border:1px solid #34404f;border-radius:99px;
-    padding:9px 16px;font-size:13.5px;font-weight:600;color:#c9a227;cursor:pointer}
+  .gd-note{font-size:13.5px;line-height:1.55;margin:12px 0 0;color:#8a90a6;font-style:italic}
+  .gd-inline{margin-top:18px;background:#fdf6ea;border:1px solid #f0e2c8;border-radius:99px;
+    padding:9px 16px;font-size:13.5px;font-weight:600;color:#8a6d33;cursor:pointer}
   .gd-items{display:flex;flex-direction:column;gap:8px;width:100%;max-width:400px}
-  .gd-item{display:flex;align-items:center;gap:11px;min-height:48px;background:#1b212b;border:1px solid #2a3340;
+  .gd-item{display:flex;align-items:center;gap:11px;min-height:48px;background:#fff;border:1px solid #e6e8f0;
     border-radius:14px;padding:13px 15px;cursor:pointer;font-size:16px}
-  .gd-item .n{width:24px;height:24px;border-radius:8px;background:#2a3340;color:#8d9aa8;
+  .gd-item .n{width:24px;height:24px;border-radius:8px;background:#eceef6;color:#8a90a6;
     display:grid;place-items:center;font-size:12px;font-weight:700;flex:none}
-  .gd-item.picked{border-color:#c9a227}
-  .gd-item.picked .n{background:#c9a227;color:#241d00}
+  .gd-item.picked{border-color:#5b63d8}
+  .gd-item.picked .n{background:#5b63d8;color:#fff}
   .gd-btn{width:100%;max-width:400px;border:0;border-radius:16px;padding:15px;font-size:16px;
-    font-weight:700;background:#eef1f5;color:#12161d;cursor:pointer}
-  .gd-btn.ghost{background:transparent;color:#9fb0c0;border:1px solid #2a3340}
+    font-weight:700;background:#5b63d8;color:#fff;cursor:pointer}
+  .gd-btn.ghost{background:#fff;color:#5a6478;border:1px solid #e6e8f0}
   .gd-bottom{padding:8px 18px calc(22px + env(safe-area-inset-bottom));display:flex;
     flex-direction:column;gap:9px;align-items:center}
   @media (prefers-reduced-motion:reduce){#gdScreen *{transition:none!important;animation:none!important}}
-  .gd-tile{display:flex;gap:13px;align-items:center;background:#1b212b;border:1px solid #2a3340;
+  .gd-tile{display:flex;gap:13px;align-items:center;background:#fff;border:1px solid #e6e8f0;
     border-radius:18px;padding:15px;margin-bottom:9px;cursor:pointer;width:100%}
-  .gd-tile .lvl{width:34px;height:34px;border-radius:11px;background:#2a3340;color:#c9a227;
+  .gd-tile .lvl{width:34px;height:34px;border-radius:11px;background:#eceef6;color:#5b63d8;
     display:grid;place-items:center;font-weight:800;flex:none;font-size:14px}
-  .gd-tile.up{border-color:#c9a227}
-  .gd-tile .upnote{color:#c9a227;font-weight:700;font-size:11.5px;
+  .gd-tile.up{border-color:#5b63d8}
+  .gd-tile .upnote{color:#5b63d8;font-weight:700;font-size:11.5px;
     letter-spacing:.1em;text-transform:uppercase;margin-top:6px}
+  .gd-state{font-size:11.5px;font-weight:800;padding:6px 10px;border-radius:99px;
+    background:#cdefe2;color:#0c6b4f;white-space:nowrap;flex:none}
   .gd-tile h3{margin:0;font-size:16.5px}
-  .gd-tile p{margin:3px 0 0;font-size:12.5px;color:#8d9aa8;line-height:1.45}
-  .gd-open{background:#171d25;border:1px solid #2a3340;border-radius:14px;padding:12px 14px;
-    font-size:12.5px;color:#8d9aa8;line-height:1.5;margin-top:12px}
+  .gd-tile p{margin:3px 0 0;font-size:12.5px;color:#8a90a6;line-height:1.45}
+  .gd-open{background:#fff;border:1px solid #e6e8f0;border-radius:14px;padding:12px 14px;
+    font-size:12.5px;color:#8a90a6;line-height:1.5;margin-top:12px}
   `;
   const st=document.createElement("style"); st.textContent=CSS; document.head.appendChild(st);
 
@@ -14071,7 +14057,7 @@ window.GROWNUP_DECKS = [
     if(nextIx<0) nextIx=-1;
     $("gdStage").innerHTML=`<div style="width:100%">
       <div style="font-size:22px;font-weight:700;margin:2px 0 2px">Puzzle decks</div>
-      <div style="font-size:13px;color:#8d9aa8;margin-bottom:16px">
+      <div style="font-size:13px;color:#8a90a6;margin-bottom:16px">
         Forty puzzles across four decks, and they get harder. One of you reads;
         nobody scores anything.</div>
       ${DECKS.map((d,i)=>`
@@ -14080,7 +14066,8 @@ window.GROWNUP_DECKS = [
           <div style="flex:1;min-width:0"><h3>${esc(d.title)}</h3>
             <p>${esc(d.blurb)}</p>
             ${i===nextIx?`<p class="upnote">Start here</p>`:""}</div>
-          <div style="color:#4a5666;font-weight:800">\u203a</div></div>`).join("")}
+          ${done.has(d.id) ? `<span class="gd-state">\u2713 Played</span>`
+                           : `<span style="color:#c4c8d8;font-weight:800">\u203a</span>`}</div>`).join("")}
       <div class="gd-open">On the lateral puzzles, answer only yes or no while
         they ask questions. It takes longer and it is much better.</div></div>`;
     Array.prototype.forEach.call($("gdStage").querySelectorAll(".gd-tile"),
@@ -14189,9 +14176,9 @@ window.GROWNUP_DECKS = [
     const nextDeck=DECKS[i+1];
     $("gdCount").textContent=""; $("gdDots").innerHTML="";
     $("gdStage").innerHTML=`<div class="gd-card" style="text-align:center">
-      <div style="font-size:56px">\u265f</div>
+      <div style="font-size:56px">\u2b50</div>
       <div style="font-size:22px;font-weight:700;margin:8px 0 6px">${esc(deck.title)} \u2014 done</div>
-      <p style="color:#8d9aa8;font-size:14px;line-height:1.55;margin:0">
+      <p style="color:#6a7086;font-size:14px;line-height:1.55;margin:0">
         ${nextDeck ? esc(nextDeck.title)+" is harder." : "That was the last deck. Nothing left to unlock \u2014 it was never that kind of game."}</p>
     </div>`;
     $("gdBottom").innerHTML="";
