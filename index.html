@@ -1547,7 +1547,7 @@
       <p class="small" id="menuWho" style="margin:0 0 2px;padding:0 4px"></p>
 
       <p class="menugroup">Today</p>
-      <button class="light" id="btnQuickMenu" onclick="showQuickPanel()">🔥 Quick points</button>
+      <button class="light" id="btnQuickMenu" onclick="showQuickPanel()">🔥 Everyone at once</button>
       <button class="light" id="btnRequests" onclick="showRequestsPanel()">🔔 Requests</button>
       <button class="light" id="btnTasks" onclick="showNotesPanel()">📌 The note</button>
       <button class="light" id="btnReviewMenu" onclick="showReviewPanel()">🗣️ Review together</button>
@@ -1705,8 +1705,8 @@
 
   <div id="quickPanel" class="panel hidden">
     <button class="panelback" onclick="goHome()">← Home</button>
-    <h2>🔥 Quick points</h2>
-    <p class="small">Everyone on one screen. Tap and it’s recorded — no need to open anyone’s card.</p>
+    <h2>🔥 Everyone at once</h2>
+    <p class="small">For catching up on the whole family in one pass — usually at the end of the week. To award one child, open them from Give points instead.</p>
     <p class="small">A note is attached to the next thing you tap, then clears. It matters more than the number.</p>
     <div id="quickBody" style="margin-top:14px;padding-bottom:76px"></div>
     <!-- Pinned to the bottom: by the time you reach the fourth child, a note box
@@ -1808,9 +1808,6 @@
     <button class="primary" style="width:auto;padding:7px 14px;font-size:13px" onclick="undoLastDelete()">↶ Undo</button>
     <button class="light" style="width:auto;padding:7px 12px;font-size:13px" onclick="dismissUndo()">Dismiss</button>
   </span>
-</div>
-<div id="awardNoteWrap" class="notebox hidden">
-  <input id="awardNote" placeholder="What did you notice? (optional — they’ll read this)">
 </div>
 <div id="coachNudge"></div>
 <!-- One slot. Five cards used to stand between a parent and the directory that
@@ -3739,7 +3736,7 @@ const TIP_CATS = [
   {key:"deen", label:"Deen"}
 ];
 
-const APP_VERSION = "v120";
+const APP_VERSION = "v121";
 const today = new Date().toISOString().slice(0,10);
 let app = {families:[],currentFamily:null,currentChild:null};
 let categories = [];
@@ -4683,6 +4680,9 @@ function renderLearnHost(){
    "Say what it was for, out loud" was already the advice; this writes it down.
    A feed that says "Use kind words +2" is a scoreboard. One that says what they
    actually did is the child being noticed, and it is the thing they re-read. */
+/* Kept outside the DOM so a re-render cannot lose what a parent is halfway
+   through typing. */
+let __awardNote = "";
 function takeAwardNote(){
   const ids=["awardNote","quickNote"];
   for(const id of ids){
@@ -4690,6 +4690,7 @@ function takeAwardNote(){
     if(el && el.value.trim()){
       const v=el.value.trim();
       el.value="";
+      if(id==="awardNote") __awardNote="";
       return v;
     }
   }
@@ -4879,7 +4880,7 @@ function renderReviewPanel(){
        <h3>\u{1f64b} Anything I missed?</h3>
        <p>Ask them now. This is the moment for it \u2014 not when you\u2019re awarding.
           If they\u2019re right, add it while you\u2019re sitting together.</p>
-       <button class="primary" onclick="showQuickPanel()">\ud83d\udd25 Add something now</button>
+       <button class="primary" onclick="showQuickPanel()">\ud83d\udd25 Award everyone at once</button>
      </section>`;
 }
 
@@ -8501,8 +8502,6 @@ function render(){
   showVersion();
   renderFamilyCover();
   renderFab();
-  const anw=document.getElementById("awardNoteWrap");
-  if(anw) anw.classList.toggle("hidden", !(isParentSession() && viewChildId && !editMode && !screenNow));
   const mf=document.getElementById("menuFab");
   if(mf){
     // Children get the same fixed button, and on every tab rather than only at
@@ -8648,13 +8647,19 @@ function render(){
         <button class="${tab==="spend"?"on":""}" onclick="setNoticeTab('spend')">\ud83c\udf81 What it buys</button>
       </div>
     </div>`);
-    /* The note was in a box near the top of the page, a long way from the tile
-       you tap. It types the sentence that goes on the award, so it sits with
-       the list it describes. */
-    const nb=document.getElementById("awardNoteWrap");
+    /* Rendered here as markup rather than moved here as a node. It used to be
+       an element appended into #cards, and the next render sets cards.innerHTML,
+       which deleted it from the document \u2014 so the note field survived one
+       paint and then disappeared until a reload. */
     const nh=document.getElementById("noticeHead");
-    if(nb && nh && tab==="earn" && nb.parentElement!==nh) nh.appendChild(nb);
-    if(nb) nb.classList.toggle("hidden", tab!=="earn");
+    if(nh && tab==="earn"){
+      nh.insertAdjacentHTML("beforeend",
+        `<div class="notebox">
+           <input id="awardNote" maxlength="120" value="${escapeHtml(__awardNote)}"
+             oninput="__awardNote=this.value"
+             placeholder="What did you notice? (optional \u2014 they\u2019ll read this)">
+         </div>`);
+    }
 
     if(tab==="spend"){
       cards.insertAdjacentHTML("beforeend",
@@ -8823,7 +8828,6 @@ function renderParentAdminView(parent){
               ? kids.length+" child"+(kids.length===1?"":"ren")+" \u00b7 "+weekTotal+" points this week"
               : "Add a child to get started"}</span></span>
         </button>
-        ${tile("\ud83d\udd25","Quick points","Everyone on one screen","showQuickPanel()")}
         ${tile("\ud83d\udccc","The note","What you\u2019ve asked of them today","showNotesPanel()")}
         ${tile("\ud83d\udd14","Requests", pend.length?pend.length+" waiting on you":"Nothing waiting","showRequestsPanel()", pend.length||0)}
       </div>
