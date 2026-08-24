@@ -849,7 +849,12 @@
   .potnote{margin:10px 2px 0;font-size:12px;font-weight:600;color:#8a90a6;line-height:1.45}
 
   /* ---- one idea ---- */
-  .idea{display:flex;align-items:center;gap:13px;padding:14px}
+  /* The flex used to sit on the SECTION while renderKidBoost wrote the parts
+     into a DIV inside it, so nothing was ever a flex item and the glyph,
+     sentence, pill and reroll button stacked in a column. The row lives on
+     the list itself now, which is the element that actually holds them. */
+  .idea{padding:14px}
+  #kidBoostList{display:flex;align-items:center;gap:13px}
   .ideaglyph{flex:none;width:42px;height:42px;border-radius:14px;background:#fbeccb;
     display:flex;align-items:center;justify-content:center;font-size:20px}
   .ideamain{flex:1;min-width:0}
@@ -2500,6 +2505,12 @@
          screen and the To spend pot show. -->
     <div id="kidQuickBuy"></div>
 
+    <!-- Whether to show the champion's photo. It was buried at the foot of My
+         points, three screens from the floating frame it controls - so the one
+         child who might want to turn it on never found the switch. The thing
+         it governs is on THIS screen, so the switch is too. -->
+    <div id="championToggleRow"></div>
+
     <!-- What was asked of them. Below the prayers deliberately - these are
          jobs a grown-up put on the list, which is a different kind of thing. -->
     <div id="kidNoteHost"></div>
@@ -2610,7 +2621,6 @@
     </section>
 
     <p class="kidfooter">Only Mum and Dad can give points — keep doing kind things and they'll notice! 💛</p>
-    <div id="championToggleRow"></div>
     <div id="kidGraphWrap" class="graphcard"></div>
     <!-- Kept so the render code that writes the prayer board still has a home;
          on this screen it is written to and never shown. -->
@@ -4555,7 +4565,7 @@ const TIP_CATS = [
   {key:"deen", label:"Deen"}
 ];
 
-const APP_VERSION = "v161";
+const APP_VERSION = "v162";
 const today = new Date().toISOString().slice(0,10);
 let app = {families:[],currentFamily:null,currentChild:null};
 let categories = [];
@@ -11121,12 +11131,12 @@ function streakFor(child){
 function kidTips(child){
   const tips=[];
   const weekDates=getCurrentWeekDates();
-  const balance=availableFor(child);
-  // Closest thing they could actually get — the strongest motivator there is.
-  const next=app.rewards.filter(r=>r.points>balance).sort((a,b)=>a.points-b.points)[0];
-  if(next) tips.push({icon:"\ud83c\udfaf", text:"Only "+(next.points-balance)+" more point"+((next.points-balance)===1?"":"s")+" until \u201c"+next.name+"\u201d", badge:next.points+" pts"});
-  const nextGame=app.gameNightActivities.filter(g=>g.points>balance).sort((a,b)=>a.points-b.points)[0];
-  if(nextGame) tips.push({icon:"\ud83c\udfb2", text:"Only "+(nextGame.points-balance)+" more points until \u201c"+nextGame.name+"\u201d", badge:nextGame.points+" pts"});
+  /* "Only 31 more points until a packet of crisps" used to be the first tip
+     here, which is why the card opened on it. It is not an idea - it is the
+     shop, on the wrong screen, telling a child what they cannot yet have.
+     Every tip is now something they could go and DO in the next ten minutes.
+     What their points can reach lives on Rewards and in the To spend pot,
+     both one tap away. */
   // Anything untouched this week — the areas worth a nudge.
   categories.map(cat=>{
     let sum=0;
@@ -11177,10 +11187,12 @@ function renderKidBoost(){
      with a button for another is the same feature at a tenth of the height,
      and the child asks for the next one rather than being handed a to-do. */
   const t=tips[kidTipOffset % tips.length];
+  /* Gold pill, because every badge on this card is now points EARNED rather
+     than a price - the two used to be the same grey pill on the same row. */
   wrap.innerHTML = `
     <span class="ideaglyph">${t.icon}</span>
     <span class="ideamain"><span class="ideatext">${escapeHtml(t.text)}</span>
-      ${t.badge?`<span class="ideapts"><span class="amount">${escapeHtml(t.badge)}</span></span>`:""}</span>
+      ${t.badge?`<span class="ideapts"><span class="amount earned">${escapeHtml(t.badge)}</span></span>`:""}</span>
     <button class="ideanext" onclick="nextKidTips()" aria-label="Another idea">\u21bb</button>`;
 }
 let kidShowAllFeed=false;
@@ -11688,10 +11700,18 @@ function potsHTML(child){
   const spend=availableFor(child);
   const bank=vaultAvailable(child);
   const give=givingPot();
+  /* The word form was wrong here. "Some" tells a child nothing they can act
+     on: it cannot be compared with a price, it cannot be watched going up,
+     and two pots both reading "Some" look identical when one holds four times
+     the other. A numeral is a picture too, and it is the same picture the
+     price tags use - so a child who cannot yet read 171 still learns that the
+     number on the pot and the number on the crisps are the same kind of thing.
+     The figure whenever there is one; "Empty" only at nought, which is the one
+     state a word says better than a nought does. */
   const pot=(cls, glyph, value, name, go) =>
     `<button class="c-act pot ${cls}${value>0?"":" dim"}" onclick="${go}">
        <span class="potglyph" aria-hidden="true">${glyph}</span>
-       <span class="potfig ${nums?"figure":"potword"}">${nums?value:potWord(value)}</span>
+       <span class="potfig ${value>0?"figure":"potword"}">${value>0?value:"Empty"}</span>
        <span class="potname">${name}</span>
      </button>`;
   return pot("spend","\ud83c\udf81", spend, "To spend", "showScreen('kidSpendScreen')")
