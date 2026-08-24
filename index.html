@@ -3818,7 +3818,7 @@ const TIP_CATS = [
   {key:"deen", label:"Deen"}
 ];
 
-const APP_VERSION = "v133";
+const APP_VERSION = "v134";
 const today = new Date().toISOString().slice(0,10);
 let app = {families:[],currentFamily:null,currentChild:null};
 let categories = [];
@@ -5528,6 +5528,7 @@ function renderTutorView(me){
         <p class="kidsub">${escapeHtml(relationLabel(me))}</p>
       </div></div>
     </section>
+    ${(typeof askingBoardHTML==="function") ? askingBoardHTML() : ""}
     <section class="kidcard teal">
       <h2>\u{1f4da} After the lesson</h2>
       <p class="lede">Record how it went. Up to ${TUTOR_MAX_PER_AWARD} points, once a day each \u2014 their parents see everything you record.</p>
@@ -6294,6 +6295,8 @@ function kidViewOpen(){
 function openAnyMenu(){
   /* Inside a panel this button is the way out, not a way deeper in. */
   if(screenNow && !kidViewOpen()){ goHome(); return; }
+  /* A helper has no menu to open, so the button only ever means "close". */
+  if(isFamilySession()) return;
   if(kidViewOpen()) toggleKidMenu(); else toggleMenu();
 }
 function toggleKidMenu(){
@@ -8640,7 +8643,10 @@ function render(){
     // Children get the same fixed button, and on every tab rather than only at
     // home, because the way back to House rules or Sign out has to exist there.
     const kidOn = kidViewOpen();
-    const parentOn = isParentSession() && !editMode;
+    /* A tutor is a helper, and helpers never had the floating button. Now that
+       they can open a panel, they need the way out of it too. */
+    const helperOnPanel = isFamilySession() && !!screenNow;
+    const parentOn = (isParentSession() && !editMode) || helperOnPanel;
     mf.classList.toggle("hidden", !(ready && (parentOn || kidOn)));
     const sheet=document.getElementById(kidOn ? "kidMenuSheet" : "menuSheet");
     const open = !!sheet && !sheet.classList.contains("hidden");
@@ -16166,6 +16172,19 @@ window.GROWNUP_DECKS = [
     border-radius:14px;padding:11px 13px}
   .ntpastrow span{flex:1;min-width:0;font-size:14px;font-weight:700;color:#5c6479;line-height:1.35}
   .ntpastrow em{flex:none;font-style:normal;font-size:11.5px;font-weight:700;color:#8a90a6}
+  .abboard{display:grid;gap:8px;margin-top:12px}
+  .abrow{display:flex;align-items:center;gap:12px;width:100%;background:#fff;border:1px solid #f0e2bd;
+    border-radius:16px;padding:12px 13px;cursor:pointer;text-align:left;min-height:60px}
+  .abrow:active{transform:scale(.99)}
+  .abav img,.abav .avatar-placeholder{width:40px;height:40px;border-radius:50%;object-fit:cover;
+    flex:none;display:flex;align-items:center;justify-content:center;font-size:18px;background:#e4e6f5}
+  .abmain{flex:1;min-width:0}
+  .abname{display:block;font-size:15.5px;font-weight:800;color:#5a3f04;line-height:1.25}
+  .abwhat{display:block;font-size:12.5px;font-weight:600;color:#8a6a1c;line-height:1.4;margin-top:2px;
+    overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+  .abcount{flex:none;font-size:14px;font-weight:800;color:#8a6a1c;background:#fff6e4;
+    border-radius:99px;padding:6px 11px}
+  .abcount.all{background:#e3f6ef;color:#1c8a6c}
   .ntdiag{white-space:pre-wrap;word-break:break-word;background:#1f2733;color:#dfe6f2;
     border-radius:14px;padding:13px;font-size:12px;line-height:1.6;margin:10px 0 0;
     font-family:ui-monospace,Menlo,monospace}
@@ -16517,9 +16536,11 @@ window.GROWNUP_DECKS = [
     if(busy && busySince && Date.now()-busySince > 12000) working(false);
     const m=me();
     if(!grown(m)){ body.innerHTML='<p class="small">Only a grown-up can write these.</p>'; return; }
-    const f=(typeof currentFamily==="function") ? currentFamily() : null;
-    const kids=(f?f.children:[]).filter(c=>typeof isChildRole==="function" && isChildRole(c));
-    if(!kids.length){ body.innerHTML='<p class="small">No children added yet.</p>'; return; }
+    const kids=askableChildren();
+    if(!kids.length){ body.innerHTML='<p class="small">'
+      + ((typeof isTutorRole==="function" && isTutorRole(m))
+          ? "No children have been assigned to you yet. A parent chooses who you work with."
+          : "No children added yet.") + '</p>'; return; }
     if(!pickChild || !kids.some(c=>c.id===pickChild)){
       const cur=(typeof currentChild==="function") ? currentChild() : null;
       pickChild=(cur && kids.some(c=>c.id===cur.id)) ? cur.id : kids[0].id;
@@ -16656,6 +16677,50 @@ window.GROWNUP_DECKS = [
     const box=$("ntDiag");
     if(box){ box.textContent=text; box.classList.remove("hidden"); }
     try{ if(navigator.clipboard) navigator.clipboard.writeText(text); }catch(e){}
+  };
+
+  /* A tutor sees only the children assigned to them \u2014 in a class of eight,
+     knowing who was set what is the whole job. */
+  function askableChildren(){
+    const f=(typeof currentFamily==="function") ? currentFamily() : null;
+    let kids=(f?f.children:[]).filter(c=>typeof isChildRole==="function" && isChildRole(c));
+    const m=me();
+    if(m && typeof isTutorRole==="function" && isTutorRole(m) &&
+       typeof assignedChildIds==="function"){
+      const ids=assignedChildIds(m);
+      kids=kids.filter(c=>ids.indexOf(c.id)>=0);
+    }
+    return kids;
+  }
+  window.askableChildren = askableChildren;
+
+  /* Who was asked what, across the whole group, on one screen. */
+  window.askingBoardHTML = function(){
+    const kids=askableChildren();
+    if(!kids.length) return "";
+    const rows=kids.map(c=>{
+      const nt=openNoteFor(c.id);
+      const items=nt ? nt.items : [];
+      const done=items.filter(i=>i.done).length;
+      return `<button class="abrow" onclick="ntPickChild('${c.id}');showNotesPanel()">
+        <span class="abav">${c.photo?`<img src="${c.photo}" alt="">`
+          :'<span class="avatar-placeholder">\ud83d\udc64</span>'}</span>
+        <span class="abmain">
+          <span class="abname">${esc(c.name)}</span>
+          <span class="abwhat">${items.length
+            ? items.map(i=>(i.done?"\u2713 ":"")+esc(i.text)).join(" \u00b7 ")
+            : "Nothing set"}</span>
+        </span>
+        <span class="abcount ${items.length && done===items.length ? "all" : ""}">${
+          items.length ? done+"/"+items.length : "\u2014"}</span>
+      </button>`;
+    }).join("");
+    return `<section class="kidcard" style="background:#fffaef;border-color:#f0e2bd">
+      <h2>\u{1f4cc} Who was asked what</h2>
+      <p class="lede">One list each. Tap a name to set or change it \u2014 they see it
+        next time they open the app.</p>
+      <div class="abboard">${rows}</div>
+    </section>`;
   };
 
   window.showNotesPanel = function(){
