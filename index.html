@@ -673,6 +673,21 @@
   .grid #attention:empty{display:none}
   .homegrid+.attncard,.homegrid+.coach,.homegrid+.rcard{margin-top:14px}
   .attncard+.homegrid,.coach+.homegrid,.rcard+.homegrid{margin-top:14px}
+  /* A row you flick, with the scrollbar hidden and snap points so a card
+     always lands square rather than half off the edge. */
+  .shelf{margin:0 -16px}
+  .shelfrow{display:flex;gap:11px;overflow-x:auto;padding:2px 16px 8px;
+    scroll-snap-type:x mandatory;scrollbar-width:none;-webkit-overflow-scrolling:touch;
+    overscroll-behavior-x:contain}
+  .shelfrow::-webkit-scrollbar{display:none}
+  .shelftile{position:relative;flex:0 0 auto;width:134px;min-height:132px;scroll-snap-align:start;
+    display:flex;flex-direction:column;align-items:flex-start;gap:5px;
+    background:#fff;border:1px solid #e9ebf3;border-radius:20px;padding:15px 14px;
+    text-align:left;cursor:pointer;box-shadow:none}
+  .shelftile:active{transform:scale(.97)}
+  .shelftile .hicon{font-size:26px;line-height:1}
+  .shelftile .hname{font-size:14.5px;font-weight:800;line-height:1.2;color:var(--ink)}
+  .shelftile .hsub{font-size:11.5px;font-weight:600;color:var(--muted);line-height:1.35}
   .homegroup{display:flex;align-items:center;gap:12px;margin:26px 2px 12px;
     font-size:15px;font-weight:800;letter-spacing:0;text-transform:none;color:var(--ink)}
   .homegroup::after{content:"";flex:1;height:1px;background:#dfe2ee}
@@ -3769,7 +3784,7 @@ const TIP_CATS = [
   {key:"deen", label:"Deen"}
 ];
 
-const APP_VERSION = "v130";
+const APP_VERSION = "v131";
 const today = new Date().toISOString().slice(0,10);
 let app = {families:[],currentFamily:null,currentChild:null};
 let categories = [];
@@ -8903,6 +8918,13 @@ function renderParentAdminView(parent){
   const offers=pendingOffers();
   const weekDates=getCurrentWeekDates();
   const weekTotal=kids.reduce((a,c)=>a+weeklyTotalFor(c,weekDates),0);
+  /* One card wide enough to read, narrow enough that the next one shows at the
+     edge \u2014 which is what tells you the row moves. */
+  const shelfTile=(icon,name,sub,fn,badge)=>`<button class="shelftile" onclick="${fn}">
+      ${badge?`<span class="hbadge">${badge}</span>`:""}
+      <span class="hicon">${icon}</span>
+      <span class="hname">${name}</span>
+      <span class="hsub">${sub}</span></button>`;
   const tile=(icon,name,sub,fn,badge)=>`<button class="hometile" onclick="${fn}">
       ${badge?`<span class="hbadge">${badge}</span>`:""}
       <span class="hicon">${icon}</span><span class="hname">${name}</span>
@@ -8924,21 +8946,23 @@ function renderParentAdminView(parent){
         ${tile("\ud83d\udccc","I\u2019m asking\u2026","What you\u2019ve asked of them today","showNotesPanel()")}
         ${tile("\ud83d\udd14","Requests", pend.length?pend.length+" waiting on you":"Nothing waiting","showRequestsPanel()", pend.length||0)}
       </div>
-      <p class="homegroup">How they\u2019re doing</p>
-      <div class="homegrid">
-        ${tile("\ud83d\udde3\ufe0f","Review together","Go through the week with them","showReviewPanel()")}
-        ${tile("\ud83d\udcca","Overview","Everyone\u2019s week at a glance","showOverviewPanel()")}
-        ${tile("\ud83d\udcd6","Learn","Your own, and how they\u2019re getting on","showProgressPanel()")}
-      </div>
-      <p class="homegroup">The rest</p>
-      <div class="homegrid">
-        ${tile("\ud83c\udf81","Rewards","What the points are for","showRewardsPanel()")}
-        ${tile("\ud83e\udd1d","The grown-ups","Your own list, and your partner","showGrownupsPanel()", offers.length||0)}
-        ${tile("\ud83e\udd1e","Pledges","Something you promise each other","showPledgesPanel()")}
-        ${tile("\ud83e\udde9","Do together","Cook, play and puzzle with them","showPlayPanel()")}
-        ${tile("\ud83d\udc68\u200d\ud83d\udc69\u200d\ud83d\udc67","Family and friends","Logins, invites and tutors","showPicker('people')")}
-        ${tile("\ud83d\udccb","History","What was awarded today","showActivityPanel()", outsideAwards(7).length||0)}
-        ${tile("\ud83d\udcdc","House rules","How points work, for both of you","showRulesPanel()")}
+      <!-- Ten tiles stacked under two headings was most of the scrolling on
+           this screen. Everything that is not today lives on one shelf you
+           flick through, so the dashboard ends where Today ends. -->
+      <p class="homegroup">Everything else</p>
+      <div class="shelf">
+        <div class="shelfrow" id="homeShelf">
+          ${shelfTile("\ud83d\udde3\ufe0f","Review together","Go through the week","showReviewPanel()")}
+          ${shelfTile("\ud83d\udcca","Overview","Everyone at a glance","showOverviewPanel()")}
+          ${shelfTile("\ud83d\udcd6","Learn","Yours and theirs","showProgressPanel()")}
+          ${shelfTile("\ud83c\udf81","Rewards","What points are for","showRewardsPanel()")}
+          ${shelfTile("\ud83e\udd1d","The grown-ups","You and your partner","showGrownupsPanel()", offers.length||0)}
+          ${shelfTile("\ud83e\udd1e","Pledges","What you promise","showPledgesPanel()")}
+          ${shelfTile("\ud83e\udde9","Do together","Cook, play, puzzle","showPlayPanel()")}
+          ${shelfTile("\ud83d\udc68\u200d\ud83d\udc69\u200d\ud83d\udc67","Family and friends","Logins and tutors","showPicker('people')")}
+          ${shelfTile("\ud83d\udccb","History","Awarded today","showActivityPanel()", outsideAwards(7).length||0)}
+          ${shelfTile("\ud83d\udcdc","House rules","How points work","showRulesPanel()")}
+        </div>
       </div>
     </div>`;
   document.getElementById("summarySection").classList.add("hidden");
