@@ -3769,7 +3769,7 @@ const TIP_CATS = [
   {key:"deen", label:"Deen"}
 ];
 
-const APP_VERSION = "v127";
+const APP_VERSION = "v128";
 const today = new Date().toISOString().slice(0,10);
 let app = {families:[],currentFamily:null,currentChild:null};
 let categories = [];
@@ -15957,6 +15957,7 @@ window.GROWNUP_DECKS = [
     .sort((a,b)=>b.ts-a.ts)[0] || null;
   const liveNoteFor = id => notes().filter(nt=>nt.childId===id).sort((a,b)=>b.ts-a.ts)[0] || null;
 
+  let lastWriteError=null;
   async function writeLedger(entry){
     const m=me();
     if(!m || typeof window.fpc==="undefined") return false;
@@ -15965,13 +15966,20 @@ window.GROWNUP_DECKS = [
         byUid: window.fpc.uid(), byName: m.name,
         byRole: (typeof relationLabel==="function") ? relationLabel(m) : ""
       }, entry));
+      lastWriteError=null;
       return true;
-    }catch(e){ console.error("note write refused:", e); return false; }
+    }catch(e){
+      console.error("note write refused:", e);
+      lastWriteError = (e && (e.message || e.code)) || "unknown";
+      return false;
+    }
   }
 
   /* ---- CSS ---- */
   const CSS=`
-  .ntcard{background:#fff;border:1px solid #e6e8f0;border-radius:22px;padding:0;margin-bottom:14px;overflow:hidden}
+  .ntcard{background:#fff;border:1px solid #e6e8f0;border-radius:22px;padding:0;margin-bottom:14px;
+    overflow:hidden;transition:box-shadow .3s ease}
+  .ntcard.justadded{box-shadow:0 0 0 3px #f0c98a}
   .nthead{background:linear-gradient(150deg,#fff4dd,#ffe8bd);padding:15px 16px;border-bottom:1px solid #f0dcb2}
   .ntmsg{margin:0;font-size:16.5px;font-weight:800;color:#6a4a05;line-height:1.35}
   .ntfrom{margin:4px 0 0;font-size:12.5px;font-weight:700;color:#8a6a1c}
@@ -16014,6 +16022,9 @@ window.GROWNUP_DECKS = [
   /* The message is the note, so it is written on the note, not in a form. */
   /* Was transparent gold text on a gold gradient with a paler gold placeholder,
      which is why it read as an empty pane rather than something to type in. */
+  .ntlabel{margin:0 0 8px;font-size:11px;font-weight:800;letter-spacing:.06em;
+    text-transform:uppercase;color:#a0842f}
+  .ntadd .ntlabel{color:#8a90a6}
   .ntlive{margin:12px 0 0;padding:10px 12px;border-radius:12px;font-size:12.5px;
     font-weight:700;line-height:1.45;background:#f2f3f8;color:#8a90a6}
   .ntlive.on{background:#e3f6ef;color:#1c8a6c}
@@ -16114,6 +16125,7 @@ window.GROWNUP_DECKS = [
   let busy=false;
   function working(on){
     busy=on;
+    busySince = on ? Date.now() : 0;
     const b=$("notesBody");
     if(b) b.style.opacity = on ? ".55" : "";
   }
@@ -16131,7 +16143,10 @@ window.GROWNUP_DECKS = [
       const ok=await writeLedger({ childId:pickChild, points:0, type:"note",
         label:"Note for the day", catKey:"note|"+id, actionName:"",
         noteDue:today(), noteBonus:5 });
-      if(!ok){ working(false); alert("That couldn\u2019t be saved. Check your connection and try again."); return false; }
+      if(!ok){ working(false);
+        alert("That couldn\u2019t be saved"+(lastWriteError ? " \u2014 "+lastWriteError : "")
+          +".\n\nNothing was lost; try again in a moment.");
+        return false; }
       nt={ id, childId:pickChild, items:[] };
     }
     const room = MAX_ITEMS - (nt.items ? nt.items.length : 0);
@@ -16140,13 +16155,26 @@ window.GROWNUP_DECKS = [
       alert("There is only room for "+room+" more on this note.");
       rows=rows.slice(0, room);
     }
+    let failed=0;
     for(const c of rows){
-      await writeLedger({ childId:nt.childId||pickChild, points:0, type:"noteitem",
+      const ok=await writeLedger({ childId:nt.childId||pickChild, points:0, type:"noteitem",
         label:"Asked: "+c.text, catKey:"noteitem|"+nt.id+"|"+newId("it"),
         actionName:c.text, itemAction:c.action||null, itemPoints:c.points||0 });
+      if(!ok) failed++;
     }
     working(false);
+    if(failed){
+      alert("That couldn\u2019t be saved"+(lastWriteError ? " \u2014 "+lastWriteError : "")
+        +".\n\nNothing was lost; try again in a moment.");
+    }
     renderNotesPanel(); if(typeof render==="function") render();
+    /* The note is above the picker, so without this the thing you just added
+       lands off-screen and the tap looks like it did nothing. */
+    try{
+      const card=document.querySelector("#notesBody .ntcard");
+      if(card && card.scrollIntoView) card.scrollIntoView({behavior:"smooth", block:"nearest"});
+      if(card){ card.classList.add("justadded"); setTimeout(()=>card.classList.remove("justadded"), 900); }
+    }catch(e){}
     return true;
   }
   window.ntAddFree = async function(){
@@ -16338,10 +16366,10 @@ window.GROWNUP_DECKS = [
     const anyLeft = groups.length>0;
     const whoName = ((typeof memberById==="function" && memberById(pickChild))||{}).name || "them";
     return `<div class="ntadd">
-      <p class="ntaddcap">Add to the note</p>
+      <p class="ntaddcap">What you\u2019re asking for</p>
       <div class="ntchips">
-        <button class="${mode==="action"?"on":""}" onclick="ntMode('action')">\u2b50 Earns points</button>
-        <button class="${mode==="free"?"on":""}" onclick="ntMode('free')">\u{1f9f9} Just a job</button>
+        <button class="${mode==="action"?"on":""}" onclick="ntMode('action')">\u2b50 From the points list</button>
+        <button class="${mode==="free"?"on":""}" onclick="ntMode('free')">\u{1f9f9} Not on the list</button>
       </div>
       ${mode==="action"
         ? (anyLeft
@@ -16361,7 +16389,8 @@ window.GROWNUP_DECKS = [
                 </div>`).join("")
             : `<p class="ntfull" style="margin:0 0 9px">Everything on the points list has already been
                 asked of ${esc(whoName)} today. Add something of your own instead.</p>`)
-        : `<div class="ntfreerow">
+        : `<p class="ntlabel" style="margin:0 0 8px">A job to do \u2014 earns nothing</p>
+           <div class="ntfreerow">
              <input type="text" id="ntFree" placeholder="e.g. put the bins out" maxlength="70"
                onkeydown="if(event.key==='Enter'){event.preventDefault();ntAddFree()}">
              <button class="primary" onclick="ntAddFree()">\uff0b Add</button>
@@ -16379,9 +16408,12 @@ window.GROWNUP_DECKS = [
     </div>`;
   }
 
+  let busySince=0;
   function renderNotesPanel(){
     const body=$("notesBody");
     if(!body) return;
+    /* A write that never came back would otherwise leave this locked for good. */
+    if(busy && busySince && Date.now()-busySince > 12000) working(false);
     const m=me();
     if(!grown(m)){ body.innerHTML='<p class="small">Only a grown-up can write these.</p>'; return; }
     const f=(typeof currentFamily==="function") ? currentFamily() : null;
@@ -16406,6 +16438,7 @@ window.GROWNUP_DECKS = [
        what it is for instead of asking you to fill something in first. */
     h += `<section class="ntcard">
       <div class="nthead">
+        <p class="ntlabel">A line for them to read \u2014 not a job</p>
         <div class="ntmsgrow">
           <input class="ntmsgin" id="ntMsgLive" maxlength="90"
             value="${nt ? esc(nt.message||"") : ""}"
