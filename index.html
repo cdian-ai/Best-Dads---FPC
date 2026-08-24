@@ -31,13 +31,10 @@
   body{margin:0;background:linear-gradient(180deg,#eef0ff 0,#f8f9fc 42%,#fff 100%);
        font-family:system-ui,-apple-system,Segoe UI,sans-serif;color:var(--ink)}
   .wrap{max-width:1100px;margin:auto;padding:24px}
-  header{background:var(--card);border-radius:24px;padding:24px;box-shadow:var(--shadow);margin-bottom:18px}
+  header{background:none;border-radius:0;padding:0;box-shadow:none;margin:0}
   /* With a family photo the header stops being a white pane and becomes the
      top of the page, so only one thing on this screen is hero-sized. */
-  header.hascover{background:none;box-shadow:none;padding:0;border-radius:0;
-    margin:calc(-14px - env(safe-area-inset-top)) -14px 18px;overflow:hidden}
-  header.hascover .logo{position:absolute;left:50%;transform:translateX(-50%);
-    top:calc(14px + env(safe-area-inset-top));z-index:3}
+  header.hascover{margin:calc(-14px - env(safe-area-inset-top)) -14px 18px;overflow:hidden}
   header.hascover .familycover{margin:0;border-radius:0 0 26px 26px;
     height:24svh;min-height:172px;max-height:230px}
   header.hascover .coverfade{background:linear-gradient(180deg,rgba(0,0,0,.34) 0%,
@@ -531,6 +528,21 @@
   .tabbar{position:fixed;left:0;right:0;bottom:0;z-index:130;display:grid;grid-template-columns:repeat(4,1fr);
           gap:4px;background:#fff;border-top:1px solid #e6e8f0;padding:7px 8px calc(7px + env(safe-area-inset-bottom));
           box-shadow:0 -6px 20px rgba(24,22,60,.08)}
+  /* A ring of light around their own face, on the card that already greets
+     them by name. */
+  .champframe{position:relative;display:inline-block;border-radius:50%;padding:5px;
+    background:conic-gradient(from 210deg,#f5c14b,#fff2c6,#e0a92c,#fff5d6,#f5c14b);
+    box-shadow:0 0 0 2px #fff,0 8px 22px rgba(224,169,44,.38)}
+  .champframe img,.champframe .avatar-placeholder-lg{display:block;border:3px solid #fff}
+  .champframe-crown{position:absolute;top:-12px;left:50%;transform:translateX(-50%);
+    font-size:24px;line-height:1;filter:drop-shadow(0 2px 3px rgba(0,0,0,.28))}
+  @media (prefers-reduced-motion:no-preference){
+    .champframe{animation:champglow 3.2s ease-in-out infinite}
+  }
+  @keyframes champglow{
+    0%,100%{box-shadow:0 0 0 2px #fff,0 8px 22px rgba(224,169,44,.34)}
+    50%{box-shadow:0 0 0 2px #fff,0 8px 30px rgba(224,169,44,.62)}
+  }
   .tabbar button.on{color:#3e46ad}
   body.kidtab-spend  #kidTabSpend.on{color:#8a5b12}
   body.kidtab-learn  #kidTabLearn.on{color:#2b2e73}
@@ -777,7 +789,7 @@
   .loading{text-align:center;padding:40px;color:var(--muted)}
   /* One line: the menu button sits left as a fixed control, so the wordmark
      goes right and the header stops being three deep. */
-  header{padding-top:calc(6px + env(safe-area-inset-top))}
+  header{padding-top:calc(4px + env(safe-area-inset-top))}
   /* Centred, so it sits clear of the fixed menu button on the left rather than
      underneath it. */
   header .logo{display:flex;width:max-content;max-width:calc(100% - 8px);
@@ -832,7 +844,7 @@
     .panelgrid{grid-template-columns:1fr}
     .accountbar{align-items:flex-start;flex-direction:column;width:100%}
     .wrap{padding:14px}
-    header{padding:16px;border-radius:20px}
+    header{padding:0}
     h1{font-size:24px}
     .card,.reward,.graphcard,.tips,.boostcard,.kidcard{padding:15px}
     .accountbuttons{width:100%}
@@ -1615,10 +1627,10 @@
 </div>
 <div id="mainApp" class="wrap hidden">
 <header>
-  <div class="logo" role="img" aria-label="Notice Me">
-  <span>Notice Me</span>
-  <svg class="qmk gold" viewBox="-6 3 57 73" aria-hidden="true" focusable="false"><path d="M26 3 L32 21 L51 23 L36 35 L41 53 L26 43 C20 58 12 70 -2 76 C6 66 12 56 13 44 L16 35 L1 23 L20 21 Z" fill="#ffd970"/></svg>
-</div>
+  <!-- The wordmark used to sit in a white panel at the top of every screen.
+       An installed app already says whose it is on the home screen, and a
+       badge repeated on twelve screens costs more than it tells anyone. The
+       element stays because the menu sheet and every panel live inside it. -->
 
   <div id="familyCover" class="familycover hidden" onclick="onCoverClick()">
     <div class="coverfade"></div>
@@ -3838,7 +3850,7 @@ const TIP_CATS = [
   {key:"deen", label:"Deen"}
 ];
 
-const APP_VERSION = "v140";
+const APP_VERSION = "v141";
 const today = new Date().toISOString().slice(0,10);
 let app = {families:[],currentFamily:null,currentChild:null};
 let categories = [];
@@ -5958,7 +5970,10 @@ function renderChampionFloat(){
      || (typeof viewChildId!=="undefined" && viewChildId)){
     fab.classList.add("hidden"); fab.innerHTML=""; return;
   }
+  /* A champion wears it on their own card now, so the float would be the same
+     news twice. Everyone else keeps it: for them it says who won. */
   const amChampion = isChildRole(me) && champ.leaders.some(c=>c.id===me.id);
+  if(amChampion){ fab.classList.add("hidden"); fab.innerHTML=""; return; }
   const face=champ.leaders[0];
   const quiet = !amChampion && !isParentRole(me);
   fab.classList.toggle("quiet", quiet);
@@ -10076,9 +10091,20 @@ function renderKidView(child){
      so it must not depend on the rest of this function surviving. */
   try{ showKidTabBar(); }catch(e){}
   const kidAv=document.getElementById("kidAvatar");
-  kidAv.innerHTML = child.photo
+  const face = child.photo
     ? `<img class="avatar-lg tappable" src="${child.photo}">`
     : '<div class="avatar-placeholder-lg tappable">\ud83d\udc64</div>';
+  /* Champion of the week, worn rather than announced. */
+  let amChamp=false;
+  try{
+    const ch=championNow();
+    amChamp = !!(ch && app.settings && app.settings.showChampion
+                 && ch.leaders.some(c=>c.id===child.id));
+  }catch(e){}
+  kidAv.className = amChamp ? "champframe" : "";
+  kidAv.innerHTML = amChamp
+    ? `${face}<span class="champframe-crown">\ud83c\udfc6</span>`
+    : face;
   kidAv.onclick = () => openMemberPhoto(child.id);
   document.getElementById("kidGreeting").textContent = "Asalamualaikum, "+child.name+"! \ud83c\udf1f";
   const weekDates=getCurrentWeekDates();
