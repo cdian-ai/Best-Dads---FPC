@@ -95,6 +95,14 @@
   .givlink{width:auto;background:none;border:0;padding:4px 0 0;font-size:12.5px;font-weight:700;
     color:var(--accent);cursor:pointer;min-height:0}
   .givav{flex:none}
+  /* Noticing is indigo, asking is gold. Same furniture, different room. */
+  .givehead.t-ask .givname strong{color:#6a4a05}
+  .givehead.t-ask .givsub{color:#8a6a1c}
+  .givehead.t-ask .givav img,.givehead.t-ask .givav .avatar-placeholder{
+    box-shadow:0 0 0 3px #f0dcb2}
+  .givehead.t-ask .givcaret{border-color:#b08e3c}
+  #notesPanel{background:linear-gradient(180deg,#fffdf7,#f6f7fb 240px)}
+  #notesPanel h2{color:#6a4a05}
   .givav img,.givav .avatar-placeholder{width:56px;height:56px;border-radius:50%;object-fit:cover;
     display:flex;align-items:center;justify-content:center;font-size:22px;background:#e4e6f5}
   .givgift{width:auto!important;flex:none;padding:11px 13px}
@@ -1574,7 +1582,7 @@
       <p class="menugroup">Today</p>
       <button class="light" id="btnQuickMenu" onclick="showQuickPanel()">🔥 All at once</button>
       <button class="light" id="btnRequests" onclick="showRequestsPanel()">🔔 Requests</button>
-      <button class="light" id="btnTasks" onclick="showNotesPanel()">📌 The note</button>
+      <button class="light" id="btnTasks" onclick="showNotesPanel()">📌 I’m asking…</button>
       <button class="light" id="btnReviewMenu" onclick="showReviewPanel()">🗣️ Review together</button>
       <button class="light" id="btnActivity" onclick="showActivityPanel()">📋 History</button>
 
@@ -1783,7 +1791,7 @@
 
   <div id="notesPanel" class="panel hidden">
     <button class="panelback" onclick="panelBack()">← Home</button>
-    <h2>📌 The note</h2>
+    <h2>📌 I’m asking…</h2>
     <p class="small">One note per child, up to six things on it — mix what earns points with what doesn’t. They read it next time they open the app. Nothing is deducted if it doesn’t happen.</p>
     <div id="notesBody"></div>
   </div>
@@ -3761,7 +3769,7 @@ const TIP_CATS = [
   {key:"deen", label:"Deen"}
 ];
 
-const APP_VERSION = "v125";
+const APP_VERSION = "v126";
 const today = new Date().toISOString().slice(0,10);
 let app = {families:[],currentFamily:null,currentChild:null};
 let categories = [];
@@ -8891,7 +8899,7 @@ function renderParentAdminView(parent){
       </div>
       ${attentionHTML()}
       <div class="homegrid">
-        ${tile("\ud83d\udccc","The note","What you\u2019ve asked of them today","showNotesPanel()")}
+        ${tile("\ud83d\udccc","I\u2019m asking\u2026","What you\u2019ve asked of them today","showNotesPanel()")}
         ${tile("\ud83d\udd14","Requests", pend.length?pend.length+" waiting on you":"Nothing waiting","showRequestsPanel()", pend.length||0)}
       </div>
       <p class="homegroup">How they\u2019re doing</p>
@@ -9426,7 +9434,7 @@ function whoHeaderHTML(child, people, opts){
     ? `<img src="${child.photo}" alt="">`
     : '<span class="avatar-placeholder">\ud83d\udc64</span>';
   const multi = people.length>1;
-  return `<div class="givehead">
+  return `<div class="givehead${opts.tone?" t-"+opts.tone:""}">
       <span class="givav">${av}</span>
       <div class="givwho">
         <button class="givname" onclick="toggleWhoMenu()" aria-haspopup="listbox"
@@ -9439,7 +9447,7 @@ function whoHeaderHTML(child, people, opts){
       ${opts.extra || ""}
       <div class="whomenu hidden" id="whoMenu" role="listbox">
         ${people.map(c=>`<button role="option" aria-selected="${c.id===child.id}"
-          class="${c.id===child.id?"on":""}" onclick="pickWho('${c.id}')">
+          class="${c.id===child.id?"on":""}" onclick="${opts.pick || "pickWho"}('${c.id}')">
           ${c.photo?`<img src="${c.photo}" alt="">`:'<span class="avatar-placeholder">\ud83d\udc64</span>'}
           <span>${escapeHtml(c.name)}</span>
           ${c.id===child.id?'<span class="whotick">\u2713</span>':""}
@@ -9467,7 +9475,6 @@ function pickWho(id){
   /* selectChild re-renders the dashboard; a panel has to be told. */
   if(screenNow==="reviewPanel" && typeof renderReviewPanel==="function") renderReviewPanel();
   if(screenNow==="progressPanel" && typeof renderProgressPanel==="function") renderProgressPanel();
-  if(screenNow==="notesPanel" && typeof renderNotesPanel==="function") renderNotesPanel();
 }
 /* Tapping anywhere else closes it, the way a menu should. */
 document.addEventListener("click", (e)=>{
@@ -16007,7 +16014,10 @@ window.GROWNUP_DECKS = [
   /* The message is the note, so it is written on the note, not in a form. */
   /* Was transparent gold text on a gold gradient with a paler gold placeholder,
      which is why it read as an empty pane rather than something to type in. */
-  .ntmsgin{width:100%;background:rgba(255,255,255,.78);border:1px solid #e8d7ab;
+  .ntmsgrow{display:flex;align-items:stretch;gap:8px}
+  .ntmsgsave{flex:none;width:auto;background:#6a4a05;color:#fff;border:0;border-radius:14px;
+    padding:0 18px;font-size:14.5px;font-weight:800;cursor:pointer;min-height:52px}
+  .ntmsgin{flex:1;min-width:0;width:100%;background:rgba(255,255,255,.78);border:1px solid #e8d7ab;
     border-radius:14px;padding:13px 14px;font-size:16.5px;font-weight:800;
     color:#5a3f04;line-height:1.35;min-height:52px}
   .ntmsgin::placeholder{color:#8a7038;font-weight:600}
@@ -16034,7 +16044,10 @@ window.GROWNUP_DECKS = [
   .ntpick button{width:auto;display:inline-flex;align-items:center;gap:8px;background:#f7f8fc;
     border:1px solid #e2e5ee;color:var(--ink);border-radius:99px;padding:10px 14px;
     font-size:14px;font-weight:700;cursor:pointer;min-height:44px}
-  .ntpick button.on{background:var(--accent);border-color:var(--accent);color:#fff}
+  .ntpick button:active{background:#e8dcc2;border-color:#d9c79c}
+  .ntfreerow{display:flex;gap:8px;align-items:stretch}
+  .ntfreerow input{flex:1;min-width:0;margin-bottom:0!important}
+  .ntfreerow .primary{flex:none;width:auto;padding:0 18px;min-height:46px}
   .ntpick em{font-style:normal;font-size:12px;font-weight:800;opacity:.6}
   .ntpastnote{background:#fff;border:1px solid #e9ebf3;border-radius:16px;margin-bottom:8px;
     padding:2px 14px}
@@ -16063,7 +16076,11 @@ window.GROWNUP_DECKS = [
 
   /* ---- the grown-up's side ---- */
   let pickChild=null, mode="action";
-  window.ntPickChild = id => { pickChild=id; renderNotesPanel(); };
+  window.ntPickChild = id => {
+    pickChild=id;
+    if(typeof closeWhoMenu==="function") closeWhoMenu();
+    renderNotesPanel();
+  };
   window.ntMode = m => { mode=m; renderNotesPanel(); };
 
   /* Anything already on the note comes off the list you are choosing from.
@@ -16100,53 +16117,59 @@ window.GROWNUP_DECKS = [
   /* Kept only so an older call cannot throw. Notes start themselves when the
      first thing goes on them; there is no "start a note" step any more. */
   window.ntStart = function(){ ntAddItem(""); };
-  window.ntAddItem = async function(noteId){
-    if(!grown(me()) || busy) return;
-    let nt = noteId ? notes().filter(x=>x.id===noteId)[0] : null;
+  /* One path onto the note, used by a tapped category item and by a typed
+     line alike: make sure the note exists, then write the rows. */
+  async function ntPutOn(rows){
+    if(!grown(me()) || busy || !rows.length) return false;
+    let nt = liveNoteFor(pickChild);
+    working(true);
     if(!nt){
       const id=newId("nt");
-      working(true);
       const ok=await writeLedger({ childId:pickChild, points:0, type:"note",
         label:"Note for the day", catKey:"note|"+id, actionName:"",
         noteDue:today(), noteBonus:5 });
-      working(false);
-      if(!ok){ alert("That couldn\u2019t be saved. Check your connection and try again."); return; }
+      if(!ok){ working(false); alert("That couldn\u2019t be saved. Check your connection and try again."); return false; }
       nt={ id, childId:pickChild, items:[] };
     }
-    if(nt.items.length>=MAX_ITEMS) return;
-    /* Several at once. Asking for Fajr, Asr, Maghrib and the bins was four
-       trips through this box; now it is one. */
-    const room = MAX_ITEMS - nt.items.length;
-    let chosen = [];
-    if(mode==="action"){
-      const all = actionOptions(nt);
-      chosen = all.filter(a=>picked.has(a.name)).map(a=>({text:a.name, action:a.name, points:a.points}));
-      if(!chosen.length) return;
-    }else{
-      const text=String((($("ntFree")||{}).value)||"").trim();
-      if(!text) return;
-      if((nt.items||[]).some(i=>String(i.text||"").toLowerCase()===text.toLowerCase())){
-        alert("\u201c"+text+"\u201d is already on this note.");
-        return;
-      }
-      chosen=[{text, action:null, points:0}];
+    const room = MAX_ITEMS - (nt.items ? nt.items.length : 0);
+    if(room<=0){ working(false); alert("Six things is a full note. Take one off first."); return false; }
+    if(rows.length>room){
+      alert("There is only room for "+room+" more on this note.");
+      rows=rows.slice(0, room);
     }
-    if(chosen.length > room){
-      alert("There is only room for "+room+" more on this note. Six is the most it holds.");
-      chosen = chosen.slice(0, room);
-    }
-    working(true);
-    for(const c of chosen){
+    for(const c of rows){
       await writeLedger({ childId:nt.childId||pickChild, points:0, type:"noteitem",
         label:"Asked: "+c.text, catKey:"noteitem|"+nt.id+"|"+newId("it"),
-        actionName:c.text, itemAction:c.action, itemPoints:c.points });
+        actionName:c.text, itemAction:c.action||null, itemPoints:c.points||0 });
     }
     working(false);
-    picked = new Set();
-    const ff=$("ntFree"); if(ff) ff.value="";
     renderNotesPanel(); if(typeof render==="function") render();
+    return true;
+  }
+  window.ntAddFree = async function(){
+    const el=$("ntFree"); if(!el) return;
+    const text=String(el.value||"").trim();
+    if(!text) return;
+    const nt=liveNoteFor(pickChild);
+    if(nt && (nt.items||[]).some(i=>String(i.text||"").toLowerCase()===text.toLowerCase())){
+      alert("\u201c"+text+"\u201d is already on this note.");
+      return;
+    }
+    el.value="";
+    await ntPutOn([{text, action:null, points:0}]);
   };
+  /* Kept: older callers still reach for this name. */
+  window.ntAddItem = function(){ return ntAddFree(); };
 
+  /* The Save button appears only once the line has been changed, so nothing
+     is written until a parent says so. */
+  window.ntMsgDirty = function(){
+    const el=$("ntMsgLive"), b=$("ntMsgSave");
+    if(!el || !b) return;
+    const nt=liveNoteFor(pickChild);
+    const was=(nt && nt.message) || "";
+    b.classList.toggle("hidden", String(el.value||"")===was);
+  };
   window.ntSetMessage = async function(noteId){
     if(!grown(me()) || busy) return;
     const el=$("ntMsgLive"); if(!el) return;
@@ -16286,16 +16309,15 @@ window.GROWNUP_DECKS = [
   /* One row, always visible, that does the thing the page is for. The two
      modes are a toggle rather than a form: pick from the list and it carries
      its points, or type anything and it carries none. */
-  let picked = new Set();
   let openCat = 0;
   /* Indexed, not named: the name never travels through an HTML attribute, so
      an apostrophe in "Read or listen to Qur'an" cannot break the handler. */
-  window.ntTogglePick = function(gi, ii){
+  window.ntTogglePick = async function(gi, ii){
+    if(busy) return;
     const g=actionGroups(liveNoteFor(pickChild))[gi];
     const it=g && g.items[ii];
     if(!it) return;
-    if(picked.has(it.name)) picked.delete(it.name); else picked.add(it.name);
-    renderNotesPanel();
+    await ntPutOn([{text:it.name, action:it.name, points:it.points}]);
   };
   window.ntOpenCat = function(i){
     openCat = (openCat===i) ? -1 : i;
@@ -16320,8 +16342,8 @@ window.GROWNUP_DECKS = [
       </div>
       ${mode==="action"
         ? (anyLeft
-            /* One category open at a time. Forty-four chips in a single wrap
-               was a wall; this is a shelf you open one shelf of. */
+            /* Tap and it is on the note, straight away. Nothing is held in a
+               basket you cannot see. */
             ? groups.map((g,gi)=>`
                 <div class="ntcat${openCat===gi?" open":""}">
                   <button class="ntcathead" onclick="ntOpenCat(${gi})">
@@ -16331,17 +16353,17 @@ window.GROWNUP_DECKS = [
                     <span class="ntcatchev"></span>
                   </button>
                   ${openCat===gi ? `<div class="ntpick">${g.items.map((a,ii)=>
-                    `<button class="${picked.has(a.name)?"on":""}" onclick="ntTogglePick(${gi},${ii})">
-                       ${esc(a.name)} <em>${a.points}</em></button>`).join("")}</div>` : ""}
+                    `<button onclick="ntTogglePick(${gi},${ii})">
+                       \uff0b ${esc(a.name)} <em>${a.points}</em></button>`).join("")}</div>` : ""}
                 </div>`).join("")
             : `<p class="ntfull" style="margin:0 0 9px">Everything on the points list has already been
                 asked of ${esc(whoName)} today. Add something of your own instead.</p>`)
-        : `<input type="text" id="ntFree" placeholder="e.g. put the bins out" maxlength="70">`}
-      ${(mode==="free" || picked.size)
-        ? `<button class="primary" style="width:100%;margin-top:4px" onclick="ntAddItem('${id}')">${
-            picked.size>1 ? "\uff0b Add these "+picked.size : "\uff0b Add it"}</button>` : ""}
-      <p class="ntfull">${count} of ${MAX_ITEMS} on the note${count?"":" \u2014 nothing yet"}${
-        picked.size ? " \u00b7 "+picked.size+" chosen" : ""}</p>
+        : `<div class="ntfreerow">
+             <input type="text" id="ntFree" placeholder="e.g. put the bins out" maxlength="70"
+               onkeydown="if(event.key==='Enter'){event.preventDefault();ntAddFree()}">
+             <button class="primary" onclick="ntAddFree()">\uff0b Add</button>
+           </div>`}
+      <p class="ntfull">${count} of ${MAX_ITEMS} on the note${count?"":" \u2014 nothing yet"}</p>
     </div>`;
   }
 
@@ -16362,17 +16384,16 @@ window.GROWNUP_DECKS = [
     const f=(typeof currentFamily==="function") ? currentFamily() : null;
     const kids=(f?f.children:[]).filter(c=>typeof isChildRole==="function" && isChildRole(c));
     if(!kids.length){ body.innerHTML='<p class="small">No children added yet.</p>'; return; }
-    /* Whoever the app is pointed at, so the child follows you between
-       screens instead of each one keeping its own idea of who you meant. */
-    const cur=(typeof currentChild==="function") ? currentChild() : null;
-    if(cur && kids.some(c=>c.id===cur.id)) pickChild=cur.id;
-    if(!pickChild || !kids.some(c=>c.id===pickChild)) pickChild=kids[0].id;
+    if(!pickChild || !kids.some(c=>c.id===pickChild)){
+      const cur=(typeof currentChild==="function") ? currentChild() : null;
+      pickChild=(cur && kids.some(c=>c.id===cur.id)) ? cur.id : kids[0].id;
+    }
     const child=kids.filter(c=>c.id===pickChild)[0];
     const nt=liveNoteFor(pickChild);
 
     /* The same header the awarding and review screens use. */
     let h=(typeof whoHeaderHTML==="function")
-      ? whoHeaderHTML(child, kids, {sub:"The note"})
+      ? whoHeaderHTML(child, kids, {sub:"Asking", pick:"ntPickChild", tone:"ask"})
       : `<div class="ntwho">${kids.map(c=>`<button class="${
           c.id===pickChild?"on":""}" onclick="ntPickChild('${c.id}')">
             ${c.photo?`<img src="${c.photo}" alt="">`:'<span class="avatar-placeholder">\ud83d\udc64</span>'}
@@ -16382,10 +16403,15 @@ window.GROWNUP_DECKS = [
        what it is for instead of asking you to fill something in first. */
     h += `<section class="ntcard">
       <div class="nthead">
-        <input class="ntmsgin" id="ntMsgLive" maxlength="90"
-          value="${nt ? esc(nt.message||"") : ""}"
-          placeholder="Write a line for ${esc(child.name)} \u2014 e.g. Back at six, Dad"
-          onchange="ntSetMessage('${nt ? nt.id : ""}')">
+        <div class="ntmsgrow">
+          <input class="ntmsgin" id="ntMsgLive" maxlength="90"
+            value="${nt ? esc(nt.message||"") : ""}"
+            placeholder="Write a line for ${esc(child.name)} \u2014 e.g. Back at six, Dad"
+            oninput="ntMsgDirty()"
+            onkeydown="if(event.key==='Enter'){event.preventDefault();ntSetMessage('${nt ? nt.id : ""}')}">
+          <button class="ntmsgsave hidden" id="ntMsgSave"
+            onclick="ntSetMessage('${nt ? nt.id : ""}')">Save</button>
+        </div>
         <p class="ntfrom">${nt
           ? "From " + esc(nt.askedBy || (m?m.name:"")) + (nt.due>today() ? " \u00b7 for "+esc(nt.due) : " \u00b7 today")
           : "Add the first thing below and the note starts itself."}</p>
