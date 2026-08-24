@@ -698,6 +698,11 @@
   .reachcap{margin:18px 2px 10px;font-size:15px;font-weight:800;color:var(--ink);
     display:flex;align-items:center;gap:11px}
   .reachcap::after{content:"";flex:1;height:1px;background:#dfe2ee}
+  /* The points room is gold, the way Rewards is green and Learn is violet.
+     The two headings are the only place the tab's colour appears on this
+     screen, which is enough to say which room you are in. */
+  .ptscap{color:#6d4d05}
+  .ptscap::after{background:linear-gradient(90deg,#f0d190,rgba(240,209,144,0))}
   .reachpanel{padding:4px 14px}
   .reachrow{display:flex;align-items:center;gap:13px;width:100%;background:none;border:0;
     padding:14px 0;text-align:left;cursor:pointer;min-height:66px}
@@ -720,6 +725,22 @@
     padding:13px;font-size:14.5px;font-weight:800;color:#3e46ad;cursor:pointer;min-height:48px}
   .waitcap{margin:0 0 8px;padding:0 4px;font-size:12px;font-weight:800;letter-spacing:.05em;
     text-transform:uppercase;color:#8a90a6}
+  /* Quiet on purpose. It sits between the prayers and the thing they are
+     saving for, and it is the only card on the child's home screen that is
+     not about them - so it does not compete with the two that are. */
+  .kidremind{display:flex;align-items:center;gap:12px;width:100%;text-align:left;
+    border:1px solid #e9ebf3;border-radius:20px;padding:13px 14px;margin-bottom:12px;
+    background:#fff;cursor:pointer;min-height:62px;transition:transform .12s ease}
+  .kidremind:active{transform:scale(.985)}
+  .krglyph{flex:none;width:40px;height:40px;border-radius:14px;display:flex;
+    align-items:center;justify-content:center;font-size:20px;background:#f4f5fa}
+  .kidremind.t1 .krglyph{background:#e3f6ef} .kidremind.t3 .krglyph{background:#eceefe}
+  .kidremind.t4 .krglyph{background:#fff1f5} .kidremind.t6 .krglyph{background:#fff4dd}
+  .krmain{flex:1;min-width:0}
+  .krtag{display:block;font-size:10.5px;font-weight:800;letter-spacing:.06em;
+    text-transform:uppercase;color:#8a90a6}
+  .krtext{display:block;font-size:14px;font-weight:700;color:#2c3350;line-height:1.4;margin-top:3px}
+  .krchev{flex:none;font-size:22px;color:#c4c8d8;line-height:1}
   /* One line: what they are heading for, a bar that fills, and the balance.
      Never empties, because points are never taken away. */
   .savestrip{display:flex;align-items:center;gap:12px;width:100%;text-align:left;
@@ -1217,13 +1238,17 @@
   .learneyebrow{margin:20px 0 9px;padding:0 4px;font-size:11px;font-weight:800;
     letter-spacing:.08em;text-transform:uppercase;color:#8a90a6}
   .learneyebrow:first-child{margin-top:4px}
-  .subjgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
-  .subjtile{display:flex;flex-direction:column;align-items:center;gap:8px;
-    border:1px solid #e6e8f0;border-radius:20px;padding:15px 10px 13px;
-    background:#fff;cursor:pointer;text-align:center;min-height:118px;
-    transition:transform .12s ease,box-shadow .16s ease}
+  .subjgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;align-items:start}
+  /* A cell is the subject: the tile is its face, the ladder is what is behind
+     it. Open, the cell takes the whole row where it already stands, so the
+     ladder can never appear detached from the tile that opened it. */
+  .subjcell{border:1px solid #e6e8f0;border-radius:20px;overflow:hidden;background:#fff;
+    transition:box-shadow .16s ease}
+  .subjcell.open{grid-column:1/-1;box-shadow:0 10px 26px rgba(24,22,60,.09)}
+  .subjtile{display:flex;flex-direction:column;align-items:center;gap:8px;width:100%;
+    border:0;border-radius:0;padding:15px 10px 13px;background:transparent;color:inherit;
+    cursor:pointer;text-align:center;min-height:118px;transition:transform .12s ease}
   .subjtile:active{transform:scale(.97)}
-  .subjtile.open{box-shadow:0 0 0 2px currentColor inset}
   .tilering{position:relative;width:48px;height:48px;flex:none}
   .tilering svg{width:48px;height:48px;transform:rotate(-90deg)}
   .tilering .rbg{fill:none;stroke:rgba(24,22,60,.10);stroke-width:4}
@@ -1234,29 +1259,32 @@
   .tilename{display:block;font-size:14.5px;font-weight:800;line-height:1.2;
     overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%}
   .tilecount{display:block;font-size:11.5px;font-weight:700;opacity:.7;line-height:1.2}
-  /* The tile wears the subject's colour; the panel it opens wears the same one,
-     so a child can see which door they came through. */
-  .subjtile.s-quran   {background:linear-gradient(160deg,#e9f8f2,#d6f0e6);color:#0b5545;border-color:#c7e9db}
-  .subjtile.s-fulfulde{background:linear-gradient(160deg,#fff6e3,#ffeac4);color:#6a4a05;border-color:#f4dfb4}
-  .subjtile.s-maths   {background:linear-gradient(160deg,#eceefe,#dcdefb);color:#2b2e73;border-color:#cdd0f5}
-  .subjtile.s-english {background:linear-gradient(160deg,#ffeef3,#ffdde7);color:#7a2242;border-color:#f8ccd9}
-  .subjtile.s-science {background:linear-gradient(160deg,#eef8e3,#ddefcb);color:#345a1f;border-color:#d0e7bc}
-  .subjtile.s-other   {background:linear-gradient(160deg,#f5efff,#e9deff);color:#452a7a;border-color:#ddd0f5}
-  .subjopen{border-radius:22px;border:1px solid #e6e8f0;background:#fff;
-    padding:4px 12px 12px;margin-bottom:12px;animation:openin .22s ease}
-  @keyframes openin{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
-  .openhead{display:flex;align-items:center;gap:10px;margin:0 -12px 8px;padding:14px 14px;
-    border-radius:22px 22px 0 0}
-  .openicon{font-size:22px;line-height:1;flex:none}
-  .openname{flex:1;min-width:0;font-size:16.5px;font-weight:800;line-height:1.25}
-  .openclose{flex:none;width:32px;height:32px;border-radius:50%;border:0;cursor:pointer;
-    background:rgba(255,255,255,.7);color:inherit;font-size:14px;font-weight:800;line-height:1}
-  .subjopen.s-quran    .openhead{background:linear-gradient(150deg,#e3f6ef,#cfeee2);color:#0b5545}
-  .subjopen.s-fulfulde .openhead{background:linear-gradient(150deg,#fff4dd,#ffe8bd);color:#6a4a05}
-  .subjopen.s-maths    .openhead{background:linear-gradient(150deg,#e8e9ff,#d6d8fb);color:#2b2e73}
-  .subjopen.s-english  .openhead{background:linear-gradient(150deg,#ffeaf0,#ffd7e3);color:#7a2242}
-  .subjopen.s-science  .openhead{background:linear-gradient(150deg,#e9f6dd,#d4ecc1);color:#345a1f}
-  .subjopen.s-other    .openhead{background:linear-gradient(150deg,#f3ecff,#e5d9ff);color:#452a7a}
+  .tilechev{display:none}
+  /* Open, the tile stops being a square and becomes the panel's own header:
+     ring, name and count on one line, so the ladder starts near the top of the
+     screen instead of below a 118px block of nothing. */
+  .subjcell.open .subjtile{flex-direction:row;gap:12px;min-height:0;padding:14px;
+    text-align:left;justify-content:flex-start}
+  .subjcell.open .tilering,.subjcell.open .tilering svg{width:38px;height:38px}
+  .subjcell.open .tileicon{font-size:17px}
+  .subjcell.open .tilename{flex:1;min-width:0;font-size:16.5px}
+  .subjcell.open .tilecount{flex:none;font-size:12px;opacity:.8}
+  .subjcell.open .tilechev{display:block;flex:none;font-size:22px;opacity:.5;
+    transform:rotate(90deg);line-height:1}
+  /* The cell wears the subject's colour on its face; the ladder behind it is
+     plain white, so the marks are the only coloured thing down there. */
+  .subjcell.s-quran   {background:linear-gradient(160deg,#e9f8f2,#d6f0e6);color:#0b5545;border-color:#c7e9db}
+  .subjcell.s-fulfulde{background:linear-gradient(160deg,#fff6e3,#ffeac4);color:#6a4a05;border-color:#f4dfb4}
+  .subjcell.s-maths   {background:linear-gradient(160deg,#eceefe,#dcdefb);color:#2b2e73;border-color:#cdd0f5}
+  .subjcell.s-english {background:linear-gradient(160deg,#ffeef3,#ffdde7);color:#7a2242;border-color:#f8ccd9}
+  .subjcell.s-science {background:linear-gradient(160deg,#eef8e3,#ddefcb);color:#345a1f;border-color:#d0e7bc}
+  .subjcell.s-other   {background:linear-gradient(160deg,#f5efff,#e9deff);color:#452a7a;border-color:#ddd0f5}
+  .subjopen{background:#fff;padding:4px 12px 12px;animation:openin .22s ease}
+  @keyframes openin{from{opacity:0}to{opacity:1}}
+  .openhead{display:flex;align-items:center;justify-content:flex-end;padding:10px 0 4px}
+  .openname{display:none}
+  .openclose{flex:none;border:1px solid #e6e8f0;border-radius:99px;padding:7px 13px;
+    background:#fff;color:#6a7184;font-size:12px;font-weight:800;cursor:pointer;line-height:1}
   @media (prefers-reduced-motion:reduce){.subjopen{animation:none}}
   .subjfold{margin:0 0 10px;border-radius:20px;overflow:hidden;border:1px solid #e6e8f0;background:#fff}
   .subjhead{position:relative;display:flex;align-items:center;gap:13px;width:100%;
@@ -2114,6 +2142,7 @@
       <button id="deenTabDuas" onclick="setDeenTab('duas')">🤲 Duas</button>
       <button id="deenTabRem" onclick="setDeenTab('reminders')">💡 Reminders</button>
       <button id="deenTabStories" onclick="setDeenTab('stories')">🌙 Bedtime</button>
+      <button id="deenTabPrayers" onclick="setDeenTab('prayers')">🕌 Prayers</button>
     </div>
     <div id="deenBody"></div>
   </div>
@@ -2299,16 +2328,19 @@
          points can buy. -->
     <div id="prayerToday"></div>
 
+    <!-- One thing worth thinking about, in a child's words. This was emptied
+         in v74 because the grown-up version - hadith text, narrator, source
+         line - is not something a seven-year-old reads. The thought itself is,
+         so it comes back stripped to the thought. -->
+    <div id="kidReminder"></div>
+
     <!-- Leads with what the points can reach, not with the total. A four-year
          old cannot read 171; they can understand "you could choose the bedtime
-         story". The number is kept, small, because older children want it. -->
-    <!-- Was a full-height "My rewards" door. Rewards already have a tab of
-         their own at the bottom of every screen, and this page carries no
-         second door to My points, so the card was the only tab duplicated on
-         the home screen. What it did carry that nothing else does is the line
-         between behaving and getting something - so that line stays, pointed
-         forwards rather than at the shop: what they are heading for, how far
-         off it is. Still tappable, a fifth of the height. -->
+         story". The number is kept, small, because older children want it.
+         The heading is not decoration: without it the strip sat at the foot of
+         the page as a loose object, and a bar with a number beside it reads as
+         a balance rather than as something being worked towards. -->
+    <p class="reachcap">🎯 What I’m working towards</p>
     <button class="savestrip" onclick="showScreen('kidSpendScreen')">
       <span class="saveicon" id="kidSaveIcon">🎯</span>
       <span class="savemain">
@@ -2319,8 +2351,6 @@
     </button>
 
     <div id="kidRequestStatus"></div>
-
-    <div id="kidReminder"></div>
 
   </div>
 
@@ -2357,37 +2387,58 @@
     <div id="kidLearnBody"></div>
   </div>
 
+  <!-- Reordered in v155. Every block here was asked to justify itself:
+       - Points I've been given: the answer to the question the tab asks. It
+         was LAST, below six other cards; it is now first.
+       - Beat your best: the same subject as the feed - points earned - so it
+         sits with it rather than above the bank.
+       - Ways to get more points: the forward half of "what have I earned".
+         Stays, directly under the two that look backwards.
+       - My bank / What the bank is for / giving pot: what a child DOES with
+         points. One group, in that order, because the bank pays for the big
+         things and the pot is the third thing you can do with a point after
+         spending and saving.
+       - The prayer board: removed. Salah is not a points balance, and this
+         app's own rule is that a child must not open their worship and find a
+         score. It lives in Deen now, with the duas and the reminders.
+       - Champion toggle: a setting, not a point. Kept, but at the foot with
+         the other housekeeping rather than in the middle of the page. -->
   <div id="kidPointsScreen" class="hidden">
     <header class="kidtitle w-points">
       <span class="kidtitleicon">⭐</span>
       <span><span class="kidtitlename">My points</span>
         <span class="kidtitlesub">What you’ve earned, saved and given</span></span>
     </header>
+
+    <p class="reachcap ptscap">⭐ What you’ve earned</p>
     <div id="kidBest"></div>
-    <!-- Saving and giving live here, not in the shop. Rewards answers "what can
-         I have?"; this answers "what have I done with my points?" — and a child
-         going to buy a snack should not have to scroll past a lesson on saving
-         to reach it. -->
-    <div id="kidVault"></div>
-    <div id="kidBigThings"></div>
-    <div id="kidGivingPot"></div>
-    <div id="championToggleRow"></div>
-    <div id="prayerWall"></div>
-    <div id="kidGraphWrap" class="graphcard"></div>
+    <section class="kidcard sun">
+      <h2>⭐ Points I’ve been given</h2>
+      <p class="lede">What you earned, who gave it to you, and what it was for.</p>
+      <div id="kidFeed" class="feed"></div>
+    </section>
     <section class="boostcard hidden" id="kidBoostCard">
-      <h2>⭐ Ways to get more points</h2>
+      <h2>🌱 Ways to get more points</h2>
       <p class="lede">Little things that add up fast.</p>
       <div id="kidBoostList"></div>
       <button class="boostmore" onclick="nextKidTips()">Show me different ideas</button>
     </section>
 
-    <p class="kidfooter">Only Mum and Dad can give points — keep doing kind things and they'll notice! 💛</p>
+    <!-- Saving and giving live here, not in the shop. Rewards answers "what can
+         I have?"; this answers "what have I done with my points?" — and a child
+         going to buy a snack should not have to scroll past a lesson on saving
+         to reach it. -->
+    <p class="reachcap ptscap">🏦 What you do with them</p>
+    <div id="kidVault"></div>
+    <div id="kidBigThings"></div>
+    <div id="kidGivingPot"></div>
 
-    <section class="kidcard pink">
-      <h2>⭐ Points I've been given</h2>
-      <p class="lede">What you earned, who gave it to you, and what it was for.</p>
-      <div id="kidFeed" class="feed"></div>
-    </section>
+    <p class="kidfooter">Only Mum and Dad can give points — keep doing kind things and they'll notice! 💛</p>
+    <div id="championToggleRow"></div>
+    <div id="kidGraphWrap" class="graphcard"></div>
+    <!-- Kept so the render code that writes the prayer board still has a home;
+         on this screen it is written to and never shown. -->
+    <div id="prayerWall" class="hidden"></div>
   </div>
 
   <nav id="kidTabBar" class="tabbar hidden">
@@ -4215,7 +4266,7 @@ const TIP_CATS = [
   {key:"deen", label:"Deen"}
 ];
 
-const APP_VERSION = "v154";
+const APP_VERSION = "v155";
 const today = new Date().toISOString().slice(0,10);
 let app = {families:[],currentFamily:null,currentChild:null};
 let categories = [];
@@ -5141,6 +5192,16 @@ function tapSubject(childId, subjectId){
   learnOpen = {};
   if(!was) learnOpen[k]=true;
   renderLearnHost();
+  /* The opened cell expands where it stands, so a subject on the second row
+     can push its own ladder below the fold. Bring the head of the cell to the
+     top of the view - never the ladder, or the subject's name scrolls off the
+     thing it names. */
+  if(!was) requestAnimationFrame(()=>{
+    const el=document.getElementById("subjcell-"+subjectId);
+    if(el && el.scrollIntoView) try{
+      el.scrollIntoView({behavior:"smooth", block:"start"});
+    }catch(e){ el.scrollIntoView(true); }
+  });
 }
 /* ---------- Things to open, and things to check ----------
    Language packs and puzzle decks used to append themselves to the bottom of
@@ -5177,8 +5238,14 @@ function learnScreenHTML(child){
      which is why courses used to be listed twice. */
   const forChild = window.__learnForChild === true;
   const C=2*Math.PI*19;                       // the ring's circumference
-  let openSubject=null, openShown=null;
-  const tiles=CURRICULUM.map(subject=>{
+  /* Opening a subject used to drop its ladder in a slab underneath all four
+     tiles: tapping Qur'an meant scrolling past Maths, English and Science to
+     reach it, and nothing on screen joined the ladder to the tile that had
+     been pressed. Each subject is now its own grid cell - closed it is a
+     half-width tile, open it spans the row and carries its own ladder, in
+     place. Nothing above it moves, and it is obvious which door you came
+     through. */
+  const cells=CURRICULUM.map(subject=>{
     // The year is the child's year, worked out from their age, for everybody
     // who looks. A parent comparing years across the whole curriculum was
     // reading somebody else's syllabus and calling it their child's progress.
@@ -5189,13 +5256,12 @@ function learnScreenHTML(child){
     const yearName=subject.byYear ? (shown[0] ? shown[0].name : "") : "";
     const tone=SUBJECT_TONE[subject.subject] || "s-other";
     const open=subjectIsOpen(child.id, subject.subject);
-    if(open){ openSubject=subject; openShown=shown; }
     /* The ring carries the proportion and the number carries the count, so
        neither has to do both. No bar: a bar at 0% four times over is the
        first thing a child sees on this page, and a ring at 0 reads as a
        circle waiting to be filled rather than as a line that has failed. */
-    return `<button type="button" class="subjtile ${tone}${open?" open":""}"
-        aria-expanded="${open}" onclick="tapSubject('${child.id}','${subject.subject}')">
+    const tile=`<button type="button" class="subjtile" aria-expanded="${open}"
+        onclick="tapSubject('${child.id}','${subject.subject}')">
         <span class="tilering">
           <svg viewBox="0 0 44 44" aria-hidden="true">
             <circle class="rbg" cx="22" cy="22" r="19"></circle>
@@ -5207,23 +5273,24 @@ function learnScreenHTML(child){
         </span>
         <span class="tilename">${escapeHtml(subject.name)}</span>
         <span class="tilecount">${yearName?escapeHtml(yearName)+" \u00b7 ":""}${done}/${total}</span>
+        <span class="tilechev" aria-hidden="true">\u203a</span>
       </button>`;
+    const body=open
+      ? `<div class="subjopen">
+           <div class="openhead"><span class="openname">${escapeHtml(subject.name)}</span>
+             <button type="button" class="openclose"
+               onclick="tapSubject('${child.id}','${subject.subject}')"
+               aria-label="Close ${escapeHtml(subject.name)}">\u2715 Close</button></div>
+           ${shown.map(st=>ladderHTML(child, subject, st, canSecure)).join("")}
+         </div>`
+      : "";
+    return `<section class="subjcell ${tone}${open?" open":""}"
+        id="subjcell-${subject.subject}">${tile}${body}</section>`;
   }).join("");
-  const ladders = openSubject
-    ? `<section class="subjopen ${SUBJECT_TONE[openSubject.subject]||"s-other"}">
-         <div class="openhead"><span class="openicon">${openSubject.icon}</span>
-           <span class="openname">${escapeHtml(openSubject.name)}</span>
-           <button type="button" class="openclose"
-             onclick="tapSubject('${child.id}','${openSubject.subject}')"
-             aria-label="Close ${escapeHtml(openSubject.name)}">\u2715</button></div>
-         ${openShown.map(st=>ladderHTML(child, openSubject, st, canSecure)).join("")}
-       </section>`
-    : "";
   return teachersCardHTML(child)
     + (forChild ? learnExtrasHTML(child) : "")
     + `<p class="learneyebrow">Where I\u2019m up to</p>`
-    + `<div class="subjgrid">${tiles}</div>`
-    + ladders
+    + `<div class="subjgrid">${cells}</div>`
     + `<p class="kidfooter">Tap a subject to see what is in it. Mark <strong>Practised</strong> when you\u2019ve worked on something \u2014 only a grown-up can mark it secure.</p>`;
 }
 /* One re-render for whichever Learn surface is on screen: the child\u2019s tab or
@@ -7112,23 +7179,52 @@ function bigThingsHTML(child){
       <p>\ud83c\udf1f Mum or Dad haven\u2019t chosen any big things to save for yet.
          Ask them what could go on the list.</p></section>`;
   }
-  const rows=goals.slice().sort((a,b)=>(a.points||0)-(b.points||0)).map(g=>{
-    const can=have>=(g.points||0);
-    const pct=Math.max(5, Math.min(100, Math.round(have/(g.points||1)*100)));
-    return `<button class="bigrow${can?" can":""}"${can?"":" disabled"}
-      onclick="popThen(this);kidVaultOut('${g.id}')">
-      <span class="bigicon">${can?"\ud83c\udf1f":"\ud83c\udfaf"}</span>
-      <span class="bigmain">
-        <span class="bigname">${escapeHtml(g.name)}</span>
-        ${g.desc?`<span class="bigdesc">${escapeHtml(g.desc)}</span>`:""}
-        ${can ? `<span class="bignote ok">Your bank can buy this now</span>`
-              : `<span class="bigbar"><i style="width:${pct}%"></i></span>
-                 <span class="bignote">${nums ? "Bank has "+have+" of "+g.points : "Keep saving"}</span>`}
-      </span>
-    </button>`;
-  }).join("");
-  return `<p class="reachcap">\ud83c\udf1f What the bank is for</p>
-    <section class="c-panel bigpanel">${rows}</section>`;
+  /* Eight full-width rows of grey text with an identical dart on every one is
+     a list you scroll rather than a set of things you want. These are wishes,
+     and the app already has a shape for a wish a child is looking at: the
+     square tile on the Rewards screen. Same tile, same tinted disc, same
+     "you have X of Y" bar - so the two lists a child chooses from look and
+     work alike, and the only real difference stays visible: these cost the
+     bank, not the balance. */
+  const sorted=goals.slice().sort((a,b)=>(a.points||0)-(b.points||0));
+  const can  =sorted.filter(g=>have>=(g.points||0));
+  const soon =sorted.filter(g=>have< (g.points||0));
+  const tile=(g,ready,i)=>{
+    const pct=Math.max(6, Math.min(100, Math.round((have/(g.points||1))*100)));
+    return `<article class="cattile k${i%6}${ready?"":" outofreach"}">
+      <button class="cattilebtn rewardtile bigtile"${ready?"":" disabled"}
+        onclick="popThen(this);kidVaultOut('${g.id}')">
+        <span class="ticon">${ready?"\ud83c\udf1f":"\ud83c\udfaf"}</span>
+        <span class="tname">${escapeHtml(g.name)}</span>
+        ${ready
+          ? `<span class="tpts earned">${nums ? g.points+" pts" : "Ready"}</span>`
+          : `<span class="reachbar sm"><i style="width:${pct}%"></i></span>
+             <span class="tgap">${nums ? "Bank has "+have+" of "+g.points : "Keep saving"}</span>`}
+      </button>
+    </article>`;
+  };
+  /* Nearest first, and only three of them. The point of the bank is that most
+     of this list is meant to be out of reach - showing all eight at once turns
+     a goal into a wall. "See them all" is there for the child who wants the
+     wall. */
+  const SHOW=3;
+  const more=Math.max(0, soon.length-SHOW);
+  return `${can.length ? `<p class="reachcap">\ud83c\udf1f Your bank can buy this now</p>
+      <div class="cattiles">${can.map((g,i)=>tile(g,true,i)).join("")}</div>` : ""}
+    ${soon.length ? `<p class="reachcap">\ud83c\udfaf What the bank is for</p>
+      <div class="cattiles">${(kidShowAllBig ? soon : soon.slice(0,SHOW))
+        .map((g,i)=>tile(g,false,i+2)).join("")}</div>
+      ${more && !kidShowAllBig
+        ? `<button class="reachmore" onclick="toggleAllBig()">See all ${soon.length}</button>`
+        : (kidShowAllBig && soon.length>SHOW
+            ? `<button class="reachmore" onclick="toggleAllBig()">Show fewer</button>` : "")}` : ""}`;
+}
+let kidShowAllBig=false;
+function toggleAllBig(){
+  kidShowAllBig=!kidShowAllBig;
+  const el=document.getElementById("kidBigThings");
+  const child=sessionMember();
+  if(el && child) el.innerHTML=bigThingsHTML(child);
 }
 async function kidVaultIn(amount){
   const child=sessionMember();
@@ -8203,10 +8299,25 @@ function showDeenPanel(){
 function renderDeenPanel(){
   const body=document.getElementById("deenBody");
   if(!body) return;
-  ["duas","reminders","stories"].forEach(t=>{
-    const b=document.getElementById(t==="duas"?"deenTabDuas":t==="reminders"?"deenTabRem":"deenTabStories");
+  ["duas","reminders","stories","prayers"].forEach(t=>{
+    const b=document.getElementById(t==="duas"?"deenTabDuas":t==="reminders"?"deenTabRem"
+      :t==="stories"?"deenTabStories":"deenTabPrayers");
     if(b) b.classList.toggle("on", deenTab===t);
   });
+  /* The prayer board came off My points in v155. A record of salah is not a
+     points balance, and it should not be reached by tapping a star labelled
+     with a number. It belongs with the duas and the reminders. */
+  if(deenTab==="prayers"){
+    const me=sessionMember();
+    const kid=me && isChildRole(me) ? me : (typeof currentChild==="function" ? currentChild() : null);
+    body.innerHTML = kid
+      ? `<h2>\ud83d\udd4c My prayers</h2>
+         <p class="small">The last week. A square is a prayer somebody recorded \u2014 nothing here
+           counts towards points, and nothing is taken away for a square that is empty.</p>
+         ${prayerWallHTML(kid, 7, true)}`
+      : `<p class="small">Open a child from Family members to see their prayer board.</p>`;
+    return;
+  }
   if(deenTab==="duas"){
     const now=duaOfNow();
     const shown=DUAS.filter(d=>duaFilter==="all" || duaGroupOf(d)===duaFilter);
@@ -8256,6 +8367,23 @@ function reminderCardHTML(){
       <p class="rlead">${escapeHtml(r.text)}</p>
       <p class="rsrc">${escapeHtml(r.src)}</p>
     </section>`;
+}
+/* The same thought a grown-up gets, sized for a child's home screen: one line,
+   no narrator, no source. The attribution is not dropped - it is one tap away
+   in Reminders, where a parent reading with them can see it. Putting "Meaning
+   of a hadith - Bukhari & Muslim" under a sentence a seven-year-old is trying
+   to read is how the card ended up being deleted from this screen. */
+function kidReminderHTML(){
+  const r=pickOfDay(REMINDERS);
+  if(!r) return "";
+  return `<button type="button" class="kidremind ${r.theme||"t1"}" onclick="showDeenPanel()">
+      <span class="krglyph" aria-hidden="true">${r.glyph||"\ud83d\udca1"}</span>
+      <span class="krmain">
+        <span class="krtag">Something to think about</span>
+        <span class="krtext">${escapeHtml(r.text)}</span>
+      </span>
+      <span class="krchev" aria-hidden="true">\u203a</span>
+    </button>`;
 }
 function duaCardHTML(d, pinned){
   const t=themeOfDua(d);
@@ -10981,7 +11109,7 @@ function renderKidView(child){
      child's screen they were words a seven-year-old has to wade through to
      reach their own things. Both live on the parent's side. */
   const kr=document.getElementById("kidReminder");
-  if(kr) kr.innerHTML = "";
+  if(kr) kr.innerHTML = kidReminderHTML();
   renderSoundToggle();
   const boost=document.getElementById("kidBoostCard");
   if(boost) boost.classList.remove("hidden");
