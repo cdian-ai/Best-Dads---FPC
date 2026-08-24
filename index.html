@@ -1195,8 +1195,9 @@
     animation:menuup .26s cubic-bezier(.2,.85,.25,1)}
   @keyframes menuup{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:none}}
   @media (prefers-reduced-motion:reduce){.menupanel{animation:none}}
-  .menutop{display:flex;align-items:center;gap:12px;margin:2px 2px 8px}
-  .menuhi{flex:1;min-width:0;margin:0;font-size:14px;font-weight:800;color:var(--muted)}
+  .menutop{display:flex;align-items:center;gap:12px;margin:2px 2px 10px;min-height:44px}
+  .menuhi{flex:1;min-width:0;margin:0;font-size:15px;font-weight:800;color:#2c3350;
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .menuclose{flex:none;width:44px;height:44px;border-radius:50%;border:1px solid #e6e8f0;
     background:#fff;font-size:16px;font-weight:800;color:#5a6172;cursor:pointer;padding:0}
   .menuclose:active{transform:scale(.94)}
@@ -1220,7 +1221,40 @@
   .menutile.t-today {background:linear-gradient(160deg,#fff,#e9ecf9);border-color:#dbe0f2;color:#2c3350}
   .menutile.t-plain {background:#fff}
   /* Settings are not destinations, so they never become tiles. */
-  .menupills{display:flex;flex-wrap:wrap;gap:8px}
+  /* Pushed well clear of the tiles above, with a hairline, so they stop
+     reading as a third row of the grid. These end the screen; they are not
+     part of it. */
+  /* ---- colour per room, parent side ----
+     The child screens have carried a colour each since v158 - green Rewards,
+     violet Learn, gold points - and v169 put the same colours on the menu
+     tiles. The parent's panels were the last surface still uniformly white,
+     so a parent who tapped a green tile landed somewhere that looked like
+     every other page and had to read the heading to know where they were.
+     Each panel now wears the tone of the tile that opened it: a rule under
+     the back button, and the heading in the room's ink. Just enough to be
+     recognised on arrival, not enough to repaint the page. */
+  .panel.r-today  .panelback,.panel.r-points .panelback,.panel.r-learn .panelback,
+  .panel.r-deen   .panelback,.panel.r-play   .panelback,.panel.r-spend .panelback,
+  .panel.r-plain  .panelback{margin-bottom:12px}
+  .panel.r-today::before,.panel.r-points::before,.panel.r-learn::before,
+  .panel.r-spend::before,.panel.r-deen::before,.panel.r-play::before,
+  .panel.r-plain::before{content:"";display:block;height:3px;border-radius:99px;
+    margin:0 0 16px;background:#e3e6ef}
+  .panel.r-today::before {background:linear-gradient(90deg,#4d56c9,rgba(77,86,201,0))}
+  .panel.r-points::before{background:linear-gradient(90deg,#dda520,rgba(221,165,32,0))}
+  .panel.r-learn::before {background:linear-gradient(90deg,#7457d4,rgba(116,87,212,0))}
+  .panel.r-spend::before {background:linear-gradient(90deg,#177f5c,rgba(23,127,92,0))}
+  .panel.r-deen::before  {background:linear-gradient(90deg,#2f8f8a,rgba(47,143,138,0))}
+  .panel.r-play::before  {background:linear-gradient(90deg,#d97a1c,rgba(217,122,28,0))}
+  .panel.r-plain::before {background:linear-gradient(90deg,#9aa0b4,rgba(154,160,180,0))}
+  .panel.r-today  > h2,.panel.r-today  .panelgrid > section > h2{color:#2b2e73}
+  .panel.r-points > h2,.panel.r-points .panelgrid > section > h2{color:#6d4d05}
+  .panel.r-learn  > h2,.panel.r-learn  .panelgrid > section > h2{color:#452a7a}
+  .panel.r-spend  > h2,.panel.r-spend  .panelgrid > section > h2{color:#12603f}
+  .panel.r-deen   > h2,.panel.r-deen   .panelgrid > section > h2{color:#12554f}
+  .panel.r-play   > h2,.panel.r-play   .panelgrid > section > h2{color:#8a4a15}
+  .menupills{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px;padding-top:22px;
+    border-top:1px solid #e6e8f0}
   .menupills button{flex:1 1 auto;width:auto;min-height:48px;padding:13px 16px;border-radius:99px;
     border:1px solid #e6e8f0;background:#fff;font-size:13.5px;font-weight:700;
     color:#5a6172;cursor:pointer}
@@ -2347,7 +2381,7 @@
     <div id="whoStrip" class="whostrip hidden"></div>
   </div>
 
-  <div id="accountPanel" class="panel hidden">
+  <div id="accountPanel" class="panel r-plain hidden">
     <button class="panelback" onclick="goHome()">← Home</button>
     <div class="panelgrid">
       <!-- Prayer times are worked out on this device from the sun's position.
@@ -2435,7 +2469,7 @@
     </div>
   </div>
 
-  <div id="overviewPanel" class="panel hidden">
+  <div id="overviewPanel" class="panel r-points hidden">
     <button class="panelback" onclick="goHome()">← Home</button>
     <div id="fortnight"></div>
     <h2>📊 Family Overview</h2>
@@ -2443,14 +2477,14 @@
     <div id="overviewList" class="overviewgrid"></div>
   </div>
 
-  <div id="progressPanel" class="panel hidden">
+  <div id="progressPanel" class="panel r-learn hidden">
     <button class="panelback" onclick="panelBack()">← Home</button>
     <h2>📖 Learn</h2>
     <p class="small">What each child has practised and what they can do unaided. Every mark shows who made it.</p>
     <div id="progressBody" style="margin-top:10px"></div>
   </div>
 
-  <div id="deenPanel" class="panel hidden">
+  <div id="deenPanel" class="panel r-deen hidden">
     <button class="panelback" onclick="goHome()">← Home</button>
     <div class="spendtabs" style="max-width:460px">
       <button id="deenTabDuas" onclick="setDeenTab('duas')">🤲 Duas</button>
@@ -2461,12 +2495,12 @@
     <div id="deenBody"></div>
   </div>
 
-  <div id="treePanel" class="panel hidden">
+  <div id="treePanel" class="panel r-plain hidden">
     <button class="panelback" onclick="goHome()">← Home</button>
     <div id="treeBody"></div>
   </div>
 
-  <div id="tutorPanel" class="panel hidden">
+  <div id="tutorPanel" class="panel r-plain hidden">
     <button class="panelback" onclick="goHome()">← Home</button>
     <h2>📚 Tutors</h2>
     <p class="small">Anyone who teaches one of your children. They see only the children you assign them, record up to 5 points once a day, and everything they record shows on your home screen with an undo.</p>
@@ -2474,7 +2508,7 @@
     <div id="tutorList" style="display:grid;gap:10px;margin-top:16px"></div>
   </div>
 
-  <div id="quickPanel" class="panel hidden">
+  <div id="quickPanel" class="panel r-today hidden">
     <button class="panelback" onclick="goHome()">← Home</button>
     <h2>🔥 All at once</h2>
     <p class="small">For catching up on the whole family in one pass — usually at the end of the week. To award one child, open them from Give points instead.</p>
@@ -2487,14 +2521,14 @@
     </div>
   </div>
 
-  <div id="reviewPanel" class="panel hidden">
+  <div id="reviewPanel" class="panel r-today hidden">
     <button class="panelback" onclick="goHome()">← Home</button>
     <h2>🗣️ Review together</h2>
     <p class="small">Sit down with them and go through the week. Everything is already decided — this is the talking part.</p>
     <div id="reviewBody" style="margin-top:12px"></div>
   </div>
 
-  <div id="rulesPanel" class="panel hidden">
+  <div id="rulesPanel" class="panel r-plain hidden">
     <button class="panelback" onclick="goHome()">← Home</button>
     <div class="spendtabs" style="max-width:420px">
       <button id="rulesTabKids" onclick="setRulesTab('kids')">For children</button>
@@ -2503,14 +2537,14 @@
     <div id="rulesBody"></div>
   </div>
 
-  <div id="rewardsPanel" class="panel hidden">
+  <div id="rewardsPanel" class="panel r-plain hidden">
     <button class="panelback" onclick="goHome()">← Home</button>
     <div id="parentGoal"></div>
     <div id="goalIdeas"></div>
     <div id="rewardsPanelBody"></div>
   </div>
 
-  <div id="grownupsPanel" class="panel hidden">
+  <div id="grownupsPanel" class="panel r-spend hidden">
     <button class="panelback" onclick="panelBack()">← Home</button>
     <h2>🤝 Your reward list</h2>
     <p class="small">What the two of you can claim, and what your partner has put on the list.</p>
@@ -2518,7 +2552,7 @@
     <div id="grownupsPanelBody"></div>
   </div>
 
-  <div id="pledgesPanel" class="panel hidden">
+  <div id="pledgesPanel" class="panel r-spend hidden">
     <button class="panelback" onclick="panelBack()">← Home</button>
     <h2>🤞 Pledges</h2>
     <p class="small">Something you offer each other for the week. No asking needed — it is already promised.</p>
@@ -2527,14 +2561,14 @@
 
   </div>
 
-  <div id="notesPanel" class="panel hidden">
+  <div id="notesPanel" class="panel r-today hidden">
     <button class="panelback" onclick="panelBack()">← Home</button>
     <h2>📌 I’m asking…</h2>
     <p class="small">One note per child, up to six things on it — mix what earns points with what doesn’t. They read it next time they open the app. Nothing is deducted if it doesn’t happen.</p>
     <div id="notesBody"></div>
   </div>
 
-  <div id="playPanel" class="panel hidden">
+  <div id="playPanel" class="panel r-play hidden">
     <button class="panelback" onclick="panelBack()">← Home</button>
     <h2>🧩 Do together</h2>
     <p class="small">Places to go, things to make, games to play — side by side. Nothing here costs points.</p>
@@ -2548,7 +2582,7 @@
     <div id="pickList" style="display:grid;gap:9px;margin-top:14px"></div>
   </div>
 
-  <div id="requestsPanel" class="panel hidden">
+  <div id="requestsPanel" class="panel r-today hidden">
     <button class="panelback" onclick="goHome()">← Home</button>
     <h2>🔔 They’re asking…</h2>
     <p class="small">When a child asks for a reward or an activity, it shows up here for you to approve.</p>
@@ -2558,7 +2592,7 @@
     <div id="offersList" style="display:grid;gap:8px;margin-top:10px"></div>
   </div>
 
-  <div id="activityPanel" class="panel hidden">
+  <div id="activityPanel" class="panel r-today hidden">
     <button class="panelback" onclick="goHome()">← Home</button>
     <div id="outsideFeed"></div>
     <div id="dailyReminder" class="hidden"></div>
@@ -4812,7 +4846,7 @@ const TIP_CATS = [
   {key:"deen", label:"Deen"}
 ];
 
-const APP_VERSION = "v169";
+const APP_VERSION = "v170";
 const today = new Date().toISOString().slice(0,10);
 let app = {families:[],currentFamily:null,currentChild:null};
 let categories = [];
@@ -10518,13 +10552,20 @@ function render(){
        on top of the thing the child just opened and offers a way out of a
        screen they have only just arrived at. Those screens carry their own
        back button, so the floating one is noise. */
-    const inPot = ["kidSpendScreen","kidBankScreen","kidGiveScreen"].indexOf(screenNow)>=0;
-    mf.classList.toggle("hidden", gated || inPot || !(ready && (parentOn || kidOn)));
+    const inPot = screenNow==="kidBankScreen" || screenNow==="kidGiveScreen"
+      || (screenNow==="kidSpendScreen" && spendVia==="points");
     const sheet=document.getElementById(kidOn ? "kidMenuSheet" : "menuSheet");
     const open = !!sheet && !sheet.classList.contains("hidden");
+    /* v170: while the menu is open the fab is hidden outright. It used to turn
+       into a second "Close" pinned to the top-left of the screen, which landed
+       squarely on top of the name inside the panel - so the child could not
+       see whose menu they were in, and there were two controls doing the same
+       job. The panel has its own close, in its own top row, which is where a
+       close belongs on a screen. */
+    mf.classList.toggle("hidden", gated || inPot || open || !(ready && (parentOn || kidOn)));
     const onPanel = !!screenNow && !kidOn;
-    mf.textContent = (open || onPanel) ? "\u2715 Close" : "\u2630 Menu";
-    mf.classList.toggle("closing", open || onPanel);
+    mf.textContent = onPanel ? "\u2715 Close" : "\u2630 Menu";
+    mf.classList.toggle("closing", onPanel);
   }
   const vtl=document.getElementById("vaultTargetLabel");
   if(vtl) vtl.textContent = vaultTarget();
