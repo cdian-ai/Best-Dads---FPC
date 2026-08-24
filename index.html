@@ -584,11 +584,21 @@
   /* A jar that fills. Saving is invisible by nature, so it needs a picture. */
   .banklesson{margin:10px 0 0;background:#f3f7ff;border-left:3px solid #9fb2ee;border-radius:0 12px 12px 0;
     padding:10px 12px;font-size:12.5px;font-weight:600;line-height:1.5;color:#3f4560}
-  .vaultjar{width:96px;height:120px;flex:none;display:block}
-  .vaulttop{display:flex;align-items:center;gap:16px}
+  /* This card is white-on-orange, but the heading and lede were inheriting the
+     app's dark ink and muted grey, so both were almost invisible on it. */
+  .vaultjar{width:126px;height:158px;flex:none;display:block;
+    filter:drop-shadow(0 8px 18px rgba(0,0,0,.22))}
+  .vaulttop{display:flex;align-items:center;gap:18px}
   .vaultwords{flex:1;min-width:0}
-  .vaultwords h2{margin:0 0 6px;font-size:18px}
-  .vaultwords .lede{margin:0;font-size:13.5px;line-height:1.55;color:var(--muted)}
+  .vaultwords h2{margin:0 0 8px;font-size:24px;font-weight:800;color:#fff;line-height:1.2}
+  .vaultwords .lede{margin:0;font-size:15px;line-height:1.5;color:#fff;opacity:.96;font-weight:600}
+  .vaultcard .banklesson{background:rgba(255,255,255,.96);border-left-color:#c2410c;
+    color:#4a2c0a;font-size:13.5px;margin-top:14px}
+  @media(max-width:400px){
+    .vaulttop{gap:14px}
+    .vaultjar{width:100px;height:126px}
+    .vaultwords h2{font-size:21px}
+  }
   .ptsintro{margin:-6px 2px 16px;font-size:13.5px;line-height:1.55;color:var(--muted)}
   .reachcap{margin:18px 2px 10px;font-size:15px;font-weight:800;color:var(--ink);
     display:flex;align-items:center;gap:11px}
@@ -611,6 +621,8 @@
   .reachpts{flex:none;background:#e3f6ef;color:#1c8a6c;border-radius:99px;padding:7px 12px;
     font-size:14px;font-weight:800}
   .reachempty{margin:0;font-size:14.5px;line-height:1.6;color:var(--muted)}
+  .reachmore{width:100%;margin:2px 0 4px;background:#fff;border:1px solid #e9ebf3;border-radius:16px;
+    padding:13px;font-size:14.5px;font-weight:800;color:#3e46ad;cursor:pointer;min-height:48px}
   .waitcap{margin:0 0 8px;padding:0 4px;font-size:12px;font-weight:800;letter-spacing:.05em;
     text-transform:uppercase;color:#8a90a6}
   .spendicon{flex:none;font-size:30px;line-height:1}
@@ -3985,7 +3997,7 @@ const TIP_CATS = [
   {key:"deen", label:"Deen"}
 ];
 
-const APP_VERSION = "v148";
+const APP_VERSION = "v149";
 const today = new Date().toISOString().slice(0,10);
 let app = {families:[],currentFamily:null,currentChild:null};
 let categories = [];
@@ -6604,10 +6616,22 @@ function reachListHTML(child){
       </button>
     </article>`;
   };
-  return `${ready.length ? `<p class="reachcap">\u2b50 Ready now</p>
-      <div class="cattiles">${ready.slice().reverse().map((r,i)=>tile(r,true,i)).join("")}</div>` : ""}
-    ${soon.length ? `<p class="reachcap">\ud83c\udf31 Growing towards</p>
-      <div class="cattiles">${soon.slice(0,4).map((r,i)=>tile(r,false,i+3)).join("")}</div>` : ""}`;
+  /* Nearly there comes first. Something a child is close to is the thing they
+     came to look at; what they can already have will still be there. Ready now
+     is capped so it cannot bury the bank underneath it \u2014 a long list of
+     affordable treats was pushing saving off the bottom of the screen. */
+  const SHOW=4;
+  const more=Math.max(0, ready.length-SHOW);
+  const shown=ready.slice().reverse();
+  return `${soon.length ? `<p class="reachcap">\ud83c\udf31 Nearly there</p>
+      <div class="cattiles">${soon.slice(0,2).map((r,i)=>tile(r,false,i+3)).join("")}</div>` : ""}
+    ${ready.length ? `<p class="reachcap">\u2b50 Ready now</p>
+      <div class="cattiles">${(kidShowAllRewards ? shown : shown.slice(0,SHOW))
+        .map((r,i)=>tile(r,true,i)).join("")}</div>
+      ${more && !kidShowAllRewards
+        ? `<button class="reachmore" onclick="toggleAllRewards()">Show ${more} more</button>`
+        : (kidShowAllRewards && ready.length>SHOW
+            ? `<button class="reachmore" onclick="toggleAllRewards()">Show fewer</button>` : "")}` : ""}`;
 }
 /* Saving is invisible by nature, so it needs a picture: a jar that fills with
    what is locked away and turns gold when it is full. */
@@ -6682,11 +6706,11 @@ function kidVaultHTML(child){
           <h2>\ud83c\udfe6 My bank</h2>
           <p class="lede">${unlocked
             ? "It\u2019s full! You can choose something big."
-            : "Points in here are safe. They\u2019re growing towards something big."}</p>
-          ${nums ? `<p class="banklesson">${bankLesson(child, have, target, spendable)}</p>` : ""}
+            : "Only points saved in here can buy the big things. A good week can\u2019t."}</p>
           ${nums ? `<div class="vaulttotal"><strong>${have}</strong><span>saved of ${target}</span></div>` : ""}
         </div>
       </div>
+      ${nums ? `<p class="banklesson">${bankLesson(child, have, target, spendable)}</p>` : ""}
       <div class="vaultbar hidden"><i style="width:${pct}%"></i></div>
       <p class="vaultmeta">${unlocked
         ? "\ud83c\udf89 Unlocked! You can choose something big below."
