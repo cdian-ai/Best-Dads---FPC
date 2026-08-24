@@ -32,6 +32,17 @@
        font-family:system-ui,-apple-system,Segoe UI,sans-serif;color:var(--ink)}
   .wrap{max-width:1100px;margin:auto;padding:24px}
   header{background:var(--card);border-radius:24px;padding:24px;box-shadow:var(--shadow);margin-bottom:18px}
+  /* With a family photo the header stops being a white pane and becomes the
+     top of the page, so only one thing on this screen is hero-sized. */
+  header.hascover{background:none;box-shadow:none;padding:0;border-radius:0;
+    margin:calc(-14px - env(safe-area-inset-top)) -14px 18px;overflow:hidden}
+  header.hascover .logo{position:absolute;left:50%;transform:translateX(-50%);
+    top:calc(14px + env(safe-area-inset-top));z-index:3}
+  header.hascover .familycover{margin:0;border-radius:0 0 26px 26px;
+    height:24svh;min-height:172px;max-height:230px}
+  header.hascover .coverfade{background:linear-gradient(180deg,rgba(0,0,0,.34) 0%,
+    rgba(0,0,0,0) 38%,rgba(0,0,0,.55) 100%)}
+  header.hascover .accountbar{padding:0 16px}
   h1{margin:0 0 6px;font-size:30px}
   .sub{color:var(--muted);margin:0}
   input,select,button,textarea{font:inherit}
@@ -514,7 +525,7 @@
   .spendtabs{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
   .spendtabs button{background:#eef0ff;color:#3e46ad;font-size:13px;padding:13px 6px;width:auto}
   .spendtabs button.on{background:var(--accent);color:#fff}
-  @media(max-width:760px){ .familycover{height:31svh;min-height:190px} }
+  @media(max-width:760px){ header.hascover .familycover{height:22svh;min-height:160px} }
   .accountbar:empty,.accountbar.bare{background:none;border:0;box-shadow:none;padding:0;margin:0}
   .accountbuttons{display:flex;gap:8px;flex-wrap:wrap}.small{font-size:12px;color:var(--muted);margin-top:3px}
   /* Everything except the one action a parent actually came here to do lives
@@ -670,11 +681,28 @@
   /* Uppercase 10px in grey is a whisper. A group heading has to be findable
      while scrolling past at speed, so it is set at reading size with a rule
      running out from it. */
+  /* On the dashboard the reminder is a visitor, not the point of the page. */
+  .grid .rcard{min-height:0;padding:18px 18px 16px}
+  .grid .rcard .rglyph{font-size:88px;right:-10px;bottom:-16px;opacity:.11}
+  .grid .rcard h3,.grid .rcard .rlead{font-size:19px;line-height:1.3}
+  .grid .rcard .rsub{font-size:14.5px}
+  .grid .rcard .rtag{margin-bottom:9px;padding:5px 11px;font-size:11px}
+  .grid .rcard .rsrc{margin-top:10px;font-size:12px}
   .grid #attention:empty{display:none}
   .homegrid+.attncard,.homegrid+.coach,.homegrid+.rcard{margin-top:14px}
   .attncard+.homegrid,.coach+.homegrid,.rcard+.homegrid{margin-top:14px}
   /* A row you flick, with the scrollbar hidden and snap points so a card
      always lands square rather than half off the edge. */
+  .todaypair{display:grid;grid-template-columns:repeat(2,1fr);gap:11px;margin-bottom:4px}
+  .todaytile{position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:5px;
+    min-height:118px;border-radius:22px;padding:16px 15px;text-align:left;cursor:pointer;
+    border:1px solid transparent;box-shadow:none}
+  .todaytile:active{transform:scale(.97)}
+  .todaytile .hicon{font-size:25px;line-height:1}
+  .todaytile .hname{font-size:15.5px;font-weight:800;line-height:1.2}
+  .todaytile .hsub{font-size:11.5px;font-weight:600;line-height:1.35;opacity:.8}
+  .todaytile.t-gold{background:linear-gradient(150deg,#fff4dd,#ffe6ba);border-color:#f0dcb2;color:#6a4a05}
+  .todaytile.t-bell{background:linear-gradient(150deg,#e8e9ff,#d9dbfb);border-color:#cdd0f5;color:#2b2e73}
   .shelf{margin:0 -16px}
   .shelfrow{display:flex;gap:11px;overflow-x:auto;padding:2px 16px 8px;
     scroll-snap-type:x mandatory;scrollbar-width:none;-webkit-overflow-scrolling:touch;
@@ -688,7 +716,10 @@
   .shelftile .hicon{font-size:26px;line-height:1}
   .shelftile .hname{font-size:14.5px;font-weight:800;line-height:1.2;color:var(--ink)}
   .shelftile .hsub{font-size:11.5px;font-weight:600;color:var(--muted);line-height:1.35}
-  .homegroup{display:flex;align-items:center;gap:12px;margin:26px 2px 12px;
+  .homegrid+.attncard,.homegrid+.coach,.homegrid+.rcard,
+  .todaypair+.attncard,.todaypair+.coach,.todaypair+.rcard{margin-top:12px}
+  .attncard+.todaypair,.coach+.todaypair,.rcard+.todaypair{margin-top:12px}
+  .homegroup{display:flex;align-items:center;gap:12px;margin:24px 2px 12px;
     font-size:15px;font-weight:800;letter-spacing:0;text-transform:none;color:var(--ink)}
   .homegroup::after{content:"";flex:1;height:1px;background:#dfe2ee}
   .hometile{position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:4px;
@@ -3784,7 +3815,7 @@ const TIP_CATS = [
   {key:"deen", label:"Deen"}
 ];
 
-const APP_VERSION = "v131";
+const APP_VERSION = "v132";
 const today = new Date().toISOString().slice(0,10);
 let app = {families:[],currentFamily:null,currentChild:null};
 let categories = [];
@@ -4042,6 +4073,8 @@ function renderFamilyCover(){
   }
   const f=currentFamily();
   if(!f){ cover.classList.add("hidden"); empty.classList.add("hidden"); return; }
+  const hdr=document.querySelector("header");
+  if(hdr) hdr.classList.toggle("hascover", !!f.photo);
   if(f.photo){
     cover.style.backgroundImage = "url('" + f.photo + "')";
     document.getElementById("coverName").textContent = f.name || "";
@@ -8918,6 +8951,13 @@ function renderParentAdminView(parent){
   const offers=pendingOffers();
   const weekDates=getCurrentWeekDates();
   const weekTotal=kids.reduce((a,c)=>a+weeklyTotalFor(c,weekDates),0);
+  /* Today's two jobs. Coloured and weightier than the shelf below, because
+     they are things to do now rather than places to go. */
+  const todayTile=(tone,icon,name,sub,fn,badge)=>`<button class="todaytile t-${tone}" onclick="${fn}">
+      ${badge?`<span class="hbadge">${badge}</span>`:""}
+      <span class="hicon">${icon}</span>
+      <span class="hname">${name}</span>
+      <span class="hsub">${sub}</span></button>`;
   /* One card wide enough to read, narrow enough that the next one shows at the
      edge \u2014 which is what tells you the row moves. */
   const shelfTile=(icon,name,sub,fn,badge)=>`<button class="shelftile" onclick="${fn}">
@@ -8942,9 +8982,9 @@ function renderParentAdminView(parent){
         </button>
       </div>
       ${attentionHTML()}
-      <div class="homegrid">
-        ${tile("\ud83d\udccc","I\u2019m asking\u2026","What you\u2019ve asked of them today","showNotesPanel()")}
-        ${tile("\ud83d\udd14","Requests", pend.length?pend.length+" waiting on you":"Nothing waiting","showRequestsPanel()", pend.length||0)}
+      <div class="todaypair">
+        ${todayTile("gold","\ud83d\udccc","I\u2019m asking\u2026","What you\u2019ve asked of them","showNotesPanel()")}
+        ${todayTile("bell","\ud83d\udd14","Requests", pend.length?pend.length+" waiting on you":"Nothing waiting","showRequestsPanel()", pend.length||0)}
       </div>
       <!-- Ten tiles stacked under two headings was most of the scrolling on
            this screen. Everything that is not today lives on one shelf you
