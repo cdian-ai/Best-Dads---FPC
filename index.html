@@ -602,6 +602,37 @@
     border-radius:14px;padding:11px 13px;font-size:14px;font-weight:700;color:#245a49}
   .givelist li span{flex:1;min-width:0}
   .givelist li em{flex:none;font-style:normal;font-size:12.5px;font-weight:800;color:#4f8874}
+  /* Big things: the same row shape as a reward, so a child reads them the same
+     way — but paid from the bank, which is why they live beside it. */
+  /* The shop's receipt: what was asked for and what came of it. */
+  .askedpanel{padding:4px 14px}
+  .askedrow{display:flex;align-items:center;gap:12px;padding:14px 0;min-height:62px}
+  .askedrow+.askedrow{box-shadow:inset 0 1px 0 #f1f2f8}
+  .askedicon{flex:none;width:38px;height:38px;border-radius:13px;background:#f2f3fb;
+    display:flex;align-items:center;justify-content:center;font-size:18px}
+  .askedrow.yes .askedicon{background:#e3f6ef}
+  .askedrow.waiting .askedicon{background:#fff4dd}
+  .askedmain{flex:1;min-width:0}
+  .askedname{display:block;font-size:15.5px;font-weight:800;color:var(--ink);line-height:1.3}
+  .askednote{display:block;font-size:12.5px;font-weight:700;color:var(--muted);margin-top:3px}
+  .askedrow.yes .askednote{color:#1c8a6c}
+  .bigpanel{padding:4px 14px}
+  .bigrow{display:flex;align-items:center;gap:13px;width:100%;background:none;border:0;
+    padding:15px 0;text-align:left;cursor:pointer;min-height:72px}
+  .bigrow+.bigrow{box-shadow:inset 0 1px 0 #f1f2f8}
+  .bigrow[disabled]{cursor:default}
+  .bigicon{flex:none;width:46px;height:46px;border-radius:16px;background:#fdf1d8;
+    display:flex;align-items:center;justify-content:center;font-size:23px}
+  .bigrow.can .bigicon{background:linear-gradient(150deg,#fbe6b4,#f3cf7d)}
+  .bigmain{flex:1;min-width:0}
+  .bigname{display:block;font-size:16px;font-weight:800;color:var(--ink);line-height:1.3}
+  .bigdesc{display:block;font-size:12px;color:var(--muted);margin-top:2px;line-height:1.4}
+  .bigbar{display:block;height:7px;border-radius:99px;background:#f2edE2;overflow:hidden;margin:8px 0 6px}
+  .bigbar i{display:block;height:100%;border-radius:99px;
+    background:linear-gradient(90deg,#f3cf7d,#dda520);transition:width .6s cubic-bezier(.2,.8,.2,1)}
+  .bignote{display:block;font-size:12.5px;font-weight:700;color:#8a6a1c;line-height:1.4}
+  .bignote.ok{color:#1c8a6c;margin-top:4px}
+  .bigempty p{margin:0;font-size:14px;line-height:1.6;color:var(--muted)}
   .giveamts{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
   .giveamts button{background:#fff;border:1px solid #bfe4d2;color:#0b5545;border-radius:16px;
     padding:14px 6px;font-size:18px;font-weight:800;cursor:pointer;min-height:52px}
@@ -2179,8 +2210,6 @@
          shops. The vault is not a third tab either — it is the far end of the
          same list, so saving is the same act as spending, further off. -->
     <div id="kidReachList"></div>
-    <div id="kidVault"></div>
-    <div id="kidGivingPot"></div>
     <div id="kidSpendRequests"></div>
     <!-- Kept so existing code that writes here still has somewhere to write. -->
     <div class="hidden">
@@ -2204,10 +2233,17 @@
   <div id="kidPointsScreen" class="hidden">
     <header class="kidtitle w-points">
       <span class="kidtitleicon">⭐</span>
-      <span><span class="kidtitlename">My best bits</span>
-        <span class="kidtitlesub">Nothing here ever goes down</span></span>
+      <span><span class="kidtitlename">My points</span>
+        <span class="kidtitlesub">What you’ve earned, saved and given</span></span>
     </header>
     <div id="kidBest"></div>
+    <!-- Saving and giving live here, not in the shop. Rewards answers "what can
+         I have?"; this answers "what have I done with my points?" — and a child
+         going to buy a snack should not have to scroll past a lesson on saving
+         to reach it. -->
+    <div id="kidVault"></div>
+    <div id="kidBigThings"></div>
+    <div id="kidGivingPot"></div>
     <div id="championToggleRow"></div>
     <div id="prayerWall"></div>
     <div id="kidGraphWrap" class="graphcard"></div>
@@ -2231,7 +2267,7 @@
     <button id="kidTabHome" onclick="showScreen(null)"><span class="tabemoji">🏠</span>Home</button>
     <button id="kidTabSpend" onclick="showScreen('kidSpendScreen')"><span class="tabemoji">🎁</span>Rewards</button>
     <button id="kidTabLearn" onclick="showScreen('kidLearnScreen')"><span class="tabemoji">📖</span>Learn</button>
-    <button id="kidTabPoints" onclick="showScreen('kidPointsScreen')"><span class="tabemoji">⭐</span>My best</button>
+    <button id="kidTabPoints" onclick="showScreen('kidPointsScreen')"><span class="tabemoji">⭐</span>My points</button>
   </nav>
 </div>
 
@@ -3538,16 +3574,16 @@ const DEFAULT_REWARDS = [
 
   // Bank only. Things a parent would buy anyway, made into a lesson: they come
   // from money deliberately set aside, never from one good week.
-  {name:"A bicycle", points:4000, kind:"Big thing", group:"big", bank:true},
-  {name:"A scooter", points:2500, kind:"Big thing", group:"big", bank:true},
-  {name:"A games console game of your choice", points:2000, kind:"Big thing", group:"big", bank:true},
-  {name:"A tablet or games console", points:6000, kind:"Big thing", group:"big", bank:true},
-  {name:"New football boots", points:2200, kind:"Big thing", group:"big", bank:true},
-  {name:"A big Lego or building set", points:1800, kind:"Big thing", group:"big", bank:true},
-  {name:"Your Eid outfit, your choice", points:2500, kind:"Big thing", group:"big", bank:true},
-  {name:"A day out you choose \u2014 zoo, museum, farm", points:3000, kind:"Big thing", group:"big", bank:true},
-  {name:"The next books in a series you love", points:1500, kind:"Big thing", group:"big", bank:true},
-  {name:"A bedroom thing \u2014 poster, lamp, cushion", points:1200, kind:"Big thing", group:"big", bank:true},
+  {name:"A bicycle", points:4000, kind:"Big thing", group:"big", vault:true},
+  {name:"A scooter", points:2500, kind:"Big thing", group:"big", vault:true},
+  {name:"A games console game of your choice", points:2000, kind:"Big thing", group:"big", vault:true},
+  {name:"A tablet or games console", points:6000, kind:"Big thing", group:"big", vault:true},
+  {name:"New football boots", points:2200, kind:"Big thing", group:"big", vault:true},
+  {name:"A big Lego or building set", points:1800, kind:"Big thing", group:"big", vault:true},
+  {name:"Your Eid outfit, your choice", points:2500, kind:"Big thing", group:"big", vault:true},
+  {name:"A day out you choose \u2014 zoo, museum, farm", points:3000, kind:"Big thing", group:"big", vault:true},
+  {name:"The next books in a series you love", points:1500, kind:"Big thing", group:"big", vault:true},
+  {name:"A bedroom thing \u2014 poster, lamp, cushion", points:1200, kind:"Big thing", group:"big", vault:true},
 
   // Connection — deliberately cheap. These are what we want chosen most often,
   // so the brake on them is a limit, not a price.
@@ -4052,7 +4088,7 @@ const TIP_CATS = [
   {key:"deen", label:"Deen"}
 ];
 
-const APP_VERSION = "v151";
+const APP_VERSION = "v152";
 const today = new Date().toISOString().slice(0,10);
 let app = {families:[],currentFamily:null,currentChild:null};
 let categories = [];
@@ -6678,9 +6714,9 @@ function reachListHTML(child){
   const SHOW=4;
   const more=Math.max(0, ready.length-SHOW);
   const shown=ready.slice().reverse();
-  return `${soon.length ? `<p class="reachcap">\ud83c\udf31 Nearly there</p>
+  return `${soon.length ? `<p class="reachcap">\ud83c\udf31 Almost yours</p>
       <div class="cattiles">${soon.slice(0,2).map((r,i)=>tile(r,false,i+3)).join("")}</div>` : ""}
-    ${ready.length ? `<p class="reachcap">\u2b50 Ready now</p>
+    ${ready.length ? `<p class="reachcap">\ud83c\udf81 Yours to choose</p>
       <div class="cattiles">${(kidShowAllRewards ? shown : shown.slice(0,SHOW))
         .map((r,i)=>tile(r,true,i)).join("")}</div>
       ${more && !kidShowAllRewards
@@ -6706,7 +6742,7 @@ function givingRate(item){
   const s=(app.settings||{});
   const base=Number.isFinite(s.giveRate) ? s.giveRate : 10;
   const big =Number.isFinite(s.giveRateBig) ? s.giveRateBig : Math.max(base, 20);
-  return (item && item.bank) ? big : base;
+  return (item && (item.vault || item.bank)) ? big : base;
 }
 function givingShare(item){
   const pct=givingRate(item);
@@ -6837,9 +6873,37 @@ function kidVaultHTML(child){
       ${addRow}
       ${unlocked?"":`<div class="vaultlocked">\ud83d\udd12 Nothing comes out until you reach ${target}. That's the whole point \u2014 it's how the big things happen.</div>`}
     </div>
-    <h3 style="margin:20px 0 2px;font-size:17px">\ud83c\udf1f Big things to save for</h3>
-    <p class="small" style="margin:0 0 4px">Mum or Dad choose what goes on this list.</p>
-    ${goalRows}`;
+    `;
+}
+/* Rendered next to the bank because the bank is what pays for them. Each one
+   shows how full the jar has to get, so the number on the card and the number
+   on the goal are visibly the same number. */
+function bigThingsHTML(child){
+  const goals=vaultGoals();
+  const have=vaultAvailable(child);
+  const nums=kidShowsNumbers(child);
+  if(!goals.length){
+    return `<section class="c-panel bigempty">
+      <p>\ud83c\udf1f Mum or Dad haven\u2019t chosen any big things to save for yet.
+         Ask them what could go on the list.</p></section>`;
+  }
+  const rows=goals.slice().sort((a,b)=>(a.points||0)-(b.points||0)).map(g=>{
+    const can=have>=(g.points||0);
+    const pct=Math.max(5, Math.min(100, Math.round(have/(g.points||1)*100)));
+    return `<button class="bigrow${can?" can":""}"${can?"":" disabled"}
+      onclick="popThen(this);kidVaultOut('${g.id}')">
+      <span class="bigicon">${can?"\ud83c\udf1f":"\ud83c\udfaf"}</span>
+      <span class="bigmain">
+        <span class="bigname">${escapeHtml(g.name)}</span>
+        ${g.desc?`<span class="bigdesc">${escapeHtml(g.desc)}</span>`:""}
+        ${can ? `<span class="bignote ok">Your bank can buy this now</span>`
+              : `<span class="bigbar"><i style="width:${pct}%"></i></span>
+                 <span class="bignote">${nums ? "Bank has "+have+" of "+g.points : "Keep saving"}</span>`}
+      </span>
+    </button>`;
+  }).join("");
+  return `<p class="reachcap">\ud83c\udf1f What the bank is for</p>
+    <section class="c-panel bigpanel">${rows}</section>`;
 }
 async function kidVaultIn(amount){
   const child=sessionMember();
@@ -10751,6 +10815,8 @@ function renderKidView(child){
   document.getElementById("kidGameChips").innerHTML =
     chipList(app.gameNightActivities, "game", kidShowAllGames, "toggleAllGames()",
              "\ud83c\udfb2 No activities yet \u2014 ask Mum or Dad what you could do together.");
+  const bigEl=document.getElementById("kidBigThings");
+  if(bigEl) bigEl.innerHTML = bigThingsHTML(child);
   const giveEl=document.getElementById("kidGivingPot");
   if(giveEl) giveEl.innerHTML = givingPotHTML(child);
   const reachEl=document.getElementById("kidReachList");
@@ -10761,13 +10827,22 @@ function renderKidView(child){
   // Their own requests
   const mine=(app.requests||[]).filter(r=>r.childId===child.id).slice(0,4);
   const mineHtml = mine.length
-    ? mine.map(r=>{
-        const cls = r.status==="pending"?"stat-pending":r.status==="approved"?"stat-approved":"stat-declined";
-        const txt = r.status==="pending"?"\u23f3 Waiting for Mum or Dad"
-                  : r.status==="approved"?"\ud83c\udf89 Approved!"
-                  : "\u21a9\ufe0f Not this time \u2014 no points were taken";
-        return `<div class="statusrow ${cls}"><span><strong>${escapeHtml(r.itemName)}</strong></span><span class="small">${txt}</span></div>`;
-      }).join("")
+    ? `<p class="reachcap">\ud83e\uddfe What you\u2019ve asked for</p>
+       <section class="c-panel askedpanel">${mine.map(r=>{
+        const st = r.status==="pending" ? "waiting"
+                 : r.status==="approved" ? "yes" : "no";
+        const icon = st==="waiting" ? "\u23f3" : st==="yes" ? "\ud83c\udf89" : "\u21a9\ufe0f";
+        const txt = st==="waiting" ? "Waiting for Mum or Dad"
+                  : st==="yes" ? "Yes \u2014 enjoy it"
+                  : "Not this time. No points were taken.";
+        return `<div class="askedrow ${st}">
+          <span class="askedicon">${icon}</span>
+          <span class="askedmain">
+            <span class="askedname">${escapeHtml(r.itemName)}</span>
+            <span class="askednote">${txt}</span>
+          </span>
+        </div>`;
+      }).join("")}</section>`
     : "";
   /* Home takes only what is still open. Approved is a moment, not a standing
      list: the child has already been told and can do nothing with the row. The
