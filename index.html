@@ -579,6 +579,36 @@
      row read as one block. */
   .t-home .c-act.spendbtn,.spendbtn{background:linear-gradient(150deg,#43b189,#177f5c);
     box-shadow:0 12px 28px rgba(23,127,92,.26);min-height:96px}
+  /* One row per thing, ordered by how close it is. The bar fills forward and
+     can never empty, because points are never taken away. */
+  /* A jar that fills. Saving is invisible by nature, so it needs a picture. */
+  .vaultjar{width:96px;height:120px;flex:none;display:block}
+  .vaulttop{display:flex;align-items:center;gap:16px}
+  .vaultwords{flex:1;min-width:0}
+  .vaultwords h2{margin:0 0 6px;font-size:18px}
+  .vaultwords .lede{margin:0;font-size:13.5px;line-height:1.55;color:var(--muted)}
+  .ptsintro{margin:-6px 2px 16px;font-size:13.5px;line-height:1.55;color:var(--muted)}
+  .reachcap{margin:18px 2px 10px;font-size:15px;font-weight:800;color:var(--ink);
+    display:flex;align-items:center;gap:11px}
+  .reachcap::after{content:"";flex:1;height:1px;background:#dfe2ee}
+  .reachpanel{padding:4px 14px}
+  .reachrow{display:flex;align-items:center;gap:13px;width:100%;background:none;border:0;
+    padding:14px 0;text-align:left;cursor:pointer;min-height:66px}
+  .reachrow+.reachrow{box-shadow:inset 0 1px 0 #f1f2f8}
+  .reachrow[disabled]{cursor:default;opacity:1}
+  .reachicon{flex:none;width:46px;height:46px;border-radius:16px;background:#f3f4fa;
+    display:flex;align-items:center;justify-content:center;font-size:23px}
+  .reachrow.can .reachicon{background:linear-gradient(150deg,#d8f2e6,#bfe8d5)}
+  .reachmain{flex:1;min-width:0}
+  .reachname{display:block;font-size:16px;font-weight:800;color:var(--ink);line-height:1.3}
+  .reachbar{display:block;height:7px;border-radius:99px;background:#eef0f6;overflow:hidden;margin:8px 0 6px}
+  .reachbar i{display:block;height:100%;border-radius:99px;
+    background:linear-gradient(90deg,#7fd3b0,#2f9e74);transition:width .6s cubic-bezier(.2,.8,.2,1)}
+  .reachnote{display:block;font-size:12.5px;font-weight:700;color:#8a90a6;line-height:1.4}
+  .reachnote.ok{color:#1c8a6c;margin-top:4px}
+  .reachpts{flex:none;background:#e3f6ef;color:#1c8a6c;border-radius:99px;padding:7px 12px;
+    font-size:14px;font-weight:800}
+  .reachempty{margin:0;font-size:14.5px;line-height:1.6;color:var(--muted)}
   .waitcap{margin:0 0 8px;padding:0 4px;font-size:12px;font-weight:800;letter-spacing:.05em;
     text-transform:uppercase;color:#8a90a6}
   .spendicon{flex:none;font-size:30px;line-height:1}
@@ -2074,27 +2104,21 @@
     <p class="kidwhere w-spend">🎁 My rewards</p>
     <div id="familyNotices"></div>
     <div id="kidGoal"></div>
-    <section class="kidcard teal">
-      <h2>🎁 Spend my points</h2>
-      <p class="lede">You have <strong id="kidSpendBal2">0</strong> points to spend. Nothing is taken until Mum or Dad say yes.</p>
-      <div class="spendtabs">
-        <button id="spendTabRewards" onclick="setSpendTab('rewards')">🎁 Rewards</button>
-        <button id="spendTabGames" onclick="setSpendTab('games')">🎲 Activities</button>
-        <button id="spendTabSave" onclick="setSpendTab('save')">🏦 My vault</button>
-      </div>
-      <div id="spendPaneRewards">
-        <p class="lede">Tap a reward to ask Mum or Dad for it.</p>
-        <div id="kidRewardChips" class="chiprow"></div>
-      </div>
-      <div id="spendPaneGames" class="hidden">
-        <p class="lede">Pick an activity you'd like to do together.</p>
-        <div id="kidGameChips" class="chiprow"></div>
-      </div>
-      <div id="spendPaneSave" class="hidden">
-        <div id="kidVault"></div>
-      </div>
-      <div id="kidSpendRequests"></div>
-    </section>
+    <!-- One list, nearest first. Rewards and activities were two lists in the
+         data and one idea to a child; the tabs made them read as different
+         shops. The vault is not a third tab either — it is the far end of the
+         same list, so saving is the same act as spending, further off. -->
+    <div id="kidReachList"></div>
+    <div id="kidVault"></div>
+    <div id="kidSpendRequests"></div>
+    <!-- Kept so existing code that writes here still has somewhere to write. -->
+    <div class="hidden">
+      <span id="kidSpendBal2"></span>
+      <div id="spendPaneRewards"><div id="kidRewardChips"></div></div>
+      <div id="spendPaneGames"><div id="kidGameChips"></div></div>
+      <div id="spendPaneSave"></div>
+      <button id="spendTabRewards"></button><button id="spendTabGames"></button><button id="spendTabSave"></button>
+    </div>
   </div>
 
   <div id="kidLearnScreen" class="hidden">
@@ -2103,7 +2127,8 @@
   </div>
 
   <div id="kidPointsScreen" class="hidden">
-    <p class="kidwhere w-points">⭐ My points</p>
+    <p class="kidwhere w-points">⭐ My best bits</p>
+    <p class="ptsintro">Everything you’ve been noticed for. Nothing here ever goes down.</p>
     <div id="kidBest"></div>
     <div id="championToggleRow"></div>
     <div id="prayerWall"></div>
@@ -2128,7 +2153,7 @@
     <button id="kidTabHome" onclick="showScreen(null)"><span class="tabemoji">🏠</span>Home</button>
     <button id="kidTabSpend" onclick="showScreen('kidSpendScreen')"><span class="tabemoji">🎁</span>Rewards</button>
     <button id="kidTabLearn" onclick="showScreen('kidLearnScreen')"><span class="tabemoji">📖</span>Learn</button>
-    <button id="kidTabPoints" onclick="showScreen('kidPointsScreen')"><span class="tabemoji">⭐</span>My points</button>
+    <button id="kidTabPoints" onclick="showScreen('kidPointsScreen')"><span class="tabemoji">⭐</span>My best</button>
   </nav>
 </div>
 
@@ -3922,7 +3947,7 @@ const TIP_CATS = [
   {key:"deen", label:"Deen"}
 ];
 
-const APP_VERSION = "v145";
+const APP_VERSION = "v146";
 const today = new Date().toISOString().slice(0,10);
 let app = {families:[],currentFamily:null,currentChild:null};
 let categories = [];
@@ -6494,6 +6519,81 @@ function pendingVaultOut(childId){
     .reduce((n,r)=>n+(r.vaultAmount||0),0);
 }
 function vaultAvailable(child){ return Math.max(0, vaultOf(child) - pendingVaultOut(child.id)); }
+/* ---------- What my points can reach ----------
+   On proximity: a bar toward a reward is NOT the same mechanic as a streak,
+   and the difference is structural rather than cosmetic. A streak can break;
+   this bar cannot. Points are never deducted in this app, so the fill is
+   monotonic \u2014 it only ever moves one way, and a child can put the phone down
+   for a fortnight and come back to exactly the progress they left. There is
+   nothing to protect and nothing to lose, so there is no loss to be averse to.
+   What we avoid is the deficit framing: never "22 more to go" as a headline,
+   never a countdown, never red. The number shown is what they HAVE of what it
+   costs. Same arithmetic, opposite sentence.
+
+   A child under seven gets the picture and the words and no arithmetic at all;
+   see kidShowsNumbers(). */
+function kidShowsNumbers(child){
+  const age=parseInt((child && child.age) || "", 10);
+  return Number.isNaN(age) ? true : age>=7;
+}
+function reachListHTML(child){
+  const spendable=availableFor(child);
+  const nums=kidShowsNumbers(child);
+  const items=(app.rewards||[]).map(r=>({...r, kind:"reward"}))
+    .concat((app.gameNightActivities||[]).map(g=>({...g, kind:"activity"})))
+    .filter(r=>!r.vault)
+    .sort((a,b)=>(a.points||0)-(b.points||0));
+  if(!items.length){
+    return `<section class="c-panel"><p class="reachempty">\ud83c\udf81 Nothing on the list yet \u2014
+      ask Mum or Dad to add some rewards.</p></section>`;
+  }
+  const ready=items.filter(r=>(r.points||0)<=spendable);
+  const soon =items.filter(r=>(r.points||0)>spendable);
+  const row=(r,can)=>{
+    const pct=Math.max(6, Math.min(100, Math.round((spendable/(r.points||1))*100)));
+    return `<button class="reachrow ${can?"can":""}"${can?"":" disabled"}
+      onclick="popThen(this);kidBuy('${r.kind==="activity"?"game":"reward"}','${r.id}')">
+      <span class="reachicon">${iconFor(r, r.kind==="activity" ? "\ud83c\udfb2" : "\ud83c\udf81")}</span>
+      <span class="reachmain">
+        <span class="reachname">${escapeHtml(r.name)}</span>
+        ${can
+          ? `<span class="reachnote ok">You can have this now</span>`
+          : `<span class="reachbar"><i style="width:${pct}%"></i></span>
+             <span class="reachnote">${nums
+                ? "You have "+spendable+" of "+r.points
+                : "Nearly there"}</span>`}
+      </span>
+      ${can && nums ? `<span class="reachpts">${r.points}</span>` : ""}
+    </button>`;
+  };
+  return `${ready.length ? `<p class="reachcap">\u2b50 Ready now</p>
+      <section class="c-panel reachpanel">${ready.slice().reverse().map(r=>row(r,true)).join("")}</section>` : ""}
+    ${soon.length ? `<p class="reachcap">\ud83c\udf31 Growing towards</p>
+      <section class="c-panel reachpanel">${soon.slice(0,4).map(r=>row(r,false)).join("")}</section>` : ""}`;
+}
+function vaultJarSVG(pct, unlocked){
+  const h=Math.max(0, Math.min(100, pct));
+  const fillTop=104-(h*0.74);
+  const gold=unlocked ? "#f0c05a" : "#7fd3b0";
+  const gold2=unlocked ? "#dda520" : "#2f9e74";
+  return `<svg class="vaultjar" viewBox="0 0 96 120" role="img" aria-hidden="true">
+    <defs><clipPath id="jarclip">
+      <path d="M20 34h56v58a14 14 0 0 1-14 14H34a14 14 0 0 1-14-14z"/>
+    </clipPath>
+    <linearGradient id="jarfill" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="${gold}"/><stop offset="1" stop-color="${gold2}"/>
+    </linearGradient></defs>
+    <rect x="30" y="18" width="36" height="12" rx="6" fill="#cfd5e6"/>
+    <g clip-path="url(#jarclip)">
+      <rect x="18" y="30" width="60" height="80" fill="#eef1f7"/>
+      <rect x="18" y="${fillTop}" width="60" height="110" fill="url(#jarfill)"/>
+      <ellipse cx="48" cy="${fillTop}" rx="30" ry="4.5" fill="#fff" opacity=".28"/>
+    </g>
+    <path d="M20 34h56v58a14 14 0 0 1-14 14H34a14 14 0 0 1-14-14z"
+      fill="none" stroke="#c2cadd" stroke-width="3"/>
+    ${unlocked?'<text x="48" y="78" text-anchor="middle" font-size="26">\u2b50</text>':""}
+  </svg>`;
+}
 function kidVaultHTML(child){
   const target=vaultTarget();
   const have=vaultAvailable(child);
@@ -6516,11 +6616,19 @@ function kidVaultHTML(child){
         </button>`;
       }).join("")
     : `<p class="small">Mum or Dad haven't added any big things yet.</p>`;
+  const nums=kidShowsNumbers(child);
   return `<div class="vaultcard">
-      <h3>\ud83c\udfe6 My vault</h3>
-      <p class="vsub">Points you lock away are safe. They can't be spent on small things \u2014 they're for something big.</p>
-      <div class="vaulttotal"><strong>${have}</strong><span>saved of ${target}</span></div>
-      <div class="vaultbar"><i style="width:${pct}%"></i></div>
+      <div class="vaulttop">
+        ${vaultJarSVG(pct, unlocked)}
+        <div class="vaultwords">
+          <h2>\ud83c\udfe6 My vault</h2>
+          <p class="lede">${unlocked
+            ? "It\u2019s full! You can choose something big."
+            : "Points in here are safe. They\u2019re growing towards something big."}</p>
+          ${nums ? `<div class="vaulttotal"><strong>${have}</strong><span>saved of ${target}</span></div>` : ""}
+        </div>
+      </div>
+      <div class="vaultbar hidden"><i style="width:${pct}%"></i></div>
       <p class="vaultmeta">${unlocked
         ? "\ud83c\udf89 Unlocked! You can choose something big below."
         : (target-have)+" more to unlock. You have "+spendable+" spare points right now."}</p>
@@ -10241,6 +10349,9 @@ function renderKidView(child){
      are red and slipping. This is a parent's diagnostic \u2014 a prompt to go and
      notice something \u2014 not a verdict to hand a seven-year-old. It lives in
      Overview now, where a grown-up goes to look at the week on purpose. */
+  /* The trend graph stays off a child's screen for the same reason the
+     behaviour band does: it is a diagnostic for a grown-up, and a line that
+     can be seen to fall is exactly what this app refuses to show a child. */
   const kgw=document.getElementById("kidGraphWrap");
   if(kgw){ kgw.innerHTML=""; kgw.classList.add("hidden"); }
   const kl=document.getElementById("kidLearnBody");
@@ -10348,6 +10459,8 @@ function renderKidView(child){
   document.getElementById("kidGameChips").innerHTML =
     chipList(app.gameNightActivities, "game", kidShowAllGames, "toggleAllGames()",
              "\ud83c\udfb2 No activities yet \u2014 ask Mum or Dad what you could do together.");
+  const reachEl=document.getElementById("kidReachList");
+  if(reachEl) reachEl.innerHTML = reachListHTML(child);
   const vaultEl=document.getElementById("kidVault");
   if(vaultEl) vaultEl.innerHTML = kidVaultHTML(child);
 
