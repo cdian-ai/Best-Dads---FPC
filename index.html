@@ -4088,7 +4088,7 @@ const TIP_CATS = [
   {key:"deen", label:"Deen"}
 ];
 
-const APP_VERSION = "v152";
+const APP_VERSION = "v153";
 const today = new Date().toISOString().slice(0,10);
 let app = {families:[],currentFamily:null,currentChild:null};
 let categories = [];
@@ -4635,10 +4635,13 @@ function hashString(str){
 function pendingSpendFor(childId){
   return (app.requests || [])
     .filter(r => r.childId === childId && r.status === "pending")
-    .reduce((sum, r) => sum + r.points, 0);
+    /* One request written without points turns this sum into NaN, which makes
+       every balance NaN and empties the whole rewards list with no error. */
+    .reduce((sum, r) => sum + (Number(r.points) || 0), 0);
 }
 function availableFor(child){
-  return Math.max(0, (child.balance || 0) - pendingSpendFor(child.id));
+  const bal=Number(child && child.balance) || 0;
+  return Math.max(0, bal - pendingSpendFor(child.id));
 }
 
 /* Exactly one of these screens is visible at any moment. Start-up used to be
@@ -6677,6 +6680,22 @@ function kidShowsNumbers(child){
   const age=parseInt((child && child.age) || "", 10);
   return Number.isNaN(age) ? true : age>=7;
 }
+/* What a child asks for most, from what they have actually chosen before.
+   Counts every granted request, with recent ones weighted a little heavier so
+   a favourite that has moved on does not sit at the top for ever. */
+function favouriteCounts(child){
+  const out={};
+  const now=Date.now(), MONTH=30*24*3600*1000;
+  (app.requests||[])
+    .filter(r=>r.childId===child.id && r.status==="approved")
+    .forEach(r=>{
+      const age=(now-(r.ts||now))/MONTH;
+      const weight = age<1 ? 3 : age<3 ? 2 : 1;
+      const k=r.itemId || r.itemName;
+      if(k) out[k]=(out[k]||0)+weight;
+    });
+  return out;
+}
 function reachListHTML(child){
   const spendable=availableFor(child);
   const nums=kidShowsNumbers(child);
@@ -6713,7 +6732,15 @@ function reachListHTML(child){
      affordable treats was pushing saving off the bottom of the screen. */
   const SHOW=4;
   const more=Math.max(0, ready.length-SHOW);
-  const shown=ready.slice().reverse();
+  /* Their own favourites first: the four tiles a child sees without scrolling
+     should be the four they actually reach for. Anything never chosen falls
+     back to dearest-first, which is what it was before. */
+  const fav=favouriteCounts(child);
+  const shown=ready.slice().sort((a,b)=>{
+    const fa=fav[a.id]||fav[a.name]||0, fb=fav[b.id]||fav[b.name]||0;
+    if(fb!==fa) return fb-fa;
+    return (b.points||0)-(a.points||0);
+  });
   return `${soon.length ? `<p class="reachcap">\ud83c\udf31 Almost yours</p>
       <div class="cattiles">${soon.slice(0,2).map((r,i)=>tile(r,false,i+3)).join("")}</div>` : ""}
     ${ready.length ? `<p class="reachcap">\ud83c\udf81 Yours to choose</p>
