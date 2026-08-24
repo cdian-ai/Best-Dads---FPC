@@ -3769,7 +3769,7 @@ const TIP_CATS = [
   {key:"deen", label:"Deen"}
 ];
 
-const APP_VERSION = "v128";
+const APP_VERSION = "v129";
 const today = new Date().toISOString().slice(0,10);
 let app = {families:[],currentFamily:null,currentChild:null};
 let categories = [];
@@ -4179,11 +4179,33 @@ function projectApp(raw){
           }
         }
       });
-      const activityLog = entries.slice().reverse().slice(0, 40).map(e => ({
+      /* The visible feed is still the last 40 awards, but anything an add-on
+         folds its own state from has to survive in full, whatever its age and
+         whatever extra fields it carries. */
+      const FOLDED = ["note","noteitem","noteoff","itemoff","itemdone","notemsg","notebonus",
+                      "task","taskoff","taskdone",
+                      "pledge","pledgeoff","pledgeclaim",
+                      "course","coursestep","progress","vault"];
+      const slim = e => ({
         id: e.id, ts: e.ts, type: e.type, points: e.points, label: e.label,
         by: e.byName || "", byRole: e.byRole || "", byUid: e.byUid || null,
         catKey: e.catKey || null, actionName: e.actionName || null
-      }));
+      });
+      const rich = e => Object.assign(slim(e), {
+        itemAction: e.itemAction || null, itemPoints: e.itemPoints || 0,
+        taskAction: e.taskAction || null, taskPoints: e.taskPoints || 0,
+        noteDue: e.noteDue || null, noteBonus: e.noteBonus || 0,
+        taskDue: e.taskDue || null, vaultAmount: e.vaultAmount || 0,
+        status: e.status || null, objectiveId: e.objectiveId || null,
+        tag: e.tag || null, securedName: e.securedName || null
+      });
+      const recent = entries.slice().reverse();
+      const isFolded = e => FOLDED.indexOf(e.type) >= 0;
+      /* The last 40 of anything, plus every folded entry however old. A folded
+         entry always takes its full form, whether or not it is in the 40. */
+      const activityLog = recent
+        .filter((e, i) => i < 40 || isFolded(e))
+        .map(e => isFolded(e) ? rich(e) : slim(e));
       return {
         id: m.id, name: m.name, age: m.age || "", role: m.role, photo: m.photo || null,
         email: m.email || null,
@@ -16135,7 +16157,9 @@ window.GROWNUP_DECKS = [
   /* One path onto the note, used by a tapped category item and by a typed
      line alike: make sure the note exists, then write the rows. */
   async function ntPutOn(rows){
-    if(!grown(me()) || busy || !rows.length) return false;
+    if(!rows.length) return false;
+    if(!grown(me())){ alert("Only a grown-up can add to a note."); return false; }
+    if(busy) return false;
     let nt = liveNoteFor(pickChild);
     working(true);
     if(!nt){
@@ -16343,13 +16367,20 @@ window.GROWNUP_DECKS = [
   let openCat = 0;
   /* Indexed, not named: the name never travels through an HTML attribute, so
      an apostrophe in "Read or listen to Qur'an" cannot break the handler. */
-  window.ntTogglePick = async function(gi, ii){
+  window.ntTogglePick = async function(name, points){
     if(busy) return;
-    const g=actionGroups(liveNoteFor(pickChild))[gi];
-    const it=g && g.items[ii];
-    if(!it) return;
-    await ntPutOn([{text:it.name, action:it.name, points:it.points}]);
+    const text=String(name||"").trim();
+    if(!text) return;
+    await ntPutOn([{text, action:text, points:parseInt(points,10)||0}]);
   };
+  /* Delegated, and on the document, so it survives every re-render of the
+     panel without needing to be re-attached. */
+  document.addEventListener("click", function(e){
+    const b = e.target && e.target.closest && e.target.closest("[data-ntadd]");
+    if(!b) return;
+    e.preventDefault();
+    ntTogglePick(b.getAttribute("data-ntadd"), b.getAttribute("data-ntpts"));
+  });
   window.ntOpenCat = function(i){
     openCat = (openCat===i) ? -1 : i;
     renderNotesPanel();
@@ -16383,8 +16414,8 @@ window.GROWNUP_DECKS = [
                     <span class="ntcatn">${g.items.length}</span>
                     <span class="ntcatchev"></span>
                   </button>
-                  ${openCat===gi ? `<div class="ntpick">${g.items.map((a,ii)=>
-                    `<button onclick="ntTogglePick(${gi},${ii})">
+                  ${openCat===gi ? `<div class="ntpick">${g.items.map(a=>
+                    `<button type="button" data-ntadd="${esc(a.name)}" data-ntpts="${a.points}">
                        \uff0b ${esc(a.name)} <em>${a.points}</em></button>`).join("")}</div>` : ""}
                 </div>`).join("")
             : `<p class="ntfull" style="margin:0 0 9px">Everything on the points list has already been
