@@ -533,45 +533,56 @@
   .herobuddy svg{width:64px;height:64px}
   .herotalk{margin:14px 0 0;background:rgba(255,255,255,.9);border-radius:18px;
     padding:12px 15px;font-size:14.5px;font-weight:700;color:#3f4560;line-height:1.5}
+  /* ================= CARD SYSTEM =================
+     Three kinds of surface, and one law: a shadow means you can press it, a
+     border means you read it. Nothing wears both. That single rule is what
+     tells a child what is tappable without anyone explaining it.
+
+       .c-hero    once per screen, coloured, no border, no shadow. Identity.
+       .c-panel   white, hairline border, no shadow. Something to read.
+       .c-act     coloured, lifted, min 88px. Something to press.            */
+  .c-hero{position:relative;overflow:hidden;border:0;box-shadow:none;
+    border-radius:28px;padding:20px;margin-bottom:14px;color:#fff}
+  .c-panel{background:#fff;border:1px solid #e9ebf3;box-shadow:none;
+    border-radius:22px;padding:18px;margin-bottom:12px}
+  .c-act{border:0;border-radius:24px;padding:18px;margin-bottom:12px;width:100%;
+    min-height:88px;display:flex;align-items:center;gap:14px;text-align:left;
+    cursor:pointer;color:#fff}
+  .c-act:active{transform:scale(.98)}
+  /* Each tab owns a colour and an emblem. The top of the screen is the
+     wayfinding: a pre-reader knows the room by its colour before reading. */
+  .t-home  .c-hero,.t-home  .c-act{background:linear-gradient(150deg,#7b83e8,#4d56c9)}
+  .t-spend .c-hero,.t-spend .c-act{background:linear-gradient(150deg,#43b189,#177f5c)}
+  .t-learn .c-hero,.t-learn .c-act{background:linear-gradient(150deg,#9a7de0,#6b4bc4)}
+  .t-pts   .c-hero,.t-pts   .c-act{background:linear-gradient(150deg,#efbe5c,#d09218)}
+
   /* Prayers, for a child: five named things, a bar that fills, and a line that
      says how far to go. Dashed empty circles read as broken; these are soft
      discs that fill in. */
-  .prayercard{background:#fff;border:1px solid #e9ebf3;border-radius:24px;padding:18px;
-    margin-bottom:14px;box-shadow:0 8px 22px rgba(24,22,60,.06)}
-  .prayercard.allfive{background:linear-gradient(150deg,#fff8e4,#fff);border-color:#f0dcb2}
-  .prayerhead{display:flex;align-items:center;gap:12px;margin-bottom:12px}
-  .prayerhead h2{margin:0;font-size:18px;flex:1;min-width:0}
-  .prayercount{flex:none;background:#eef0ff;color:#3e46ad;border-radius:99px;padding:6px 12px;
-    font-size:13px;font-weight:800}
-  .prayercard.allfive .prayercount{background:#f3d489;color:#6d4d05}
-  .praybar{height:8px;border-radius:99px;background:#eef0f6;overflow:hidden;margin-bottom:14px}
-  .praybar i{display:block;height:100%;border-radius:99px;
-    background:linear-gradient(90deg,#7a8bf0,#5b63d8);transition:width .5s cubic-bezier(.2,.8,.2,1)}
-  .prayercard.allfive .praybar i{background:linear-gradient(90deg,#f0c66a,#e0a92c)}
-  .prays{display:grid;grid-template-columns:repeat(5,1fr);gap:7px}
-  .pray{display:flex;flex-direction:column;align-items:center;gap:7px}
-  .praydisc{width:100%;aspect-ratio:1/1;max-width:52px;border-radius:50%;background:#f2f3fb;
-    display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:800;
-    color:#fff;transition:background .25s ease,transform .25s ease}
-  .pray.on .praydisc{background:linear-gradient(150deg,#6ec7a4,#2f9e74);transform:scale(1.06)}
-  .prayercard.allfive .pray.on .praydisc{background:linear-gradient(150deg,#f3cf7d,#dda520)}
-  .prayname{font-size:11.5px;font-weight:800;color:#6a7184;text-align:center;line-height:1.2}
-  .pray.on .prayname{color:#243044}
-  .prayernote{margin:14px 0 0;font-size:13.5px;font-weight:700;color:#6a7184;line-height:1.5}
+  .prayercard.allfive{background:linear-gradient(150deg,#fffaef,#fff);border-color:#f0dcb2}
+  .prayerhead{margin:0 0 16px;font-size:18px}
+  .lamps{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+  .lamp{display:flex;flex-direction:column;align-items:center;gap:9px}
+  /* Unlit is a quiet outline, not a dashed hole. Lit is warm light. */
+  .lampglow{width:100%;aspect-ratio:1/1;max-width:50px;border-radius:50%;
+    background:#f4f5fa;box-shadow:inset 0 0 0 2px #e6e8f0;transition:all .45s ease}
+  .lamp.lit .lampglow{background:radial-gradient(circle at 50% 38%,#fff1c8,#f0bd53 62%,#dda520);
+    box-shadow:inset 0 0 0 2px #e8b93f,0 0 18px rgba(224,169,44,.55)}
+  .lampname{font-size:11.5px;font-weight:800;color:#8a90a6;text-align:center;line-height:1.2}
+  .lamp.lit .lampname{color:#6d4d05}
+  .prayernote{margin:16px 0 0;font-size:13.5px;font-weight:700;color:#8a90a6;line-height:1.5}
   .prayercard.allfive .prayernote{color:#6d4d05}
   /* The one big thing to press. It was a flat teal bar; now it reads as a door
      with the number as the prize. */
-  .spendbtn{display:flex;align-items:center;gap:14px;width:100%;text-align:left;
-    background:linear-gradient(150deg,#2f9e74,#177f5c);color:#fff;border:0;border-radius:24px;
-    padding:20px;min-height:96px;cursor:pointer;box-shadow:0 12px 28px rgba(23,127,92,.28);
-    margin-bottom:14px;position:relative;overflow:hidden}
-  .spendbtn:active{transform:scale(.98)}
-  .spendbtn>span:first-child{flex:1;min-width:0;font-size:20px;font-weight:800;line-height:1.2}
-  .spendbtn small{display:block;font-size:13px;font-weight:600;opacity:.85;margin-top:4px}
-  .spendbtn .spendbal{flex:none;background:rgba(255,255,255,.94);color:#177f5c;border-radius:20px;
-    padding:12px 16px;font-size:24px;font-weight:800;line-height:1;
-    box-shadow:0 4px 12px rgba(0,0,0,.10)}
-  .spendbtn .spendbal::after{content:"points";display:block;font-size:10px;font-weight:800;
+  .spendbtn{background:linear-gradient(150deg,#43b189,#177f5c);
+    box-shadow:0 12px 28px rgba(23,127,92,.26);min-height:96px}
+  .spendicon{flex:none;font-size:30px;line-height:1}
+  .spendmain{flex:1;min-width:0}
+  .spendtitle{display:block;font-size:19px;font-weight:800;line-height:1.2}
+  .spendreach{display:block;font-size:13.5px;font-weight:600;opacity:.9;margin-top:4px;line-height:1.4}
+  .spendbtn .spendbal{flex:none;background:rgba(255,255,255,.94);color:#177f5c;border-radius:18px;
+    padding:10px 13px;font-size:20px;font-weight:800;line-height:1;text-align:center}
+  .spendbtn .spendbal::after{content:"points";display:block;font-size:9.5px;font-weight:800;
     letter-spacing:.06em;opacity:.7;margin-top:3px}
   .kidwhere{display:flex;align-items:center;gap:10px;margin:2px 0 14px;padding:13px 16px;
     border-radius:18px;font-size:17px;font-weight:800;line-height:1.25}
@@ -2007,7 +2018,7 @@
   <div id="kidHomeScreen">
     <!-- One greeting, their face on the right, the two numbers that matter and
          their star. Sound lives in the menu, where a setting belongs. -->
-    <section class="kidhero">
+    <section class="kidhero c-hero">
       <div class="bubble b1"></div><div class="bubble b2"></div><div class="bubble b3"></div>
       <div class="kidherorow">
         <div class="kidherotext">
@@ -2036,9 +2047,15 @@
          points can buy. -->
     <div id="prayerToday"></div>
 
-    <button class="spendbtn" onclick="showScreen('kidSpendScreen')">
-      <span>🎁 Spend my points
-        <small>Rewards, activities, or save up</small></span>
+    <!-- Leads with what the points can reach, not with the total. A four-year
+         old cannot read 171; they can understand "you could choose the bedtime
+         story". The number is kept, small, because older children want it. -->
+    <button class="c-act spendbtn" onclick="showScreen('kidSpendScreen')">
+      <span class="spendicon">🎁</span>
+      <span class="spendmain">
+        <span class="spendtitle">Spend my points</span>
+        <span class="spendreach" id="kidSpendReach">Rewards, activities, or save up</span>
+      </span>
       <span class="spendbal" id="kidSpendBal">0</span>
     </button>
 
@@ -2207,7 +2224,7 @@
   </div>
 </section>
 
-<p class="footer">Tip: Praise the action, not just the points — "MashaAllah, you shared your toy without being asked. That's a really kind choice!"</p>
+<p class="footer" id="parentTip">Tip: Praise the action, not just the points — "MashaAllah, you shared your toy without being asked. That's a really kind choice!"</p>
 <p class="footer" id="syncStatus">☁️ Connecting…</p>
 <p class="footer" id="versionTag" style="opacity:.6"></p>
 <p class="footer hidden" id="installRow">
@@ -3900,7 +3917,7 @@ const TIP_CATS = [
   {key:"deen", label:"Deen"}
 ];
 
-const APP_VERSION = "v143";
+const APP_VERSION = "v144";
 const today = new Date().toISOString().slice(0,10);
 let app = {families:[],currentFamily:null,currentChild:null};
 let categories = [];
@@ -6276,23 +6293,23 @@ function prayerTodayHTML(child){
   const today=prayerGrid(child,1)[0];
   const dots=PRAYERS.map((p,i)=>`<span class="pdot ${today.done[i]?"on":""}">
       <span class="pmark">${today.done[i]?"\u2713":""}</span><span class="plabel">${p.short}</span></span>`).join("");
-  const full=PRAYERS.map((p,i)=>`<span class="pray ${today.done[i]?"on":""}">
-      <span class="praydisc">${today.done[i]?"\u2713":""}</span>
-      <span class="prayname">${p.label || p.short}</span>
+  /* Five lanterns that light as the day goes on. Deliberately not a progress
+     bar and deliberately not a score: a bar with 2/5 on it turns salah into a
+     task list with three outstanding items, and a child should not open their
+     app to a shortfall in their worship. Lit or not lit, named, no count, no
+     countdown. Only the finished state speaks, and it praises. */
+  const lamps=PRAYERS.map((p,i)=>`<span class="lamp ${today.done[i]?"lit":""}">
+      <span class="lampglow"></span>
+      <span class="lampname">${p.label || p.short}</span>
     </span>`).join("");
-  const left=5-today.count;
-  return `<section class="prayercard ${today.complete?"allfive":""}">
-      <div class="prayerhead">
-        <h2>\u{1f54c} My prayers today</h2>
-        <span class="prayercount">${today.excused?"Excused":today.count+"/5"}</span>
-      </div>
-      <div class="praybar"><i style="width:${today.excused?100:(today.count/5)*100}%"></i></div>
-      <div class="prays">${full}</div>
-      <p class="prayernote">${today.excused ? "Excused today \u2014 that is completely fine."
-        : today.complete ? "\u2b50 All five today \u2014 MashaAllah!"
-        : today.count===0 ? "Nothing marked yet. A grown-up ticks these off with you."
-        : left===1 ? "One more to go \u2014 nearly there."
-        : left+" more to go."}</p>
+  return `<section class="c-panel prayercard ${today.complete?"allfive":""}">
+      <h2 class="prayerhead">\u{1f54c} My prayers today</h2>
+      <div class="lamps">${lamps}</div>
+      <p class="prayernote">${today.excused
+        ? "Excused today \u2014 and that is completely fine."
+        : today.complete
+          ? "\u2b50 All five today \u2014 MashaAllah!"
+          : "Mum or Dad light these with you."}</p>
     </section>`;
 }
 function prayerWallHTML(child, days, forChild){
@@ -6408,10 +6425,13 @@ function showKidTabBar(){
      feels like moving rooms rather than scrolling one long page. */
   ["kidtab-home","kidtab-spend","kidtab-learn","kidtab-points"]
     .forEach(c=>document.body.classList.remove(c));
-  document.body.classList.add(
-    screenNow==="kidSpendScreen"  ? "kidtab-spend"  :
-    screenNow==="kidLearnScreen"  ? "kidtab-learn"  :
-    screenNow==="kidPointsScreen" ? "kidtab-points" : "kidtab-home");
+  ["t-home","t-spend","t-learn","t-pts"].forEach(c=>document.body.classList.remove(c));
+  const tone =
+    screenNow==="kidSpendScreen"  ? ["kidtab-spend","t-spend"] :
+    screenNow==="kidLearnScreen"  ? ["kidtab-learn","t-learn"] :
+    screenNow==="kidPointsScreen" ? ["kidtab-points","t-pts"]  : ["kidtab-home","t-home"];
+  document.body.classList.add(tone[0]);
+  document.body.classList.add(tone[1]);
   [["kidTabHome",null],["kidTabSpend","kidSpendScreen"],
    ["kidTabLearn","kidLearnScreen"],["kidTabPoints","kidPointsScreen"]]
     .forEach(([bid,scr])=>{
@@ -8702,6 +8722,9 @@ function applyRoleChrome(){
   /* The stat strip is dead weight now: it only ever appeared on a child's
      card, and that page is for awarding, not for reading numbers. */
   set("summarySection", false);
+  /* Written for a parent, so it is not shown to a child. */
+  const ptip=document.getElementById("parentTip");
+  if(ptip) ptip.classList.toggle("hidden", kid);
   set("cards", !kid);
   set("championBanner", !kid && app.settings && app.settings.showChampion);
   // Parent-only controls and sections
@@ -8737,8 +8760,8 @@ function applyRoleChrome(){
     const bar=document.getElementById("kidTabBar");
     if(bar) bar.classList.add("hidden");
     document.body.classList.remove("haskidbar");
-    ["kidtab-home","kidtab-spend","kidtab-learn","kidtab-points"]
-      .forEach(c=>document.body.classList.remove(c));
+    ["kidtab-home","kidtab-spend","kidtab-learn","kidtab-points",
+     "t-home","t-spend","t-learn","t-pts"].forEach(c=>document.body.classList.remove(c));
   }
   // Last, so nothing above can re-show something an invited relative
   // should never see.
@@ -10184,6 +10207,19 @@ function renderKidView(child){
   document.getElementById("kidBalance").textContent = child.balance||0;
   const spendable=availableFor(child);
   const sb=document.getElementById("kidSpendBal"); if(sb) sb.textContent=spendable;
+  /* Name the nearest thing they can actually have. The number means little at
+     four; the thing it buys means everything. */
+  const reach=document.getElementById("kidSpendReach");
+  if(reach){
+    const all=(app.rewards||[]).concat(app.gameNightActivities||[])
+      .filter(r=>!r.vault).slice().sort((a,b)=>b.points-a.points);
+    const can=all.filter(r=>(r.points||0)<=spendable);
+    const next=all.filter(r=>(r.points||0)>spendable).slice(-1)[0];
+    reach.textContent = can.length
+      ? "Ready for: " + can[0].name
+      : next ? "Saving up for " + next.name
+             : "Rewards, activities, or save up";
+  }
   const sb2=document.getElementById("kidSpendBal2"); if(sb2) sb2.textContent=spendable;
   const onHold=pendingSpendFor(child.id);
   const holdEl=document.getElementById("kidHold");
@@ -10224,8 +10260,11 @@ function renderKidView(child){
   const best=document.getElementById("kidBest");
   if(best) best.innerHTML=personalBestHTML(child);
   // On a day something has already arrived, the home screen has said its piece.
+  /* The parenting tip and the daily reminder are written for a grown-up. On a
+     child's screen they were words a seven-year-old has to wade through to
+     reach their own things. Both live on the parent's side. */
   const kr=document.getElementById("kidReminder");
-  if(kr) kr.innerHTML = todayTotalFor(child)>0 ? "" : reminderCardHTML();
+  if(kr) kr.innerHTML = "";
   renderSoundToggle();
   const boost=document.getElementById("kidBoostCard");
   if(boost) boost.classList.remove("hidden");
