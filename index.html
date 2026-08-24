@@ -679,7 +679,7 @@
   .hometile .hbadge{position:absolute;top:10px;right:10px;background:#d85b5b;color:#fff;
                     font-size:11px;font-weight:800;min-width:20px;height:20px;border-radius:99px;
                     display:flex;align-items:center;justify-content:center;padding:0 6px}
-  .menufab{position:fixed;left:14px;top:calc(14px + env(safe-area-inset-top));z-index:146;
+  .menufab{position:fixed;left:14px;top:calc(14px + env(safe-area-inset-top));z-index:159;
            width:auto;padding:11px 16px;border-radius:99px;background:#fff;color:#3e46ad;
            font-weight:800;font-size:15px;box-shadow:0 8px 22px rgba(24,22,60,.16);
            border:1px solid #e6e8f0;min-height:44px}
@@ -1569,7 +1569,7 @@
       <p class="small" id="menuWho" style="margin:0 0 2px;padding:0 4px"></p>
 
       <p class="menugroup">Today</p>
-      <button class="light" id="btnQuickMenu" onclick="showQuickPanel()">🔥 Everyone at once</button>
+      <button class="light" id="btnQuickMenu" onclick="showQuickPanel()">🔥 All at once</button>
       <button class="light" id="btnRequests" onclick="showRequestsPanel()">🔔 Requests</button>
       <button class="light" id="btnTasks" onclick="showNotesPanel()">📌 The note</button>
       <button class="light" id="btnReviewMenu" onclick="showReviewPanel()">🗣️ Review together</button>
@@ -1727,7 +1727,7 @@
 
   <div id="quickPanel" class="panel hidden">
     <button class="panelback" onclick="goHome()">← Home</button>
-    <h2>🔥 Everyone at once</h2>
+    <h2>🔥 All at once</h2>
     <p class="small">For catching up on the whole family in one pass — usually at the end of the week. To award one child, open them from Give points instead.</p>
     <p class="small">A note is attached to the next thing you tap, then clears. It matters more than the number.</p>
     <div id="quickBody" style="margin-top:14px;padding-bottom:76px"></div>
@@ -3758,7 +3758,7 @@ const TIP_CATS = [
   {key:"deen", label:"Deen"}
 ];
 
-const APP_VERSION = "v122";
+const APP_VERSION = "v123";
 const today = new Date().toISOString().slice(0,10);
 let app = {families:[],currentFamily:null,currentChild:null};
 let categories = [];
@@ -4929,7 +4929,7 @@ function renderReviewPanel(){
        <h3>\u{1f64b} Anything I missed?</h3>
        <p>Ask them now. This is the moment for it \u2014 not when you\u2019re awarding.
           If they\u2019re right, add it while you\u2019re sitting together.</p>
-       <button class="primary" onclick="showQuickPanel()">\ud83d\udd25 Award everyone at once</button>
+       <button class="primary" onclick="showQuickPanel()">\ud83d\udd25 Award them all at once</button>
      </section>`;
 }
 
@@ -16007,6 +16007,21 @@ window.GROWNUP_DECKS = [
   .ntbonusrow span{flex:1;min-width:150px;font-size:13.5px;line-height:1.5;color:#7a5c15}
   .ntbonusrow select{width:auto;flex:none;padding:10px 12px;font-size:14.5px;font-weight:700;
     border:1px solid #e2cf9e;border-radius:12px;background:#fff;min-height:44px}
+  .ntpick{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:11px}
+  .ntpick button{width:auto;display:inline-flex;align-items:center;gap:7px;background:#fff;
+    border:1px solid #d9dce8;color:var(--ink);border-radius:99px;padding:10px 14px;
+    font-size:14px;font-weight:700;cursor:pointer;min-height:44px}
+  .ntpick button.on{background:var(--accent);border-color:var(--accent);color:#fff}
+  .ntpick em{font-style:normal;font-size:12px;font-weight:800;opacity:.6}
+  .ntpastnote{background:#fff;border:1px solid #e9ebf3;border-radius:16px;margin-bottom:8px;
+    padding:2px 14px}
+  .ntpastnote>summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:10px;
+    padding:13px 0;font-size:14.5px;font-weight:700;color:var(--ink)}
+  .ntpastnote>summary::-webkit-details-marker{display:none}
+  .ntpastnote>summary span{flex:1;min-width:0}
+  .ntpastnote>summary em{font-style:normal;font-size:12px;font-weight:700;color:var(--muted)}
+  .ntpastmsg{margin:0 0 10px;font-size:14px;font-style:italic;color:#7a5c15;line-height:1.5}
+  .ntpastnote .ntpast{padding-bottom:12px}
   .ntpast{display:grid;gap:6px}
   .ntpastrow{display:flex;align-items:center;gap:12px;background:#f7f8fc;border:1px solid #eceef6;
     border-radius:14px;padding:11px 13px}
@@ -16031,8 +16046,15 @@ window.GROWNUP_DECKS = [
   /* Anything already on the note comes off the list you are choosing from.
      Asking for Fajr twice on the same note is never what anyone meant, and the
      app knowing that is better than the parent having to remember it. */
+  function askedToday(childId){
+    const out=new Set();
+    notes().filter(nt=>nt.childId===childId && dayStr(nt.ts)===today())
+      .forEach(nt=>nt.items.forEach(it=>out.add(String(it.text||"").toLowerCase())));
+    return out;
+  }
   function actionOptions(nt){
-    const on=new Set((nt && nt.items ? nt.items : []).map(i=>String(i.text||"").toLowerCase()));
+    const on=askedToday(pickChild);
+    (nt && nt.items ? nt.items : []).forEach(i=>on.add(String(i.text||"").toLowerCase()));
     const out=[];
     (typeof app!=="undefined" ? (app.categories||[]) : []).forEach(cat=>(cat.actions||[]).forEach(a=>{
       if(on.has(String(a[0]).toLowerCase())) return;
@@ -16040,21 +16062,6 @@ window.GROWNUP_DECKS = [
     }));
     return out;
   }
-  /* What has already been asked of this child recently, so a parent writing
-     tonight's note can see they asked the same thing yesterday. */
-  function recentlyAsked(childId){
-    const cut=Date.now()-7*86400000;
-    const seen=new Map();
-    notes().filter(nt=>nt.childId===childId).forEach(nt=>{
-      nt.items.forEach(it=>{
-        const k=String(it.text||"").toLowerCase();
-        const at=nt.ts||0;
-        if(at>=cut && (!seen.has(k) || seen.get(k).at<at)) seen.set(k,{text:it.text, at, done:!!it.done});
-      });
-    });
-    return [...seen.values()].sort((a,b)=>b.at-a.at);
-  }
-  window.recentlyAsked = recentlyAsked;
 
   let busy=false;
   function working(on){
@@ -16079,25 +16086,36 @@ window.GROWNUP_DECKS = [
       nt={ id, childId:pickChild, items:[] };
     }
     if(nt.items.length>=MAX_ITEMS) return;
-    let text="", action=null, points=0;
+    /* Several at once. Asking for Fajr, Asr, Maghrib and the bins was four
+       trips through this box; now it is one. */
+    const room = MAX_ITEMS - nt.items.length;
+    let chosen = [];
     if(mode==="action"){
-      const v=($("ntAction")||{}).value||"";
-      if(!v) return;
-      const bits=v.split("|");
-      text=bits[0]; action=bits[0]; points=parseInt(bits[1],10)||0;
+      const all = actionOptions(nt);
+      chosen = all.filter(a=>picked.has(a.name)).map(a=>({text:a.name, action:a.name, points:a.points}));
+      if(!chosen.length) return;
     }else{
-      text=String((($("ntFree")||{}).value)||"").trim();
+      const text=String((($("ntFree")||{}).value)||"").trim();
       if(!text) return;
+      if((nt.items||[]).some(i=>String(i.text||"").toLowerCase()===text.toLowerCase())){
+        alert("\u201c"+text+"\u201d is already on this note.");
+        return;
+      }
+      chosen=[{text, action:null, points:0}];
     }
-    if((nt.items||[]).some(i=>String(i.text||"").toLowerCase()===text.toLowerCase())){
-      alert("\u201c"+text+"\u201d is already on this note.");
-      return;
+    if(chosen.length > room){
+      alert("There is only room for "+room+" more on this note. Six is the most it holds.");
+      chosen = chosen.slice(0, room);
     }
-    const iid=newId("it");
-    await writeLedger({ childId:nt.childId||pickChild, points:0, type:"noteitem",
-      label:"Asked: "+text, catKey:"noteitem|"+noteId+"|"+iid,
-      actionName:text, itemAction:action, itemPoints:points });
-    const f=$("ntFree"); if(f) f.value="";
+    working(true);
+    for(const c of chosen){
+      await writeLedger({ childId:nt.childId||pickChild, points:0, type:"noteitem",
+        label:"Asked: "+c.text, catKey:"noteitem|"+nt.id+"|"+newId("it"),
+        actionName:c.text, itemAction:c.action, itemPoints:c.points });
+    }
+    working(false);
+    picked = new Set();
+    const ff=$("ntFree"); if(ff) ff.value="";
     renderNotesPanel(); if(typeof render==="function") render();
   };
 
@@ -16227,6 +16245,11 @@ window.GROWNUP_DECKS = [
   /* One row, always visible, that does the thing the page is for. The two
      modes are a toggle rather than a form: pick from the list and it carries
      its points, or type anything and it carries none. */
+  let picked = new Set();
+  window.ntTogglePick = function(name){
+    if(picked.has(name)) picked.delete(name); else picked.add(name);
+    renderNotesPanel();
+  };
   function addBoxHTML(nt){
     const count = nt ? nt.items.length : 0;
     if(count>=MAX_ITEMS){
@@ -16244,13 +16267,17 @@ window.GROWNUP_DECKS = [
       </div>
       ${mode==="action"
         ? (acts.length
-            ? `<select id="ntAction">${acts.map(a=>
-                `<option value="${esc(a.name)}|${a.points}">${a.icon} ${esc(a.name)} \u2014 ${a.points} pts</option>`).join("")}</select>`
-            : `<p class="ntfull" style="margin:0 0 9px">Everything on the points list is already
-                on this note. Add something of your own instead.</p>`)
+            ? `<div class="ntpick">${acts.map(a=>
+                `<button class="${picked.has(a.name)?"on":""}" onclick="ntTogglePick('${esc(a.name).replace(/'/g,"\\'")}')">
+                   ${a.icon} ${esc(a.name)} <em>${a.points}</em></button>`).join("")}</div>`
+            : `<p class="ntfull" style="margin:0 0 9px">Everything on the points list has already been
+                asked of ${esc((typeof memberById==="function" && memberById(pickChild)||{}).name||"them")} today.
+                Add something of your own instead.</p>`)
         : `<input type="text" id="ntFree" placeholder="e.g. put the bins out" maxlength="70">`}
-      <button class="primary" style="width:100%" onclick="ntAddItem('${id}')">\uff0b Add it</button>
-      <p class="ntfull">${count} of ${MAX_ITEMS} on the note${count?"":" \u2014 nothing yet"}</p>
+      <button class="primary" style="width:100%" onclick="ntAddItem('${id}')">${
+        mode==="action" && picked.size>1 ? "\uff0b Add these "+picked.size : "\uff0b Add it"}</button>
+      <p class="ntfull">${count} of ${MAX_ITEMS} on the note${count?"":" \u2014 nothing yet"}${
+        mode==="action" && picked.size ? " \u00b7 "+picked.size+" chosen" : ""}</p>
     </div>`;
   }
 
@@ -16309,19 +16336,28 @@ window.GROWNUP_DECKS = [
 
     h += addBoxHTML(nt);
 
-    /* Asked before. Without this a parent has no way of knowing they asked the
-       same thing yesterday, and the child gets the same note every night. */
-    const before = recentlyAsked(pickChild)
-      .filter(r=>!(nt && nt.items.some(i=>String(i.text||"").toLowerCase()===String(r.text||"").toLowerCase())));
-    if(before.length){
-      h += `<p class="ntaddcap" style="margin:20px 0 8px">Asked in the last week</p>
-        <div class="ntpast">${before.slice(0,8).map(r=>{
-          const d=new Date(r.at);
-          const day = dayStr(r.at)===today() ? "today"
-            : d.toLocaleDateString(undefined,{weekday:"short"});
-          return `<span class="ntpastrow"><span>${esc(r.text)}</span>
-            <em>${r.done?"\u2713 done":"not done"} \u00b7 ${day}</em></span>`;
-        }).join("")}</div>`;
+    /* Notes you have already sent, with what was on them. Without this a
+       parent who remembers a fifth thing after clearing the note has no way
+       of seeing what the first four were. */
+    const past = notes()
+      .filter(x=>x.childId===pickChild && (!nt || x.id!==nt.id) && x.items.length)
+      .sort((a,b)=>b.ts-a.ts).slice(0,5);
+    if(past.length){
+      h += `<p class="ntaddcap" style="margin:22px 0 8px">Notes you\u2019ve already sent</p>`;
+      h += past.map(x=>{
+        const d=new Date(x.ts);
+        const when = dayStr(x.ts)===today() ? "Earlier today"
+          : d.toLocaleDateString(undefined,{weekday:"long", day:"numeric", month:"short"});
+        const doneN = x.items.filter(i=>i.done).length;
+        return `<details class="ntpastnote">
+          <summary><span>${esc(when)}</span>
+            <em>${doneN} of ${x.items.length} done</em></summary>
+          ${x.message ? `<p class="ntpastmsg">\u201c${esc(x.message)}\u201d</p>` : ""}
+          <div class="ntpast">${x.items.map(it=>
+            `<span class="ntpastrow"><span>${esc(it.text)}</span>
+              <em>${it.done?"\u2713 done":"not done"}</em></span>`).join("")}</div>
+        </details>`;
+      }).join("");
     }
 
     if(nt) h += bonusRow(nt);
