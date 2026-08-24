@@ -432,10 +432,12 @@
              text-align:center;box-shadow:0 24px 60px rgba(20,17,45,.35);
              border-top:7px solid #e0b13c}
   .champcard .champring{margin:0 auto 12px;width:104px;height:104px}
+  /* A setting, not an announcement. It was a filled amber banner sitting
+     between two cards that were already fighting for attention. */
   .champtoggle{display:flex;align-items:center;justify-content:space-between;gap:10px;
-               background:#fffaef;border:1px solid #f0e2bd;border-radius:16px;
-               padding:11px 14px;margin-bottom:16px;font-size:13.5px;font-weight:700;color:#7a6320}
-  .champtoggle button{width:auto;padding:8px 14px;font-size:13px;background:#f6e3ae;color:#6b551a}
+               background:#fff;border:1px solid #e6e8f0;border-radius:16px;
+               padding:11px 14px;margin-bottom:12px;font-size:13.5px;font-weight:700;color:#6a7184}
+  .champtoggle button{width:auto;padding:8px 14px;font-size:13px;background:#f2f3f9;color:#5a6172}
   .climit{display:block;font-size:11px;font-weight:700;color:#8a6d1f;background:#fff5d8;
           border-radius:99px;padding:2px 8px;margin-top:4px;width:fit-content}
   .plus.ticked{background:#e4f7ed!important;color:#19744a!important}
@@ -716,6 +718,12 @@
      The two headings are the only place the tab's colour appears on this
      screen, which is enough to say which room you are in. */
   .ptscap{color:#6d4d05}
+  /* Home is the only screen that is not a place - it is a summary of the other
+     three - so it owns no colour of its own and its headings stay ink. The
+     colour on this screen appears only as an accent on the thing that opens a
+     room, never as a whole card. */
+  .homecap{color:#2c3350}
+  .homecap::after{background:#e3e6ef}
   .ptscap::after{background:linear-gradient(90deg,#f0d190,rgba(240,209,144,0))}
   .reachpanel{padding:4px 14px}
   .reachrow{display:flex;align-items:center;gap:13px;width:100%;background:none;border:0;
@@ -924,16 +932,21 @@
      a green surface with a real balance, and the two things they reach for as
      proper tiles rather than list rows. Green because that is the Rewards tab
      it opens into: the button and its destination wear the same colour. */
-  .quickbuy{padding:0;border:0;overflow:hidden;background:linear-gradient(155deg,#1d7a5c,#12563f);
-    box-shadow:0 10px 26px rgba(18,86,63,.24);margin-bottom:12px}
-  .qbhead{display:flex;align-items:center;gap:12px;padding:17px 17px 14px;color:#fff}
+  /* v168: was a full green gradient block. On My points or Rewards a
+     saturated card is fine - those screens own a colour. Home owns none of
+     them, so a green card, a gold card and an amber card stacked together
+     read as three unrelated things shouting. White surface, green accents:
+     the colour still says "this opens Rewards" without repainting the page. */
+  .quickbuy{padding:0;overflow:hidden;background:#fff;border:1px solid #e6e8f0;
+    box-shadow:none;margin-bottom:12px}
+  .qbhead{display:flex;align-items:center;gap:12px;padding:16px 16px 13px;color:inherit}
   .qbmain{flex:1;min-width:0}
-  .qbtitle{display:block;font-size:17.5px;font-weight:800;line-height:1.2}
-  .qbsub{display:block;font-size:12.5px;font-weight:600;color:rgba(255,255,255,.78);
+  .qbtitle{display:block;font-size:17px;font-weight:800;line-height:1.2;color:#123c2e}
+  .qbsub{display:block;font-size:12.5px;font-weight:600;color:#8a90a6;
     margin-top:4px;line-height:1.4}
-  .qbbal{flex:none;color:#fff;text-align:center}
+  .qbbal{flex:none;color:#177f5c;text-align:center}
   .qbbal::after{content:"to spend";display:block;font-size:9px;font-weight:800;
-    letter-spacing:.05em;color:rgba(255,255,255,.7);margin-top:4px}
+    letter-spacing:.05em;color:#8a90a6;margin-top:4px}
   /* The two they actually reach for, as tiles. A row with a price on the right
      is a receipt; a tile with the thing in the middle is a choice. */
   /* A deck of pairs rather than one fixed pair. Height is fixed by the tallest
@@ -944,23 +957,24 @@
   @keyframes qbin{from{opacity:0}to{opacity:1}}
   .qbfill{display:block}
   .qbdots{display:flex;justify-content:center;gap:5px;padding:11px 0 3px}
-  .qbdot{width:5px;height:5px;border-radius:50%;background:rgba(255,255,255,.35);
-    transition:all .25s ease}
-  .qbdot.on{width:16px;border-radius:99px;background:rgba(255,255,255,.85)}
+  .qbdot{width:5px;height:5px;border-radius:50%;background:#d5d8e4;transition:all .25s ease}
+  .qbdot.on{width:16px;border-radius:99px;background:#177f5c}
   @media (prefers-reduced-motion:reduce){.qbslide.on{animation:none}}
   .qbitems{display:grid;grid-template-columns:1fr 1fr;gap:9px;padding:0 13px 13px}
   .qbitem{display:flex;flex-direction:column;align-items:center;justify-content:center;
-    gap:7px;text-align:center;background:rgba(255,255,255,.96);border:0;border-radius:16px;
+    gap:7px;text-align:center;background:linear-gradient(160deg,#fff,#e8f5ef);
+    border:1px solid #d5e9e0;border-radius:16px;
     padding:14px 10px;cursor:pointer;min-height:104px;font:inherit;color:#123c2e;
     transition:transform .12s ease}
   .qbitem:active{transform:scale(.97)}
   .qbicon{flex:none;font-size:25px;line-height:1}
   .qbname{font-size:13.5px;font-weight:800;line-height:1.25;
     display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-  .qball{width:100%;background:rgba(255,255,255,.14);border:0;border-radius:0;
-    padding:15px 0;font:inherit;font-size:14px;font-weight:800;color:#fff;
-    cursor:pointer;min-height:52px}
-  .qball:active{background:rgba(255,255,255,.22)}
+  /* The only strong green on the screen, and it is on the thing you press. */
+  .qball{width:100%;background:#177f5c;border:0;border-radius:0;
+    padding:16px 0;font:inherit;font-size:14.5px;font-weight:800;color:#fff;
+    cursor:pointer;min-height:54px}
+  .qball:active{background:#12603f}
   .balstrip{display:flex;align-items:center;justify-content:space-between;gap:12px;
     padding:14px 16px;margin-bottom:12px}
   .balmain{flex:1;min-width:0}
@@ -2564,6 +2578,7 @@
          screen. They are not a task somebody set and they are not a balance:
          they are the first thing the day is measured by, so they come before
          what was asked and before what the points can buy. -->
+    <p class="reachcap homecap" id="capToday">☀️ Today</p>
     <div id="prayerToday"></div>
 
     <!-- The one-tap way to spend. This is why a child opens the app, and
@@ -2571,6 +2586,7 @@
          list they had to search. The two things they choose most, priced, one
          tap each - and the balance as a figure, the same figure the Rewards
          screen and the To spend pot show. -->
+    <p class="reachcap homecap" id="capSpend">🎁 Spend my points</p>
     <div id="kidQuickBuy"></div>
 
     <!-- Whether to show the champion's photo. It was buried at the foot of My
@@ -2581,6 +2597,7 @@
 
     <!-- What was asked of them. Below the prayers deliberately - these are
          jobs a grown-up put on the list, which is a different kind of thing. -->
+    <p class="reachcap homecap hidden" id="capAsked">📝 Asked of you</p>
     <div id="kidNoteHost"></div>
 
 
@@ -2597,6 +2614,7 @@
          most children ever manage, and the app has opinions about saving that
          only ever appeared inside the bank - where a child who never opens the
          bank never reads them. -->
+    <p class="reachcap homecap hidden" id="capThink">💡 Something to think about</p>
     <div id="kidMoneyTip"></div>
 
   </div>
@@ -4733,7 +4751,7 @@ const TIP_CATS = [
   {key:"deen", label:"Deen"}
 ];
 
-const APP_VERSION = "v167";
+const APP_VERSION = "v168";
 const today = new Date().toISOString().slice(0,10);
 let app = {families:[],currentFamily:null,currentChild:null};
 let categories = [];
@@ -12392,7 +12410,12 @@ function renderKidView(child){
   const qb=document.getElementById("kidQuickBuy");
   if(qb){ qb.innerHTML = quickBuyHTML(child); startQuickBuyCycle(); }
   const mt=document.getElementById("kidMoneyTip");
-  if(mt) mt.innerHTML = moneyTipHTML(child);
+  if(mt){
+    const tip=moneyTipHTML(child);
+    mt.innerHTML = tip;
+    const c=document.getElementById("capThink");
+    if(c) c.classList.toggle("hidden", !tip);
+  }
   const sbal=document.getElementById("kidSpendBalance");
   if(sbal) sbal.innerHTML = spendBalanceHTML(child);
   /* The back button exists only on the pot version of this screen. */
@@ -18487,9 +18510,16 @@ window.GROWNUP_DECKS = [
   .ntcard{background:#fff;border:1px solid #e6e8f0;border-radius:22px;padding:0;margin-bottom:14px;
     overflow:hidden;transition:box-shadow .3s ease}
   .ntcard.justadded{box-shadow:0 0 0 3px #f0c98a}
-  .nthead{background:linear-gradient(150deg,#fff4dd,#ffe8bd);padding:15px 16px;border-bottom:1px solid #f0dcb2}
-  .ntmsg{margin:0;font-size:16.5px;font-weight:800;color:#6a4a05;line-height:1.35}
-  .ntfrom{margin:4px 0 0;font-size:12.5px;font-weight:700;color:#8a6a1c}
+  /* Was a solid amber bar across the top of the card, which on a screen that
+     already had a green block and a gold block made three headline colours
+     competing. The amber survives as a disc beside the words. */
+  .nthead{background:#fff;padding:15px 16px 13px;border-bottom:1px solid #eef0f5;
+    display:flex;gap:12px;align-items:flex-start}
+  .nthead::before{content:"\ud83d\udcdd";flex:none;width:38px;height:38px;border-radius:13px;
+    background:#fff4dd;display:flex;align-items:center;justify-content:center;font-size:18px}
+  .nthead > *{flex:1;min-width:0}
+  .ntmsg{margin:0;font-size:16px;font-weight:800;color:#2c3350;line-height:1.35}
+  .ntfrom{margin:4px 0 0;font-size:12.5px;font-weight:700;color:#8a90a6}
   .ntbonus{margin:9px 0 0;background:rgba(255,255,255,.7);border-radius:12px;padding:8px 11px;
     font-size:13px;font-weight:800;color:#6a4a05}
   .ntbody{padding:4px 16px 14px}
@@ -19274,14 +19304,21 @@ window.GROWNUP_DECKS = [
     anchor.parentElement.insertBefore(host, anchor);
     return host;
   }
+  /* The heading rises and falls with the card, or a day with nothing asked
+     leaves "Asked of you" standing over empty space. */
+  function setAskedCap(on){
+    const c=document.getElementById("capAsked");
+    if(c) c.classList.toggle("hidden", !on);
+  }
   function renderKidNote(){
     const host=kidNoteHost();
     if(!host) return;
     const m=me();
-    if(!m || (typeof isChildRole==="function" && !isChildRole(m))){ host.innerHTML=""; return; }
+    if(!m || (typeof isChildRole==="function" && !isChildRole(m))){ host.innerHTML=""; setAskedCap(false); return; }
     const nt=openNoteFor(m.id);
-    if(!nt || !nt.items.length){ host.innerHTML=""; return; }
+    if(!nt || !nt.items.length){ host.innerHTML=""; setAskedCap(false); return; }
     host.innerHTML=noteHTML(nt, true, false);
+    setAskedCap(true);
   }
   window.renderKidNote = renderKidNote;
 
