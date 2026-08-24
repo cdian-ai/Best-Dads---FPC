@@ -176,13 +176,19 @@ service cloud.firestore {
                       // only for the children assigned to them. A child may tick
                       // their own line and nothing else.
                       || (request.resource.data.type in
-                            ['note','noteitem','noteoff','itemoff','itemdone','notemsg','notebonus']
+                            ['note','noteitem','noteoff','itemoff','itemdone','itemundone',
+                             'notemsg','notebonus']
                           && request.resource.data.points == 0
                           && request.resource.data.byUid == request.auth.uid
                           && (isParent(fid)
                               || (isTutor(fid) && tutorTeaches(fid, request.resource.data.childId))
+                              // A child ticks their own line, and unticks it.
+                              // itemundone was missing, so a mistapped tick
+                              // could never be taken back by the child who
+                              // made it — the app offered the undo and the
+                              // rules refused it.
                               || (request.resource.data.childId == request.auth.uid
-                                  && request.resource.data.type == 'itemdone')));
+                                  && request.resource.data.type in ['itemdone','itemundone'])));
         allow update, delete: if false;
       }
 

@@ -2347,28 +2347,12 @@
          jobs a grown-up put on the list, which is a different kind of thing. -->
     <div id="kidNoteHost"></div>
 
-    <!-- One thing worth thinking about, in a child's words. This was emptied
-         in v74 because the grown-up version - hadith text, narrator, source
-         line - is not something a seven-year-old reads. The thought itself is,
-         so it comes back stripped to the thought. -->
-    <div id="kidReminder"></div>
-
-    <!-- Leads with what the points can reach, not with the total. A four-year
-         old cannot read 171; they can understand "you could choose the bedtime
-         story". The number is kept, small, because older children want it.
-         The heading is not decoration: without it the strip sat at the foot of
-         the page as a loose object, and a bar with a number beside it reads as
-         a balance rather than as something being worked towards. -->
-    <p class="reachcap" id="kidReachCap">⏳ Coming soon</p>
-    <button class="savestrip" onclick="showScreen('kidSpendScreen')">
-      <span class="saveicon" id="kidSaveIcon">🎯</span>
-      <span class="savemain">
-        <span class="savereach" id="kidSpendReach">Rewards, activities, or save up</span>
-        <span class="savebar"><i id="kidSaveFill" style="width:0%"></i></span>
-      </span>
-      <span class="savebal" id="kidSpendBal">0</span>
-    </button>
-
+    <!-- The reminder and the saving strip both came off this screen in v157.
+         The reminder was the only card here not about the child, and the
+         strip was a shop window on a screen that is not the shop - "Coming
+         soon" now heads the second half of the Rewards list, where the things
+         it is talking about actually live. What is left is theirs: how they
+         are doing, their prayers, and what was asked of them. -->
     <div id="kidRequestStatus"></div>
 
   </div>
@@ -4285,7 +4269,7 @@ const TIP_CATS = [
   {key:"deen", label:"Deen"}
 ];
 
-const APP_VERSION = "v156";
+const APP_VERSION = "v157";
 const today = new Date().toISOString().slice(0,10);
 let app = {families:[],currentFamily:null,currentChild:null};
 let categories = [];
@@ -4709,7 +4693,9 @@ function projectApp(raw){
       /* The visible feed is still the last 40 awards, but anything an add-on
          folds its own state from has to survive in full, whatever its age and
          whatever extra fields it carries. */
-      const FOLDED = ["note","noteitem","noteoff","itemoff","itemdone","notemsg","notebonus",
+      /* itemundone was missing here: an untick older than forty entries was
+         dropped from the fold, so the line silently ticked itself again. */
+      const FOLDED = ["note","noteitem","noteoff","itemoff","itemdone","itemundone","notemsg","notebonus",
                       "task","taskoff","taskdone",
                       "pledge","pledgeoff","pledgeclaim",
                       "course","coursestep","progress","vault"];
@@ -5285,7 +5271,14 @@ function learnScreenHTML(child){
      half-width tile, open it spans the row and carries its own ladder, in
      place. Nothing above it moves, and it is obvious which door you came
      through. */
-  const cells=CURRICULUM.map(subject=>{
+  /* The open subject is moved to the front of the grid rather than expanding
+     where it happens to sit. Opening Maths used to leave Qur'an stranded above
+     it and English and Science stranded below, so the ladder appeared wedged
+     into the middle of a list. Open one and it takes the top of "Where I'm up
+     to"; everything else falls in underneath it, in its usual order. */
+  const ordered=CURRICULUM.slice().sort((a,b)=>
+    (subjectIsOpen(child.id,b.subject)?1:0) - (subjectIsOpen(child.id,a.subject)?1:0));
+  const cells=ordered.map(subject=>{
     // The year is the child's year, worked out from their age, for everybody
     // who looks. A parent comparing years across the whole curriculum was
     // reading somebody else's syllabus and calling it their child's progress.
@@ -6773,6 +6766,28 @@ function pendingPrayerClaim(childId, tag){
   return (app.requests||[]).find(r=>r.type==="prayer" && r.status==="pending"
     && r.childId===childId && r.tag===tag) || null;
 }
+/* The write half, with no talking in it. Shared by the lamp (which asks first)
+   and by a prayer line ticked on the ask card (which has already asked). */
+window.setPrayerClaim = async function(tag, on){
+  const child=(typeof sessionMember==="function") ? sessionMember() : null;
+  if(!child || !isChildRole(child)) return false;
+  const existing=pendingPrayerClaim(child.id, tag);
+  const today=prayerGrid(child,1)[0];
+  const i=PRAYERS.findIndex(p=>p.tag===tag);
+  const confirmed = i>=0 && today && today.done[i];
+  if(on){
+    if(existing || confirmed) return true;      // already said, or already recorded
+    const p=PRAYERS.find(x=>x.tag===tag); if(!p) return false;
+    await window.fpc.createRequest(familyId, {
+      childId: child.id, childName: child.name,
+      type:"prayer", tag: tag, itemName: p.label, points: 0
+    });
+    return true;
+  }
+  if(!existing) return true;
+  await window.fpc.setRequestStatus(familyId, existing.id, "cancelled");
+  return true;
+};
 async function claimPrayer(tag){
   const child=sessionMember();
   if(!child || !isChildRole(child)) return;
@@ -6787,7 +6802,9 @@ async function claimPrayer(tag){
       yes:"Yes, take it back", no:"Leave it"});
     if(!ok) return;
     try{
-      await window.fpc.setRequestStatus(familyId, already.id, "cancelled");
+      await window.setPrayerClaim(tag, false);
+      /* And the line on today\u2019s note, if there is one. */
+      if(typeof window.ntSyncPrayer==="function") await window.ntSyncPrayer(tag, false);
       render();
     }catch(e){
       console.error("Prayer claim not withdrawn:", e);
@@ -6802,16 +6819,18 @@ async function claimPrayer(tag){
     yes:"Yes, I prayed", no:"Not yet"});
   if(!ok) return;
   try{
-    await window.fpc.createRequest(familyId, {
-      childId: child.id, childName: child.name,
-      type:"prayer", tag: tag, itemName: p.label, points: 0
-    });
+    await window.setPrayerClaim(tag, true);
   }catch(e){
     console.error("Prayer claim refused:", e);
     await kidSay({icon:"\ud83d\udce1", tone:"treat", title:"That didn\u2019t send",
       note:"Check your connection and try again."});
     return;
   }
+  /* If a grown-up asked for this prayer on today\u2019s note, the line ticks
+     itself. Saying it once is enough. */
+  try{
+    if(typeof window.ntSyncPrayer==="function") await window.ntSyncPrayer(tag, true);
+  }catch(e){ console.error("note sync failed:", e); }
   await kidSay({icon:"\ud83d\udc9b", tone:"cheer", title:"Told them!",
     thing:p.label,
     note:"Mum or Dad will see it. Tap the same one again if you sent it by mistake."});
@@ -7120,30 +7139,52 @@ function reachListHTML(child){
       </button>
     </article>`;
   };
-  /* Nearly there comes first. Something a child is close to is the thing they
-     came to look at; what they can already have will still be there. Ready now
-     is capped so it cannot bury the bank underneath it \u2014 a long list of
-     affordable treats was pushing saving off the bottom of the screen. */
-  const SHOW=4;
-  const more=Math.max(0, ready.length-SHOW);
+  /* This page used to show two tiles and stop. "Almost yours" was capped at
+     two and "Yours to choose" only ever listed what was already affordable -
+     so a child with no points saw two greyed tiles and an otherwise empty
+     screen, with no idea the list had thirty things on it. Both halves are
+     now always shown and both open out. */
+  const fav=favouriteCounts(child);
   /* Their own favourites first: the four tiles a child sees without scrolling
      should be the four they actually reach for. Anything never chosen falls
      back to dearest-first, which is what it was before. */
-  const fav=favouriteCounts(child);
-  const shown=ready.slice().sort((a,b)=>{
+  const readySorted=ready.slice().sort((a,b)=>{
     const fa=fav[a.id]||fav[a.name]||0, fb=fav[b.id]||fav[b.name]||0;
     if(fb!==fa) return fb-fa;
     return (b.points||0)-(a.points||0);
   });
-  return `${soon.length ? `<p class="reachcap">\ud83c\udf31 Almost yours</p>
-      <div class="cattiles">${soon.slice(0,2).map((r,i)=>tile(r,false,i+3)).join("")}</div>` : ""}
-    ${ready.length ? `<p class="reachcap">\ud83c\udf81 Yours to choose</p>
-      <div class="cattiles">${(kidShowAllRewards ? shown : shown.slice(0,SHOW))
-        .map((r,i)=>tile(r,true,i)).join("")}</div>
-      ${more && !kidShowAllRewards
-        ? `<button class="reachmore" onclick="toggleAllRewards()">Show ${more} more</button>`
-        : (kidShowAllRewards && ready.length>SHOW
-            ? `<button class="reachmore" onclick="toggleAllRewards()">Show fewer</button>` : "")}` : ""}`;
+  const R=4, S=6;
+  const moreReady=Math.max(0, ready.length-R);
+  const moreSoon =Math.max(0, soon.length-S);
+  const readyPart = ready.length
+    ? `<p class="reachcap">\ud83c\udf81 Yours to choose</p>
+       <div class="cattiles">${(kidShowAllRewards ? readySorted : readySorted.slice(0,R))
+         .map((r,i)=>tile(r,true,i)).join("")}</div>
+       ${moreReady && !kidShowAllRewards
+         ? `<button class="reachmore" onclick="toggleAllRewards()">Show ${moreReady} more</button>`
+         : (kidShowAllRewards && ready.length>R
+             ? `<button class="reachmore" onclick="toggleAllRewards()">Show fewer</button>` : "")}`
+    : `<section class="c-panel"><p class="reachempty">\u2b50 Nothing is quite in reach yet \u2014
+        keep going, the nearest one is below.</p></section>`;
+  /* Nearest first, so the top of this half is the thing they are closest to
+     rather than the most expensive thing on the list. */
+  const soonPart = soon.length
+    ? `<p class="reachcap">\u23f3 Coming soon</p>
+       <div class="cattiles">${(kidShowAllSoon ? soon : soon.slice(0,S))
+         .map((r,i)=>tile(r,false,i+2)).join("")}</div>
+       ${moreSoon && !kidShowAllSoon
+         ? `<button class="reachmore" onclick="toggleAllSoon()">See all ${soon.length}</button>`
+         : (kidShowAllSoon && soon.length>S
+             ? `<button class="reachmore" onclick="toggleAllSoon()">Show fewer</button>` : "")}`
+    : "";
+  return readyPart + soonPart;
+}
+let kidShowAllSoon=false;
+function toggleAllSoon(){
+  kidShowAllSoon=!kidShowAllSoon;
+  const el=document.getElementById("kidReachList");
+  const child=sessionMember();
+  if(el && child) el.innerHTML=reachListHTML(child);
 }
 /* Saving is invisible by nature, so it needs a picture: a jar that fills with
    what is locked away and turns gold when it is full. */
@@ -11197,47 +11238,11 @@ function renderKidView(child){
   document.getElementById("kidSubline").textContent = subline;
   document.getElementById("kidBalance").textContent = child.balance||0;
   const spendable=availableFor(child);
-  const sb=document.getElementById("kidSpendBal"); if(sb) sb.textContent=spendable;
   /* Name the nearest thing they can actually have. The number means little at
      four; the thing it buys means everything. */
-  const reach=document.getElementById("kidSpendReach");
-  if(reach){
-    const all=(app.rewards||[]).concat(app.gameNightActivities||[])
-      .filter(r=>!r.vault).slice().sort((a,b)=>b.points-a.points);
-    const can=all.filter(r=>(r.points||0)<=spendable);
-    /* all is dearest first, so the last one still out of reach is the nearest
-       one to aim at. */
-    const next=all.filter(r=>(r.points||0)>spendable).slice(-1)[0];
-    const strip=reach.closest(".savestrip");
-    const fill=document.getElementById("kidSaveFill");
-    const icon=document.getElementById("kidSaveIcon");
-    /* The heading changes with the thing under it. "Coming soon" over a reward
-       they can already have would be a lie, and "Ready now" over a bar at 30%
-       would be a different one. */
-    const cap=document.getElementById("kidReachCap");
-    if(can.length){
-      /* The best thing already within reach, not the cheapest - the cheapest
-         is always a sweet, and that is not what they have been saving for. */
-      reach.textContent = "Ready for: " + can[0].name;
-      if(cap) cap.textContent = "\ud83c\udf81 Ready now";
-      if(fill) fill.style.width = "100%";
-      if(icon) icon.textContent = "\u{1f381}";
-      if(strip) strip.classList.add("ready");
-    }else if(next){
-      const need=Math.max(0,(next.points||0)-spendable);
-      reach.textContent = need + " more for " + next.name;
-      if(cap) cap.textContent = "\u23f3 Coming soon";
-      if(fill) fill.style.width = Math.round(spendable/(next.points||1)*100) + "%";
-      if(icon) icon.textContent = "\u{1f3af}";
-      if(strip) strip.classList.remove("ready");
-    }else{
-      reach.textContent = "Rewards, activities, or save up";
-      if(cap) cap.textContent = "\u23f3 Coming soon";
-      if(fill) fill.style.width = "0%";
-      if(icon) icon.textContent = "\u{1f381}";
-      if(strip) strip.classList.remove("ready");
-    }
-  }
+  /* The home-screen saving strip is gone (v157); what it said now heads the
+     Rewards list. These elements no longer exist, so nothing is written to
+     them - but spendable is still needed below and by the Rewards screen. */
   const sb2=document.getElementById("kidSpendBal2"); if(sb2) sb2.textContent=spendable;
   const onHold=pendingSpendFor(child.id);
   const holdEl=document.getElementById("kidHold");
@@ -17314,8 +17319,12 @@ window.GROWNUP_DECKS = [
       if(e.type==="itemundone" && k.indexOf("itemundone|")===0){ done.delete(k.split("|").slice(1).join("|")); return; }
       if(e.type==="note" && k.indexOf("note|")===0){
         const id=k.split("|")[1];
+        /* The fold renames byName to by (see slim() in the ledger derivation),
+           so reading byName alone always came back empty - which is why every
+           ask card said nothing about who had asked. */
         out.set(id, { id, childId:e.childId, message:e.actionName||"", due:e.noteDue||dayStr(e.ts),
-                      askedBy:e.byName||"", bonus:e.noteBonus||0, paid:false, ts:e.ts, items:[] });
+                      askedBy:e.byName||e.by||"", askedRole:e.byRole||"",
+                      bonus:e.noteBonus||0, paid:false, ts:e.ts, items:[] });
         dead.delete(id); return;
       }
       if(e.type==="noteitem" && k.indexOf("noteitem|")===0){
@@ -17329,7 +17338,7 @@ window.GROWNUP_DECKS = [
       if(e.type==="task" && k.indexOf("task|")===0){
         const id=k.split("|")[1];
         out.set(id, { id, childId:e.childId, message:"", due:e.taskDue||dayStr(e.ts),
-                      askedBy:e.byName||"", ts:e.ts, legacy:true,
+                      askedBy:e.byName||e.by||"", askedRole:e.byRole||"", ts:e.ts, legacy:true,
                       items:[{ id:"i0", text:e.actionName||e.label||"",
                                action:e.taskAction||null, points:e.taskPoints||0 }] });
         dead.delete(id); return;
@@ -17685,6 +17694,48 @@ window.GROWNUP_DECKS = [
 
   /* The child says a line is done. A claim, not an award: the points are still
      handed over by a grown-up, the way every other point in this app is. */
+  /* ---- prayers and the ask card are the same event ----
+     If a parent puts "Pray Fajr on time" on today's note, that line and the
+     Fajr lamp are two views of one thing. Before this a child had to say it
+     twice, in two places, and the two could disagree - which made the note a
+     worse record than the lamps for no reason. Matched on the action NAME
+     rather than the wording of the line, so a family renaming the action
+     renames both ends at once. */
+  function prayerTagOfText(text){
+    if(typeof PRAYERS==="undefined" || typeof prayerAction!=="function") return null;
+    const t=String(text||"").trim().toLowerCase();
+    if(!t) return null;
+    for(const p of PRAYERS){
+      const act=prayerAction(p.tag);
+      if(act && String(act.name||"").trim().toLowerCase()===t) return p.tag;
+    }
+    return null;
+  }
+  window.ntPrayerTagOf = prayerTagOfText;
+  /* Silent by design: whichever end the child touched has already spoken to
+     them, and a second confirmation about the other end would be noise. */
+  window.ntSyncPrayer = async function(tag, done){
+    if(typeof prayerAction!=="function") return;
+    const act=prayerAction(tag); if(!act) return;
+    const m=me(); if(!m) return;
+    const nt=openNoteFor(m.id);
+    if(!nt || nt.paid) return;
+    const target=String(act.name||"").trim().toLowerCase();
+    if(!target) return;
+    for(const it of nt.items){
+      const label=String(it.action||it.text||"").trim().toLowerCase();
+      if(label!==target) continue;
+      if(done && !it.done){
+        await writeLedger({ childId:nt.childId, points:0, type:"itemdone",
+          label:"Done: "+it.text, catKey:"itemdone|"+nt.id+"|"+it.id });
+      }else if(!done && it.done){
+        await writeLedger({ childId:nt.childId, points:0, type:"itemundone",
+          label:"Not done after all: "+it.text, catKey:"itemundone|"+nt.id+"|"+it.id });
+      }
+    }
+    renderNotesPanel(); renderKidNote();
+  };
+
   window.ntTick = async function(noteId, iid){
     const nt=notes().filter(x=>x.id===noteId)[0];
     if(!nt || busy) return;
@@ -17706,6 +17757,14 @@ window.GROWNUP_DECKS = [
         label:"Done: "+it.text, catKey:"itemdone|"+noteId+"|"+iid });
       try{ if(typeof chime==="function") chime("milestone"); }catch(e){}
     }
+    /* And the other end. A prayer line ticked here lights the lamp and sends
+       the same claim a tap on the lamp would have sent, so the parent is told
+       once either way and the two can never disagree. */
+    try{
+      const tag=prayerTagOfText(it.action||it.text);
+      if(tag && typeof window.setPrayerClaim==="function")
+        await window.setPrayerClaim(tag, !it.done);
+    }catch(e){ console.error("prayer sync from note failed:", e); }
     renderNotesPanel(); renderKidNote(); if(typeof render==="function") render();
   };
 
@@ -17773,10 +17832,17 @@ window.GROWNUP_DECKS = [
         onclick="ntPayout('${nt.id}')">Hand over ${
           nt.items.reduce((a,i)=>a+i.points,0)+(nt.bonus||0)} points</button>`;
     else if(all) foot=`<p class="ntdone">\u2713 All done \u2014 nice one.</p>`;
+    /* Who asked is not decoration. A child doing something because Dad asked
+       is a different thing from a list that appeared out of the app, and the
+       name is what makes it the first one. It never rendered until now
+       because the value was being read from the wrong field. */
+    const who = nt.askedBy
+      ? "From " + esc(nt.askedBy) + (nt.askedRole ? " (" + esc(nt.askedRole) + ")" : "")
+      : "From Mum or Dad";
     return `<section class="ntcard">
       <div class="nthead">
         <p class="ntmsg">${nt.message ? esc(nt.message) : "Asked of you today"}</p>
-        <p class="ntfrom">${nt.askedBy ? "From " + esc(nt.askedBy) : ""}${
+        <p class="ntfrom">${who}${
           nt.due>today() ? " \u00b7 for " + esc(nt.due) : ""}</p>
         ${bonusLine}
       </div>
