@@ -1164,33 +1164,71 @@
   .menugroup:first-of-type{margin-top:6px}
   /* The sheet used to read as part of the page behind it. */
   body.locked{position:fixed;left:0;right:0;width:100%;overflow:hidden}
-  .menuscrim{touch-action:none;overscroll-behavior:none;position:fixed;inset:0;z-index:143;background:rgba(24,22,60,.45);
-             backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px)}
+  /* The scrim is gone. A dark layer with a white box on it is the shape of a
+     web page with a dialog over it; the menu is a screen now and covers what
+     it replaces. Kept as a no-op so any code still calling setMenuScrim does
+     nothing rather than breaking. */
+  .menuscrim{display:none!important}
   /* Was a white box of identical grey buttons, which read as a settings dump.
      Now a proper sheet: sections with air between them, one hairline between
      rows instead of a border around each, and the emoji doing the work of an
      icon column so the eye can find a row without reading every label. */
-  .menusheet{position:fixed;left:10px;right:10px;top:calc(62px + env(safe-area-inset-top));
-             z-index:145;display:block;max-width:440px;margin:0 auto;padding:8px 6px 10px;
-             max-height:calc(100svh - 84px - env(safe-area-inset-top));overflow-y:auto;
-             overscroll-behavior:contain;-webkit-overflow-scrolling:touch;touch-action:pan-y;
-             background:#fff;border:1px solid #e6e8f0;border-radius:26px;
-             box-shadow:0 28px 70px rgba(24,22,60,.30)}
-  .menusheet button{display:flex;align-items:center;gap:13px;width:100%;text-align:left;
-             padding:14px 15px;font-size:15.5px;font-weight:700;color:var(--ink);
-             background:#f7f8fc;border:0;border-radius:0;min-height:54px;cursor:pointer}
-  .menusheet button:active{background:#eceef8}
-  /* Rows in a group are one rounded block with hairlines between them, rather
-     than a stack of identical loose buttons. */
-  .menusheet .menugroup+button{border-radius:16px 16px 0 0}
-  .menusheet button+button{box-shadow:inset 0 1px 0 #e6e9f3}
-  .menusheet button:last-child{border-radius:0 0 16px 16px}
-  .menusheet button:has(+.menugroup){border-radius:0 0 16px 16px}
-  .menusheet .menugroup+button:last-child,
-  .menusheet .menugroup+button:has(+.menugroup){border-radius:16px}
-  #menuWho,#kidMenuWho{margin:6px 0 2px!important;padding:0 14px!important;font-size:12.5px;
-             font-weight:700;color:var(--muted)}
-  #menuBadge .badge,.menusheet .badge{margin-left:auto}
+  /* ================= THE MENU =================
+     v169. It was a white box of full-width rows floating on a dark scrim -
+     which is a browser dropdown, not an app. Two things gave that away: the
+     scrim (a page dimmed behind a thing on top of it) and the row list (the
+     only place in this app that still used one; pots, subjects and rewards
+     are all tinted tile grids).
+
+     Now it is a screen. Full bleed, the app's own page colour, sliding up from
+     the bottom - so it reads as somewhere you went rather than something that
+     dropped over what you were reading. No scrim, because there is nothing
+     behind it to dim.
+
+     The tiles wear the colour of the room they open, which is the same system
+     the tabs use: green Rewards, violet Learn, gold points. A child finds
+     Learn by its colour before they read the word. */
+  .menupanel{position:fixed;inset:0;z-index:145;overflow-y:auto;
+    -webkit-overflow-scrolling:touch;overscroll-behavior:contain;
+    background:linear-gradient(180deg,#eef0ff 0,#f8f9fc 42%,#fff 100%);
+    padding:calc(14px + env(safe-area-inset-top)) 14px calc(28px + env(safe-area-inset-bottom));
+    animation:menuup .26s cubic-bezier(.2,.85,.25,1)}
+  @keyframes menuup{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:none}}
+  @media (prefers-reduced-motion:reduce){.menupanel{animation:none}}
+  .menutop{display:flex;align-items:center;gap:12px;margin:2px 2px 8px}
+  .menuhi{flex:1;min-width:0;margin:0;font-size:14px;font-weight:800;color:var(--muted)}
+  .menuclose{flex:none;width:44px;height:44px;border-radius:50%;border:1px solid #e6e8f0;
+    background:#fff;font-size:16px;font-weight:800;color:#5a6172;cursor:pointer;padding:0}
+  .menuclose:active{transform:scale(.94)}
+  .menugroup{margin:20px 2px 9px;font-size:11px;font-weight:800;letter-spacing:.09em;
+    text-transform:uppercase;color:var(--muted)}
+  .menugrid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}
+  .menutile{display:flex;flex-direction:column;align-items:center;justify-content:flex-start;
+    gap:8px;text-align:center;min-height:104px;padding:15px 8px 12px;border-radius:20px;
+    border:1px solid #e6e8f0;background:#fff;cursor:pointer;
+    font-size:12.5px;font-weight:800;line-height:1.25;color:#2c3350;
+    transition:transform .12s ease}
+  .menutile:active{transform:scale(.96)}
+  .menutile span{font-size:25px;line-height:1}
+  /* One tinted tile per room, matching the tab that opens it. */
+  .menutile.t-home  {background:linear-gradient(160deg,#fff,#e8eaf8);border-color:#d9ddf0;color:#2b2e73}
+  .menutile.t-spend {background:linear-gradient(160deg,#fff,#e0f2ea);border-color:#cbe7db;color:#12603f}
+  .menutile.t-learn {background:linear-gradient(160deg,#fff,#eee6fb);border-color:#ded1f4;color:#452a7a}
+  .menutile.t-points{background:linear-gradient(160deg,#fff,#fbeccb);border-color:#f2ddb4;color:#6d4d05}
+  .menutile.t-deen  {background:linear-gradient(160deg,#fff,#ddefee);border-color:#c9e4e2;color:#12554f}
+  .menutile.t-play  {background:linear-gradient(160deg,#fff,#fdeadb);border-color:#f6d9c4;color:#8a4a15}
+  .menutile.t-today {background:linear-gradient(160deg,#fff,#e9ecf9);border-color:#dbe0f2;color:#2c3350}
+  .menutile.t-plain {background:#fff}
+  /* Settings are not destinations, so they never become tiles. */
+  .menupills{display:flex;flex-wrap:wrap;gap:8px}
+  .menupills button{flex:1 1 auto;width:auto;min-height:48px;padding:13px 16px;border-radius:99px;
+    border:1px solid #e6e8f0;background:#fff;font-size:13.5px;font-weight:700;
+    color:#5a6172;cursor:pointer}
+  .menupills button:active{background:#f2f3f9}
+  .menugrid .badge,.menutile .badge{position:absolute}
+  .menutile{position:relative}
+  .menutile .badge{top:8px;right:8px;margin:0}
+  #menuBadge .badge{margin-left:auto}
   #menuBadge:empty{display:none}
   .accountbuttons button{width:auto}
   /* A menu item used to unfold a panel halfway down the page, so choosing one
@@ -2145,22 +2183,35 @@
 <!-- Children had no menu at all: six links behind a "More" row that only existed
      on the home screen, so from any tab there was no way back to House rules,
      the family tree or Sign out. Same fixed button as the parents get. -->
-<div class="menusheet kidsheet hidden" id="kidMenuSheet">
-  <p class="small" id="kidMenuWho" style="margin:0 0 2px;padding:0 4px"></p>
+<div class="menupanel kidsheet hidden" id="kidMenuSheet">
+  <div class="menutop">
+    <p class="menuhi" id="kidMenuWho"></p>
+    <button class="menuclose" onclick="closeKidMenu()" aria-label="Close menu">✕</button>
+  </div>
+
   <p class="menugroup">Go to</p>
-  <button class="light" onclick="kidMenuGo(null)">🏠 Home</button>
-  <button class="light" onclick="kidMenuGo('kidSpendScreen')">🎁 Spend my points</button>
-  <button class="light" onclick="kidMenuGo('kidLearnScreen')">📖 Learn</button>
-  <button class="light" onclick="kidMenuGo('kidPointsScreen')">⭐ My points</button>
-  <button class="light" onclick="closeKidMenu();showDeenPanel()">🤲 Duas &amp; bedtime</button>
-  <button class="light" onclick="closeKidMenu();showPlayPanel()">🧩 Do together</button>
+  <div class="menugrid">
+    <button class="menutile t-home"   onclick="kidMenuGo(null)"><span>🏠</span>Home</button>
+    <button class="menutile t-spend"  onclick="kidMenuGo('kidSpendScreen')"><span>🎁</span>Spend my points</button>
+    <button class="menutile t-learn"  onclick="kidMenuGo('kidLearnScreen')"><span>📖</span>Learn</button>
+    <button class="menutile t-points" onclick="kidMenuGo('kidPointsScreen')"><span>⭐</span>My points</button>
+    <button class="menutile t-deen"   onclick="closeKidMenu();showDeenPanel()"><span>🤲</span>Duas &amp; bedtime</button>
+    <button class="menutile t-play"   onclick="closeKidMenu();showPlayPanel()"><span>🧩</span>Do together</button>
+  </div>
+
   <p class="menugroup">More</p>
-  <button class="light" onclick="closeKidMenu();showTreePanel()">🌳 My family</button>
-  <button class="light" onclick="closeKidMenu();showRulesPanel()">📜 House rules</button>
-  <button class="light" onclick="closeKidMenu();startTour(kidTourKey(sessionMember()))">❓ How this works</button>
-  <p class="menugroup">This device</p>
-  <button class="light" id="soundBtn" onclick="setSoundOn(!soundOn())">🔊 Sound on</button>
-  <button class="light" onclick="signOutDevice()">🔒 Sign out</button>
+  <div class="menugrid">
+    <button class="menutile t-plain" onclick="closeKidMenu();showTreePanel()"><span>🌳</span>My family</button>
+    <button class="menutile t-plain" onclick="closeKidMenu();showRulesPanel()"><span>📜</span>House rules</button>
+    <button class="menutile t-plain" onclick="closeKidMenu();startTour(kidTourKey(sessionMember()))"><span>❓</span>How this works</button>
+  </div>
+
+  <!-- Settings are not destinations, so they are not tiles. Two quiet pills at
+       the bottom, where a child is not looking unless they want them. -->
+  <div class="menupills">
+    <button id="soundBtn" onclick="setSoundOn(!soundOn())">🔊 Sound on</button>
+    <button onclick="signOutDevice()">🔒 Sign out</button>
+  </div>
 </div>
 <button id="panelTop" class="paneltop hidden" onclick="panelToTop()">↑ Top</button>
 <div id="editBar" class="editbar hidden">
@@ -2242,45 +2293,55 @@
       <button class="primary hidden" id="btnGivePoints" onclick="addPointPrompt()">＋ Give points</button>
       <button class="light hidden" id="btnMenu" onclick="toggleMenu()">☰ Menu <span id="menuBadge"></span></button>
     </div>
-    <div class="menusheet hidden" id="menuSheet">
-      <p class="small" id="menuWho" style="margin:0 0 2px;padding:0 4px"></p>
-
-      <p class="menugroup">Today</p>
-      <button class="light" id="btnQuickMenu" onclick="showQuickPanel()">🔥 All at once</button>
-      <button class="light" id="btnRequests" onclick="showRequestsPanel()">🔔 They’re asking…</button>
-      <button class="light" id="btnTasks" onclick="showNotesPanel()">📌 I’m asking…</button>
-      <button class="light" id="btnReviewMenu" onclick="showReviewPanel()">🗣️ Review together</button>
-      <button class="light" id="btnActivity" onclick="showActivityPanel()">📋 History</button>
-
-      <p class="menugroup">How they’re doing</p>
-      <button class="light" id="btnOverview" onclick="showOverviewPanel()">📊 Overview</button>
-      <button class="light" id="btnProgress" onclick="showProgressPanel()">📖 Learn</button>
-
-      <p class="menugroup">Together</p>
-      <button class="light" id="btnDeen" onclick="showDeenPanel()">🤲 Duas &amp; bedtime</button>
-      <button class="light" id="btnPlay" onclick="showPlayPanel()">🧩 Do together</button>
-      <button class="light" id="btnRules" onclick="showRulesPanel()">📜 House rules</button>
-
-      <p class="menugroup">People</p>
-      <button class="light" id="btnFamily" onclick="showAccountPanel()">👨‍👩‍👧 Family members</button>
-      <button class="light" id="btnTree" onclick="showTreePanel()">🌳 Family tree</button>
-      <button class="light" id="btnTutors" onclick="showTutorPanel()">📚 Tutors</button>
-
-      <p class="menugroup">Just for the grown-ups</p>
-      <button class="light" id="btnGrownups" onclick="showGrownupsPanel()">🤝 Your reward list</button>
-      <button class="light" id="btnPledges" onclick="showPledgesPanel()">🤞 Pledges</button>
-
-      <p class="menugroup">Set up</p>
-      <button class="light" id="btnRewardsMenu" onclick="showRewardsPanel()">🎁 Rewards &amp; activities</button>
-      <button class="light" onclick="toggleEditMode()" id="editModeBtn">✏️ Edit mode</button>
-      <button class="light" id="btnRefreshLists" onclick="applyRecommendedLists()">✨ Update to recommended lists</button>
-
-      <p class="menugroup">Help</p>
-      <button class="light" id="btnHowItWorks" onclick="openHowItWorks()">❓ How this works</button>
-      <button class="light" id="btnErrLog" onclick="showErrorLog()">🩺 What went wrong</button>
-      <button class="light" id="btnResetDay" onclick="resetDay()">↻ Reset today</button>
-      <button class="light" id="btnSignOut" onclick="signOutDevice()">🔒 Sign out</button>
-    </div>
+    <div class="menupanel hidden" id="menuSheet">
+  <div class="menutop">
+    <p class="menuhi" id="menuWho"></p>
+    <button class="menuclose" onclick="closeMenu()" aria-label="Close menu">✕</button>
+  </div>
+  <p class="menugroup">Today</p>
+  <div class="menugrid">
+    <button class="menutile t-today" id="btnQuickMenu" onclick="showQuickPanel()"><span>🔥</span>All at once</button>
+    <button class="menutile t-today" id="btnRequests" onclick="showRequestsPanel()"><span>🔔</span>They’re asking…</button>
+    <button class="menutile t-today" id="btnTasks" onclick="showNotesPanel()"><span>📌</span>I’m asking…</button>
+    <button class="menutile t-today" id="btnReviewMenu" onclick="showReviewPanel()"><span>🗣️</span>Review together</button>
+    <button class="menutile t-today" id="btnActivity" onclick="showActivityPanel()"><span>📋</span>History</button>
+  </div>
+  <p class="menugroup">How they’re doing</p>
+  <div class="menugrid">
+    <button class="menutile t-points" id="btnOverview" onclick="showOverviewPanel()"><span>📊</span>Overview</button>
+    <button class="menutile t-learn" id="btnProgress" onclick="showProgressPanel()"><span>📖</span>Learn</button>
+  </div>
+  <p class="menugroup">Together</p>
+  <div class="menugrid">
+    <button class="menutile t-deen" id="btnDeen" onclick="showDeenPanel()"><span>🤲</span>Duas &amp; bedtime</button>
+    <button class="menutile t-play" id="btnPlay" onclick="showPlayPanel()"><span>🧩</span>Do together</button>
+    <button class="menutile t-plain" id="btnRules" onclick="showRulesPanel()"><span>📜</span>House rules</button>
+  </div>
+  <p class="menugroup">People</p>
+  <div class="menugrid">
+    <button class="menutile t-plain" id="btnFamily" onclick="showAccountPanel()"><span>👨‍👩‍👧</span>Family members</button>
+    <button class="menutile t-plain" id="btnTree" onclick="showTreePanel()"><span>🌳</span>Family tree</button>
+    <button class="menutile t-plain" id="btnTutors" onclick="showTutorPanel()"><span>📚</span>Tutors</button>
+  </div>
+  <p class="menugroup">Just for the grown-ups</p>
+  <div class="menugrid">
+    <button class="menutile t-spend" id="btnGrownups" onclick="showGrownupsPanel()"><span>🤝</span>Your reward list</button>
+    <button class="menutile t-spend" id="btnPledges" onclick="showPledgesPanel()"><span>🤞</span>Pledges</button>
+  </div>
+  <p class="menugroup">Set up</p>
+  <div class="menugrid">
+    <button class="menutile t-plain" id="btnRewardsMenu" onclick="showRewardsPanel()"><span>🎁</span>Rewards &amp; activities</button>
+    <button class="menutile t-plain" id="editModeBtn" onclick="toggleEditMode()"><span>✏️</span>Edit mode</button>
+    <button class="menutile t-plain" id="btnRefreshLists" onclick="applyRecommendedLists()"><span>✨</span>Update lists</button>
+  </div>
+  <p class="menugroup">Help</p>
+  <div class="menupills">
+    <button id="btnHowItWorks" onclick="openHowItWorks()">❓ How this works</button>
+    <button id="btnErrLog" onclick="showErrorLog()">🩺 What went wrong</button>
+    <button id="btnResetDay" onclick="resetDay()">↻ Reset today</button>
+    <button id="btnSignOut" onclick="signOutDevice()">🔒 Sign out</button>
+  </div>
+</div>
     <!-- Switching person is navigation, so it lives with the other navigation.
          Floating in the page it drifted below whichever panel was open. -->
     <div id="whoStrip" class="whostrip hidden"></div>
@@ -4751,7 +4812,7 @@ const TIP_CATS = [
   {key:"deen", label:"Deen"}
 ];
 
-const APP_VERSION = "v168";
+const APP_VERSION = "v169";
 const today = new Date().toISOString().slice(0,10);
 let app = {families:[],currentFamily:null,currentChild:null};
 let categories = [];
