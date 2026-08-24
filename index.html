@@ -582,6 +582,8 @@
   /* One row per thing, ordered by how close it is. The bar fills forward and
      can never empty, because points are never taken away. */
   /* A jar that fills. Saving is invisible by nature, so it needs a picture. */
+  .banklesson{margin:10px 0 0;background:#f3f7ff;border-left:3px solid #9fb2ee;border-radius:0 12px 12px 0;
+    padding:10px 12px;font-size:12.5px;font-weight:600;line-height:1.5;color:#3f4560}
   .vaultjar{width:96px;height:120px;flex:none;display:block}
   .vaulttop{display:flex;align-items:center;gap:16px}
   .vaultwords{flex:1;min-width:0}
@@ -636,6 +638,17 @@
   .kidtitle.w-points .kidtitlename{color:#6d4d05}
   /* Tiles on a child's rewards list carry a bar when the thing is still out of
      reach; the grown-ups' tiles never need one. */
+  /* Course sections, shaped like ladder rows so the shelf reads as one thing. */
+  .fulrow{display:flex;align-items:center;gap:12px;width:100%;background:#fff;border:0;
+    border-radius:14px;padding:13px 12px;margin-bottom:6px;text-align:left;cursor:pointer;
+    font:inherit;color:inherit;min-height:56px}
+  .fulrow:active{background:#fff6e4}
+  .fulmark{flex:none;width:28px;height:28px;border-radius:9px;background:#f2f3fb;color:#1c8a6c;
+    display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800}
+  .fulrow.done .fulmark{background:#d9f2e6}
+  .fulname{flex:1;min-width:0;font-size:15px;font-weight:700;line-height:1.35}
+  .fulcount{flex:none;font-size:12px;font-weight:800;color:#8a6a1c;background:#fff4dd;
+    border-radius:99px;padding:5px 10px}
   .rewardtile .reachbar.sm{width:100%;height:6px;margin:2px 0 5px}
   .rewardtile .tgap{font-size:10.5px;line-height:1.3}
   .rewardtile[disabled]{cursor:default}
@@ -2196,7 +2209,7 @@
        card. -->
   <div class="vaultsetting">
     <div style="flex:1;min-width:200px">
-      <strong>🏦 The vault — one target for everyone</strong>
+      <strong>🏦 The bank — one target for everyone</strong>
       <div class="small">Children can lock points away where they can’t be spent on small things.
       Nothing comes out until they reach the target, and then only on something from the big list.
       This target applies to every child.</div>
@@ -3972,7 +3985,7 @@ const TIP_CATS = [
   {key:"deen", label:"Deen"}
 ];
 
-const APP_VERSION = "v147";
+const APP_VERSION = "v148";
 const today = new Date().toISOString().slice(0,10);
 let app = {families:[],currentFamily:null,currentChild:null};
 let categories = [];
@@ -6598,6 +6611,24 @@ function reachListHTML(child){
 }
 /* Saving is invisible by nature, so it needs a picture: a jar that fills with
    what is locked away and turns gold when it is full. */
+/* ---------- What saving teaches ----------
+   One idea at a time, chosen by where the child actually is, so it lands as
+   something true about their own money rather than a lesson pinned to a
+   screen. These are the real principles, in a child's words: pay yourself
+   first, little and often, keep it separate from spending money, and the
+   waiting is the part that works. */
+function bankLesson(child, have, target, spendable){
+  const pct = target ? have/target : 0;
+  if(have<=0){
+    return spendable>0
+      ? "\ud83d\udca1 Try putting a little in before you spend any. That is how grown-ups save too \u2014 pay yourself first."
+      : "\ud83d\udca1 Even one point in here is a start. Saving works by being little and often.";
+  }
+  if(pct>=1)   return "\ud83d\udca1 You waited, and now you can afford something you could never have bought in a day. That is what saving is for.";
+  if(pct>=0.7) return "\ud83d\udca1 The last part is the hardest and the shortest. Nearly everyone gives up here \u2014 don\u2019t.";
+  if(pct>=0.3) return "\ud83d\udca1 Money in the bank is kept apart from money to spend. That is why it grows: you are not dipping into it.";
+  return "\ud83d\udca1 Small amounts add up faster than big ones you never make. A little each week beats a lot once.";
+}
 function vaultJarSVG(pct, unlocked){
   const h=Math.max(0, Math.min(100, pct));
   const fillTop=104-(h*0.74);
@@ -6648,10 +6679,11 @@ function kidVaultHTML(child){
       <div class="vaulttop">
         ${vaultJarSVG(pct, unlocked)}
         <div class="vaultwords">
-          <h2>\ud83c\udfe6 My vault</h2>
+          <h2>\ud83c\udfe6 My bank</h2>
           <p class="lede">${unlocked
             ? "It\u2019s full! You can choose something big."
             : "Points in here are safe. They\u2019re growing towards something big."}</p>
+          ${nums ? `<p class="banklesson">${bankLesson(child, have, target, spendable)}</p>` : ""}
           ${nums ? `<div class="vaulttotal"><strong>${have}</strong><span>saved of ${target}</span></div>` : ""}
         </div>
       </div>
@@ -6683,7 +6715,7 @@ async function kidVaultIn(amount){
   try{
     await window.fpc.createRequest(familyId, {
       childId:child.id, childName:child.name, type:"vaultin",
-      itemId:"vault", itemName:amount+" points into the vault", points:amount
+      itemId:"vault", itemName:amount+" points into my bank", points:amount
     });
   }catch(e){
     console.error("Vault deposit refused:", e);
@@ -6731,7 +6763,7 @@ async function kidVaultOut(goalId){
 }
 async function setVaultTarget(){
   if(!requireParent()) return;
-  const v=prompt("How many points must a child save before anything can come out of the vault?\n\nNothing is withdrawable below this, and then only on something from the big list.", String(vaultTarget()));
+  const v=prompt("How many points must a child save before anything can come out of the bank?\n\nNothing is withdrawable below this, and then only on something from the big list.", String(vaultTarget()));
   if(v===null) return;
   const n=Math.round(Number(v));
   if(!isFinite(n) || n < 100){ alert("Pick a number of at least 100."); return; }
@@ -9479,15 +9511,15 @@ async function approveRequest(id){
   const who={ byUid: window.fpc.uid(), byName: me?me.name:"", byRole: me?(roleLabel(me)||""):"" };
   let entry;
   if(r.type==="vaultin"){
-    // Into the vault: leaves the spendable balance, arrives as locked savings.
+    // Into the bank: leaves the spendable balance, arrives as savings.
     if(child && (child.balance||0) < r.points){
       alert(child.name+" only has "+(child.balance||0)+" points now \u2014 not enough to lock away.");
       return;
     }
     entry=Object.assign({ childId:r.childId, points:-r.points, type:"vault",
-      vaultAmount:r.points, label:"Into the vault" }, who);
+      vaultAmount:r.points, label:"Into my bank" }, who);
   }else if(r.type==="vaultout"){
-    // Out of the vault: the balance is untouched, the savings are spent.
+    // Out of the bank: the balance is untouched, the savings are spent.
     const amt=r.vaultAmount||0;
     if(child && (child.vault||0) < amt){
       alert(child.name+" has "+((child && child.vault)||0)+" saved, which isn\u2019t enough for this.");
@@ -9530,8 +9562,8 @@ async function declineRequest(id){
 function requestRowHTML(r){
   const when=new Date(r.ts).toLocaleString([], {weekday:"short", hour:"2-digit", minute:"2-digit"});
   const what = r.type==="game" ? "\ud83c\udfb2 Activity"
-             : r.type==="vaultin"  ? "\ud83c\udfe6 Into the vault"
-             : r.type==="vaultout" ? "\ud83c\udf1f From the vault"
+             : r.type==="vaultin"  ? "\ud83c\udfe6 Into my bank"
+             : r.type==="vaultout" ? "\ud83c\udf1f From my bank"
              : "\ud83c\udf81 Reward";
   return `<div class="requestrow">
     <div style="flex:1;min-width:180px">
@@ -9910,7 +9942,7 @@ function spendListHTML(child){
   }).join("");
   const vaultLine = vault>0
     ? `<p class="small" style="margin:12px 0 0">\ud83c\udfe6 ${escapeHtml(child?child.name:"They")} has
-        <strong>${vault}</strong> locked away in the vault as well, saving towards something big.</p>` : "";
+        <strong>${vault}</strong> saved in the bank as well, growing towards something big.</p>` : "";
   return `<p class="small" style="margin:0 0 12px"><strong>${bal}</strong> point${bal===1?"":"s"}
       to spend right now \u00b7 ${items.filter(x=>bal>=x.points).length} of ${items.length} within reach.</p>
     <div class="cattiles">${tiles}</div>${vaultLine}`;
@@ -13465,12 +13497,15 @@ window.FULFULDE_M1_VIDEO = {
       };
     })
   };
-  /* Straight after Qur'an: the two language ladders belong together, and the
-     school subjects follow. The puzzle decks add themselves last. */
+  /* Kept as a subject object so marking, permissions and progress reads still
+     work, but no longer pushed onto CURRICULUM. The course tracks itself; a
+     ladder shadowing it was a second record of the same thing, and two records
+     of one truth eventually disagree. */
+  window.FULFULDE_SUBJECT = SUBJECT;
   try{
-    if(typeof CURRICULUM!=="undefined" && !CURRICULUM.some(s=>s.subject==="fulfulde")){
-      const at=CURRICULUM.findIndex(s=>s.subject==="quran");
-      at>=0 ? CURRICULUM.splice(at+1, 0, SUBJECT) : CURRICULUM.push(SUBJECT);
+    if(typeof CURRICULUM!=="undefined"){
+      const at=CURRICULUM.findIndex(x=>x.subject==="fulfulde");
+      if(at>=0) CURRICULUM.splice(at,1);
     }
   }catch(e){}
 
@@ -13605,6 +13640,26 @@ window.FULFULDE_M1_VIDEO = {
     document.body.classList.remove('overlay-open');
                     if(typeof render==='function') render(); }
   window.openFulfulde=open;
+  /* The course keeps its own record. This hands Learn a read-only view of it,
+     so the topic list can live on the shelf beside maths and science instead
+     of only inside a full-screen overlay that feels like leaving the app. */
+  window.fulfuldeSections=function(member){
+    const prog=(member && member.progress) || {};
+    return SUBJECT.strands.map(st=>{
+      const sets=ALL_SETS.filter(x=>x.sec.replace(/\./g,'-')===st.id);
+      const ids=sets.map((x,i)=>"fulfulde."+st.id+"."+(i+1));
+      return { id:st.id, name:st.name,
+               total:sets.length,
+               done:ids.filter(k=>prog[k]).length };
+    });
+  };
+  window.openFulfuldeAt=function(sectionId){
+    open();
+    try{
+      const st=SUBJECT.strands.find(x=>x.id===sectionId);
+      if(st && typeof pickSection==="function") pickSection(sectionId);
+    }catch(e){}
+  };
 
   function child(){
     try{ return (typeof activeChild==='function' && activeChild())
@@ -15695,11 +15750,27 @@ window.GROWNUP_DECKS = [
 
     if(window.FULFULDE_M1 && typeof window.openFulfulde === "function"){
       const pack = window.FULFULDE_M1;
-      const k = myKeys("fulfulde.").length;
-      h += shelfLink("s-fulfulde", "\u{1f4d7}", pack.title || "Fulfulde",
-        k ? k + " set" + (k===1?"":"s") + " practised \u00b7 tap to carry on"
-          : "Start at the beginning \u00b7 audio on every item",
-        "openFulfulde()");
+      const secs = (typeof window.fulfuldeSections === "function")
+        ? window.fulfuldeSections(m) : [];
+      const done = secs.reduce((a,x)=>a+x.done, 0);
+      const total = secs.reduce((a,x)=>a+x.total, 0);
+      const pct = total ? Math.round(done/total*100) : 0;
+      const open = (typeof subjectIsOpen==="function") && subjectIsOpen(m.id, "fulfulde");
+      /* The same shelf the school subjects use, so opening the course reads as
+         going deeper into the app rather than leaving it. The rows show what
+         the course itself recorded \u2014 there is no second tracker to disagree. */
+      const rows = open ? secs.map(x=>`
+        <button type="button" class="fulrow${x.done>=x.total&&x.total?" done":""}"
+          onclick="openFulfuldeAt('${x.id}')">
+          <span class="fulmark">${x.done>=x.total&&x.total?"\u2713":""}</span>
+          <span class="fulname">${esc(x.name)}</span>
+          <span class="fulcount">${x.done}/${x.total}</span>
+        </button>`).join("") : "";
+      h += `<section class="subjfold s-fulfulde${open?" open":""}">
+        ${shelfHead("s-fulfulde", "\u{1f4d7}", pack.title || "Janngu Fulfulde",
+            total ? done+" of "+total+" practised" : "Audio on every item",
+            pct, "tapSubject('"+m.id+"','fulfulde')", open)}
+        <div class="subjbody">${rows}</div></section>`;
     }
 
     h += `<p class="shelfgroup">Your own</p>`;
