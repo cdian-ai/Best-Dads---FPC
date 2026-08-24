@@ -507,7 +507,7 @@
   .statgrid span{font-size:11.5px;color:var(--muted)}
 
   /* --- Child navigation: one big Spend button and a bottom tab bar ------- */
-  .spendbtn{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;
+  .spendbtn-old-unused{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;
             background:linear-gradient(135deg,#17a08a,#0f8f9c);color:#fff;border-radius:22px;
             padding:20px 22px;font-size:20px;font-weight:800;text-align:left;
             box-shadow:0 12px 28px rgba(15,143,156,.32);margin-bottom:16px}
@@ -533,6 +533,46 @@
   .herobuddy svg{width:64px;height:64px}
   .herotalk{margin:14px 0 0;background:rgba(255,255,255,.9);border-radius:18px;
     padding:12px 15px;font-size:14.5px;font-weight:700;color:#3f4560;line-height:1.5}
+  /* Prayers, for a child: five named things, a bar that fills, and a line that
+     says how far to go. Dashed empty circles read as broken; these are soft
+     discs that fill in. */
+  .prayercard{background:#fff;border:1px solid #e9ebf3;border-radius:24px;padding:18px;
+    margin-bottom:14px;box-shadow:0 8px 22px rgba(24,22,60,.06)}
+  .prayercard.allfive{background:linear-gradient(150deg,#fff8e4,#fff);border-color:#f0dcb2}
+  .prayerhead{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+  .prayerhead h2{margin:0;font-size:18px;flex:1;min-width:0}
+  .prayercount{flex:none;background:#eef0ff;color:#3e46ad;border-radius:99px;padding:6px 12px;
+    font-size:13px;font-weight:800}
+  .prayercard.allfive .prayercount{background:#f3d489;color:#6d4d05}
+  .praybar{height:8px;border-radius:99px;background:#eef0f6;overflow:hidden;margin-bottom:14px}
+  .praybar i{display:block;height:100%;border-radius:99px;
+    background:linear-gradient(90deg,#7a8bf0,#5b63d8);transition:width .5s cubic-bezier(.2,.8,.2,1)}
+  .prayercard.allfive .praybar i{background:linear-gradient(90deg,#f0c66a,#e0a92c)}
+  .prays{display:grid;grid-template-columns:repeat(5,1fr);gap:7px}
+  .pray{display:flex;flex-direction:column;align-items:center;gap:7px}
+  .praydisc{width:100%;aspect-ratio:1/1;max-width:52px;border-radius:50%;background:#f2f3fb;
+    display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:800;
+    color:#fff;transition:background .25s ease,transform .25s ease}
+  .pray.on .praydisc{background:linear-gradient(150deg,#6ec7a4,#2f9e74);transform:scale(1.06)}
+  .prayercard.allfive .pray.on .praydisc{background:linear-gradient(150deg,#f3cf7d,#dda520)}
+  .prayname{font-size:11.5px;font-weight:800;color:#6a7184;text-align:center;line-height:1.2}
+  .pray.on .prayname{color:#243044}
+  .prayernote{margin:14px 0 0;font-size:13.5px;font-weight:700;color:#6a7184;line-height:1.5}
+  .prayercard.allfive .prayernote{color:#6d4d05}
+  /* The one big thing to press. It was a flat teal bar; now it reads as a door
+     with the number as the prize. */
+  .spendbtn{display:flex;align-items:center;gap:14px;width:100%;text-align:left;
+    background:linear-gradient(150deg,#2f9e74,#177f5c);color:#fff;border:0;border-radius:24px;
+    padding:20px;min-height:96px;cursor:pointer;box-shadow:0 12px 28px rgba(23,127,92,.28);
+    margin-bottom:14px;position:relative;overflow:hidden}
+  .spendbtn:active{transform:scale(.98)}
+  .spendbtn>span:first-child{flex:1;min-width:0;font-size:20px;font-weight:800;line-height:1.2}
+  .spendbtn small{display:block;font-size:13px;font-weight:600;opacity:.85;margin-top:4px}
+  .spendbtn .spendbal{flex:none;background:rgba(255,255,255,.94);color:#177f5c;border-radius:20px;
+    padding:12px 16px;font-size:24px;font-weight:800;line-height:1;
+    box-shadow:0 4px 12px rgba(0,0,0,.10)}
+  .spendbtn .spendbal::after{content:"points";display:block;font-size:10px;font-weight:800;
+    letter-spacing:.06em;opacity:.7;margin-top:3px}
   .kidwhere{display:flex;align-items:center;gap:10px;margin:2px 0 14px;padding:13px 16px;
     border-radius:18px;font-size:17px;font-weight:800;line-height:1.25}
   .kidwhere::after{content:"";flex:1;height:3px;border-radius:99px;background:currentColor;opacity:.16}
@@ -1992,13 +2032,15 @@
     <!-- What was asked of them, right under the greeting. -->
     <div id="kidNoteHost"></div>
 
+    <!-- Prayers before spending: what they did today comes before what their
+         points can buy. -->
+    <div id="prayerToday"></div>
+
     <button class="spendbtn" onclick="showScreen('kidSpendScreen')">
       <span>🎁 Spend my points
         <small>Rewards, activities, or save up</small></span>
       <span class="spendbal" id="kidSpendBal">0</span>
     </button>
-
-    <div id="prayerToday"></div>
 
     <div id="kidRequestStatus"></div>
 
@@ -3858,7 +3900,7 @@ const TIP_CATS = [
   {key:"deen", label:"Deen"}
 ];
 
-const APP_VERSION = "v142";
+const APP_VERSION = "v143";
 const today = new Date().toISOString().slice(0,10);
 let app = {families:[],currentFamily:null,currentChild:null};
 let categories = [];
@@ -6234,11 +6276,23 @@ function prayerTodayHTML(child){
   const today=prayerGrid(child,1)[0];
   const dots=PRAYERS.map((p,i)=>`<span class="pdot ${today.done[i]?"on":""}">
       <span class="pmark">${today.done[i]?"\u2713":""}</span><span class="plabel">${p.short}</span></span>`).join("");
+  const full=PRAYERS.map((p,i)=>`<span class="pray ${today.done[i]?"on":""}">
+      <span class="praydisc">${today.done[i]?"\u2713":""}</span>
+      <span class="prayname">${p.label || p.short}</span>
+    </span>`).join("");
+  const left=5-today.count;
   return `<section class="prayercard ${today.complete?"allfive":""}">
-      <div class="prayerhead"><h2>\u{1f54c} Today\u2019s prayers</h2>
-        <span class="prayercount">${today.excused?"Excused":today.count+" of 5"}</span></div>
-      <div class="pdots">${dots}</div>
-      ${today.complete?'<p class="prayernote">\u2b50 All five today \u2014 MashaAllah!</p>':""}
+      <div class="prayerhead">
+        <h2>\u{1f54c} My prayers today</h2>
+        <span class="prayercount">${today.excused?"Excused":today.count+"/5"}</span>
+      </div>
+      <div class="praybar"><i style="width:${today.excused?100:(today.count/5)*100}%"></i></div>
+      <div class="prays">${full}</div>
+      <p class="prayernote">${today.excused ? "Excused today \u2014 that is completely fine."
+        : today.complete ? "\u2b50 All five today \u2014 MashaAllah!"
+        : today.count===0 ? "Nothing marked yet. A grown-up ticks these off with you."
+        : left===1 ? "One more to go \u2014 nearly there."
+        : left+" more to go."}</p>
     </section>`;
 }
 function prayerWallHTML(child, days, forChild){
