@@ -936,6 +936,18 @@
     letter-spacing:.05em;color:rgba(255,255,255,.7);margin-top:4px}
   /* The two they actually reach for, as tiles. A row with a price on the right
      is a receipt; a tile with the thing in the middle is a choice. */
+  /* A deck of pairs rather than one fixed pair. Height is fixed by the tallest
+     slide so the card does not jump as they go past. */
+  .qbdeck{position:relative;padding:0 13px}
+  .qbslide{display:none;grid-template-columns:1fr 1fr;gap:9px}
+  .qbslide.on{display:grid;animation:qbin .45s ease}
+  @keyframes qbin{from{opacity:0}to{opacity:1}}
+  .qbfill{display:block}
+  .qbdots{display:flex;justify-content:center;gap:5px;padding:11px 0 3px}
+  .qbdot{width:5px;height:5px;border-radius:50%;background:rgba(255,255,255,.35);
+    transition:all .25s ease}
+  .qbdot.on{width:16px;border-radius:99px;background:rgba(255,255,255,.85)}
+  @media (prefers-reduced-motion:reduce){.qbslide.on{animation:none}}
   .qbitems{display:grid;grid-template-columns:1fr 1fr;gap:9px;padding:0 13px 13px}
   .qbitem{display:flex;flex-direction:column;align-items:center;justify-content:center;
     gap:7px;text-align:center;background:rgba(255,255,255,.96);border:0;border-radius:16px;
@@ -4721,7 +4733,7 @@ const TIP_CATS = [
   {key:"deen", label:"Deen"}
 ];
 
-const APP_VERSION = "v166";
+const APP_VERSION = "v167";
 const today = new Date().toISOString().slice(0,10);
 let app = {families:[],currentFamily:null,currentChild:null};
 let categories = [];
@@ -11850,6 +11862,29 @@ function momentHTML(child){
     : "";
   return `<div class="noticebox" id="noticeBox">${slides}</div>${dots}`;
 }
+/* The quick-buy deck. Stops for good on the first touch: a child who has
+   reached for it is choosing, and moving the thing they are aiming at is worse
+   than showing them fewer options. It never resumes until the screen is next
+   rendered. */
+let __qbTimer=null;
+function startQuickBuyCycle(){
+  clearInterval(__qbTimer);
+  const deck=document.getElementById("qbDeck");
+  if(!deck) return;
+  const slides=deck.querySelectorAll(".qbslide");
+  if(slides.length<2) return;
+  const dots=document.querySelectorAll(".qbdot");
+  let at=0, held=false;
+  const go=n=>{
+    at=(n+slides.length)%slides.length;
+    slides.forEach((el,i)=>el.classList.toggle("on", i===at));
+    dots.forEach((el,i)=>el.classList.toggle("on", i===at));
+  };
+  const stop=()=>{ held=true; clearInterval(__qbTimer); };
+  deck.addEventListener("pointerdown", stop, {once:true});
+  deck.addEventListener("touchstart", stop, {once:true, passive:true});
+  __qbTimer=setInterval(()=>{ if(!held) go(at+1); }, 6500);
+}
 /* Advance on a timer, and stop the moment a child touches a dot - if they have
    chosen one they want to read it, and moving it under them is rude. */
 let __noticeTimer=null, __noticeHeld=false;
@@ -11917,26 +11952,41 @@ function quickBuyHTML(child){
     if(fb!==fa) return fb-fa;
     return (b.points||0)-(a.points||0);
   });
-  const top=items.slice(0,2);
   const head=`<div class="qbhead">
       <span class="qbmain"><span class="qbtitle">\ud83c\udf81 Spend my points</span>
-        <span class="qbsub">${top.length
+        <span class="qbsub">${items.length
           ? "Tap one, and Mum or Dad get asked."
           : "Nothing in reach yet \u2014 have a look at what is coming."}</span></span>
       <span class="qbbal ${nums?"figure":"potword"}">${nums?spendable:potWord(spendable)}</span>
     </div>`;
-  const rows=top.length
-    ? `<div class="qbitems">${top.map(r=>`<button class="qbitem" onclick="event.stopPropagation();popThen(this);kidBuy('${
-        r.kind==="activity"?"game":"reward"}','${r.id}')">
-        <span class="qbicon">${iconFor(r, r.kind==="activity" ? "\ud83c\udfb2" : "\ud83c\udf81")}</span>
-        <span class="qbname">${escapeHtml(r.name)}</span>
-        <span class="amount">${nums ? r.points : "yours"}</span>
-      </button>`).join("")}</div>`
+  /* Everything they can afford, two at a time, cycling - so the whole of what
+     is in reach goes past rather than the same two every day. Favourites lead,
+     then dearest first, so the first pair is the one they actually reach for
+     and the rest is the long tail.
+
+     One difference from the Noticed cards, and it matters: these are BUY
+     buttons. A target that moves under a finger is how a child buys crisps
+     when they meant to buy a film night. So this cycles slower, it stops dead
+     on the first touch anywhere near it and never restarts, and every purchase
+     still goes through the confirm dialog. If a child is looking at it, it
+     holds still. */
+  const PAIR=2;
+  const pairs=[];
+  for(let i=0;i<items.length;i+=PAIR) pairs.push(items.slice(i,i+PAIR));
+  const tile=r=>`<button class="qbitem" onclick="event.stopPropagation();popThen(this);kidBuy('${
+      r.kind==="activity"?"game":"reward"}','${r.id}')">
+      <span class="qbicon">${iconFor(r, r.kind==="activity" ? "\ud83c\udfb2" : "\ud83c\udf81")}</span>
+      <span class="qbname">${escapeHtml(r.name)}</span>
+      <span class="amount">${nums ? r.points : "yours"}</span>
+    </button>`;
+  const rows=pairs.length
+    ? `<div class="qbdeck" id="qbDeck">${pairs.map((pr,i)=>
+        `<div class="qbslide${i?"":" on"}">${pr.map(tile).join("")}${
+          pr.length<PAIR?'<span class="qbfill"></span>':""}</div>`).join("")}</div>
+       ${pairs.length>1
+         ? `<div class="qbdots">${pairs.map((_,i)=>
+             `<span class="qbdot${i?"":" on"}"></span>`).join("")}</div>` : ""}`
     : "";
-  /* The whole green surface is the button. A child aiming at a 52px strip at
-     the bottom of a card, when the card itself is the thing they want, is a
-     target problem we created by making only the strip tappable. The two item
-     tiles stop the tap from reaching it, so they still buy. */
   return `<section class="c-panel quickbuy" onclick="openSpend('tab')">${head}${rows}
       <button class="qball" onclick="openSpend('tab')">Go to Spend my points \u203a</button>
     </section>`;
@@ -12340,7 +12390,7 @@ function renderKidView(child){
   const pt=document.getElementById("prayerToday");
   if(pt) pt.innerHTML = prayerTodayHTML(child);
   const qb=document.getElementById("kidQuickBuy");
-  if(qb) qb.innerHTML = quickBuyHTML(child);
+  if(qb){ qb.innerHTML = quickBuyHTML(child); startQuickBuyCycle(); }
   const mt=document.getElementById("kidMoneyTip");
   if(mt) mt.innerHTML = moneyTipHTML(child);
   const sbal=document.getElementById("kidSpendBalance");
