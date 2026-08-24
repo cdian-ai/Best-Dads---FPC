@@ -67,18 +67,20 @@
   .cattile.k4 .ticon{background:#e9f6dd} .cattile.k5 .ticon{background:#f3ecff}
   .whobar{display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap;margin:0 0 6px}
   /* The awarding screen's own header, in place of the dashboard's cover photo. */
-  .givehead{display:flex;align-items:center;gap:12px;margin:0 0 14px}
-  .givback{width:44px!important;height:44px;flex:none;padding:0;font-size:19px;font-weight:800;
-    border-radius:14px}
-  .givehead{position:relative}
-  .givwho{flex:1;min-width:0}
+  /* Face first, name beside it, the pair sitting together and centred. The
+     avatar used to be pushed to the far right edge by a flex:1 on the name, so
+     on a wide or zoomed page it drifted away from the person it belongs to.
+     The back arrow is gone: the Home button already does that job. */
+  .givehead{position:relative;display:flex;align-items:center;justify-content:center;
+    gap:13px;margin:0 0 16px}
+  .givwho{min-width:0;max-width:calc(100% - 84px)}
   .givname{display:flex;align-items:center;gap:8px;width:auto;background:none;border:0;padding:0;
     cursor:pointer;color:inherit;min-height:0;text-align:left}
   .givname[disabled]{cursor:default}
   .givname strong{display:block;font-size:20px;line-height:1.2;overflow-wrap:anywhere}
   .givcaret{flex:none;width:8px;height:8px;border-right:2.5px solid #8a90a6;
     border-bottom:2.5px solid #8a90a6;transform:translateY(-2px) rotate(45deg)}
-  .whomenu{position:absolute;left:56px;top:56px;z-index:120;min-width:210px;max-width:calc(100% - 60px);
+  .whomenu{position:absolute;left:50%;transform:translateX(-50%);top:64px;z-index:120;min-width:210px;max-width:calc(100% - 60px);
     background:#fff;border:1px solid #e1e3f4;border-radius:16px;padding:6px;
     box-shadow:0 18px 44px rgba(24,22,60,.22);display:grid;gap:2px;
     max-height:52svh;overflow-y:auto;overscroll-behavior:contain}
@@ -93,7 +95,7 @@
   .givlink{width:auto;background:none;border:0;padding:4px 0 0;font-size:12.5px;font-weight:700;
     color:var(--accent);cursor:pointer;min-height:0}
   .givav{flex:none}
-  .givav img,.givav .avatar-placeholder{width:52px;height:52px;border-radius:16px;object-fit:cover;
+  .givav img,.givav .avatar-placeholder{width:56px;height:56px;border-radius:50%;object-fit:cover;
     display:flex;align-items:center;justify-content:center;font-size:22px;background:#e4e6f5}
   .givgift{width:auto!important;flex:none;padding:11px 13px}
   .givsub{display:block;font-size:12.5px;font-weight:700;color:var(--muted);margin-top:2px}
@@ -282,8 +284,17 @@
   .notebar{position:fixed;left:0;right:0;bottom:0;z-index:158;background:#fffaef;
            border-top:1px solid #f0e2bd;padding:10px 14px calc(10px + env(safe-area-inset-bottom))}
   .notebar input{width:100%;font-size:15px}
-  .notebox{background:#fffaef;border:1px solid #f0e2bd;border-radius:16px;padding:12px 13px;margin-bottom:14px}
-  .notebox input{width:100%;font-size:15px}
+  .notebox{background:#fffaef;border:1px solid #f0e2bd;border-radius:18px;padding:13px 14px;margin-bottom:14px}
+  .notebox input{width:100%;font-size:15.5px;border:0;background:transparent;padding:0;min-height:34px}
+  .notebox input:focus{outline:none}
+  .noteact{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:11px;
+    padding-top:11px;border-top:1px solid #f0e2bd}
+  .noteact>span{flex:1;min-width:130px;font-size:12.5px;font-weight:700;color:#7a5c15}
+  .notepts{display:flex;gap:6px}
+  .notepts button{width:auto;background:#fff;border:1px solid #e2cf9e;color:#6a4a05;
+    border-radius:12px;padding:9px 13px;font-size:14.5px;font-weight:800;cursor:pointer;min-height:44px}
+  .notepts button:active{background:#f7efdc}
+  .notehint{margin:8px 0 0;font-size:12px;color:#a08a5a;line-height:1.45}
   .quickcard{background:#fff;border-radius:20px;padding:14px;box-shadow:var(--shadow);margin-bottom:12px}
   .quickhead{display:flex;align-items:center;gap:10px;margin-bottom:10px}
   .quickhead img,.quickhead .avatar-placeholder{width:42px;height:42px;border-radius:50%;object-fit:cover;
@@ -585,9 +596,11 @@
               margin:4px 0;text-align:left}
   .signupwhat p{margin:0 0 9px;font-size:12.5px;line-height:1.5;color:var(--ink)}
   .signupwhat p:last-child{margin-bottom:0}
-  .menugroup{margin:16px 4px 6px;font-size:10.5px;font-weight:800;letter-spacing:.08em;
-             text-transform:uppercase;color:var(--muted)}
-  .menugroup:first-of-type{margin-top:4px}
+  /* Each group is its own block on a tinted panel, so the eye lands on a
+     section before it starts reading rows. */
+  .menugroup{display:block;margin:16px 6px 8px;padding:0;font-size:13.5px;font-weight:800;
+             letter-spacing:0;text-transform:none;color:var(--ink)}
+  .menugroup:first-of-type{margin-top:6px}
   /* The sheet used to read as part of the page behind it. */
   body.locked{position:fixed;left:0;right:0;width:100%;overflow:hidden}
   .menuscrim{touch-action:none;overscroll-behavior:none;position:fixed;inset:0;z-index:143;background:rgba(24,22,60,.45);
@@ -603,12 +616,17 @@
              background:#fff;border:1px solid #e6e8f0;border-radius:26px;
              box-shadow:0 28px 70px rgba(24,22,60,.30)}
   .menusheet button{display:flex;align-items:center;gap:13px;width:100%;text-align:left;
-             padding:14px 14px;font-size:15.5px;font-weight:700;color:var(--ink);
-             background:none;border:0;border-radius:16px;min-height:54px;cursor:pointer}
-  .menusheet button:active{background:#f2f3fb}
-  .menusheet button+button{box-shadow:inset 0 1px 0 #f1f2f8}
-  .menusheet button+button:active{box-shadow:none}
-  .menusheet .menugroup+button{box-shadow:none}
+             padding:14px 15px;font-size:15.5px;font-weight:700;color:var(--ink);
+             background:#f7f8fc;border:0;border-radius:0;min-height:54px;cursor:pointer}
+  .menusheet button:active{background:#eceef8}
+  /* Rows in a group are one rounded block with hairlines between them, rather
+     than a stack of identical loose buttons. */
+  .menusheet .menugroup+button{border-radius:16px 16px 0 0}
+  .menusheet button+button{box-shadow:inset 0 1px 0 #e6e9f3}
+  .menusheet button:last-child{border-radius:0 0 16px 16px}
+  .menusheet button:has(+.menugroup){border-radius:0 0 16px 16px}
+  .menusheet .menugroup+button:last-child,
+  .menusheet .menugroup+button:has(+.menugroup){border-radius:16px}
   #menuWho,#kidMenuWho{margin:6px 0 2px!important;padding:0 14px!important;font-size:12.5px;
              font-weight:700;color:var(--muted)}
   #menuBadge .badge,.menusheet .badge{margin-left:auto}
@@ -641,8 +659,12 @@
 
   /* Home: a directory, not a wall. */
   .homegrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:4px}
-  .homegroup{margin:22px 4px 10px;font-size:10.5px;font-weight:800;letter-spacing:.08em;
-    text-transform:uppercase;color:var(--muted)}
+  /* Uppercase 10px in grey is a whisper. A group heading has to be findable
+     while scrolling past at speed, so it is set at reading size with a rule
+     running out from it. */
+  .homegroup{display:flex;align-items:center;gap:12px;margin:26px 2px 12px;
+    font-size:15px;font-weight:800;letter-spacing:0;text-transform:none;color:var(--ink)}
+  .homegroup::after{content:"";flex:1;height:1px;background:#dfe2ee}
   .hometile{position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:4px;
             text-align:left;background:#fff;border:1px solid #e6e8f0;border-radius:20px;
             padding:16px 15px;width:auto;min-height:104px;color:var(--ink);box-shadow:var(--shadow)}
@@ -3736,7 +3758,7 @@ const TIP_CATS = [
   {key:"deen", label:"Deen"}
 ];
 
-const APP_VERSION = "v121";
+const APP_VERSION = "v122";
 const today = new Date().toISOString().slice(0,10);
 let app = {families:[],currentFamily:null,currentChild:null};
 let categories = [];
@@ -4683,6 +4705,33 @@ function renderLearnHost(){
 /* Kept outside the DOM so a re-render cannot lose what a parent is halfway
    through typing. */
 let __awardNote = "";
+/* Show the award buttons the moment there is something to award, without
+   re-rendering the page under the parent's cursor while they type. */
+function noteBarSync(){
+  const on=!!__awardNote.trim();
+  const act=document.getElementById("noteAct");
+  const hint=document.getElementById("noteHint");
+  if(act) act.classList.toggle("hidden", !on);
+  if(hint) hint.classList.toggle("hidden", on);
+}
+/* The sentence is the award. Same custom-award path the prompt version used,
+   so it lands in the ledger identically \u2014 just without two prompts. */
+async function awardNoticed(points){
+  if(!requireParent()) return;
+  const child=currentChild();
+  if(!child || !isChildRole(child)) return;
+  const what=String(__awardNote||"").trim();
+  if(!what) return;
+  const ok=await writeLedger({childId:child.id, points:points, label:what,
+    type:"award", catKey:"custom|"+what, actionName:what});
+  if(ok){
+    __awardNote="";
+    const el=document.getElementById("awardNote");
+    if(el) el.value="";
+    try{ if(typeof chime==="function") chime("award"); }catch(e){}
+    render();
+  }
+}
 function takeAwardNote(){
   const ids=["awardNote","quickNote"];
   for(const id of ids){
@@ -7099,7 +7148,7 @@ function childStatsHTML(c){
         : "nothing right now"}</p>
       <p class="small" style="margin:14px 0 6px"><strong>Most recent points</strong></p>
       <div style="display:grid;gap:7px">${recentHtml}</div>
-      <button class="primary" style="margin-top:16px;width:100%" onclick="giveFromStats()">\uff0b Give points to ${escapeHtml(c.name)}</button>
+      <button class="primary" style="margin-top:16px;width:100%" onclick="giveFromStats()">\u2b50 Notice something about ${escapeHtml(c.name)}</button>
     </div>`;
 }
 
@@ -8622,7 +8671,7 @@ function render(){
     cards.insertAdjacentHTML("beforeend",
       `<div style="grid-column:1/-1">${whoHeaderHTML(child, others, {
         back: "backToParentHome()",
-        link: kid ? `<button class="givlink" onclick="openChildStats('${child.id}')">\u{1f4ca} Full picture</button>` : "",
+        link: kid ? `<button class="givlink" onclick="openChildStats('${child.id}')">\u{1f4ca} More details</button>` : "",
         extra: isParentRole(child) ? `<button class="confirm givgift" onclick="openGiftDialog()" aria-label="Send a surprise">\u{1f381}</button>` : ""
       })}</div>`);
   }
@@ -8635,15 +8684,15 @@ function render(){
        Notice Me — this is the answer to "notice what?". */
     const lede = (child && isParentRole(child))
       ? "The grown-ups’ own list. The children never see any of this."
-      : `Tap one to see what ${who} can earn points for, and to add more of your own.`;
+      : `Write what you saw, or tap one of ${who}\u2019s categories below.`;
     const tab = noticeTab();
     cards.insertAdjacentHTML("beforeend", `<div style="grid-column:1/-1" id="noticeHead">
-      <h2 style="margin:0 0 4px;font-size:20px">⭐ What we notice</h2>
+      <h2 style="margin:0 0 4px;font-size:20px">⭐ I noticed…</h2>
       <p class="small" style="margin:0 0 12px">${tab==="spend"
         ? "What "+who+" can spend those points on. To add or change any of it, use Rewards &amp; activities."
         : lede}</p>
       <div class="noticetabs">
-        <button class="${tab==="earn"?"on":""}" onclick="setNoticeTab('earn')">\uff0b Ways to earn</button>
+        <button class="${tab==="earn"?"on":""}" onclick="setNoticeTab('earn')">\u2b50 Ways to earn</button>
         <button class="${tab==="spend"?"on":""}" onclick="setNoticeTab('spend')">\ud83c\udf81 What it buys</button>
       </div>
     </div>`);
@@ -8656,8 +8705,16 @@ function render(){
       nh.insertAdjacentHTML("beforeend",
         `<div class="notebox">
            <input id="awardNote" maxlength="120" value="${escapeHtml(__awardNote)}"
-             oninput="__awardNote=this.value"
-             placeholder="What did you notice? (optional \u2014 they\u2019ll read this)">
+             oninput="__awardNote=this.value;noteBarSync()"
+             placeholder="What did you notice? \u2014 they\u2019ll read this">
+           <div class="noteact${__awardNote.trim()?"":" hidden"}" id="noteAct">
+             <span>Give it points on its own</span>
+             <div class="notepts">
+               ${[1,2,3,5].map(v=>`<button onclick="awardNoticed(${v})">+${v}</button>`).join("")}
+             </div>
+           </div>
+           <p class="notehint${__awardNote.trim()?" hidden":""}" id="noteHint">Or tap a tile below
+             and this sentence rides along with it.</p>
          </div>`);
     }
 
@@ -8822,8 +8879,8 @@ function renderParentAdminView(parent){
       <p class="homegroup" style="margin-top:2px">Today</p>
       <div class="homegrid">
         <button class="hometile wide" onclick="showPicker('give')">
-          <span class="hicon">\uff0b</span>
-          <span><span class="hname">Give points</span>
+          <span class="hicon">\u2b50</span>
+          <span><span class="hname">I noticed\u2026</span>
             <span class="hsub">${kids.length
               ? kids.length+" child"+(kids.length===1?"":"ren")+" \u00b7 "+weekTotal+" points this week"
               : "Add a child to get started"}</span></span>
@@ -9364,7 +9421,7 @@ function whoHeaderHTML(child, people, opts){
     : '<span class="avatar-placeholder">\ud83d\udc64</span>';
   const multi = people.length>1;
   return `<div class="givehead">
-      <button class="light givback" onclick="${opts.back||"goHome()"}" aria-label="Back">\u2190</button>
+      <span class="givav">${av}</span>
       <div class="givwho">
         <button class="givname" onclick="toggleWhoMenu()" aria-haspopup="listbox"
           aria-expanded="false" id="givNameBtn" ${multi?"":"disabled"}>
@@ -9373,7 +9430,6 @@ function whoHeaderHTML(child, people, opts){
         ${opts.sub ? `<span class="givsub">${opts.sub}</span>` : ""}
         ${opts.link || ""}
       </div>
-      <span class="givav">${av}</span>
       ${opts.extra || ""}
       <div class="whomenu hidden" id="whoMenu" role="listbox">
         ${people.map(c=>`<button role="option" aria-selected="${c.id===child.id}"
