@@ -519,6 +519,20 @@
   body.kidtab-points{background:linear-gradient(180deg,#ecf9f4,#f6f7fb 320px)}
   /* One line at the top of each tab, in that tab's own colour, so a child can
      tell at a glance which screen they are on without reading. */
+  /* The greeting card: words on the left, their face on the right, and the two
+     numbers that matter sitting on the card rather than in a block below it. */
+  .kidhero .kidherorow{align-items:center;gap:14px}
+  .kidherotext{flex:1;min-width:0}
+  .kidhero #kidAvatar{flex:none}
+  .herostats{display:flex;align-items:center;gap:10px;margin-top:16px}
+  .herostat{flex:1;min-width:0;background:rgba(255,255,255,.9);border-radius:18px;
+    padding:12px 14px;text-align:center}
+  .herostat strong{display:block;font-size:26px;line-height:1.05;color:#243044}
+  .herostat span{font-size:11.5px;font-weight:800;letter-spacing:.03em;color:#6a7184}
+  .herobuddy{flex:none;width:64px;height:64px;display:flex;align-items:center;justify-content:center}
+  .herobuddy svg{width:64px;height:64px}
+  .herotalk{margin:14px 0 0;background:rgba(255,255,255,.9);border-radius:18px;
+    padding:12px 15px;font-size:14.5px;font-weight:700;color:#3f4560;line-height:1.5}
   .kidwhere{display:flex;align-items:center;gap:10px;margin:2px 0 14px;padding:13px 16px;
     border-radius:18px;font-size:17px;font-weight:800;line-height:1.25}
   .kidwhere::after{content:"";flex:1;height:3px;border-radius:99px;background:currentColor;opacity:.16}
@@ -1951,39 +1965,33 @@
 <div id="kidView" class="hidden">
 
   <div id="kidHomeScreen">
+    <!-- One greeting, their face on the right, the two numbers that matter and
+         their star. Sound lives in the menu, where a setting belongs. -->
     <section class="kidhero">
       <div class="bubble b1"></div><div class="bubble b2"></div><div class="bubble b3"></div>
       <div class="kidherorow">
-        <div id="kidAvatar"><div class="avatar-placeholder-lg">👤</div></div>
-        <div>
+        <div class="kidherotext">
           <p class="kidhi" id="kidGreeting">Hi!</p>
           <p class="kidsub" id="kidSubline">Here's how you're doing 🌟</p>
         </div>
-        <div class="coin"><strong id="kidBalance">0</strong><span>points saved</span></div>
+        <div id="kidAvatar"><div class="avatar-placeholder-lg">👤</div></div>
       </div>
-      <div class="kidherorow" style="margin-top:8px">
-        <p class="kidsub hidden" id="kidHold" style="margin:0"></p>
+      <div class="herostats">
+        <div class="herostat"><strong id="kidToday">0</strong><span>today</span></div>
+        <div class="herostat"><strong id="kidWeek">0</strong><span>this week</span></div>
+        <div class="herobuddy" id="kidBuddy"></div>
       </div>
+      <p class="kidsub hidden" id="kidHold" style="margin:10px 0 0"></p>
+      <p class="herotalk" id="kidBuddyLine">Ready when you are.</p>
+      <div class="kidstats mini hidden">
+        <div class="kidstat ks3 hidden"><strong id="kidStreak">0</strong><span>streak</span></div>
+      </div>
+      <strong id="kidBalance" class="hidden">0</strong>
     </section>
 
-    <div class="soundrow">
-      <span><span class="slabel">🔊 Sound</span>
-        <span class="shint">The happy noise when points arrive</span></span>
-      <button class="soundswitch on" id="soundSwitch" onclick="setSoundOn(!soundOn())"
-              aria-pressed="true">On</button>
-    </div>
-    <div class="buddyrow">
-      <div class="buddy" id="kidBuddy"></div>
-      <div class="buddytalk"><p id="kidBuddyLine">Ready when you are.</p>
-        <div class="kidstats mini">
-          <div class="kidstat ks1"><strong id="kidToday">0</strong><span>today</span></div>
-          <div class="kidstat ks2"><strong id="kidWeek">0</strong><span>this week</span></div>
-          <div class="kidstat ks3 hidden"><strong id="kidStreak">0</strong><span>streak</span></div>
-        </div>
-      </div>
-    </div>
-    <!-- Five blocks and one action. Everything that used to sit here is still
-         in the app, on the screen it actually belongs to. -->
+    <!-- What was asked of them, right under the greeting. -->
+    <div id="kidNoteHost"></div>
+
     <button class="spendbtn" onclick="showScreen('kidSpendScreen')">
       <span>🎁 Spend my points
         <small>Rewards, activities, or save up</small></span>
@@ -3850,7 +3858,7 @@ const TIP_CATS = [
   {key:"deen", label:"Deen"}
 ];
 
-const APP_VERSION = "v141";
+const APP_VERSION = "v142";
 const today = new Date().toISOString().slice(0,10);
 let app = {families:[],currentFamily:null,currentChild:null};
 let categories = [];
@@ -16927,7 +16935,9 @@ window.GROWNUP_DECKS = [
   function kidNoteHost(){
     let host=$("kidNoteHost");
     if(host) return host;
-    const anchor=$("kidGoal") || $("kidBest") || $("kidHomeScreen");
+    /* There is a place for it in the markup now; the fallbacks remain in case
+       that ever goes missing. */
+    const anchor=$("kidHomeScreen") || $("kidGoal") || $("kidBest");
     if(!anchor || !anchor.parentElement) return null;
     host=document.createElement("div");
     host.id="kidNoteHost";
