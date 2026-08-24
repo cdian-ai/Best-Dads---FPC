@@ -114,6 +114,9 @@
   .givehead.t-ask .givcaret{border-color:#b08e3c}
   #notesPanel{background:linear-gradient(180deg,#fffdf7,#f6f7fb 240px)}
   #notesPanel h2{color:#6a4a05}
+  /* The same conversation from the other end, so it wears the other colour. */
+  #requestsPanel{background:linear-gradient(180deg,#f7f8ff,#f6f7fb 240px)}
+  #requestsPanel h2{color:#2b2e73}
   .givav img,.givav .avatar-placeholder{width:56px;height:56px;border-radius:50%;object-fit:cover;
     display:flex;align-items:center;justify-content:center;font-size:22px;background:#e4e6f5}
   .givgift{width:auto!important;flex:none;padding:11px 13px}
@@ -1627,7 +1630,7 @@
 
       <p class="menugroup">Today</p>
       <button class="light" id="btnQuickMenu" onclick="showQuickPanel()">🔥 All at once</button>
-      <button class="light" id="btnRequests" onclick="showRequestsPanel()">🔔 Requests</button>
+      <button class="light" id="btnRequests" onclick="showRequestsPanel()">🔔 They’re asking…</button>
       <button class="light" id="btnTasks" onclick="showNotesPanel()">📌 I’m asking…</button>
       <button class="light" id="btnReviewMenu" onclick="showReviewPanel()">🗣️ Review together</button>
       <button class="light" id="btnActivity" onclick="showActivityPanel()">📋 History</button>
@@ -1858,7 +1861,7 @@
 
   <div id="requestsPanel" class="panel hidden">
     <button class="panelback" onclick="goHome()">← Home</button>
-    <h2>🔔 Requests from the children</h2>
+    <h2>🔔 They’re asking…</h2>
     <p class="small">When a child asks for a reward or an activity, it shows up here for you to approve.</p>
     <div id="requestsPanelList" style="display:grid;gap:8px;margin-top:10px"></div>
     <h2 style="margin:18px 0 0">🤝 Offers from the family</h2>
@@ -3815,7 +3818,7 @@ const TIP_CATS = [
   {key:"deen", label:"Deen"}
 ];
 
-const APP_VERSION = "v132";
+const APP_VERSION = "v133";
 const today = new Date().toISOString().slice(0,10);
 let app = {families:[],currentFamily:null,currentChild:null};
 let categories = [];
@@ -8984,7 +8987,7 @@ function renderParentAdminView(parent){
       ${attentionHTML()}
       <div class="todaypair">
         ${todayTile("gold","\ud83d\udccc","I\u2019m asking\u2026","What you\u2019ve asked of them","showNotesPanel()")}
-        ${todayTile("bell","\ud83d\udd14","Requests", pend.length?pend.length+" waiting on you":"Nothing waiting","showRequestsPanel()", pend.length||0)}
+        ${todayTile("bell","\ud83d\udd14","They\u2019re asking\u2026", pend.length?pend.length+" waiting on you":"Nothing waiting","showRequestsPanel()", pend.length||0)}
       </div>
       <!-- Ten tiles stacked under two headings was most of the scrolling on
            this screen. Everything that is not today lives on one shelf you
@@ -9243,7 +9246,7 @@ function renderRequests(){
   const panelList=document.getElementById("requestsPanelList");
   const btn=document.getElementById("btnRequests");
   const pend=pendingRequests();
-  if(btn) btn.innerHTML = "\ud83d\udd14 Requests" + (pend.length?`<span class="badge">${pend.length}</span>`:"");
+  if(btn) btn.innerHTML = "\ud83d\udd14 They\u2019re asking\u2026" + (pend.length?`<span class="badge">${pend.length}</span>`:"");
   const mb=document.getElementById("menuBadge");
   if(mb) mb.innerHTML = (isParentSession() && pend.length) ? `<span class="badge">${pend.length}</span>` : "";
   // The home screen already carries a Requests tile with a count on it. The
@@ -9620,7 +9623,7 @@ function attentionHTML(){
   if(pend.length){
     return `<section class="attncard urgent" onclick="showRequestsPanel()">
         <span class="attnem">\ud83d\udd14</span>
-        <span><strong>${pend.length} request${pend.length>1?"s":""} waiting over a day</strong>
+        <span><strong>${pend.length} ${pend.length>1?"things":"thing"} they asked for, waiting over a day</strong>
           <span>A no is fine \u2014 it\u2019s the waiting that stops them asking again.</span></span>
       </section>`;
   }
