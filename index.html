@@ -832,19 +832,20 @@
   @media (prefers-reduced-motion:reduce){.noticeslide{transition:none}}
 
   /* ---- the week to beat: a card, not a stray line ---- */
-  .bestcard2{padding:15px 16px;margin-bottom:12px}
-  .bcrow{display:flex;align-items:center;gap:12px}
-  .bcglyph{flex:none;width:42px;height:42px;border-radius:14px;background:#fbeccb;
-    display:flex;align-items:center;justify-content:center;font-size:20px}
-  .bcmain{flex:1;min-width:0}
-  .bctitle{display:block;font-size:17px;font-weight:800;line-height:1.15;color:#6d4d05}
-  .bcsub{display:block;font-size:12.5px;font-weight:600;color:#8a90a6;margin-top:3px}
-  .bctarget{flex:none;font-size:22px;font-weight:800;color:#dda520;line-height:1}
-  .bcbar{display:block;height:8px;border-radius:99px;background:#f1eee6;margin-top:13px;overflow:hidden}
+  /* Centred, and in the dart's colours. Gold put it twelve pixels under the
+     gold My points icon and the two read as one thing. */
+  .bestcard2{padding:20px 18px 18px;margin-bottom:12px;text-align:center;
+    background:linear-gradient(160deg,#fff,#fdeeea);border-color:#f3d8d1}
+  .bcglyph{display:inline-flex;width:48px;height:48px;border-radius:16px;background:#fbe3dc;
+    align-items:center;justify-content:center;font-size:23px;margin-bottom:10px}
+  .bctitle{display:block;font-size:21px;font-weight:800;line-height:1.15;color:#9c3b2a}
+  .bcsub{display:block;font-size:13px;font-weight:600;color:#8a7b78;margin-top:5px}
+  .bcsub b{color:#9c3b2a}
+  .bcbar{display:block;height:8px;border-radius:99px;background:#f6e6e1;margin-top:15px;overflow:hidden}
   .bcbar i{display:block;height:100%;border-radius:99px;
-    background:linear-gradient(90deg,#f0bd53,#dda520);
+    background:linear-gradient(90deg,#d9846c,#a8563c);
     transition:width .6s cubic-bezier(.2,.8,.2,1)}
-  .bestcard2 .bestchip{margin-top:12px}
+  .bestcard2 .bestchip{margin-top:14px}
 
   /* ---- the moment ---- */
   .moment{position:relative;overflow:hidden;
@@ -2589,6 +2590,11 @@
   </div>
 
   <div id="kidSpendScreen" class="hidden">
+    <!-- Only present when Rewards was opened from the To spend pot. Arriving
+         from the tab bar this is a place of its own; arriving from the pot it
+         is what is inside the pot you just tapped, and a pot you opened needs
+         a way back to the shelf you opened it from. -->
+    <div id="kidSpendBack"></div>
     <header class="kidtitle w-spend">
       <span class="kidtitleicon">🎁</span>
       <span><span class="kidtitlename">My rewards</span>
@@ -2661,11 +2667,17 @@
 
     <div id="kidBest"></div>
 
+    <!-- The card and nothing else. The list that used to sit here repeated
+         every notice the card was already cycling through, in smaller type,
+         directly underneath it - so the same four things appeared twice on one
+         screen. A curious child waits and reads them as they come round; a
+         child who wants the whole week taps below. -->
     <div id="kidNoticed"></div>
-    <section class="c-panel feedpanel" id="kidFeedPanel">
+    <div id="kidFeedMoreWrap"></div>
+    <!-- Still rendered into, but only shown once "See everything" is tapped. -->
+    <section class="c-panel feedpanel hidden" id="kidFeedPanel">
       <div id="kidFeed" class="feed"></div>
     </section>
-    <div id="kidFeedMoreWrap"></div>
 
     <p class="reachcap ptscap">🫙 Where my points are</p>
     <div class="pots" id="kidPots"></div>
@@ -2711,7 +2723,7 @@
 
   <nav id="kidTabBar" class="tabbar hidden">
     <button id="kidTabHome" onclick="showScreen(null)"><span class="tabemoji">🏠</span>Home</button>
-    <button id="kidTabSpend" onclick="showScreen('kidSpendScreen')"><span class="tabemoji">🎁</span>Rewards</button>
+    <button id="kidTabSpend" onclick="openSpend('tab')"><span class="tabemoji">🎁</span>Rewards</button>
     <button id="kidTabLearn" onclick="showScreen('kidLearnScreen')"><span class="tabemoji">📖</span>Learn</button>
     <button id="kidTabPoints" onclick="showScreen('kidPointsScreen')"><span class="tabemoji">⭐</span>My points</button>
   </nav>
@@ -4709,7 +4721,7 @@ const TIP_CATS = [
   {key:"deen", label:"Deen"}
 ];
 
-const APP_VERSION = "v164";
+const APP_VERSION = "v165";
 const today = new Date().toISOString().slice(0,10);
 let app = {families:[],currentFamily:null,currentChild:null};
 let categories = [];
@@ -11726,15 +11738,13 @@ function personalBestHTML(child){
       ? `<span class="bestchip quiet">\ud83c\udfc5 Your record: ${
           nums ? p.record : "a huge week"}${p.recordWhen
             ? ` <em>${escapeHtml(monthOf(p.recordWhen))}</em>` : ""}</span>` : "";
+    /* Centred, and wearing the dart's own red rather than gold. In gold it sat
+       twelve pixels under a gold title icon and read as part of it. */
     return `<section class="c-panel bestcard2">
-        <div class="bcrow">
-          <span class="bcglyph" aria-hidden="true">\ud83c\udfaf</span>
-          <span class="bcmain">
-            <span class="bctitle">${nums ? gap+" to go" : "Nearly there"}</span>
-            <span class="bcsub">to beat your best week lately</span>
-          </span>
-          ${nums?`<span class="bctarget">${p.target}</span>`:""}
-        </div>
+        <span class="bcglyph" aria-hidden="true">\ud83c\udfaf</span>
+        <span class="bctitle">${nums ? gap+" to go" : "Nearly there"}</span>
+        <span class="bcsub">to beat your best week lately${
+          nums?` \u00b7 <b>${p.target}</b>`:""}</span>
         <span class="bcbar"><i style="width:${pct}%"></i></span>
         ${rec}
       </section>`;
@@ -11907,7 +11917,7 @@ function quickBuyHTML(child){
       </button>`).join("")}</div>`
     : "";
   return `<section class="c-panel quickbuy">${head}${rows}
-      <button class="qball" onclick="showScreen('kidSpendScreen')">See everything \u203a</button>
+      <button class="qball" onclick="openSpend('tab')">See everything \u203a</button>
     </section>`;
 }
 /* The balance, wherever a child is looking at prices. One figure, one
@@ -11953,6 +11963,17 @@ function moneyTipHTML(child){
    Three pots, because a point can be in exactly three places. The spendable
    pot is green because that is the Rewards tab it spends into: the pot and
    its destination wear the same colour, which is most of the explaining. */
+/* Rewards is reached two ways and they are not the same screen.
+     From the tab bar: a place of its own. Menu button, no back button.
+     From the To spend pot: the inside of a pot, like the bank and the giving
+     pot. Back to My points, no menu - a floating way out of the whole app on
+     top of a drawer you have just opened is the wrong offer.
+   The screen is identical apart from that; only the way out changes. */
+let spendVia="tab";
+function openSpend(via){
+  spendVia = via==="points" ? "points" : "tab";
+  showScreen("kidSpendScreen");
+}
 function potsHTML(child){
   const nums=kidShowsNumbers(child);
   const spend=availableFor(child);
@@ -11972,7 +11993,7 @@ function potsHTML(child){
        <span class="potfig ${value>0?"figure":"potword"}">${value>0?value:"Empty"}</span>
        <span class="potname">${name}</span>
      </button>`;
-  return pot("spend","\ud83c\udf81", spend, "To spend", "showScreen('kidSpendScreen')")
+  return pot("spend","\ud83c\udf81", spend, "To spend", "openSpend('points')")
        + pot("bank","\ud83c\udfe6",  bank,  "Saved","showScreen('kidBankScreen')")
        + pot("give","\ud83e\udd32",  give.left, "Given",  "showScreen('kidGiveScreen')");
 }
@@ -12303,6 +12324,11 @@ function renderKidView(child){
   if(mt) mt.innerHTML = moneyTipHTML(child);
   const sbal=document.getElementById("kidSpendBalance");
   if(sbal) sbal.innerHTML = spendBalanceHTML(child);
+  /* The back button exists only on the pot version of this screen. */
+  const sback=document.getElementById("kidSpendBack");
+  if(sback) sback.innerHTML = (spendVia==="points")
+    ? `<button class="kidback" onclick="showScreen('kidPointsScreen')">\u2190 My points</button>`
+    : "";
   const pw=document.getElementById("prayerWall");
   if(pw) pw.innerHTML = prayerWallHTML(child, 7, true);
 
@@ -12338,13 +12364,15 @@ function renderKidView(child){
   const log=(child.activityLog||[]);
   const heroId=(log.find(x=>x.points>0 && x.type!=="refund")||{}).id;
   const rest=log.filter(e=>e.id!==heroId);
-  const entries=rest.slice(0, kidShowAllFeed ? 20 : 3);
+  const entries=kidShowAllFeed ? rest.slice(0,20) : [];
+  /* The list is hidden until asked for. "See everything from this week" is
+     the door; the rotating card is the room. */
   const panel=document.getElementById("kidFeedPanel");
-  if(panel) panel.classList.toggle("hidden", !entries.length);
+  if(panel) panel.classList.toggle("hidden", !kidShowAllFeed || !entries.length);
   const moreWrap=document.getElementById("kidFeedMoreWrap");
-  if(moreWrap) moreWrap.innerHTML = rest.length>3
+  if(moreWrap) moreWrap.innerHTML = rest.length
     ? `<button class="reachmore" onclick="toggleAllFeed()">${
-        kidShowAllFeed ? "Show fewer" : "See everything from this week"}</button>`
+        kidShowAllFeed ? "Hide the list" : "See everything from this week"}</button>`
     : "";
   if(!entries.length){
     feed.innerHTML="";
