@@ -574,8 +574,13 @@
   .prayercard.allfive .prayernote{color:#6d4d05}
   /* The one big thing to press. It was a flat teal bar; now it reads as a door
      with the number as the prize. */
-  .spendbtn{background:linear-gradient(150deg,#43b189,#177f5c);
+  /* Overrides the tab tone deliberately: this is a door into the green room,
+     so it wears where it goes rather than where it is. Two indigo blocks in a
+     row read as one block. */
+  .t-home .c-act.spendbtn,.spendbtn{background:linear-gradient(150deg,#43b189,#177f5c);
     box-shadow:0 12px 28px rgba(23,127,92,.26);min-height:96px}
+  .waitcap{margin:0 0 8px;padding:0 4px;font-size:12px;font-weight:800;letter-spacing:.05em;
+    text-transform:uppercase;color:#8a90a6}
   .spendicon{flex:none;font-size:30px;line-height:1}
   .spendmain{flex:1;min-width:0}
   .spendtitle{display:block;font-size:19px;font-weight:800;line-height:1.2}
@@ -2053,7 +2058,7 @@
     <button class="c-act spendbtn" onclick="showScreen('kidSpendScreen')">
       <span class="spendicon">🎁</span>
       <span class="spendmain">
-        <span class="spendtitle">Spend my points</span>
+        <span class="spendtitle">My rewards</span>
         <span class="spendreach" id="kidSpendReach">Rewards, activities, or save up</span>
       </span>
       <span class="spendbal" id="kidSpendBal">0</span>
@@ -2066,7 +2071,7 @@
   </div>
 
   <div id="kidSpendScreen" class="hidden">
-    <p class="kidwhere w-spend">🎁 Spend my points</p>
+    <p class="kidwhere w-spend">🎁 My rewards</p>
     <div id="familyNotices"></div>
     <div id="kidGoal"></div>
     <section class="kidcard teal">
@@ -2121,7 +2126,7 @@
 
   <nav id="kidTabBar" class="tabbar hidden">
     <button id="kidTabHome" onclick="showScreen(null)"><span class="tabemoji">🏠</span>Home</button>
-    <button id="kidTabSpend" onclick="showScreen('kidSpendScreen')"><span class="tabemoji">🎁</span>Spend</button>
+    <button id="kidTabSpend" onclick="showScreen('kidSpendScreen')"><span class="tabemoji">🎁</span>Rewards</button>
     <button id="kidTabLearn" onclick="showScreen('kidLearnScreen')"><span class="tabemoji">📖</span>Learn</button>
     <button id="kidTabPoints" onclick="showScreen('kidPointsScreen')"><span class="tabemoji">⭐</span>My points</button>
   </nav>
@@ -3917,7 +3922,7 @@ const TIP_CATS = [
   {key:"deen", label:"Deen"}
 ];
 
-const APP_VERSION = "v144";
+const APP_VERSION = "v145";
 const today = new Date().toISOString().slice(0,10);
 let app = {families:[],currentFamily:null,currentChild:null};
 let categories = [];
@@ -10357,10 +10362,16 @@ function renderKidView(child){
         return `<div class="statusrow ${cls}"><span><strong>${escapeHtml(r.itemName)}</strong></span><span class="small">${txt}</span></div>`;
       }).join("")
     : "";
-  // "Am I still waiting?" is a glance question, so it sits on the home screen
-  // as well as inside Spend.
+  /* Home takes only what is still open. Approved is a moment, not a standing
+     list: the child has already been told and can do nothing with the row. The
+     full picture, granted and declined alike, stays inside Rewards. */
+  const waiting=mine.filter(r=>r.status==="pending");
   const reqHome=document.getElementById("kidRequestStatus");
-  if(reqHome) reqHome.innerHTML = mineHtml;
+  if(reqHome) reqHome.innerHTML = waiting.length
+    ? `<p class="waitcap">\u23f3 Waiting for Mum or Dad</p>` + waiting.map(r=>
+        `<div class="statusrow stat-pending"><span><strong>${escapeHtml(r.itemName)}</strong></span></div>`
+      ).join("")
+    : "";
   const reqSpend=document.getElementById("kidSpendRequests");
   if(reqSpend) reqSpend.innerHTML = mineHtml;
 
