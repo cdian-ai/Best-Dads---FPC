@@ -799,10 +799,14 @@
   .kidback{display:inline-flex;align-items:center;gap:6px;background:#fff;
     border:1px solid #e6e8f0;border-radius:99px;padding:9px 15px;margin:2px 0 12px;
     font-size:13.5px;font-weight:800;color:#3e46ad;cursor:pointer;min-height:44px}
-  .bestchip{display:inline-flex;align-items:center;gap:8px;margin:0 0 4px;
+  .bestrow{display:flex;flex-wrap:wrap;gap:7px;margin:0 0 4px}
+  .bestchip{display:inline-flex;align-items:center;gap:8px;margin:0;
     background:#fbeccb;color:#6d4d05;border-radius:99px;padding:8px 14px;
-    font-size:12.5px;font-weight:800}
+    font-size:12.5px;font-weight:800;line-height:1.25}
   .bestchip.best{background:linear-gradient(150deg,#fbeccb,#f6dda0)}
+  /* The record is a medal, not a target. Grey, quiet, and never carrying a
+     gap - it says what they did, not how far off it they are. */
+  .bestchip.quiet{background:#f2f3f9;color:#6a7184}
 
   /* ---- the moment ---- */
   .moment{position:relative;overflow:hidden;
@@ -4464,7 +4468,7 @@ const TIP_CATS = [
   {key:"deen", label:"Deen"}
 ];
 
-const APP_VERSION = "v159";
+const APP_VERSION = "v160";
 const today = new Date().toISOString().slice(0,10);
 let app = {families:[],currentFamily:null,currentChild:null};
 let categories = [];
@@ -11376,45 +11380,82 @@ function weekStartsBack(n){
    being the target in June, so the number to beat drifted downwards and the
    child was chasing a moving line that only ever moved towards them. Every
    week the family has any record of is considered. */
+/* ---------- Two numbers, doing two different jobs ----------
+   All-time was the wrong single answer, and so was a rolling quarter. They
+   are not the same idea and they should not share a slot:
+
+     TARGET  the best of the last twelve weeks. This is the line the child is
+             aiming at, and it has to be reachable this week or it is not a
+             target, it is a wall. It moves with them.
+     RECORD  the best week they have ever had. This is a memory, not a line to
+             chase. It is shown as something they DID, never as something they
+             have failed to do.
+
+   The failure mode being designed against: one enormous week last Ramadan
+   becomes the permanent target, the child cannot get near it for a year, and
+   a feature meant to encourage them quietly tells them every Monday that they
+   are behind. The record still gets its moment - beating it is the biggest
+   thing that can happen on this screen - but it never sets the bar. */
+const TARGET_WEEKS = 12;
 function personalBest(child){
   const first=Object.keys(child.pointsByDate||{}).sort()[0];
   const weeksBack = first
-    ? Math.min(520, Math.max(13, Math.ceil((Date.now()-new Date(first+"T00:00:00").getTime())/604800000)+1))
-    : 13;
+    ? Math.min(520, Math.max(TARGET_WEEKS+1,
+        Math.ceil((Date.now()-new Date(first+"T00:00:00").getTime())/604800000)+1))
+    : TARGET_WEEKS+1;
   const weeks=weekStartsBack(weeksBack);
   const totals=weeks.map(days=>days.reduce((sum,ds)=>{
     const day=(child.pointsByDate||{})[ds] || {};
     return sum + Object.keys(day).reduce((a,k)=>a + (day[k]>0?day[k]:0), 0);
   }, 0));
   const thisWeek=totals[0];
-  const before=totals.slice(1).filter(t=>t>0);
-  const best=before.length ? Math.max(...before) : 0;
-  /* Which week it was, so the chip can say so. A target with a date attached
-     is a memory; a bare number is just a number. */
-  const at=before.length ? totals.indexOf(best) : -1;
-  const bestWhen = at>0 ? weeks[at][0] : null;
-  return { thisWeek, best, bestWhen, isBest: thisWeek>0 && thisWeek>best,
-           hasHistory: before.length>0 };
+  const past=totals.slice(1);
+  const has=past.filter(t=>t>0);
+  const recent=past.slice(0, TARGET_WEEKS).filter(t=>t>0);
+  const target=recent.length ? Math.max(...recent) : 0;
+  const record=has.length   ? Math.max(...has)    : 0;
+  /* Which week each was, so the words can say so. A number with a month
+     attached is a memory; a bare number is arithmetic. */
+  const whenOf = v => { const at=v>0 ? totals.indexOf(v) : -1;
+                        return at>0 ? weeks[at][0] : null; };
+  return { thisWeek, target, record,
+           targetWhen: whenOf(target), recordWhen: whenOf(record),
+           isRecord: thisWeek>0 && record>0 && thisWeek>record,
+           isTarget: thisWeek>0 && target>0 && thisWeek>target,
+           hasHistory: has.length>0 };
+}
+function monthOf(ds){
+  return ds ? new Date(ds+"T00:00:00").toLocaleDateString([], {month:"long", year:"numeric"}) : "";
 }
 function personalBestHTML(child){
   const p=personalBest(child);
   if(!p.hasHistory && !p.thisWeek) return "";
-  /* A chip, not a card. It is a nudge about a number, sitting above a screen
-     whose whole point is that the number is not the point - so it gets one
-     line and no surface of its own. */
-  if(p.isBest)
-    return `<span class="bestchip best">\ud83c\udf1f Your best week yet</span>`;
-  if(p.best>0 && p.thisWeek < p.best){
-    const when = p.bestWhen
-      ? new Date(p.bestWhen+"T00:00:00").toLocaleDateString([], {month:"short", year:"numeric"})
-      : "";
-    return `<span class="bestchip">\ud83c\udfaf ${Math.max(1, p.best-p.thisWeek)} to beat your best week${
-      when ? ` <em>(${p.best}, ${escapeHtml(when)})</em>` : ""}</span>`;
+  const nums=kidShowsNumbers(child);
+  const chips=[];
+  /* Beating the record is the biggest thing that happens here, so it is the
+     only chip that gets to be loud, and it is always about what they DID. */
+  if(p.isRecord){
+    chips.push(`<span class="bestchip best">\ud83c\udfc6 A new record \u2014 your best week ever!</span>`);
+  }else if(p.isTarget){
+    chips.push(`<span class="bestchip best">\ud83c\udf1f Your best week in months</span>`);
+  }else if(p.target>0 && p.thisWeek < p.target){
+    const gap=Math.max(1, p.target-p.thisWeek);
+    chips.push(`<span class="bestchip">\ud83c\udfaf ${
+      nums ? gap+" to go" : "nearly there"} \u2014 beat your best lately${
+      nums ? ` <em>(${p.target})</em>` : ""}</span>`);
   }
-  return "";
+  /* The record, shown only when it is a DIFFERENT number from the target -
+     otherwise it is the same fact printed twice - and never as a gap. No
+     "84 to go" on a week nobody is going to have again this month. */
+  if(p.record>0 && p.record>p.target && !p.isRecord){
+    chips.push(`<span class="bestchip quiet">\ud83c\udfc5 Your record: ${
+      nums ? p.record : "a huge week"}${
+      p.recordWhen ? ` <em>${escapeHtml(monthOf(p.recordWhen))}</em>` : ""}</span>`);
+  }
+  return chips.length ? `<div class="bestrow">${chips.join("")}</div>` : "";
 }
 
-/* ---------- The moment ----------
+/* ---------- The moment ----------/* ---------- The moment ----------
    The most recent thing somebody noticed, at full size, at the top of the
    screen. The NOTE the parent wrote is the headline; who noticed is above it;
    the number is the smallest thing on the card. Read aloud it runs
