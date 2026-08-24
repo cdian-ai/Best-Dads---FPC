@@ -4198,49 +4198,136 @@ const DEFAULT_PARENT_REWARDS = [
    making every parent choose an emoji, one is matched from the wording — with a
    field to override it when the guess is wrong. Order matters: the most specific
    phrase has to win, so "hot chocolate" is not caught by "chocolate". */
+/* ---------- What a thing looks like ----------
+   Nineteen of the fifty-three rewards we ship, and every single point-earning
+   action, were falling through to one of two pictures: a gift box or whatever
+   its category wore. A list where every row shows the same icon is a list with
+   no icons - the eye stops reading them and they become decoration.
+
+   Two rules follow from that:
+     * the gift box means an actual GIFT, and nothing else;
+     * a fallback is a failure, so anything reaching one should be added here.
+
+   Order matters: the first pattern that matches wins, so specific phrases sit
+   above the general words they contain. "football boots" must beat "boots",
+   "pizza night" must beat "night". */
 const ICON_RULES = [
+  // ---- prayer and deen (most specific first: these words appear widely) ----
+  [/pray (fajr|dhuhr|zuhr|asr|maghrib|isha)|(fajr|dhuhr|zuhr|asr|maghrib|isha) on time/, "\ud83d\udd4c"],
+  [/qur'?an|quran|surah|qaida|juz/, "\ud83d\udcd6"],
+  [/respect to elders|elders|grandparent/, "\ud83e\uddd3"],
+  [/bismillah|alhamdulillah|dua|salaam|salam/, "\ud83e\udd32"],
+  [/eid outfit|outfit|clothes|shoes|dress/, "\ud83d\udc55"],
+  [/masjid|mosque|eid/, "\ud83d\udd4c"],
+  [/sit quietly|quietly while/, "\ud83e\uddd8"],
+
+  // ---- food, drink and treats ----
   [/hot chocolate|marshmallow/, "\u2615"],
-  [/ice cream|milkshake|sundae/, "\ud83c\udf66"],
-  [/popcorn|film night|movie/, "\ud83c\udf7f"],
-  [/cookie|cupcake|bake|baking/, "\ud83c\udf6a"],
-  [/pudding|dessert/, "\ud83c\udf6e"],
+  [/ice cream|milkshake|sundae|slushie/, "\ud83c\udf66"],
+  [/popcorn|film night|movie|cinema/, "\ud83c\udf7f"],
+  [/pizza/, "\ud83c\udf55"],
+  [/chicken and chips|chips|fries/, "\ud83c\udf5f"],
+  [/kebab|wrap|shawarma/, "\ud83c\udf2f"],
+  [/samosa|spring roll|pakora/, "\ud83e\udd5f"],
+  [/doughnut|donut/, "\ud83c\udf69"],
+  [/cookie|biscuit|cupcake|bake|baking/, "\ud83c\udf6a"],
+  [/pudding|dessert|cake/, "\ud83c\udf70"],
+  [/crisps/, "\ud83e\udd54"],
+  [/fizzy|lemonade|cola|juice/, "\ud83e\udd64"],
+  [/lollipop|lolly/, "\ud83c\udf6d"],
   [/chocolate|sweet|candy/, "\ud83c\udf6b"],
   [/takeaway|take-away|eat out|restaurant/, "\ud83e\udd61"],
   [/fruit/, "\ud83c\udf4e"],
   [/breakfast/, "\ud83c\udf73"],
   [/snack/, "\ud83c\udf6c"],
-  [/meal|dinner|lunch|food/, "\ud83c\udf7d\ufe0f"],
+  [/meal|dinner|lunch|food|mealtime/, "\ud83c\udf7d\ufe0f"],
+
+  // ---- things a child saves for ----
+  [/bicycle|\bbike\b/, "\ud83d\udeb2"],
+  [/scooter/, "\ud83d\udef4"],
+  [/football boots|football|boots/, "\u26bd"],
+  [/lego|building set|blocks/, "\ud83e\uddf1"],
+  [/bedroom|poster|lamp|cushion/, "\ud83d\udecf\ufe0f"],
+  [/games console|console|video game/, "\ud83c\udfae"],
+  [/holiday|weekend away|trip away/, "\u2708\ufe0f"],
+  [/theme park|coast|seaside|beach/, "\ud83c\udfa1"],
   [/sticker/, "\u2b50"],
-  [/screen time|tv|telly|remote|tablet/, "\ud83d\udcfa"],
-  [/masjid|mosque/, "\ud83d\udd4c"],
-  [/park|day out|outing|trip|zoo/, "\ud83c\udfde\ufe0f"],
-  [/story|book|read/, "\ud83d\udcd6"],
-  [/dua|prayer/, "\ud83e\udd32"],
-  [/bedtime/, "\ud83c\udf19"],
-  [/lie-in|lie in|sleep|rest|nap/, "\ud83d\ude34"],
+  [/headphones|music|listen to in the car/, "\ud83c\udfa7"],
+  [/screen time|\btv\b|telly|remote|tablet/, "\ud83d\udcfa"],
+
+  // ---- being together ----
+  [/walk route|walk|hike/, "\ud83d\udeb6"],
+  [/park|day out|outing|\btrip\b|\bzoo\b|museum/, "\ud83c\udfde\ufe0f"],
+  [/stay up|later to talk/, "\ud83c\udf1f"],
+  [/bedtime|story chain|bedtime routine/, "\ud83c\udf19"],
+  /* \bread\b, not read: "get ready" contains "read" and was landing on a book. */
+  [/story|book|\bread\b|reading/, "\ud83d\udcd6"],
+  [/lie-in|lie in|sleep|rest|\bnap\b/, "\ud83d\ude34"],
   [/one-to-one|one to one|time together|together/, "\ud83e\udd17"],
   [/night out|friends/, "\ud83c\udf89"],
   [/on your own|to yourself|alone|off duty/, "\ud83e\uddd8"],
-  [/gift|present/, "\ud83c\udf81"],
-  // activities
+
+  // ---- how a child behaved. These carry the actions, and a picture per
+  //      FEELING beats a picture per category: "use kind words" and "take a
+  //      no calmly" are not the same thing and should not look it. ----
+  [/homework|school work/, "\u270f\ufe0f"],
+  [/get ready for school|for school/, "\ud83c\udf92"],
+  [/kind words|speak politely|please and thank/, "\ud83d\udcac"],
+  [/help someone|help without|helping/, "\ud83e\udd1d"],
+  [/care when|upset|comfort/, "\ud83d\udc9b"],
+  [/share|take turns|sharing/, "\ud83e\udde9"],
+  [/take a no|calmly|calm-down|calm down/, "\ud83d\ude4c"],
+  [/listen the first|listen|follow an instruction|when asked/, "\ud83d\udc42"],
+  [/say sorry|make up after/, "\ud83e\udd17"],
+  [/keep trying|try again|frustrat/, "\ud83d\udcaa"],
+  [/explain a feeling|ask for help|instead of shouting/, "\ud83d\udde3\ufe0f"],
+  [/put toys away|put clothes|belongings|put away|tidy/, "\ud83e\uddfa"],
+  [/job carefully|do a job|chore/, "\ud83e\uddf9"],
+  [/brush teeth|teeth/, "\ud83e\udea5"],
+  [/wash hands|washing/, "\ud83e\uddfc"],
+  [/get dressed|get ready/, "\ud83d\udc54"],
+  [/nobody is watching|tell the truth|truth|honest/, "\ud83d\udd4a\ufe0f"],
+  [/safe choice|good choice|choice/, "\ud83e\udded"],
+
+  // ---- activities ----
   [/uno|cards/, "\ud83c\udccf"],
   [/connect 4|connect four/, "\ud83d\udd35"],
   [/snakes|ladders/, "\ud83d\udc0d"],
   [/charades|acting/, "\ud83c\udfad"],
   [/quiz|trivia|20 questions|guess/, "\u2753"],
-  [/draw/, "\u270f\ufe0f"],
+  [/draw|paint/, "\ud83c\udfa8"],
   [/treasure|hunt/, "\ud83d\uddfa\ufe0f"],
   [/musical|statues|dance/, "\ud83d\udc83"],
-  [/story chain/, "\ud83d\udcda"],
   [/hide and seek/, "\ud83d\ude48"],
-  [/board game|game/, "\ud83c\udfb2"]
+  [/cook|recipe/, "\ud83d\udc69\u200d\ud83c\udf73"],
+  [/board game|\bgame\b/, "\ud83c\udfb2"],
+
+  // ---- last, because "gift" appears inside other phrases ----
+  [/gift|present/, "\ud83c\udf81"]
 ];
+/* Used sparingly and on purpose: a star for something earned, a target for
+   something being saved towards. Neither is a gift box, which now only ever
+   appears on something that is actually a gift. */
+const ICON_FALLBACK_REWARD = "\u2b50";
+const ICON_FALLBACK_ACTION = "\u2728";
 function iconFor(item, fallback){
   if(item && item.icon) return item.icon;
-  const text = ((item && item.name) || "") + " " + ((item && item.kind) || "");
+  const text = ((item && item.name) || "") + " " + ((item && item.kind) || "")
+             + " " + ((item && item.desc) || "");
   const hay = text.toLowerCase();
   for(const [re, emoji] of ICON_RULES){ if(re.test(hay)) return emoji; }
-  return fallback || "\ud83c\udf81";
+  /* A star, not a gift box. The gift box was the default, which is how it
+     ended up on chicken and chips, a bicycle and a packet of crisps. */
+  return fallback || ICON_FALLBACK_REWARD;
+}
+/* Actions used to wear whatever their CATEGORY wore, so all five prayers, all
+   nine manners and all six routines were three pictures across forty-six
+   rows. The rules above know most of them by name; the category icon is now
+   only the last resort. */
+function actionIcon(name, catIcon){
+  const hay=String(name||"").toLowerCase();
+  for(const [re, emoji] of ICON_RULES){ if(re.test(hay)) return emoji; }
+  return catIcon || ICON_FALLBACK_ACTION;
 }
 
 /* Big things only. These live in the rewards list with vault:true so they need
@@ -4468,7 +4555,7 @@ const TIP_CATS = [
   {key:"deen", label:"Deen"}
 ];
 
-const APP_VERSION = "v160";
+const APP_VERSION = "v161";
 const today = new Date().toISOString().slice(0,10);
 let app = {families:[],currentFamily:null,currentChild:null};
 let categories = [];
@@ -7706,7 +7793,7 @@ function bigThingsHTML(child){
     return `<article class="cattile k${i%6}${ready?"":" outofreach"}">
       <button class="cattilebtn rewardtile bigtile"${ready?"":" disabled"}
         onclick="popThen(this);kidVaultOut('${g.id}')">
-        <span class="ticon">${ready?"\ud83c\udf1f":"\ud83c\udfaf"}</span>
+        <span class="ticon">${iconFor(g, ready?"\ud83c\udf1f":"\ud83c\udfaf")}</span>
         <span class="tname">${escapeHtml(g.name)}</span>
         ${ready
           ? `<span class="tpts earned">${nums ? g.points+" pts" : "Ready"}</span>`
@@ -11053,13 +11140,14 @@ function kidTips(child){
     // Naming the action rather than commanding it, so the sentence still reads
     // whether the label is written as an instruction ("Pray Fajr on time") or
     // as something noticed after the fact ("Owned up before being found out").
-    if(best) tips.push({icon:c.cat.icon,
+    if(best) tips.push({icon:actionIcon(best[0], c.cat.icon),
       text:"Nothing in "+c.cat.name+" yet this week \u2014 \u201c"+best[0]+"\u201d earns "+best[1]+" point"+(best[1]===1?"":"s"),
       badge:"+"+best[1]});
   });
   // The biggest single wins on the board.
   const bigWins=[];
-  categories.forEach(cat=>cat.actions.forEach(([name,p])=>bigWins.push({name,p,icon:cat.icon})));
+  categories.forEach(cat=>cat.actions.forEach(([name,p])=>
+    bigWins.push({name,p,icon:actionIcon(name, cat.icon)})));
   bigWins.sort((a,b)=>b.p-a.p).slice(0,3).forEach(w=>{
     tips.push({icon:w.icon, text:"Worth the most right now: \u201c"+w.name+"\u201d", badge:"+"+w.p});
   });
@@ -18215,7 +18303,7 @@ window.GROWNUP_DECKS = [
     (typeof app!=="undefined" ? (app.categories||[]) : []).forEach(cat=>{
       const items=(cat.actions||[])
         .filter(a=>!on.has(String(a[0]).toLowerCase()))
-        .map(a=>({name:a[0], points:a[1], icon:cat.icon||""}));
+        .map(a=>({name:a[0], points:a[1], icon:actionIcon(a[0], cat.icon||"")}));
       if(items.length) out.push({name:cat.name, icon:cat.icon||"", items});
     });
     return out;
