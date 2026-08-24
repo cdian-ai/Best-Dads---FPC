@@ -588,6 +588,16 @@
     box-shadow:inset 0 0 0 2px #e8b93f,0 0 12px rgba(224,169,44,.45)}
   .lampname{font-size:10.5px;font-weight:800;color:#8a90a6;text-align:center;line-height:1.2}
   .lamp.lit .lampname{color:#6d4d05}
+  /* Said, not confirmed. Green because green is this app's "that landed"
+     colour, hollow because nothing has been recorded yet. */
+  button.lamp{border:0;background:none;padding:0;font:inherit;cursor:pointer;
+    -webkit-tap-highlight-color:transparent}
+  button.lamp:active .lampglow{transform:scale(.9)}
+  .lamp.said .lampglow{background:#eafaf1;box-shadow:inset 0 0 0 2px #4cbb8a}
+  .lampsaid{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+    font-size:15px;font-weight:800;color:#1c9d5c}
+  .lampglow{position:relative}
+  .lamp.said .lampname{color:#1c7a53}
   /* The moment a parent records one. Green is the app's "that just landed"
      colour, and it fires once on the lamp that changed - not on the four that
      did not - then settles into the ordinary lit gold. */
@@ -1138,6 +1148,12 @@
      with align-items also clipped the top of a card taller than the screen -
      auto margins centre it when there is room and let it scroll when there is
      not. */
+  /* The page does not move behind a gate. overflow:hidden on both html and
+     body is what actually stops iOS Safari rubber-banding the content up
+     behind the card; the gate scrolls inside itself when the card is taller
+     than the screen. */
+  html.gated,body.gated{overflow:hidden;height:100%;overscroll-behavior:none}
+  body.gated .gatewrap{height:100svh;overflow-y:auto}
   .gatewrap{min-height:100vh;min-height:100svh;display:flex;align-items:flex-start;
             justify-content:center;padding:24px 24px calc(24px + env(safe-area-inset-bottom));
             overscroll-behavior-y:contain}
@@ -2321,12 +2337,15 @@
       <strong id="kidBalance" class="hidden">0</strong>
     </section>
 
-    <!-- What was asked of them, right under the greeting. -->
-    <div id="kidNoteHost"></div>
-
-    <!-- Prayers before spending: what they did today comes before what their
-         points can buy. -->
+    <!-- Prayers sit against the greeting card, above everything else on the
+         screen. They are not a task somebody set and they are not a balance:
+         they are the first thing the day is measured by, so they come before
+         what was asked and before what the points can buy. -->
     <div id="prayerToday"></div>
+
+    <!-- What was asked of them. Below the prayers deliberately - these are
+         jobs a grown-up put on the list, which is a different kind of thing. -->
+    <div id="kidNoteHost"></div>
 
     <!-- One thing worth thinking about, in a child's words. This was emptied
          in v74 because the grown-up version - hadith text, narrator, source
@@ -2340,7 +2359,7 @@
          The heading is not decoration: without it the strip sat at the foot of
          the page as a loose object, and a bar with a number beside it reads as
          a balance rather than as something being worked towards. -->
-    <p class="reachcap">🎯 What I’m working towards</p>
+    <p class="reachcap" id="kidReachCap">⏳ Coming soon</p>
     <button class="savestrip" onclick="showScreen('kidSpendScreen')">
       <span class="saveicon" id="kidSaveIcon">🎯</span>
       <span class="savemain">
@@ -4266,7 +4285,7 @@ const TIP_CATS = [
   {key:"deen", label:"Deen"}
 ];
 
-const APP_VERSION = "v155";
+const APP_VERSION = "v156";
 const today = new Date().toISOString().slice(0,10);
 let app = {families:[],currentFamily:null,currentChild:null};
 let categories = [];
@@ -4825,11 +4844,32 @@ function availableFor(child){
 /* Exactly one of these screens is visible at any moment. Start-up used to be
    able to fall through every branch and leave a blank page, which hides the
    real error instead of reporting it. */
+/* #kidView, the bottom tab bar and the floating Menu button all live OUTSIDE
+   #mainApp, so hiding mainApp never hid them. On a child's very first sign-in
+   that meant the welcome card floated over a fully live, fully scrollable home
+   screen: you could scroll past the card and tap the tabs underneath it before
+   the tour had been read. A gate is a gate - nothing behind it is visible and
+   nothing behind it moves. */
+let gateNow = "bootGate";
+function gateIsOpen(){ return gateNow !== "mainApp"; }
 function showGate(which){
+  gateNow = which;
   ["bootGate","errorGate","noFamilyGate","authGate","welcomeScreen","onboarding","tourGate","mainApp"].forEach(id=>{
     const el=document.getElementById(id);
     if(el) el.classList.toggle("hidden", id!==which);
   });
+  const gated = gateIsOpen();
+  /* Only ever hides. Showing these again is render()'s job, once the gate is
+     down - a gate that decided what to reveal would fight it. */
+  if(gated){
+    ["kidView","familyView","kidTabBar","menuFab","menuScrim","kidMenuSheet","menuSheet"].forEach(id=>{
+      const el=document.getElementById(id);
+      if(el) el.classList.add("hidden");
+    });
+    document.body.classList.remove("haskidbar");
+  }
+  document.body.classList.toggle("gated", gated);
+  document.documentElement.classList.toggle("gated", gated);
 }
 function showLoadError(message, err){
   console.error("Start-up failed:", err);
@@ -6709,6 +6749,73 @@ function prayerStreak(child, tagIndex){
 }
 function prayerBoardEnabled(){ return Object.keys(prayerKeys()).length > 0; }
 
+/* ---------- "I prayed" ----------
+   A prayer only appeared on this board when a parent awarded points for it,
+   which meant the child had no way to say they had prayed and the parent had
+   no idea it had happened until they thought to ask. Now the child says so and
+   the parent confirms it - the same two-state discipline the curriculum uses,
+   where a child may mark "practised" and only an adult may mark "secure".
+   Saying so is worth nothing on its own; the parent's confirmation is what
+   carries the points, and the timestamp on the claim is what lets them see
+   whether it was prayed at the right time. */
+function prayerAction(tag){
+  let found=null;
+  (app.categories||[]).forEach(cat=>{
+    (cat.actions||[]).forEach(a=>{
+      if(found) return;
+      if(actionOpts(a).tag===tag)
+        found={ catKey:catKeyFor(cat, a[0]), name:a[0], points:parseInt(a[1],10)||0 };
+    });
+  });
+  return found;
+}
+function pendingPrayerClaim(childId, tag){
+  return (app.requests||[]).find(r=>r.type==="prayer" && r.status==="pending"
+    && r.childId===childId && r.tag===tag) || null;
+}
+async function claimPrayer(tag){
+  const child=sessionMember();
+  if(!child || !isChildRole(child)) return;
+  const p=PRAYERS.find(x=>x.tag===tag); if(!p) return;
+  const already=pendingPrayerClaim(child.id, tag);
+  if(already){
+    /* Undo. The point of the undo is that a mis-tap must not become a thing a
+       child has to explain, so it is one tap and no apology. */
+    const ok=await kidDialog({icon:"\u21a9\ufe0f", tone:"", title:"Take that back?",
+      thing:p.label, note:"You told Mum or Dad you prayed "+p.label+
+        ". Tapping again takes the message back \u2014 nothing happens to your points.",
+      yes:"Yes, take it back", no:"Leave it"});
+    if(!ok) return;
+    try{
+      await window.fpc.setRequestStatus(familyId, already.id, "cancelled");
+      render();
+    }catch(e){
+      console.error("Prayer claim not withdrawn:", e);
+      await kidSay({icon:"\ud83d\ude4b", tone:"treat", title:"Ask a grown-up",
+        note:"That one needs Mum or Dad to clear it. Tell them it was a mistake \u2014 "
+          + "they can turn it down and nothing will happen."});
+    }
+    return;
+  }
+  const ok=await kidDialog({icon:"\ud83d\udd4c", tone:"", title:"Did you pray "+p.label+"?",
+    note:"Mum or Dad will see it with the time on it, and they decide about points.",
+    yes:"Yes, I prayed", no:"Not yet"});
+  if(!ok) return;
+  try{
+    await window.fpc.createRequest(familyId, {
+      childId: child.id, childName: child.name,
+      type:"prayer", tag: tag, itemName: p.label, points: 0
+    });
+  }catch(e){
+    console.error("Prayer claim refused:", e);
+    await kidSay({icon:"\ud83d\udce1", tone:"treat", title:"That didn\u2019t send",
+      note:"Check your connection and try again."});
+    return;
+  }
+  await kidSay({icon:"\ud83d\udc9b", tone:"cheer", title:"Told them!",
+    thing:p.label,
+    note:"Mum or Dad will see it. Tap the same one again if you sent it by mistake."});
+}
 function prayerTodayHTML(child){
   if(!prayerBoardEnabled()) return "";
   const today=prayerGrid(child,1)[0];
@@ -6729,19 +6836,38 @@ function prayerTodayHTML(child){
   const seen=__prayerSeen[key];
   const fresh=PRAYERS.map((p,i)=>!!(seen && today.done[i] && !seen[i]));
   __prayerSeen[key]=today.done.slice();
-  const lamps=PRAYERS.map((p,i)=>`<span class="lamp ${today.done[i]?"lit":""}${fresh[i]?" justlit":""}">
-      <span class="lampglow"></span>
-      <span class="lampname">${p.label || p.short}</span>
-    </span>`).join("");
+  /* Three states, not two. Unlit is nothing yet; "said" is the child telling
+     their parent they prayed - a soft green ring, theirs to take back; lit
+     gold is a parent confirming it, which is the only state that is a record.
+     A claim is deliberately not gold: the board must keep meaning "an adult
+     confirmed this", or it stops being worth anything as a record. */
+  const me=(typeof sessionMember==="function") ? sessionMember() : null;
+  const mine=!!(me && isChildRole(me) && me.id===child.id);
+  const lamps=PRAYERS.map((p,i)=>{
+    const said=!today.done[i] && !!pendingPrayerClaim(child.id, p.tag);
+    const cls="lamp "+(today.done[i]?"lit":"")+(said?" said":"")+(fresh[i]?" justlit":"");
+    const inner=`<span class="lampglow">${said?'<span class="lampsaid">\u2713</span>':""}</span>
+      <span class="lampname">${p.label || p.short}</span>`;
+    /* Tappable only on the child's own screen, and only while it is still
+       theirs to change. Once a parent has recorded it, it is a record. */
+    return (mine && !today.done[i])
+      ? `<button type="button" class="${cls}" onclick="claimPrayer('${p.tag}')"
+           aria-pressed="${said}">${inner}</button>`
+      : `<span class="${cls}">${inner}</span>`;
+  }).join("");
+  const anySaid = mine && PRAYERS.some((p,i)=>!today.done[i] && pendingPrayerClaim(child.id, p.tag));
   /* The helper line only earns its space when it has something to say. Once
      the day is under way the row speaks for itself. */
   const note = today.excused
     ? "Excused today \u2014 and that is completely fine."
     : today.complete
       ? "\u2b50 All five today \u2014 MashaAllah!"
-      : today.count===0
-        ? "Mum or Dad light these with you."
-        : "";
+      : anySaid
+        ? "Mum or Dad have been told. Tap one again to take it back."
+        : today.count===0
+          ? (mine ? "Tap one to tell Mum or Dad you prayed."
+                  : "Mum or Dad light these with you.")
+          : "";
   return `<section class="c-panel prayercard ${today.complete?"allfive":""}">
       <h2 class="prayerhead">\u{1f54c} My prayers today</h2>
       <div class="lamps">${lamps}</div>
@@ -6856,6 +6982,9 @@ function kidSay(o){ return kidDialog(Object.assign({}, o, {yes:o.yes||"OK!", no:
 function showKidTabBar(){
   const bar=document.getElementById("kidTabBar");
   if(!bar) return;
+  /* A render can be triggered by a sync landing mid-tour. Without this the bar
+     comes straight back under the welcome card. */
+  if(typeof gateIsOpen==="function" && gateIsOpen()) return;
   const me=sessionMember();
   if(!me || !isChildRole(me)) return;
   bar.classList.remove("hidden");
@@ -9536,7 +9665,8 @@ function render(){
        they can open a panel, they need the way out of it too. */
     const helperOnPanel = isFamilySession() && !!screenNow;
     const parentOn = (isParentSession() && !editMode) || helperOnPanel;
-    mf.classList.toggle("hidden", !(ready && (parentOn || kidOn)));
+    const gated = (typeof gateIsOpen==="function") && gateIsOpen();
+    mf.classList.toggle("hidden", gated || !(ready && (parentOn || kidOn)));
     const sheet=document.getElementById(kidOn ? "kidMenuSheet" : "menuSheet");
     const open = !!sheet && !sheet.classList.contains("hidden");
     const onPanel = !!screenNow && !kidOn;
@@ -10117,7 +10247,18 @@ async function approveRequest(id){
   const me=sessionMember();
   const who={ byUid: window.fpc.uid(), byName: me?me.name:"", byRole: me?(roleLabel(me)||""):"" };
   let entry;
-  if(r.type==="vaultin"){
+  if(r.type==="prayer"){
+    /* The child said they prayed; this is the adult confirming it. It becomes
+       an ordinary tagged award, so the board, the streaks and the points all
+       come from the one path they already came from - nothing here knows
+       about prayers except the tag it carries. Points come from whatever the
+       family scored that action at, so changing the score changes this too. */
+    const act=prayerAction(r.tag) || {};
+    entry=Object.assign({ childId:r.childId, points:(act.points||0), type:"award",
+      tag:r.tag, catKey:act.catKey || ("prayer|"+r.tag),
+      actionName:act.name || ("Prayed "+r.itemName),
+      label:act.name || ("Prayed "+r.itemName) }, who);
+  }else if(r.type==="vaultin"){
     // Into the bank: leaves the spendable balance, arrives as savings.
     if(child && (child.balance||0) < r.points){
       alert(child.name+" only has "+(child.balance||0)+" points now \u2014 not enough to lock away.");
@@ -10160,8 +10301,10 @@ async function approveRequest(id){
     // Approval is the moment the points move: status and ledger commit together.
     await window.fpc.approveRequest(familyId, id, entry, me?me.name:"");
     /* And the moment a share goes to the giving pot. Added, not deducted: the
-       child paid the price on the label, and the family gives alongside. */
-    if(r.type!=="vaultin" && r.type!=="givein"){
+       child paid the price on the label, and the family gives alongside.
+       A confirmed prayer is not a purchase - nothing was spent, so nothing is
+       shared. */
+    if(r.type!=="vaultin" && r.type!=="givein" && r.type!=="prayer"){
       const item=(app.rewards||[]).concat(app.gameNightActivities||[])
         .filter(x=>x.id===r.itemId)[0] || {name:r.itemName, points:r.points};
       await recordGiving(r.childId, item);
@@ -10210,6 +10353,25 @@ async function declineRequest(id){
 }
 function requestRowHTML(r){
   const when=new Date(r.ts).toLocaleString([], {weekday:"short", hour:"2-digit", minute:"2-digit"});
+  /* A prayer claim is not a purchase and must not read like one. It is the
+     only row here where the TIME is the important part - it is what lets a
+     parent see whether Asr was prayed at Asr - so it leads with it. */
+  if(r.type==="prayer"){
+    const act=prayerAction(r.tag) || {};
+    const at=new Date(r.ts).toLocaleTimeString([], {hour:"2-digit", minute:"2-digit"});
+    return `<div class="requestrow">
+      <div style="flex:1;min-width:180px">
+        <div><strong>${escapeHtml(r.childName)}</strong> says they prayed
+          <strong>${escapeHtml(r.itemName)}</strong> \u2014 told you at <strong>${at}</strong></div>
+        <div class="logmeta">\ud83d\udd4c Prayer \u00b7 ${
+          act.points ? "confirming gives "+act.points+" pts" : "no points set for this one"} \u00b7 ${when}</div>
+      </div>
+      <div class="rbtns">
+        <button class="approve" onclick="approveRequest('${r.id}')">\u2713 Yes, they did</button>
+        <button class="danger" onclick="declineRequest('${r.id}')">Not yet</button>
+      </div>
+    </div>`;
+  }
   const what = r.type==="game" ? "\ud83c\udfb2 Activity"
              : r.type==="vaultin"  ? "\ud83c\udfe6 Into my bank"
              : r.type==="vaultout" ? "\ud83c\udf1f From my bank"
@@ -10247,7 +10409,11 @@ function renderRequests(){
       panelList.innerHTML=recent.map(r=>{
         if(r.status==="pending") return requestRowHTML(r);
         const when=new Date(r.handledTs||r.ts).toLocaleDateString();
-        const tag=r.status==="approved"?"\u2705 Approved \u2014 points spent":"\u21a9\ufe0f Turned down \u2014 no points taken";
+        const tag=r.status==="cancelled" ? "\u21a9\ufe0f Taken back by " + escapeHtml(r.childName)
+          : r.status==="approved"
+            ? (r.type==="prayer" ? "\u2705 Confirmed \u2014 points given"
+                                 : "\u2705 Approved \u2014 points spent")
+            : "\u21a9\ufe0f Turned down \u2014 no points taken";
         return `<div class="requestrow" style="opacity:.75">
           <div style="flex:1;min-width:180px">
             <div><strong>${escapeHtml(r.childName)}</strong> \u00b7 ${escapeHtml(r.itemName)}</div>
@@ -10993,6 +11159,9 @@ function dropConfetti(){
 }
 
 function renderKidView(child){
+  /* Same reason as showKidTabBar: a sync arriving mid-tour used to un-hide the
+     whole home screen behind the welcome card. */
+  if(typeof gateIsOpen==="function" && gateIsOpen()) return;
   document.getElementById("kidView").classList.remove("hidden");
   /* First, and on its own: this is the way off every screen a child can reach,
      so it must not depend on the rest of this function surviving. */
@@ -11042,21 +11211,28 @@ function renderKidView(child){
     const strip=reach.closest(".savestrip");
     const fill=document.getElementById("kidSaveFill");
     const icon=document.getElementById("kidSaveIcon");
+    /* The heading changes with the thing under it. "Coming soon" over a reward
+       they can already have would be a lie, and "Ready now" over a bar at 30%
+       would be a different one. */
+    const cap=document.getElementById("kidReachCap");
     if(can.length){
       /* The best thing already within reach, not the cheapest - the cheapest
          is always a sweet, and that is not what they have been saving for. */
       reach.textContent = "Ready for: " + can[0].name;
+      if(cap) cap.textContent = "\ud83c\udf81 Ready now";
       if(fill) fill.style.width = "100%";
       if(icon) icon.textContent = "\u{1f381}";
       if(strip) strip.classList.add("ready");
     }else if(next){
       const need=Math.max(0,(next.points||0)-spendable);
       reach.textContent = need + " more for " + next.name;
+      if(cap) cap.textContent = "\u23f3 Coming soon";
       if(fill) fill.style.width = Math.round(spendable/(next.points||1)*100) + "%";
       if(icon) icon.textContent = "\u{1f3af}";
       if(strip) strip.classList.remove("ready");
     }else{
       reach.textContent = "Rewards, activities, or save up";
+      if(cap) cap.textContent = "\u23f3 Coming soon";
       if(fill) fill.style.width = "0%";
       if(icon) icon.textContent = "\u{1f381}";
       if(strip) strip.classList.remove("ready");
@@ -11197,8 +11373,10 @@ function renderKidView(child){
   const vaultEl=document.getElementById("kidVault");
   if(vaultEl) vaultEl.innerHTML = kidVaultHTML(child);
 
-  // Their own requests
-  const mine=(app.requests||[]).filter(r=>r.childId===child.id).slice(0,4);
+  // Their own requests. Prayer claims are not "things you asked for" - they
+  // are shown, and taken back, on the lamp itself.
+  const mine=(app.requests||[]).filter(r=>r.childId===child.id
+    && r.type!=="prayer" && r.status!=="cancelled").slice(0,4);
   const mineHtml = mine.length
     ? `<p class="reachcap">\ud83e\uddfe What you\u2019ve asked for</p>
        <section class="c-panel askedpanel">${mine.map(r=>{
@@ -11219,8 +11397,12 @@ function renderKidView(child){
     : "";
   /* Home takes only what is still open. Approved is a moment, not a standing
      list: the child has already been told and can do nothing with the row. The
-     full picture, granted and declined alike, stays inside Rewards. */
-  const waiting=mine.filter(r=>r.status==="pending");
+     full picture, granted and declined alike, stays inside Rewards.
+     Prayer claims are excluded: the lamp directly above already shows the
+     claim and is where the child takes it back, so a second row saying the
+     same thing is one more thing to read and one more place to be confused
+     about which of the two undoes it. */
+  const waiting=mine.filter(r=>r.status==="pending" && r.type!=="prayer");
   const reqHome=document.getElementById("kidRequestStatus");
   if(reqHome) reqHome.innerHTML = waiting.length
     ? `<p class="waitcap">\u23f3 Waiting for Mum or Dad</p>` + waiting.map(r=>

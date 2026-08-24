@@ -1,0 +1,222 @@
+rules_version = '2';
+
+// Notice Me — Firestore security rules, app v156.
+//
+// Four roles: parent, child, family (grandparents, uncles, aunties) and tutor.
+// Parents run the family. A child may read the family and mark their own
+// practice. Family members may add up to 10 points to a child. Tutors may add
+// up to 5, and only to the children they have been assigned.
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function myFamilyId() {
+      return get(/databases/$(database)/documents/userIndex/$(request.auth.uid)).data.familyId;
+    }
+
+    function isMember(fid) {
+      return signedIn() &&
+        exists(/databases/$(database)/documents/families/$(fid)/members/$(request.auth.uid));
+    }
+
+    // The family document is written before the owner's member row, and
+    // sequentially, so this is visible by the time the member row is created.
+    function ownsFamily(fid) {
+      return signedIn()
+        && get(/databases/$(database)/documents/families/$(fid)).data.ownerUid == request.auth.uid;
+    }
+
+    function roleOf(fid, uid) {
+      return get(/databases/$(database)/documents/families/$(fid)/members/$(uid)).data.role;
+    }
+
+    function isParent(fid) {
+      return isMember(fid) && roleOf(fid, request.auth.uid) == 'parent';
+    }
+
+    // Grandparents, uncles and aunties. They may add points within a hard
+    // per-entry ceiling and nothing else; the weekly allowance on top of this
+    // is counted in the app, not here.
+    function isFamilyMember(fid) {
+      return isMember(fid) && roleOf(fid, request.auth.uid) == 'family';
+    }
+
+    // A tutor: award-only, and only for the children a parent assigned them.
+    function isTutor(fid) {
+      return isMember(fid) && roleOf(fid, request.auth.uid) == 'tutor';
+    }
+    function tutorTeaches(fid, childId) {
+      return childId in get(/databases/$(database)/documents/families/$(fid)/members/$(request.auth.uid)).data.forChildren;
+    }
+
+    // ---------------------------------------------------------------- invites
+    //
+    // get is allowed but list is not. A joiner can fetch a code they were told;
+    // nobody can enumerate the collection to discover one. With 32^8 codes, a
+    // fifteen-minute window and single use, guessing is not a viable attack.
+    match /invites/{code} {
+      allow get:  if signedIn();
+      allow list: if false;
+
+      allow create: if signedIn()
+                    && isParent(request.resource.data.familyId)
+                    && request.resource.data.role in ['parent', 'family', 'tutor']
+                    && request.resource.data.usedBy == null;
+
+      // The only permitted update is spending it, on yourself, once, in time.
+      allow update: if signedIn()
+                    && resource.data.usedBy == null
+                    && request.resource.data.usedBy == request.auth.uid
+                    && request.resource.data.familyId == resource.data.familyId
+                    && request.resource.data.role == resource.data.role
+                    && resource.data.expiresAtMs > request.time.toMillis();
+
+      allow delete: if isParent(resource.data.familyId);
+    }
+
+    // Does this code authorise this person to join this family, right now?
+    function joinIsValid(fid) {
+      let inv = get(/databases/$(database)/documents/invites/$(request.resource.data.inviteCode)).data;
+      return inv.familyId == fid
+          && inv.usedBy == null
+          && inv.expiresAtMs > request.time.toMillis()
+          && inv.role in ['parent', 'family', 'tutor']
+          && request.resource.data.role == inv.role;
+    }
+
+    // ------------------------------------------------------- family pointer
+    match /userIndex/{uid} {
+      allow read:   if signedIn() && request.auth.uid == uid;
+      // Written either by the account itself at provisioning time, or by a
+      // joiner in the same batch as their member document.
+      allow create: if signedIn() && request.auth.uid == uid;
+      allow update: if signedIn() && request.auth.uid == uid;
+      // Leaving a family clears your own pointer. Without this there was no way
+      // out of a family joined or created by mistake.
+      allow delete: if signedIn() && request.auth.uid == uid;
+    }
+
+    // ------------------------------------------------------------- families
+    match /families/{fid} {
+      allow read:   if isMember(fid);
+      allow create: if signedIn() && request.resource.data.ownerUid == request.auth.uid;
+      allow update: if isParent(fid);
+      // Only the person who created it, and the app only offers this while the
+      // family is still empty of history.
+      allow delete: if signedIn() && resource.data.ownerUid == request.auth.uid;
+
+      match /members/{memberId} {
+        allow read: if isMember(fid);
+
+        // A parent adding someone, an account writing its own row at
+        // provisioning time, or an invited adult joining with a live code.
+        // The unrestricted self-create that used to sit here let any signed-in
+        // account add itself to any family it knew the id of — as a parent.
+        allow create: if isParent(fid)
+                      || (signedIn() && memberId == request.auth.uid && ownsFamily(fid))
+                      || (signedIn() && memberId == request.auth.uid && joinIsValid(fid));
+
+        // A member may edit their own row — but not promote themselves.
+        // isParent() reads role off this very document, so an unrestricted
+        // self-update was one REST call away from a child becoming a parent.
+        allow update: if isParent(fid)
+                      || (signedIn()
+                          && memberId == request.auth.uid
+                          && request.resource.data.role == resource.data.role
+                          // A tutor must not be able to widen their own reach.
+                          && request.resource.data.get('forChildren', [])
+                             == resource.data.get('forChildren', []));
+        // A parent removing someone, or anyone removing themselves.
+        allow delete: if isParent(fid)
+                      || (signedIn() && memberId == request.auth.uid);
+      }
+
+      match /config/{name} {
+        // The grown-ups' own reward list is exactly that. An invited
+        // grandparent is a member, so without this carve-out they could read it.
+        allow read:  if isMember(fid) && (name != 'parentRewards' || isParent(fid));
+        allow write: if isParent(fid);
+      }
+
+      // Append-only. Only a parent may move points, and nothing is ever edited.
+      match /ledger/{entryId} {
+        allow read:   if isMember(fid);
+        allow create: if isParent(fid)
+                      || (isFamilyMember(fid)
+                          && request.resource.data.type == 'award'
+                          && request.resource.data.points is int
+                          && request.resource.data.points > 0
+                          && request.resource.data.points <= 10
+                          && request.resource.data.byUid == request.auth.uid
+                          // Only ever towards a child, never towards a parent.
+                          && roleOf(fid, request.resource.data.childId) != 'parent')
+                      // Progress marks carry no points. A child may record that
+                      // they practised something; only a parent or their own
+                      // tutor may record that it is secure.
+                      || (request.resource.data.type == 'progress'
+                          && request.resource.data.points == 0
+                          && request.resource.data.byUid == request.auth.uid
+                          && (isParent(fid)
+                              || (isTutor(fid) && tutorTeaches(fid, request.resource.data.childId))
+                              || (request.resource.data.childId == request.auth.uid
+                                  && request.resource.data.status == 'covered')))
+                      || (isTutor(fid)
+                          && request.resource.data.type == 'award'
+                          && request.resource.data.points is int
+                          && request.resource.data.points > 0
+                          && request.resource.data.points <= 5
+                          && request.resource.data.byUid == request.auth.uid
+                          && tutorTeaches(fid, request.resource.data.childId))
+                      // Asking. Carries no points: it records what was asked of
+                      // whom, and what got done. A grown-up sets a list — a tutor
+                      // only for the children assigned to them. A child may tick
+                      // their own line and nothing else.
+                      || (request.resource.data.type in
+                            ['note','noteitem','noteoff','itemoff','itemdone','notemsg','notebonus']
+                          && request.resource.data.points == 0
+                          && request.resource.data.byUid == request.auth.uid
+                          && (isParent(fid)
+                              || (isTutor(fid) && tutorTeaches(fid, request.resource.data.childId))
+                              || (request.resource.data.childId == request.auth.uid
+                                  && request.resource.data.type == 'itemdone')));
+        allow update, delete: if false;
+      }
+
+      match /requests/{reqId} {
+        allow read:   if isMember(fid);
+        allow create: if isMember(fid);
+        // A parent answering. Plus one narrow case for the person who asked:
+        // withdrawing their own request before anyone has acted on it.
+        //
+        // This is what makes the undo on the prayer lamps work — a child who
+        // taps Asr by mistake takes the message back themselves instead of
+        // having a parent turn it down, which reads to a child as a refusal.
+        // It applies to any request, so a reward asked for by accident can be
+        // withdrawn the same way.
+        //
+        // Everything is pinned: your own row, only while it is still pending,
+        // only into 'cancelled', and only those two fields. It cannot approve,
+        // cannot decline, and cannot touch points, childId or itemName — so it
+        // can never become a way to move points.
+        allow update: if isParent(fid)
+                      || (isMember(fid)
+                          && resource.data.childId == request.auth.uid
+                          && resource.data.status == 'pending'
+                          && request.resource.data.status == 'cancelled'
+                          && request.resource.data.diff(resource.data)
+                             .affectedKeys().hasOnly(['status', 'handledTs']));
+        allow delete: if isParent(fid);
+      }
+
+      match /gifts/{giftId} {
+        allow read:   if isMember(fid);
+        allow create: if isMember(fid);
+        allow update, delete: if isParent(fid);
+      }
+    }
+  }
+}
