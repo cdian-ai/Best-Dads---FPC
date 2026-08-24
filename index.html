@@ -864,6 +864,56 @@
   .emptyhead{margin:12px 0 0;font-size:18px;font-weight:800}
   .emptysay{margin:8px 0 0;font-size:14px;font-weight:600;color:#4a4570;line-height:1.5}
 
+  /* ---- Spend, from the home screen ----
+     Same three surfaces, same number rule. The balance here is a .figure
+     because it is a total that is yours right now, and it is the SAME figure
+     the Rewards screen and the To spend pot show - one number, three places,
+     one treatment. */
+  .quickbuy{padding:14px}
+  .qbhead{display:flex;align-items:center;gap:12px;margin-bottom:11px}
+  .qbmain{flex:1;min-width:0}
+  .qbtitle{display:block;font-size:16px;font-weight:800;line-height:1.2}
+  .qbsub{display:block;font-size:12px;font-weight:600;color:#8a90a6;margin-top:3px;line-height:1.4}
+  .qbbal{flex:none;color:#177f5c}
+  .qbitem{display:flex;align-items:center;gap:11px;width:100%;text-align:left;
+    background:#f7f8fc;border:1px solid #e9ebf3;border-radius:16px;padding:11px 12px;
+    margin-bottom:7px;cursor:pointer;min-height:56px;font:inherit;color:inherit;
+    transition:transform .12s ease}
+  .qbitem:active{transform:scale(.98)}
+  .qbicon{flex:none;font-size:21px;line-height:1}
+  .qbname{flex:1;min-width:0;font-size:14.5px;font-weight:700;line-height:1.3}
+  .qball{width:100%;background:none;border:0;padding:9px 0 2px;font:inherit;
+    font-size:13.5px;font-weight:800;color:#3e46ad;cursor:pointer;min-height:44px}
+  .balstrip{display:flex;align-items:center;justify-content:space-between;gap:12px;
+    padding:14px 16px;margin-bottom:12px}
+  .balmain{flex:1;min-width:0}
+  .balname{display:block;font-size:13px;font-weight:800;color:#8a90a6;
+    letter-spacing:.04em;text-transform:uppercase}
+  .balheld{display:block;font-size:12px;font-weight:600;color:#8a90a6;margin-top:4px}
+  /* ---- money idea ---- */
+  .moneytip{display:flex;align-items:center;gap:12px;width:100%;text-align:left;
+    padding:13px 14px;margin-bottom:12px;cursor:pointer;min-height:62px;
+    font:inherit;color:inherit;transition:transform .12s ease}
+  .moneytip:active{transform:scale(.985)}
+  .mtglyph{flex:none;width:40px;height:40px;border-radius:14px;background:#fbeccb;
+    display:flex;align-items:center;justify-content:center;font-size:20px}
+  .mtmain{flex:1;min-width:0}
+  .mttag{display:block;font-size:10.5px;font-weight:800;letter-spacing:.06em;
+    text-transform:uppercase;color:#8a90a6}
+  .mttext{display:block;font-size:13.5px;font-weight:700;color:#2c3350;line-height:1.4;margin-top:3px}
+  .mtchev{flex:none;font-size:22px;color:#c4c8d8;line-height:1}
+  /* ---- next prayer ---- */
+  .prayernext{margin:11px 0 0;font-size:12.5px;font-weight:700;color:#6a7184;text-align:center}
+  .prayernext strong{color:#6d4d05}
+  /* ---- where the family is ---- */
+  .placebtns{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+  .placebtns button{width:auto}
+  .placenow{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin:4px 0 0}
+  .placenow span{display:flex;flex-direction:column;align-items:center;gap:3px;
+    background:#f7f8fc;border-radius:12px;padding:9px 4px;font-size:12px;font-weight:700}
+  .placenow b{font-size:10.5px;font-weight:800;color:#8a90a6}
+  .bestchip em{font-style:normal;opacity:.72;font-weight:700}
+
   /* A page title, not a tab. The old coloured pill read as a selected tab at
      the top of the screen, which is exactly what it sat under. This is a
      heading: a coloured disc, the name, and one line saying what the room is
@@ -2148,6 +2198,15 @@
   <div id="accountPanel" class="panel hidden">
     <button class="panelback" onclick="goHome()">← Home</button>
     <div class="panelgrid">
+      <!-- Prayer times are worked out on this device from the sun's position.
+           Two numbers, kept in the family's own settings, sent nowhere. -->
+      <section>
+        <h2>🕌 Prayer times</h2>
+        <p class="small">Set where you are once and the app can show the next prayer,
+          and hand the champion's crown over at Maghrib on a Friday. It is worked out
+          on your phone — nothing is sent anywhere, and it works with no internet.</p>
+        <div id="placeRow"></div>
+      </section>
       <section>
         <h2>👨‍👩‍👧 Family members</h2>
         <p class="small">Everyone signed in to this family, and who's currently selected.</p>
@@ -2430,9 +2489,22 @@
          what was asked and before what the points can buy. -->
     <div id="prayerToday"></div>
 
+    <!-- The one-tap way to spend. This is why a child opens the app, and
+         until now the only route was a tab at the bottom of the screen into a
+         list they had to search. The two things they choose most, priced, one
+         tap each - and the balance as a figure, the same figure the Rewards
+         screen and the To spend pot show. -->
+    <div id="kidQuickBuy"></div>
+
     <!-- What was asked of them. Below the prayers deliberately - these are
          jobs a grown-up put on the list, which is a different kind of thing. -->
     <div id="kidNoteHost"></div>
+
+    <!-- One idea about money, in a child's words. Points are the first money
+         most children ever manage, and the app has opinions about saving that
+         only ever appeared inside the bank - where a child who never opens the
+         bank never reads them. -->
+    <div id="kidMoneyTip"></div>
 
     <!-- The reminder and the saving strip both came off this screen in v157.
          The reminder was the only card here not about the child, and the
@@ -2450,6 +2522,10 @@
       <span><span class="kidtitlename">My rewards</span>
         <span class="kidtitlesub">What your points can bring</span></span>
     </header>
+    <!-- The same figure as the To spend pot and the home strip. It was only
+         ever visible on My points, so a child arriving here from the tab bar
+         was choosing from a list of prices with no idea what they had. -->
+    <div id="kidSpendBalance"></div>
     <div id="familyNotices"></div>
     <div id="kidGoal"></div>
     <!-- One list, nearest first. Rewards and activities were two lists in the
@@ -4388,7 +4464,7 @@ const TIP_CATS = [
   {key:"deen", label:"Deen"}
 ];
 
-const APP_VERSION = "v158";
+const APP_VERSION = "v159";
 const today = new Date().toISOString().slice(0,10);
 let app = {families:[],currentFamily:null,currentChild:null};
 let categories = [];
@@ -6574,12 +6650,18 @@ function championNow(){
   if(!f) return null;
   const kids=f.children.filter(c=>isChildRole(c));
   if(!kids.length) return null;
-  const weekDates=getCurrentWeekDates();
+  /* The champion's week is not the calendar week. It runs Friday Maghrib to
+     Friday Maghrib, so the title changes hands at the start of Jumu'ah night
+     with everyone awake to see it, rather than silently at midnight on a
+     Sunday. Everything else - allowances, section caps, the weekly totals a
+     parent reads - still runs Monday to Sunday; only the crown moves. */
+  const weekDates=championWeekDates();
   const totals=kids.map(c=>({child:c, sum:weeklyTotalFor(c, weekDates)}));
   const top=Math.max(...totals.map(t=>t.sum));
   if(top<=0) return null;
   const leaders=totals.filter(t=>t.sum===top);
-  return {leaders:leaders.map(l=>l.child), total:top, tied:leaders.length>1};
+  return {leaders:leaders.map(l=>l.child), total:top, tied:leaders.length>1,
+          since:weekDates[0]||null};
 }
 function memberPrefs(m){ return (m && m.prefs && typeof m.prefs==="object") ? m.prefs : {}; }
 /* Defaulting is where the whole design sits. On for the champion, because it is
@@ -6859,6 +6941,126 @@ function prayerStreak(child, tagIndex){
   }
   return run;
 }
+/* ---------- Prayer times ----------
+   Computed on the device from the sun's position, so it works with no
+   internet, no account and no third-party service - which matters for an app
+   that has to run on a phone in a house with no signal.
+
+   A family sets their location once. Nothing is sent anywhere: the two
+   numbers live in the family's own settings document alongside everything
+   else. With no location set, everything below returns null and every caller
+   falls back to a fixed clock time - the app never guesses where you are.
+
+   Angles are Muslim World League (Fajr 18, Isha 17). Asr follows the majority
+   (shadow = 1); Hanafi families can set 2. These are conventions, not facts,
+   which is why they are settings and not constants. */
+function prayerPlace(){
+  const p = app.settings && app.settings.place;
+  return (p && typeof p.lat==="number" && typeof p.lng==="number") ? p : null;
+}
+function prayerParams(){
+  const p = (app.settings && app.settings.prayerParams) || {};
+  return { fajr: p.fajr || 18, isha: p.isha || 17, asr: p.asr || 1 };
+}
+function prayerTimesFor(date){
+  const place=prayerPlace(); if(!place) return null;
+  const P=prayerParams();
+  const D=Math.PI/180, R=180/Math.PI;
+  const d=new Date(date.getFullYear(), date.getMonth(), date.getDate());
+  /* Days since the J2000 epoch, at noon, plus the longitude correction - the
+     sun's declination barely moves across a day, so noon is accurate enough
+     for a clock time rounded to the minute. */
+  const jd=Math.floor((d.getTime()/86400000)+2440587.5)+0.5;
+  const n=jd-2451545.0;
+  const g=(357.529+0.98560028*n)%360;                 // mean anomaly
+  const q=(280.459+0.98564736*n)%360;                 // mean longitude
+  const L=(q+1.915*Math.sin(g*D)+0.020*Math.sin(2*g*D))%360;   // ecliptic longitude
+  const e=23.439-0.00000036*n;                        // obliquity
+  const dec=Math.asin(Math.sin(e*D)*Math.sin(L*D))*R; // declination
+  const RA=Math.atan2(Math.cos(e*D)*Math.sin(L*D), Math.cos(L*D))*R/15;
+  const EqT=q/15 - ((RA+24)%24);                      // equation of time, hours
+  const tzOffset = -date.getTimezoneOffset()/60;
+  const noon = 12 + tzOffset - place.lng/15 - EqT;    // solar noon, local hours
+  /* Hour angle for a given altitude below (or above) the horizon. Returns
+     null inside the polar bands, where no such angle exists - the caller
+     must cope rather than be handed a NaN. */
+  const ha = alt => {
+    const c=(Math.sin(alt*D) - Math.sin(place.lat*D)*Math.sin(dec*D))
+            / (Math.cos(place.lat*D)*Math.cos(dec*D));
+    return (c>1 || c<-1) ? null : Math.acos(c)*R/15;
+  };
+  const asrAlt = R*Math.atan(1/(P.asr + Math.tan(Math.abs(place.lat-dec)*D)));
+  const mk = h => {
+    if(h===null || !isFinite(h)) return null;
+    const t=new Date(d); t.setMinutes(Math.round(((h%24)+24)%24*60)); return t;
+  };
+  const hFajr=ha(-P.fajr), hSun=ha(-0.833), hAsr=ha(asrAlt), hIsha=ha(-P.isha);
+  return {
+    fajr:    mk(hFajr===null?null:noon-hFajr),
+    sunrise: mk(hSun ===null?null:noon-hSun),
+    dhuhr:   mk(noon+2/60),                 // a couple of minutes past zenith
+    asr:     mk(hAsr ===null?null:noon+hAsr),
+    maghrib: mk(hSun ===null?null:noon+hSun),
+    isha:    mk(hIsha===null?null:noon+hIsha)
+  };
+}
+function prayerTimeToday(tag){
+  const t=prayerTimesFor(new Date());
+  return (t && t[tag]) || null;
+}
+function fmtTime(d){
+  return d ? d.toLocaleTimeString([], {hour:"numeric", minute:"2-digit"}) : "";
+}
+/* Which prayer is due now: the latest one whose time has passed. Used to put
+   the next prayer under the lamps, and to work out whether a claim landed
+   inside its own window. */
+function currentPrayerTag(at){
+  const now=at||new Date();
+  const t=prayerTimesFor(now); if(!t) return null;
+  let cur=null;
+  PRAYERS.forEach(p=>{ if(t[p.tag] && now>=t[p.tag]) cur=p.tag; });
+  return cur;
+}
+function nextPrayer(at){
+  const now=at||new Date();
+  const t=prayerTimesFor(now); if(!t) return null;
+  for(const p of PRAYERS) if(t[p.tag] && now < t[p.tag]) return {tag:p.tag, label:p.label, at:t[p.tag]};
+  const tom=new Date(now); tom.setDate(tom.getDate()+1);
+  const t2=prayerTimesFor(tom);
+  return (t2 && t2.fajr) ? {tag:"fajr", label:"Fajr", at:t2.fajr} : null;
+}
+/* ---------- The champion's week ----------
+   Runs Friday Maghrib to Friday Maghrib, so the title changes hands at the
+   start of Jumu'ah night rather than at midnight on a Sunday when everyone is
+   asleep. With no location set it falls back to 6pm, which is wrong twice a
+   year and never wrong enough to matter for a photo frame. */
+function lastChampionFlip(now){
+  const at=now||new Date();
+  const flipOn = d => {
+    const t=prayerTimesFor(d);
+    const m=t && t.maghrib;
+    if(m) return m;
+    const f=new Date(d.getFullYear(), d.getMonth(), d.getDate(), 18, 0, 0, 0);
+    return f;
+  };
+  /* Walk back to the most recent Friday, then check we are past its Maghrib;
+     if not, the week that counts is the one before. */
+  const d=new Date(at); d.setHours(0,0,0,0);
+  d.setDate(d.getDate() - ((d.getDay()-5)+7)%7);      // most recent Friday
+  let flip=flipOn(d);
+  if(at < flip){ d.setDate(d.getDate()-7); flip=flipOn(d); }
+  return flip;
+}
+function championWeekDates(){
+  const from=lastChampionFlip();
+  const out=[];
+  for(let i=0;i<7;i++){
+    const d=new Date(from); d.setDate(from.getDate()+i);
+    if(d>new Date()) break;
+    out.push(dateStr(d));
+  }
+  return out;
+}
 function prayerBoardEnabled(){ return Object.keys(prayerKeys()).length > 0; }
 
 /* ---------- "I prayed" ----------
@@ -7006,9 +7208,19 @@ function prayerTodayHTML(child){
           ? (mine ? "Tap one to tell Mum or Dad you prayed."
                   : "Mum or Dad light these with you.")
           : "";
+  /* If the family has set a location, say which one is next and when. It is
+     the difference between a record of the day and something that helps you
+     get the next one right. With no location set this is simply absent - the
+     app never guesses where you are. */
+  let nextline="";
+  try{
+    const nx=(typeof nextPrayer==="function") ? nextPrayer() : null;
+    if(nx) nextline=`<p class="prayernext">Next: <strong>${escapeHtml(nx.label)}</strong> at ${fmtTime(nx.at)}</p>`;
+  }catch(e){}
   return `<section class="c-panel prayercard ${today.complete?"allfive":""}">
       <h2 class="prayerhead">\u{1f54c} My prayers today</h2>
       <div class="lamps">${lamps}</div>
+      ${nextline}
       ${note?`<p class="prayernote">${note}</p>`:""}
     </section>`;
 }
@@ -7602,9 +7814,11 @@ function showScreen(id){
     const el=document.getElementById(s);
     if(el) el.classList.toggle("hidden", s!==screenNow);
   });
+  /* Was a hardcoded list of three, so every child screen added after it left
+     the greeting card sitting above the new screen - which is why opening the
+     bank showed Asalamualaikum again. Ask the list instead. */
   const home=document.getElementById("kidHomeScreen");
-  if(home) home.classList.toggle("hidden",
-    screenNow==="kidSpendScreen" || screenNow==="kidPointsScreen" || screenNow==="kidLearnScreen");
+  if(home) home.classList.toggle("hidden", KID_ONLY_SCREENS.indexOf(screenNow)>=0);
   // A screen that covers the page must not leave the page behind it scrolling.
   lockPage(screenLocksPage());
   window.scrollTo({top:0,behavior:"smooth"});
@@ -8208,7 +8422,84 @@ async function setShowChampion(on){
 }
 /* A relative with no account has no password to reset, no card to open and no
    points to receive. They belong on the tree and nowhere else. */
+/* ---------- Where the family is ----------
+   Asked for once, by a parent, and only because prayer times cannot be
+   computed without it. The browser's own permission prompt does the asking, a
+   parent can type coordinates instead, and clearing it puts everything back to
+   clock times. Nothing leaves the device. */
+function renderPlaceRow(){
+  const row=document.getElementById("placeRow");
+  if(!row) return;
+  const p=prayerPlace();
+  if(!isParentSession()){
+    row.innerHTML = p
+      ? `<p class="small">\u2713 Set. Prayer times are showing.</p>`
+      : `<p class="small">A parent can set this.</p>`;
+    return;
+  }
+  const t=p ? prayerTimesFor(new Date()) : null;
+  row.innerHTML = (p && t)
+    ? `<div class="placeset">
+         <p class="placenow">${PRAYERS.map(x=>
+            `<span><b>${x.label}</b>${fmtTime(t[x.tag])||"\u2014"}</span>`).join("")}</p>
+         <p class="small" style="margin:10px 0 0">Using ${p.lat.toFixed(2)}, ${p.lng.toFixed(2)}.
+           Angles: Fajr ${prayerParams().fajr}\u00b0, Isha ${prayerParams().isha}\u00b0,
+           Asr shadow ${prayerParams().asr===2?"2 (Hanafi)":"1"}.</p>
+         <div class="placebtns">
+           <button class="light" onclick="setPlaceFromDevice()">\u{1f4cd} Update</button>
+           <button class="light" onclick="setAsrMethod()">Asr method</button>
+           <button class="danger" onclick="clearPlace()">Clear</button>
+         </div>
+       </div>`
+    : `<div class="placebtns">
+         <button class="primary" onclick="setPlaceFromDevice()">\u{1f4cd} Use my location</button>
+         <button class="light" onclick="setPlaceByHand()">Type it instead</button>
+       </div>`;
+}
+async function savePlace(lat, lng){
+  app.settings = app.settings || {};
+  app.settings.place = {lat, lng};
+  await saveApp();
+  render(); renderPlaceRow();
+}
+function setPlaceFromDevice(){
+  if(!requireParent()) return;
+  if(!navigator.geolocation){ alert("This browser can't find your location. Type it instead."); return; }
+  navigator.geolocation.getCurrentPosition(
+    pos => savePlace(+pos.coords.latitude.toFixed(4), +pos.coords.longitude.toFixed(4)),
+    err => { console.error("location refused:", err);
+      alert("Couldn't get your location. You can type it instead \u2014 search for your town and \"coordinates\"."); },
+    {timeout:10000, maximumAge:600000});
+}
+function setPlaceByHand(){
+  if(!requireParent()) return;
+  const raw=prompt("Type your latitude and longitude, separated by a comma.\n\n"
+    + "Search for your town and \"coordinates\" to find them.\nFor example: 51.5074, -0.1278");
+  if(!raw) return;
+  const m=String(raw).split(",").map(x=>parseFloat(x.trim()));
+  if(m.length!==2 || !isFinite(m[0]) || !isFinite(m[1]) || Math.abs(m[0])>90 || Math.abs(m[1])>180){
+    alert("That didn't look like a latitude and longitude."); return;
+  }
+  savePlace(m[0], m[1]);
+}
+function setAsrMethod(){
+  if(!requireParent()) return;
+  const now=prayerParams().asr;
+  const hanafi=confirm("Asr method.\n\nOK = Hanafi (shadow 2)\nCancel = the majority (shadow 1)\n\nCurrently: "
+    + (now===2?"Hanafi":"majority"));
+  app.settings=app.settings||{};
+  app.settings.prayerParams=Object.assign({}, prayerParams(), {asr: hanafi?2:1});
+  saveApp().then(()=>{ render(); renderPlaceRow(); });
+}
+function clearPlace(){
+  if(!requireParent()) return;
+  if(!confirm("Clear your location? Prayer times will stop showing and the champion will change over at 6pm on Fridays instead of Maghrib.")) return;
+  app.settings=app.settings||{};
+  delete app.settings.place;
+  saveApp().then(()=>{ render(); renderPlaceRow(); });
+}
 function renderAccounts(){
+  try{ renderPlaceRow(); }catch(e){}
   const f=currentFamily();
   // Keep the settings checkbox honest — it used to render unchecked while the
   // banner it controls was on screen.
@@ -11081,8 +11372,16 @@ function weekStartsBack(n){
   }
   return out;
 }
+/* All-time, not a rolling quarter. A best week set in March quietly stopped
+   being the target in June, so the number to beat drifted downwards and the
+   child was chasing a moving line that only ever moved towards them. Every
+   week the family has any record of is considered. */
 function personalBest(child){
-  const weeks=weekStartsBack(13);
+  const first=Object.keys(child.pointsByDate||{}).sort()[0];
+  const weeksBack = first
+    ? Math.min(520, Math.max(13, Math.ceil((Date.now()-new Date(first+"T00:00:00").getTime())/604800000)+1))
+    : 13;
+  const weeks=weekStartsBack(weeksBack);
   const totals=weeks.map(days=>days.reduce((sum,ds)=>{
     const day=(child.pointsByDate||{})[ds] || {};
     return sum + Object.keys(day).reduce((a,k)=>a + (day[k]>0?day[k]:0), 0);
@@ -11090,7 +11389,12 @@ function personalBest(child){
   const thisWeek=totals[0];
   const before=totals.slice(1).filter(t=>t>0);
   const best=before.length ? Math.max(...before) : 0;
-  return { thisWeek, best, isBest: thisWeek>0 && thisWeek>best, hasHistory: before.length>0 };
+  /* Which week it was, so the chip can say so. A target with a date attached
+     is a memory; a bare number is just a number. */
+  const at=before.length ? totals.indexOf(best) : -1;
+  const bestWhen = at>0 ? weeks[at][0] : null;
+  return { thisWeek, best, bestWhen, isBest: thisWeek>0 && thisWeek>best,
+           hasHistory: before.length>0 };
 }
 function personalBestHTML(child){
   const p=personalBest(child);
@@ -11100,8 +11404,13 @@ function personalBestHTML(child){
      line and no surface of its own. */
   if(p.isBest)
     return `<span class="bestchip best">\ud83c\udf1f Your best week yet</span>`;
-  if(p.best>0 && p.thisWeek < p.best)
-    return `<span class="bestchip">\ud83c\udfaf ${Math.max(1, p.best-p.thisWeek)} to beat your best week</span>`;
+  if(p.best>0 && p.thisWeek < p.best){
+    const when = p.bestWhen
+      ? new Date(p.bestWhen+"T00:00:00").toLocaleDateString([], {month:"short", year:"numeric"})
+      : "";
+    return `<span class="bestchip">\ud83c\udfaf ${Math.max(1, p.best-p.thisWeek)} to beat your best week${
+      when ? ` <em>(${p.best}, ${escapeHtml(when)})</em>` : ""}</span>`;
+  }
   return "";
 }
 
@@ -11167,6 +11476,80 @@ function potWord(n){
   return "Loads";
 }
 
+/* ---------- Spending, from the home screen ----------
+   A child opens this app to see whether they were noticed and to spend what
+   they got. The second of those took a tab, a scroll and a search. */
+function quickBuyHTML(child){
+  const nums=kidShowsNumbers(child);
+  const spendable=availableFor(child);
+  const items=(app.rewards||[]).map(r=>({...r, kind:"reward"}))
+    .concat((app.gameNightActivities||[]).map(g=>({...g, kind:"activity"})))
+    .filter(r=>!r.vault && (r.points||0)<=spendable);
+  const fav=favouriteCounts(child);
+  /* What they actually reach for, then the dearest they can afford. Cheapest
+     first would put a bag of crisps in front of them every single day. */
+  items.sort((a,b)=>{
+    const fa=fav[a.id]||fav[a.name]||0, fb=fav[b.id]||fav[b.name]||0;
+    if(fb!==fa) return fb-fa;
+    return (b.points||0)-(a.points||0);
+  });
+  const top=items.slice(0,2);
+  const head=`<div class="qbhead">
+      <span class="qbmain"><span class="qbtitle">\ud83c\udf81 Spend my points</span>
+        <span class="qbsub">${top.length
+          ? "Tap one, and Mum or Dad get asked."
+          : "Nothing in reach yet \u2014 have a look at what is coming."}</span></span>
+      <span class="qbbal ${nums?"figure":"potword"}">${nums?spendable:potWord(spendable)}</span>
+    </div>`;
+  const rows=top.map(r=>`<button class="qbitem" onclick="popThen(this);kidBuy('${
+      r.kind==="activity"?"game":"reward"}','${r.id}')">
+      <span class="qbicon">${iconFor(r, r.kind==="activity" ? "\ud83c\udfb2" : "\ud83c\udf81")}</span>
+      <span class="qbname">${escapeHtml(r.name)}</span>
+      <span class="amount">${nums ? r.points : "yours"}</span>
+    </button>`).join("");
+  return `<section class="c-panel quickbuy">${head}${rows}
+      <button class="qball" onclick="showScreen('kidSpendScreen')">See everything \u203a</button>
+    </section>`;
+}
+/* The balance, wherever a child is looking at prices. One figure, one
+   treatment, three places - home, Rewards, and the To spend pot. */
+function spendBalanceHTML(child){
+  const nums=kidShowsNumbers(child);
+  const v=availableFor(child);
+  const held=pendingSpendFor(child.id);
+  return `<section class="c-panel balstrip">
+      <span class="balmain"><span class="balname">Yours to spend</span>
+        ${held>0?`<span class="balheld">${nums?held:"some"} waiting on Mum or Dad</span>`:""}</span>
+      <span class="${nums?"figure":"potword"}" style="color:#177f5c">${nums?v:potWord(v)}</span>
+    </section>`;
+}
+/* ---------- Money sense ----------
+   Points are the first money most children ever manage. The app already had
+   opinions about saving, and they only ever appeared inside the bank - which
+   the children who most need them never open. One a day, on the home screen,
+   phrased as something true about their own points rather than a lesson. */
+const MONEY_TIPS = [
+  {icon:"\ud83c\udfe6", text:"Put a little away before you spend any. That is what grown-ups call paying yourself first."},
+  {icon:"\u23f3", text:"If you still want it tomorrow, it was worth buying. Most things you won't."},
+  {icon:"\ud83e\uddee", text:"Small amounts add up faster than big ones you never manage. A little each week beats a lot once."},
+  {icon:"\ud83c\udf81", text:"The cheap things are cheap for a reason \u2014 they are gone in a minute."},
+  {icon:"\ud83e\udd32", text:"Giving some away costs you something. That is exactly what makes it a gift."},
+  {icon:"\ud83d\udd12", text:"Money kept apart from spending money is the money that grows. That is all the bank is."},
+  {icon:"\ud83c\udfaf", text:"Pick one big thing and aim at it. Saving with nothing in mind is just waiting."},
+  {icon:"\ud83d\udcac", text:"Ask what something costs before you decide you want it."},
+  {icon:"\ud83d\udcc9", text:"The last part of saving up is the hardest and the shortest. Nearly everyone stops there."},
+  {icon:"\ud83e\udd1d", text:"Something you and somebody else both enjoy is usually worth more than something you keep."}
+];
+function moneyTipHTML(child){
+  const t=pickOfDay(MONEY_TIPS);
+  if(!t) return "";
+  return `<button type="button" class="c-panel moneytip" onclick="showScreen('kidBankScreen')">
+      <span class="mtglyph" aria-hidden="true">${t.icon}</span>
+      <span class="mtmain"><span class="mttag">Money idea</span>
+        <span class="mttext">${escapeHtml(t.text)}</span></span>
+      <span class="mtchev" aria-hidden="true">\u203a</span>
+    </button>`;
+}
 /* ---------- Where my points are ----------
    Three pots, because a point can be in exactly three places. The spendable
    pot is green because that is the Rewards tab it spends into: the pot and
@@ -11507,6 +11890,12 @@ function renderKidView(child){
   if(boost) boost.classList.remove("hidden");
   const pt=document.getElementById("prayerToday");
   if(pt) pt.innerHTML = prayerTodayHTML(child);
+  const qb=document.getElementById("kidQuickBuy");
+  if(qb) qb.innerHTML = quickBuyHTML(child);
+  const mt=document.getElementById("kidMoneyTip");
+  if(mt) mt.innerHTML = moneyTipHTML(child);
+  const sbal=document.getElementById("kidSpendBalance");
+  if(sbal) sbal.innerHTML = spendBalanceHTML(child);
   const pw=document.getElementById("prayerWall");
   if(pw) pw.innerHTML = prayerWallHTML(child, 7, true);
 
