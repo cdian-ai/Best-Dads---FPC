@@ -3818,7 +3818,7 @@ const TIP_CATS = [
   {key:"deen", label:"Deen"}
 ];
 
-const APP_VERSION = "v135";
+const APP_VERSION = "v136";
 const today = new Date().toISOString().slice(0,10);
 let app = {families:[],currentFamily:null,currentChild:null};
 let categories = [];
@@ -4240,7 +4240,8 @@ function projectApp(raw){
       const slim = e => ({
         id: e.id, ts: e.ts, type: e.type, points: e.points, label: e.label,
         by: e.byName || "", byRole: e.byRole || "", byUid: e.byUid || null,
-        catKey: e.catKey || null, actionName: e.actionName || null
+        catKey: e.catKey || null, actionName: e.actionName || null,
+        childId: e.childId || m.id
       });
       const rich = e => Object.assign(slim(e), {
         itemAction: e.itemAction || null, itemPoints: e.itemPoints || 0,
@@ -15987,10 +15988,14 @@ window.GROWNUP_DECKS = [
   const esc = s => (typeof escapeHtml==="function") ? escapeHtml(String(s)) : String(s);
   const me = () => (typeof sessionMember==="function") ? sessionMember() : null;
   const MAX_ITEMS = 6;
+  /* An entry sitting in a member's own log belongs to that member, whatever
+     the projection did or did not carry through. */
   const ledger = () => {
     const f=(typeof currentFamily==="function") ? currentFamily() : null;
     const out=[];
-    (f?f.children:[]).forEach(c=>(c.activityLog||[]).forEach(e=>out.push(e)));
+    (f?f.children:[]).forEach(c=>(c.activityLog||[]).forEach(e=>{
+      out.push(e.childId ? e : Object.assign({}, e, {childId:c.id}));
+    }));
     return out;
   };
   const grown = m => m && typeof isParentRole==="function" &&
@@ -16656,7 +16661,11 @@ window.GROWNUP_DECKS = [
       say("entries visible for them", String(logN));
       const noteTypes=(kid?(kid.activityLog||[]):[]).filter(e=>String(e.type||"").indexOf("note")===0).length;
       say("note entries visible", String(noteTypes));
-      say("notes folded", String(notes().filter(x=>x.childId===pickChild).length));
+      const all=notes();
+      say("notes folded (all children)", String(all.length));
+      say("notes folded for them", String(all.filter(x=>x.childId===pickChild).length));
+      const noChild=all.filter(x=>!x.childId).length;
+      if(noChild) say("notes with no child attached", String(noChild)+" \u2014 this is the fault");
 
       say("--- writing a test entry ---","");
       const id="selftest"+Date.now().toString(36);
