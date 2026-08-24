@@ -3769,7 +3769,7 @@ const TIP_CATS = [
   {key:"deen", label:"Deen"}
 ];
 
-const APP_VERSION = "v126";
+const APP_VERSION = "v127";
 const today = new Date().toISOString().slice(0,10);
 let app = {families:[],currentFamily:null,currentChild:null};
 let categories = [];
@@ -16014,6 +16014,9 @@ window.GROWNUP_DECKS = [
   /* The message is the note, so it is written on the note, not in a form. */
   /* Was transparent gold text on a gold gradient with a paler gold placeholder,
      which is why it read as an empty pane rather than something to type in. */
+  .ntlive{margin:12px 0 0;padding:10px 12px;border-radius:12px;font-size:12.5px;
+    font-weight:700;line-height:1.45;background:#f2f3f8;color:#8a90a6}
+  .ntlive.on{background:#e3f6ef;color:#1c8a6c}
   .ntmsgrow{display:flex;align-items:stretch;gap:8px}
   .ntmsgsave{flex:none;width:auto;background:#6a4a05;color:#fff;border:0;border-radius:14px;
     padding:0 18px;font-size:14.5px;font-weight:800;cursor:pointer;min-height:52px}
@@ -16421,6 +16424,10 @@ window.GROWNUP_DECKS = [
           ? nt.items.map(it=>itemRow(nt, it, true, true)).join("")
           : `<p class="ntempty">Nothing on it yet. Whatever you add, ${esc(child.name)} sees
               next time they open the app.</p>`}
+        <p class="ntlive ${nt && nt.items.length ? "on" : ""}">${
+          nt && nt.items.length
+            ? "\u2713 On "+esc(child.name)+"\u2019s screen now \u2014 they\u2019ll see it next time they open the app."
+            : "Not on "+esc(child.name)+"\u2019s screen yet. A note with nothing on it doesn\u2019t show."}</p>
         ${nt && nt.items.length && nt.items.every(i=>i.done)
           ? (nt.paid ? `<p class="ntdone">\u2713 All done, and paid.</p>`
                      : `<button class="primary" style="width:100%;margin-top:12px"
@@ -16472,8 +16479,18 @@ window.GROWNUP_DECKS = [
   window.showTasksPanel = window.showNotesPanel;
 
   /* ---- the child's side: one card, on their own home ---- */
+  function kidNoteHost(){
+    let host=$("kidNoteHost");
+    if(host) return host;
+    const anchor=$("kidGoal") || $("kidBest") || $("kidHomeScreen");
+    if(!anchor || !anchor.parentElement) return null;
+    host=document.createElement("div");
+    host.id="kidNoteHost";
+    anchor.parentElement.insertBefore(host, anchor);
+    return host;
+  }
   function renderKidNote(){
-    const host=$("kidNoteHost");
+    const host=kidNoteHost();
     if(!host) return;
     const m=me();
     if(!m || (typeof isChildRole==="function" && !isChildRole(m))){ host.innerHTML=""; return; }
@@ -16487,16 +16504,7 @@ window.GROWNUP_DECKS = [
     const inner=renderKidView;
     window.renderKidView=function(){
       const r=inner.apply(this, arguments);
-      try{
-        if(!$("kidNoteHost")){
-          const goal=$("kidGoal");
-          if(goal && goal.parentElement){
-            const d=document.createElement("div"); d.id="kidNoteHost";
-            goal.parentElement.insertBefore(d, goal);
-          }
-        }
-        renderKidNote();
-      }catch(e){}
+      try{ renderKidNote(); }catch(e){}
       return r;
     };
     renderKidView = window.renderKidView;
