@@ -551,26 +551,63 @@
   .c-act:active{transform:scale(.98)}
   /* Each tab owns a colour and an emblem. The top of the screen is the
      wayfinding: a pre-reader knows the room by its colour before reading. */
-  .t-home  .c-hero,.t-home  .c-act{background:linear-gradient(150deg,#7b83e8,#4d56c9)}
+  /* Home wears the brand: deep navy, one gold accent (the star, the trophy
+     ring). The old indigo was the same indigo as the Maths tile, so it did no
+     brand work and it flattened everything laid on top of it. */
+  .t-home  .c-hero,.t-home  .c-act{background:linear-gradient(155deg,#333a7d 0%,#22285e 46%,#171b45 100%)}
   .t-spend .c-hero,.t-spend .c-act{background:linear-gradient(150deg,#43b189,#177f5c)}
   .t-learn .c-hero,.t-learn .c-act{background:linear-gradient(150deg,#9a7de0,#6b4bc4)}
   .t-pts   .c-hero,.t-pts   .c-act{background:linear-gradient(150deg,#efbe5c,#d09218)}
+  /* Gold, not white, and quieter: on navy the white bubbles read as smudges,
+     and gold is the only other colour the brand owns. */
+  .t-home .c-hero{box-shadow:0 14px 34px rgba(19,23,60,.30)}
+  .t-home .c-hero .bubble{background:rgba(240,189,83,.13)}
+  .t-home .c-hero .avatar-lg,
+  .t-home .c-hero .avatar-placeholder-lg{border-color:rgba(240,189,83,.55)}
+  /* On navy the near-white blocks were the brightest thing on the screen and
+     pulled the eye off the greeting. Toned down, still legible. */
+  .t-home .herostat{background:rgba(255,255,255,.94)}
+  .t-home .herotalk{background:rgba(255,255,255,.12);color:#eef0fb;
+    box-shadow:inset 0 0 0 1px rgba(255,255,255,.16)}
 
   /* Prayers, for a child: five named things, a bar that fills, and a line that
      says how far to go. Dashed empty circles read as broken; these are soft
      discs that fill in. */
   .prayercard.allfive{background:linear-gradient(150deg,#fffaef,#fff);border-color:#f0dcb2}
-  .prayerhead{margin:0 0 16px;font-size:18px}
-  .lamps{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
-  .lamp{display:flex;flex-direction:column;align-items:center;gap:9px}
+  /* A strip, not a panel. Five lamps at 50px with a caption under each and a
+     sentence underneath took a third of the child's home screen for something
+     that is a glance, not a task. Same five lamps, same meaning, one row. */
+  .prayercard{padding:13px 14px}
+  .prayerhead{margin:0 0 10px;font-size:14.5px;letter-spacing:.01em}
+  .lamps{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
+  .lamp{display:flex;flex-direction:column;align-items:center;gap:6px}
   /* Unlit is a quiet outline, not a dashed hole. Lit is warm light. */
-  .lampglow{width:100%;aspect-ratio:1/1;max-width:50px;border-radius:50%;
+  .lampglow{width:100%;aspect-ratio:1/1;max-width:30px;border-radius:50%;
     background:#f4f5fa;box-shadow:inset 0 0 0 2px #e6e8f0;transition:all .45s ease}
   .lamp.lit .lampglow{background:radial-gradient(circle at 50% 38%,#fff1c8,#f0bd53 62%,#dda520);
-    box-shadow:inset 0 0 0 2px #e8b93f,0 0 18px rgba(224,169,44,.55)}
-  .lampname{font-size:11.5px;font-weight:800;color:#8a90a6;text-align:center;line-height:1.2}
+    box-shadow:inset 0 0 0 2px #e8b93f,0 0 12px rgba(224,169,44,.45)}
+  .lampname{font-size:10.5px;font-weight:800;color:#8a90a6;text-align:center;line-height:1.2}
   .lamp.lit .lampname{color:#6d4d05}
-  .prayernote{margin:16px 0 0;font-size:13.5px;font-weight:700;color:#8a90a6;line-height:1.5}
+  /* The moment a parent records one. Green is the app's "that just landed"
+     colour, and it fires once on the lamp that changed - not on the four that
+     did not - then settles into the ordinary lit gold. */
+  .lamp.justlit .lampglow{animation:lampland 1.5s cubic-bezier(.2,.8,.2,1) 1}
+  .lamp.justlit .lampname{animation:lamplandname 1.5s ease 1}
+  @keyframes lampland{
+    0%  {transform:scale(1);   background:#f4f5fa;
+         box-shadow:inset 0 0 0 2px #e6e8f0}
+    18% {transform:scale(1.45); background:radial-gradient(circle at 50% 38%,#dcffe9,#3fc47e 62%,#1c9d5c);
+         box-shadow:inset 0 0 0 2px #2fae6c,0 0 22px rgba(47,174,108,.85)}
+    55% {transform:scale(1.18); background:radial-gradient(circle at 50% 38%,#dcffe9,#3fc47e 62%,#1c9d5c);
+         box-shadow:inset 0 0 0 2px #2fae6c,0 0 18px rgba(47,174,108,.6)}
+    100%{transform:scale(1);   background:radial-gradient(circle at 50% 38%,#fff1c8,#f0bd53 62%,#dda520);
+         box-shadow:inset 0 0 0 2px #e8b93f,0 0 12px rgba(224,169,44,.45)}
+  }
+  @keyframes lamplandname{0%,55%{color:#1c9d5c}100%{color:#6d4d05}}
+  @media (prefers-reduced-motion:reduce){
+    .lamp.justlit .lampglow,.lamp.justlit .lampname{animation:none}
+  }
+  .prayernote{margin:10px 0 0;font-size:12px;font-weight:700;color:#8a90a6;line-height:1.45}
   .prayercard.allfive .prayernote{color:#6d4d05}
   /* The one big thing to press. It was a flat teal bar; now it reads as a door
      with the number as the prize. */
@@ -683,6 +720,24 @@
     padding:13px;font-size:14.5px;font-weight:800;color:#3e46ad;cursor:pointer;min-height:48px}
   .waitcap{margin:0 0 8px;padding:0 4px;font-size:12px;font-weight:800;letter-spacing:.05em;
     text-transform:uppercase;color:#8a90a6}
+  /* One line: what they are heading for, a bar that fills, and the balance.
+     Never empties, because points are never taken away. */
+  .savestrip{display:flex;align-items:center;gap:12px;width:100%;text-align:left;
+    background:#fff;border:1px solid #e9ebf3;border-radius:20px;padding:13px 14px;
+    margin-bottom:12px;cursor:pointer;min-height:64px;transition:transform .12s ease}
+  .savestrip:active{transform:scale(.985)}
+  .saveicon{flex:none;font-size:23px;line-height:1}
+  .savemain{flex:1;min-width:0}
+  .savereach{display:block;font-size:14px;font-weight:800;color:#2c3350;line-height:1.3;
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .savebar{display:block;height:6px;border-radius:99px;background:#eceef6;margin-top:8px;overflow:hidden}
+  .savebar i{display:block;height:100%;border-radius:99px;
+    background:linear-gradient(90deg,#43b189,#177f5c);
+    transition:width .5s cubic-bezier(.2,.8,.2,1)}
+  .savestrip.ready .savebar i{background:linear-gradient(90deg,#f0bd53,#dda520)}
+  .savebal{flex:none;font-size:19px;font-weight:800;color:#177f5c;line-height:1;text-align:center}
+  .savebal::after{content:"points";display:block;font-size:9px;font-weight:800;
+    letter-spacing:.05em;color:#8a90a6;margin-top:3px}
   .spendicon{flex:none;font-size:30px;line-height:1}
   .spendmain{flex:1;min-width:0}
   .spendtitle{display:block;font-size:19px;font-weight:800;line-height:1.2}
@@ -1155,6 +1210,54 @@
   #kidView{--k1:#ff8bb0;--k2:#ffd166;--k3:#5ad2c4;--k4:#8b7cf6;--kink:#2a2350}
   #kidView h2{font-family:system-ui,-apple-system,Segoe UI,sans-serif}
   /* ---- Learn: one shelf, one open door ---- */
+  /* ---- Learn: the status grid ----
+     Four subjects at half height and two to a row, so the whole of "where I am
+     up to" fits in one glance and the things a child can actually go and DO
+     sit above it rather than below four screens of syllabus. */
+  .learneyebrow{margin:20px 0 9px;padding:0 4px;font-size:11px;font-weight:800;
+    letter-spacing:.08em;text-transform:uppercase;color:#8a90a6}
+  .learneyebrow:first-child{margin-top:4px}
+  .subjgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+  .subjtile{display:flex;flex-direction:column;align-items:center;gap:8px;
+    border:1px solid #e6e8f0;border-radius:20px;padding:15px 10px 13px;
+    background:#fff;cursor:pointer;text-align:center;min-height:118px;
+    transition:transform .12s ease,box-shadow .16s ease}
+  .subjtile:active{transform:scale(.97)}
+  .subjtile.open{box-shadow:0 0 0 2px currentColor inset}
+  .tilering{position:relative;width:48px;height:48px;flex:none}
+  .tilering svg{width:48px;height:48px;transform:rotate(-90deg)}
+  .tilering .rbg{fill:none;stroke:rgba(24,22,60,.10);stroke-width:4}
+  .tilering .rfg{fill:none;stroke:currentColor;stroke-width:4;stroke-linecap:round;
+    transition:stroke-dashoffset .6s cubic-bezier(.2,.8,.2,1)}
+  .tileicon{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+    font-size:20px;line-height:1}
+  .tilename{display:block;font-size:14.5px;font-weight:800;line-height:1.2;
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%}
+  .tilecount{display:block;font-size:11.5px;font-weight:700;opacity:.7;line-height:1.2}
+  /* The tile wears the subject's colour; the panel it opens wears the same one,
+     so a child can see which door they came through. */
+  .subjtile.s-quran   {background:linear-gradient(160deg,#e9f8f2,#d6f0e6);color:#0b5545;border-color:#c7e9db}
+  .subjtile.s-fulfulde{background:linear-gradient(160deg,#fff6e3,#ffeac4);color:#6a4a05;border-color:#f4dfb4}
+  .subjtile.s-maths   {background:linear-gradient(160deg,#eceefe,#dcdefb);color:#2b2e73;border-color:#cdd0f5}
+  .subjtile.s-english {background:linear-gradient(160deg,#ffeef3,#ffdde7);color:#7a2242;border-color:#f8ccd9}
+  .subjtile.s-science {background:linear-gradient(160deg,#eef8e3,#ddefcb);color:#345a1f;border-color:#d0e7bc}
+  .subjtile.s-other   {background:linear-gradient(160deg,#f5efff,#e9deff);color:#452a7a;border-color:#ddd0f5}
+  .subjopen{border-radius:22px;border:1px solid #e6e8f0;background:#fff;
+    padding:4px 12px 12px;margin-bottom:12px;animation:openin .22s ease}
+  @keyframes openin{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+  .openhead{display:flex;align-items:center;gap:10px;margin:0 -12px 8px;padding:14px 14px;
+    border-radius:22px 22px 0 0}
+  .openicon{font-size:22px;line-height:1;flex:none}
+  .openname{flex:1;min-width:0;font-size:16.5px;font-weight:800;line-height:1.25}
+  .openclose{flex:none;width:32px;height:32px;border-radius:50%;border:0;cursor:pointer;
+    background:rgba(255,255,255,.7);color:inherit;font-size:14px;font-weight:800;line-height:1}
+  .subjopen.s-quran    .openhead{background:linear-gradient(150deg,#e3f6ef,#cfeee2);color:#0b5545}
+  .subjopen.s-fulfulde .openhead{background:linear-gradient(150deg,#fff4dd,#ffe8bd);color:#6a4a05}
+  .subjopen.s-maths    .openhead{background:linear-gradient(150deg,#e8e9ff,#d6d8fb);color:#2b2e73}
+  .subjopen.s-english  .openhead{background:linear-gradient(150deg,#ffeaf0,#ffd7e3);color:#7a2242}
+  .subjopen.s-science  .openhead{background:linear-gradient(150deg,#e9f6dd,#d4ecc1);color:#345a1f}
+  .subjopen.s-other    .openhead{background:linear-gradient(150deg,#f3ecff,#e5d9ff);color:#452a7a}
+  @media (prefers-reduced-motion:reduce){.subjopen{animation:none}}
   .subjfold{margin:0 0 10px;border-radius:20px;overflow:hidden;border:1px solid #e6e8f0;background:#fff}
   .subjhead{position:relative;display:flex;align-items:center;gap:13px;width:100%;
             padding:15px 46px 15px 16px;min-height:64px;border:0;cursor:pointer;
@@ -1350,6 +1453,23 @@
      different ✕ buttons that each did something slightly different was the
      reason leaving one felt like starting again. */
   .ovx{font-size:21px!important;font-weight:800!important;line-height:1!important}
+  /* A door, not a record. Wide, coloured, lifted - the same grammar as the
+     child's other "press this" surfaces, and deliberately unlike the subject
+     tiles underneath, which are a status board and nothing more. */
+  .docard{display:flex;align-items:center;gap:14px;width:100%;text-align:left;
+    border:0;border-radius:22px;padding:16px;margin-bottom:10px;color:#fff;cursor:pointer;
+    min-height:80px;transition:transform .12s ease}
+  .docard:active{transform:scale(.985)}
+  .docard.lang{background:linear-gradient(135deg,#7457d4 0%,#4a86c8 52%,#2ea59a 100%);
+    box-shadow:0 10px 26px rgba(80,66,180,.26)}
+  .docard.play{background:linear-gradient(135deg,#efa93f,#d97a1c);
+    box-shadow:0 10px 26px rgba(200,120,20,.24)}
+  .doglyph{flex:none;width:46px;height:46px;border-radius:16px;display:flex;
+    align-items:center;justify-content:center;font-size:24px;background:rgba(255,255,255,.2)}
+  .domain{flex:1;min-width:0}
+  .doname{display:block;font-size:17.5px;font-weight:800;line-height:1.2}
+  .dosub{display:block;font-size:12.5px;font-weight:600;line-height:1.4;opacity:.9;margin-top:3px}
+  .dochev{flex:none;font-size:26px;opacity:.65;line-height:1}
   .playeyebrow{margin:22px 0 8px;padding:0 4px;font-size:11px;font-weight:800;
                letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
   .playcard{display:flex;align-items:center;gap:14px;border-radius:22px;padding:17px 16px;
@@ -2182,13 +2302,20 @@
     <!-- Leads with what the points can reach, not with the total. A four-year
          old cannot read 171; they can understand "you could choose the bedtime
          story". The number is kept, small, because older children want it. -->
-    <button class="c-act spendbtn" onclick="showScreen('kidSpendScreen')">
-      <span class="spendicon">🎁</span>
-      <span class="spendmain">
-        <span class="spendtitle">My rewards</span>
-        <span class="spendreach" id="kidSpendReach">Rewards, activities, or save up</span>
+    <!-- Was a full-height "My rewards" door. Rewards already have a tab of
+         their own at the bottom of every screen, and this page carries no
+         second door to My points, so the card was the only tab duplicated on
+         the home screen. What it did carry that nothing else does is the line
+         between behaving and getting something - so that line stays, pointed
+         forwards rather than at the shop: what they are heading for, how far
+         off it is. Still tappable, a fifth of the height. -->
+    <button class="savestrip" onclick="showScreen('kidSpendScreen')">
+      <span class="saveicon" id="kidSaveIcon">🎯</span>
+      <span class="savemain">
+        <span class="savereach" id="kidSpendReach">Rewards, activities, or save up</span>
+        <span class="savebar"><i id="kidSaveFill" style="width:0%"></i></span>
       </span>
-      <span class="spendbal" id="kidSpendBal">0</span>
+      <span class="savebal" id="kidSpendBal">0</span>
     </button>
 
     <div id="kidRequestStatus"></div>
@@ -4088,7 +4215,7 @@ const TIP_CATS = [
   {key:"deen", label:"Deen"}
 ];
 
-const APP_VERSION = "v153";
+const APP_VERSION = "v154";
 const today = new Date().toISOString().slice(0,10);
 let app = {families:[],currentFamily:null,currentChild:null};
 let categories = [];
@@ -5015,11 +5142,43 @@ function tapSubject(childId, subjectId){
   if(!was) learnOpen[k]=true;
   renderLearnHost();
 }
+/* ---------- Things to open, and things to check ----------
+   Language packs and puzzle decks used to append themselves to the bottom of
+   this function's output, which put them below four school subjects the child
+   had to scroll past. Worse, they arrived wearing the same clothes: emoji,
+   title, subtitle, chevron, full width - so the page read as one list of eight
+   identical objects and nothing told a seven-year-old which of them was a
+   thing to DO and which was a record of where they are up to.
+
+   Two grammars now, and the packs register here instead of wrapping:
+     a wide card  = open it and something happens
+     a small tile = where I am up to, tap to see the detail
+   Anything a pack adds is a wide card, and wide cards come first. */
+window.LEARN_EXTRAS = window.LEARN_EXTRAS || [];
+/* order: lower is higher up the page. html(child) returns "" to opt out. */
+function registerLearnExtra(entry){
+  if(!entry || typeof entry.html!=="function") return;
+  window.LEARN_EXTRAS.push(entry);
+  window.LEARN_EXTRAS.sort((a,b)=>(a.order||50)-(b.order||50));
+}
+function learnExtrasHTML(child){
+  const parts=(window.LEARN_EXTRAS||[]).map(x=>{
+    try{ return x.html(child) || ""; }catch(e){ console.error("Learn extra failed:", e); return ""; }
+  }).filter(Boolean);
+  if(!parts.length) return "";
+  return `<p class="learneyebrow">Ready to open</p>` + parts.join("");
+}
 function learnScreenHTML(child){
   if(!child) return "";
   const me=sessionMember();
   const canSecure=mayMarkSecure(me, child);
-  return teachersCardHTML(child) + CURRICULUM.map(subject=>{
+  /* Only the child's own Learn tab gets the doors. On the parent's Progress
+     panel and the tutor's screen the subject already appears in the ladder,
+     which is why courses used to be listed twice. */
+  const forChild = window.__learnForChild === true;
+  const C=2*Math.PI*19;                       // the ring's circumference
+  let openSubject=null, openShown=null;
+  const tiles=CURRICULUM.map(subject=>{
     // The year is the child's year, worked out from their age, for everybody
     // who looks. A parent comparing years across the whole curriculum was
     // reading somebody else's syllabus and calling it their child's progress.
@@ -5030,21 +5189,42 @@ function learnScreenHTML(child){
     const yearName=subject.byYear ? (shown[0] ? shown[0].name : "") : "";
     const tone=SUBJECT_TONE[subject.subject] || "s-other";
     const open=subjectIsOpen(child.id, subject.subject);
-    const head=`<button type="button" class="subjhead" aria-expanded="${open}"
-        onclick="tapSubject('${child.id}','${subject.subject}')">
-        <span class="subjicon">${subject.icon}</span>
-        <span class="subjmain">
-          <span class="subjname">${escapeHtml(subject.name)}</span>
-          <span class="subjsub">${yearName?escapeHtml(yearName)+" \u00b7 ":""}${done} of ${total} secure</span>
-          <span class="subjbar"><i style="width:${pct}%"></i></span>
+    if(open){ openSubject=subject; openShown=shown; }
+    /* The ring carries the proportion and the number carries the count, so
+       neither has to do both. No bar: a bar at 0% four times over is the
+       first thing a child sees on this page, and a ring at 0 reads as a
+       circle waiting to be filled rather than as a line that has failed. */
+    return `<button type="button" class="subjtile ${tone}${open?" open":""}"
+        aria-expanded="${open}" onclick="tapSubject('${child.id}','${subject.subject}')">
+        <span class="tilering">
+          <svg viewBox="0 0 44 44" aria-hidden="true">
+            <circle class="rbg" cx="22" cy="22" r="19"></circle>
+            <circle class="rfg" cx="22" cy="22" r="19"
+              stroke-dasharray="${C.toFixed(1)}"
+              stroke-dashoffset="${(C*(1-pct/100)).toFixed(1)}"></circle>
+          </svg>
+          <span class="tileicon">${subject.icon}</span>
         </span>
-        <span class="subjchev" aria-hidden="true"></span>
+        <span class="tilename">${escapeHtml(subject.name)}</span>
+        <span class="tilecount">${yearName?escapeHtml(yearName)+" \u00b7 ":""}${done}/${total}</span>
       </button>`;
-    const ladders=open ? shown.map(st=>ladderHTML(child, subject, st, canSecure)).join("") : "";
-    return `<section class="subjfold ${tone}${open?" open":""}">
-        ${head}<div class="subjbody">${ladders}</div></section>`;
-  }).join("")
-  + `<p class="kidfooter">Tap a subject to open it. Mark <strong>Practised</strong> when you\u2019ve worked on something \u2014 only a grown-up can mark it secure.</p>`;
+  }).join("");
+  const ladders = openSubject
+    ? `<section class="subjopen ${SUBJECT_TONE[openSubject.subject]||"s-other"}">
+         <div class="openhead"><span class="openicon">${openSubject.icon}</span>
+           <span class="openname">${escapeHtml(openSubject.name)}</span>
+           <button type="button" class="openclose"
+             onclick="tapSubject('${child.id}','${openSubject.subject}')"
+             aria-label="Close ${escapeHtml(openSubject.name)}">\u2715</button></div>
+         ${openShown.map(st=>ladderHTML(child, openSubject, st, canSecure)).join("")}
+       </section>`
+    : "";
+  return teachersCardHTML(child)
+    + (forChild ? learnExtrasHTML(child) : "")
+    + `<p class="learneyebrow">Where I\u2019m up to</p>`
+    + `<div class="subjgrid">${tiles}</div>`
+    + ladders
+    + `<p class="kidfooter">Tap a subject to see what is in it. Mark <strong>Practised</strong> when you\u2019ve worked on something \u2014 only a grown-up can mark it secure.</p>`;
 }
 /* One re-render for whichever Learn surface is on screen: the child\u2019s tab or
    the parent\u2019s panel. Opening a subject only fills that subject in. */
@@ -6472,20 +6652,38 @@ function prayerTodayHTML(child){
      task list with three outstanding items, and a child should not open their
      app to a shortfall in their worship. Lit or not lit, named, no count, no
      countdown. Only the finished state speaks, and it praises. */
-  const lamps=PRAYERS.map((p,i)=>`<span class="lamp ${today.done[i]?"lit":""}">
+  /* Which of these were already lit the last time this child saw the card. A
+     lamp that has just gone from unlit to lit flashes green once; the other
+     four are left alone, so the animation says "that one, just now" rather
+     than redecorating the whole row. The first render of a session sets the
+     baseline and flashes nothing - otherwise every sign-in would replay a
+     day's worth of prayers as if they had all landed at once. */
+  const key=child.id+"|"+today.ds;
+  const seen=__prayerSeen[key];
+  const fresh=PRAYERS.map((p,i)=>!!(seen && today.done[i] && !seen[i]));
+  __prayerSeen[key]=today.done.slice();
+  const lamps=PRAYERS.map((p,i)=>`<span class="lamp ${today.done[i]?"lit":""}${fresh[i]?" justlit":""}">
       <span class="lampglow"></span>
       <span class="lampname">${p.label || p.short}</span>
     </span>`).join("");
+  /* The helper line only earns its space when it has something to say. Once
+     the day is under way the row speaks for itself. */
+  const note = today.excused
+    ? "Excused today \u2014 and that is completely fine."
+    : today.complete
+      ? "\u2b50 All five today \u2014 MashaAllah!"
+      : today.count===0
+        ? "Mum or Dad light these with you."
+        : "";
   return `<section class="c-panel prayercard ${today.complete?"allfive":""}">
       <h2 class="prayerhead">\u{1f54c} My prayers today</h2>
       <div class="lamps">${lamps}</div>
-      <p class="prayernote">${today.excused
-        ? "Excused today \u2014 and that is completely fine."
-        : today.complete
-          ? "\u2b50 All five today \u2014 MashaAllah!"
-          : "Mum or Dad light these with you."}</p>
+      ${note?`<p class="prayernote">${note}</p>`:""}
     </section>`;
 }
+/* Kept outside the render so a re-render cannot lose it, and keyed by child
+   and date so yesterday's row can never flash on today's card. */
+let __prayerSeen = {};
 function prayerWallHTML(child, days, forChild){
   if(!prayerBoardEnabled()) return "";
   const grid=prayerGrid(child, days);
@@ -10710,11 +10908,31 @@ function renderKidView(child){
     const all=(app.rewards||[]).concat(app.gameNightActivities||[])
       .filter(r=>!r.vault).slice().sort((a,b)=>b.points-a.points);
     const can=all.filter(r=>(r.points||0)<=spendable);
+    /* all is dearest first, so the last one still out of reach is the nearest
+       one to aim at. */
     const next=all.filter(r=>(r.points||0)>spendable).slice(-1)[0];
-    reach.textContent = can.length
-      ? "Ready for: " + can[0].name
-      : next ? "Saving up for " + next.name
-             : "Rewards, activities, or save up";
+    const strip=reach.closest(".savestrip");
+    const fill=document.getElementById("kidSaveFill");
+    const icon=document.getElementById("kidSaveIcon");
+    if(can.length){
+      /* The best thing already within reach, not the cheapest - the cheapest
+         is always a sweet, and that is not what they have been saving for. */
+      reach.textContent = "Ready for: " + can[0].name;
+      if(fill) fill.style.width = "100%";
+      if(icon) icon.textContent = "\u{1f381}";
+      if(strip) strip.classList.add("ready");
+    }else if(next){
+      const need=Math.max(0,(next.points||0)-spendable);
+      reach.textContent = need + " more for " + next.name;
+      if(fill) fill.style.width = Math.round(spendable/(next.points||1)*100) + "%";
+      if(icon) icon.textContent = "\u{1f3af}";
+      if(strip) strip.classList.remove("ready");
+    }else{
+      reach.textContent = "Rewards, activities, or save up";
+      if(fill) fill.style.width = "0%";
+      if(icon) icon.textContent = "\u{1f381}";
+      if(strip) strip.classList.remove("ready");
+    }
   }
   const sb2=document.getElementById("kidSpendBal2"); if(sb2) sb2.textContent=spendable;
   const onHold=pendingSpendFor(child.id);
@@ -14221,26 +14439,19 @@ window.FULFULDE_M1_VIDEO = {
   /* ---------- the way in ----------
      Wraps learnScreenHTML rather than editing it, so an app update that changes
      that function does not silently drop the course. */
-  if(typeof learnScreenHTML==='function'){
-    const inner=learnScreenHTML;
-    window.learnScreenHTML=function(c){
-      /* learnScreenHTML is shared: the child's Learn screen renders it, and so
-         does the parent's Progress panel. The card belongs on the first and not
-         the second, where the subject already appears in the ladder \u2014 that
-         is why the course was listed twice. */
-      if(!window.__learnForChild) return inner(c);
+  /* Registers rather than wraps. The Learn screen decides where the doors go
+     and puts them above the subject grid; the pack only says what its own
+     door says. registerLearnExtra already restricts these to the child's own
+     Learn tab, so the course cannot appear twice on a parent's Progress panel. */
+  if(typeof registerLearnExtra==='function'){
+    registerLearnExtra({ order:10, html(c){
       const done=coveredIds().size;
-      const tile=`<section class="kidhero" style="cursor:pointer" onclick="openFulfulde()">
-        <div class="kidherorow"><div>
-          <p class="kidhi">\u{1f4d7} ${esc(PACK.title)}</p>
-          <p class="kidsub">${SETS.length} of ${ALL_SETS.length} sets ready \u00b7 ${done} practised \u00b7 tap to start</p>
-        </div><div style="font-size:30px;color:#c4c8d8">\u203a</div></div></section>`;
-      /* After the app's own content, not before it. The card was pushing the
-         teachers card and the legend down the screen, so the Learn page opened
-         on a course rather than on the guidance it is meant to open on. */
-      return inner(c) + tile;
-    };
-    learnScreenHTML = window.learnScreenHTML;
+      return `<button type="button" class="docard lang" onclick="openFulfulde()">
+        <span class="doglyph" aria-hidden="true">\u{1f4d7}</span>
+        <span class="domain"><span class="doname">${esc(PACK.title)}</span>
+          <span class="dosub">${SETS.length} of ${ALL_SETS.length} sets ready \u00b7 ${done} practised \u00b7 tap to start</span></span>
+        <span class="dochev" aria-hidden="true">\u203a</span></button>`;
+    }});
   }
 })();
 
@@ -14728,27 +14939,16 @@ function done(){
   const back=$("dkBack");
   if(back) back.onclick=()=>{ if(DECK.length){ menu(); } else close(); };
 
-  if(typeof learnScreenHTML==="function"){
-    const inner=learnScreenHTML;
-    window.learnScreenHTML=function(c){
-      /* learnScreenHTML is shared: the child's Learn screen renders it, and so
-         does the parent's Progress panel. The card belongs on the first and not
-         the second, where the subject already appears in the ladder \u2014 that
-         is why the course was listed twice. */
-      if(!window.__learnForChild) return inner(c);
+  if(typeof registerLearnExtra==="function"){
+    registerLearnExtra({ order:20, html(c){
       let played=0;
       TOPICS.forEach((_,i)=>{ if(statusOf(i)) played++; });
-      /* Clearly outside the shelf of courses: this is something to play, and
-         a grown-up has to be there to read it. */
-      const tile=`<p class="playeyebrow">Not schoolwork \u2014 something to play</p>
-        <section class="playcard warm" onclick="openDecks()">
-        <span class="playglyph" aria-hidden="true">\u{1f9e9}</span>
-        <span class="playmain"><span class="playname">Puzzle decks</span>
-          <span class="playsub">18 decks \u00b7 ${played} played \u00b7 a grown-up reads, everyone guesses</span></span>
-        <span class="playchev" aria-hidden="true">\u203a</span></section>`;
-      return inner(c) + tile;
-    };
-    learnScreenHTML = window.learnScreenHTML;
+      return `<button type="button" class="docard play" onclick="openDecks()">
+        <span class="doglyph" aria-hidden="true">\u{1f9e9}</span>
+        <span class="domain"><span class="doname">Puzzle decks</span>
+          <span class="dosub">18 decks \u00b7 ${played} played \u00b7 a grown-up reads, everyone guesses</span></span>
+        <span class="dochev" aria-hidden="true">\u203a</span></button>`;
+    }});
   }
 })();
 
