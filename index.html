@@ -619,12 +619,26 @@
     padding:10px 13px;font-size:20px;font-weight:800;line-height:1;text-align:center}
   .spendbtn .spendbal::after{content:"points";display:block;font-size:9.5px;font-weight:800;
     letter-spacing:.06em;opacity:.7;margin-top:3px}
-  .kidwhere{display:flex;align-items:center;gap:10px;margin:2px 0 14px;padding:13px 16px;
-    border-radius:18px;font-size:17px;font-weight:800;line-height:1.25}
-  .kidwhere::after{content:"";flex:1;height:3px;border-radius:99px;background:currentColor;opacity:.16}
-  .w-spend{background:linear-gradient(150deg,#fff4dd,#ffe6ba);color:#6a4a05}
-  .w-learn{background:linear-gradient(150deg,#e8e9ff,#d9dbfb);color:#2b2e73}
-  .w-points{background:linear-gradient(150deg,#e3f6ef,#cdeee1);color:#0b5545}
+  /* A page title, not a tab. The old coloured pill read as a selected tab at
+     the top of the screen, which is exactly what it sat under. This is a
+     heading: a coloured disc, the name, and one line saying what the room is
+     for. No box, no fill, nothing to mistake for a control. */
+  .kidtitle{display:flex;align-items:center;gap:13px;margin:4px 2px 18px;padding:0;background:none}
+  .kidtitleicon{flex:none;width:48px;height:48px;border-radius:16px;display:flex;
+    align-items:center;justify-content:center;font-size:24px}
+  .kidtitlename{display:block;font-size:23px;font-weight:800;line-height:1.15;color:var(--ink)}
+  .kidtitlesub{display:block;font-size:13px;font-weight:600;color:var(--muted);margin-top:3px;line-height:1.4}
+  .kidtitle.w-spend  .kidtitleicon{background:#d8f2e6}
+  .kidtitle.w-spend  .kidtitlename{color:#0b5545}
+  .kidtitle.w-learn  .kidtitleicon{background:#e6e3fb}
+  .kidtitle.w-learn  .kidtitlename{color:#41307e}
+  .kidtitle.w-points .kidtitleicon{background:#fbeccb}
+  .kidtitle.w-points .kidtitlename{color:#6d4d05}
+  /* Tiles on a child's rewards list carry a bar when the thing is still out of
+     reach; the grown-ups' tiles never need one. */
+  .rewardtile .reachbar.sm{width:100%;height:6px;margin:2px 0 5px}
+  .rewardtile .tgap{font-size:10.5px;line-height:1.3}
+  .rewardtile[disabled]{cursor:default}
   .tabbar{position:fixed;left:0;right:0;bottom:0;z-index:130;display:grid;grid-template-columns:repeat(4,1fr);
           gap:4px;background:#fff;border-top:1px solid #e6e8f0;padding:7px 8px calc(7px + env(safe-area-inset-bottom));
           box-shadow:0 -6px 20px rgba(24,22,60,.08)}
@@ -2101,7 +2115,11 @@
   </div>
 
   <div id="kidSpendScreen" class="hidden">
-    <p class="kidwhere w-spend">🎁 My rewards</p>
+    <header class="kidtitle w-spend">
+      <span class="kidtitleicon">🎁</span>
+      <span><span class="kidtitlename">My rewards</span>
+        <span class="kidtitlesub">What your points can bring</span></span>
+    </header>
     <div id="familyNotices"></div>
     <div id="kidGoal"></div>
     <!-- One list, nearest first. Rewards and activities were two lists in the
@@ -2122,13 +2140,20 @@
   </div>
 
   <div id="kidLearnScreen" class="hidden">
-    <p class="kidwhere w-learn">📖 What I’m learning</p>
+    <header class="kidtitle w-learn">
+      <span class="kidtitleicon">📖</span>
+      <span><span class="kidtitlename">What I’m learning</span>
+        <span class="kidtitlesub">Qur’an, Fulfulde and school</span></span>
+    </header>
     <div id="kidLearnBody"></div>
   </div>
 
   <div id="kidPointsScreen" class="hidden">
-    <p class="kidwhere w-points">⭐ My best bits</p>
-    <p class="ptsintro">Everything you’ve been noticed for. Nothing here ever goes down.</p>
+    <header class="kidtitle w-points">
+      <span class="kidtitleicon">⭐</span>
+      <span><span class="kidtitlename">My best bits</span>
+        <span class="kidtitlesub">Nothing here ever goes down</span></span>
+    </header>
     <div id="kidBest"></div>
     <div id="championToggleRow"></div>
     <div id="prayerWall"></div>
@@ -3947,7 +3972,7 @@ const TIP_CATS = [
   {key:"deen", label:"Deen"}
 ];
 
-const APP_VERSION = "v146";
+const APP_VERSION = "v147";
 const today = new Date().toISOString().slice(0,10);
 let app = {families:[],currentFamily:null,currentChild:null};
 let categories = [];
@@ -6549,28 +6574,30 @@ function reachListHTML(child){
   }
   const ready=items.filter(r=>(r.points||0)<=spendable);
   const soon =items.filter(r=>(r.points||0)>spendable);
-  const row=(r,can)=>{
+  /* The same tiles the grown-ups' list uses \u2014 square, a tinted disc for the
+     icon, the cost as a pill. A child and a parent should be looking at the
+     same thing when they talk about it. */
+  const tile=(r,can,i)=>{
     const pct=Math.max(6, Math.min(100, Math.round((spendable/(r.points||1))*100)));
-    return `<button class="reachrow ${can?"can":""}"${can?"":" disabled"}
-      onclick="popThen(this);kidBuy('${r.kind==="activity"?"game":"reward"}','${r.id}')">
-      <span class="reachicon">${iconFor(r, r.kind==="activity" ? "\ud83c\udfb2" : "\ud83c\udf81")}</span>
-      <span class="reachmain">
-        <span class="reachname">${escapeHtml(r.name)}</span>
+    return `<article class="cattile k${i%6}${can?"":" outofreach"}">
+      <button class="cattilebtn rewardtile"${can?"":" disabled"}
+        onclick="popThen(this);kidBuy('${r.kind==="activity"?"game":"reward"}','${r.id}')">
+        <span class="ticon">${iconFor(r, r.kind==="activity" ? "\ud83c\udfb2" : "\ud83c\udf81")}</span>
+        <span class="tname">${escapeHtml(r.name)}</span>
         ${can
-          ? `<span class="reachnote ok">You can have this now</span>`
-          : `<span class="reachbar"><i style="width:${pct}%"></i></span>
-             <span class="reachnote">${nums
-                ? "You have "+spendable+" of "+r.points
-                : "Nearly there"}</span>`}
-      </span>
-      ${can && nums ? `<span class="reachpts">${r.points}</span>` : ""}
-    </button>`;
+          ? `<span class="tpts earned">${nums ? r.points+" pts" : "Ready"}</span>`
+          : `<span class="reachbar sm"><i style="width:${pct}%"></i></span>
+             <span class="tgap">${nums ? "You have "+spendable+" of "+r.points : "Nearly there"}</span>`}
+      </button>
+    </article>`;
   };
   return `${ready.length ? `<p class="reachcap">\u2b50 Ready now</p>
-      <section class="c-panel reachpanel">${ready.slice().reverse().map(r=>row(r,true)).join("")}</section>` : ""}
+      <div class="cattiles">${ready.slice().reverse().map((r,i)=>tile(r,true,i)).join("")}</div>` : ""}
     ${soon.length ? `<p class="reachcap">\ud83c\udf31 Growing towards</p>
-      <section class="c-panel reachpanel">${soon.slice(0,4).map(r=>row(r,false)).join("")}</section>` : ""}`;
+      <div class="cattiles">${soon.slice(0,4).map((r,i)=>tile(r,false,i+3)).join("")}</div>` : ""}`;
 }
+/* Saving is invisible by nature, so it needs a picture: a jar that fills with
+   what is locked away and turns gold when it is full. */
 function vaultJarSVG(pct, unlocked){
   const h=Math.max(0, Math.min(100, pct));
   const fillTop=104-(h*0.74);
