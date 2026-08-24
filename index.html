@@ -347,6 +347,10 @@
   .objrow.done{background:#eefaf4}
   .objrow.review{background:#fff6e8}
   .objrow.covered{background:#f0f1ff}
+  /* The official wording, kept but demoted: a child can see it, a parent can
+     read it, and neither has to read it first. */
+  .objofficial{display:block;margin-top:5px;font-size:11.5px;font-weight:600;
+    color:#9aa0b4;line-height:1.4}
   .objmark{width:18px;font-size:14px;color:#19744a;flex-shrink:0}
   .objtext{flex:1;min-width:0;font-size:13px;line-height:1.4}
   .objby{display:block;font-size:11px;color:var(--muted);font-weight:700;margin-top:2px}
@@ -1874,7 +1878,7 @@
         <p>⭐ <strong>Points for what they do.</strong> Prayers, kindness, manners, helping, homework, keeping going when something is hard. You decide what counts and what it is worth.</p>
         <p>🎁 <strong>Rewards they choose.</strong> They ask, you decide. Time together is cheap on purpose; sweets are rare on purpose.</p>
         <p>🕌 <strong>A prayer board.</strong> Each of the five prayers recorded separately, so you can see which one keeps slipping.</p>
-        <p>📖 <strong>Homework and learning tracked.</strong> Qur&rsquo;an from Qaida to hifz, plus maths, English and science by school year — covered, and secure once they can do it unaided.</p>
+        <p>📖 <strong>Homework and learning tracked.</strong> Qur&rsquo;an from Qaida to hifz, plus maths, English and science by school year — practised, and secure once they can do it unaided.</p>
         <p>👥 <strong>Everyone who helps.</strong> Both parents, grandparents with a small weekly allowance, and tutors who record how a lesson went.</p>
       </div>
       <input id="signupFamilyName" type="text" placeholder="Family name (e.g. The Ahmeds)">
@@ -2303,7 +2307,7 @@
   <div id="progressPanel" class="panel hidden">
     <button class="panelback" onclick="panelBack()">← Home</button>
     <h2>📖 Learn</h2>
-    <p class="small">What each child has covered and what they can do unaided. Every mark shows who made it.</p>
+    <p class="small">What each child has practised and what they can do unaided. Every mark shows who made it.</p>
     <div id="progressBody" style="margin-top:10px"></div>
   </div>
 
@@ -3901,9 +3905,64 @@ function strandsShown(subject, child){
   return subject.strands.filter(st=>st.id===yid);
 }
 function objectiveId(subject, strand, i){ return subject.subject+"."+strand.id+"."+(i+1); }
+/* ---------- Two lines, not one ----------
+   The curriculum ladder shipped the Department for Education's own wording,
+   verbatim, on a screen built for a six-year-old to tick. "Use expanded noun
+   phrases with modifying adjectives and prepositions" is adult reading, on a
+   Year 2 child's Learn tab.
+
+   The fix is not to rewrite the objectives. The framework is stamped en-2014
+   precisely so a parent can trust that this is the real curriculum, and a
+   parent checking progress against school needs the words the school uses.
+   The child simply should not be the one reading them.
+
+   So each objective can carry two strings: the child's line, shown to a child
+   by default, and the official one, which a parent sees and a child can reveal.
+   Where no child line has been written yet the official text still shows, so
+   nothing is ever blank - the map fills in as the copy is written. */
+const CHILD_OBJECTIVE = {
+  "Compare and group materials by properties including hardness, solubility and conductivity":
+    "Sort things by how hard they are, whether they dissolve, and whether electricity goes through them",
+  "Use expanded noun phrases with modifying adjectives and prepositions":
+    "Add describing words to make a sentence say more",
+  "Make systematic and careful observations, taking accurate measurements":
+    "Watch carefully and measure properly",
+  "Sort animals into carnivores, herbivores and omnivores":
+    "Sort animals by whether they eat meat, plants, or both",
+  "Identify the uses of everyday materials, and compare their suitability":
+    "Say what everyday things are made of, and why that material was chosen",
+  "Solve multiplication and division problems using objects, pictures and arrays":
+    "Use objects and pictures to work out times and sharing problems",
+  "Recognise and write equivalent fractions, including hundredths":
+    "Spot fractions that are worth the same",
+  "Identify multiples, factors, primes, squares and cubes":
+    "Find factors, multiples and prime numbers",
+  "Simplify fractions and compare fractions with any denominator":
+    "Make fractions simpler, and say which is bigger",
+  "Recognise and use formal and informal vocabulary and structures":
+    "Choose the right words for who you are writing to",
+  "Retrieve and record information from non-fiction, using dictionaries":
+    "Find facts in a book and write them down",
+  "Indicate degrees of possibility using adverbs or modal verbs":
+    "Say how likely something is \u2014 might, could, will",
+  "Classify living things into broad groups by observable characteristics":
+    "Group living things by what you can see about them",
+  "Take accurate and precise measurements, repeating readings where needed":
+    "Measure carefully, and measure again to check",
+  "Show that addition can be done in any order but subtraction cannot":
+    "Show that adding works in any order, but taking away does not"
+};
 function objectiveText(subject, strand, i){
   const o=strand.objectives[i];
   return strand.id==="hifz" ? "Memorise Surah "+o[0] : o[0];
+}
+/* What to put on the row. A child gets their line where one exists; everybody
+   else gets the official text, because that is what they came for. */
+function objectiveLines(subject, strand, i, forChild){
+  const official=objectiveText(subject, strand, i);
+  const kid=CHILD_OBJECTIVE[official] || null;
+  return { official, kid, show: (forChild && kid) ? kid : official,
+           hasBoth: !!(forChild && kid) };
 }
 function strandById(id){
   return allStrands().find(x=>x.strand.id===id) || null;
@@ -3932,7 +3991,7 @@ const DEFAULT_CATEGORIES = [
  {icon:"\u{1f9f8}",name:"Tidy & Helpful",desc:"We look after our things and help around the house.",
   actions:[["Help without being asked",4],["Do a job carefully",3],["Put toys away",2],["Put clothes in the right place",2]]},
  {icon:"\u{1f9d8}",name:"Big Feelings",desc:"We use patience (sabr) to handle big feelings calmly.",
-  actions:[["Try again after becoming frustrated",4],["Use words to explain a feeling",3],["Ask for help instead of shouting",3],
+  actions:[["Tried again after getting cross",4],["Use words to explain a feeling",3],["Ask for help instead of shouting",3],
            ["Sit quietly while others pray",2],["Take a calm-down break",2]]},
  {icon:"\u{1f9fc}",name:"Looking After Myself",desc:"Cleanliness is part of our faith and part of looking after ourselves.",
   actions:[["Get dressed and ready",2],["Put belongings away safely",2],["Brush teeth",1],["Wash hands",1]]},
@@ -4565,7 +4624,7 @@ const TIP_CATS = [
   {key:"deen", label:"Deen"}
 ];
 
-const APP_VERSION = "v162";
+const APP_VERSION = "v163";
 const today = new Date().toISOString().slice(0,10);
 let app = {families:[],currentFamily:null,currentChild:null};
 let categories = [];
@@ -4584,7 +4643,7 @@ const CATEGORY_IDEAS = {
  "Salah & Duas":[["Prayed without being reminded",4],["Made wudu without being asked",3],["Prayed alongside Mum or Dad",3],["Reminded the family it was prayer time",3],["Came to the masjid",4],["Said a dua for someone else",2],["Said the dua for leaving the house",1]],
  "Learning & Qur'an":[["Recited a surah from memory",4],["Finished a reading book",4],["Started homework without being reminded",4],["Practised Arabic letters or words",3],["Helped a brother or sister with their work",3],["Practised spellings or times tables",3],["Revised a surah already learned",2],["Learn a new fact or story",2],["Asked a good question about something new",2],["Listened to Qur'an at bedtime",2]],
  "Kind Hearts":[["Forgave quickly after an argument",5],["Gave something away without being asked",4],["Included someone who was left out",3],["Comforted a younger child",3],["Made something for someone",3],["Gave sadaqah",3],["Said something kind about someone else",2],["Was gentle with an animal",2]],
- "Listening & Respect":[["Followed an instruction first time in the morning rush",4],["Answered respectfully after being corrected",4],["Helped an elder without being asked",3],["Stopped and came when called",2],["Waited their turn to speak",2],["Listened to a brother or sister's idea",2]],
+ "Listening & Respect":[["Followed an instruction first time in the morning rush",4],["Took being corrected well",4],["Helped an elder without being asked",3],["Stopped and came when called",2],["Waited their turn to speak",2],["Listened to a brother or sister's idea",2]],
  "Good Manners":[["Ate what was given without complaining",4],["Was polite to a guest",3],["Said salaam first",2],["Waited for everyone before starting to eat",2],["Thanked whoever cooked",2],["Spoke kindly on the phone",2],["Ate with their right hand",1],["Held the door for someone",1],["Covered their mouth when sneezing",1]],
  "Tidy & Helpful":[["Tidied a shared space nobody asked about",4],["Looked after a younger one for a while",4],["Cleared their plate away",2],["Helped set the table",2],["Made their bed",2],["Helped carry the shopping",2],["Sorted the washing",2],["Put shoes away by the door",1]],
  "Big Feelings":[["Walked away instead of hitting back",5],["Took losing a game well",4],["Went back to a hard thing after a wobble",4],["Said sorry without being told to",4],["Named the feeling instead of shouting",3],["Waited patiently without complaining",3],["Settled quickly after being upset",3],["Told a grown-up what was wrong",2]],
@@ -5172,8 +5231,12 @@ async function loadApp(){
     // been deployed yet, so the account can't even read its own family pointer.
     showLoadError(
       e && e.code === "permission-denied"
-        ? "This account isn't allowed to read its family yet. If you've just set the app up, the Firestore security rules still need deploying — run: firebase deploy --only firestore:rules"
-        : "Couldn't reach the database. Check your connection and try again.",
+        /* The command belonged in a console, not in front of a child who cannot
+           sign in. Naming a product and a terminal instruction to somebody who
+           can run neither is a note to the developer that escaped into the
+           interface. */
+        ? "We can't open your family yet. If the app has only just been set up, the setup isn't finished."
+        : "We couldn't get online. Check your connection and try again.",
       e);
     return;
   }
@@ -5188,7 +5251,7 @@ async function loadApp(){
   let settled=false;
   // If nothing arrives, say so rather than sitting on a loading screen forever.
   const timer=setTimeout(()=>{
-    if(!settled) showLoadError("The family data didn't arrive. This usually means the security rules are blocking it, or the connection dropped.", null);
+    if(!settled) showLoadError("We couldn't load your family. Check your connection and try again \u2014 if it keeps happening, the setup isn't finished.", null);
   }, 12000);
   window.fpc.listen(familyId, (raw) => {
     settled=true; clearTimeout(timer);
@@ -5357,8 +5420,13 @@ async function assignTutorChildren(tutorId){
 
 /* ---------- The child's own view of their programme ---------- */
 function ladderHTML(child, subject, strand, canSecure){
+  /* A child on their own Learn tab reads the child line; a parent or tutor
+     reads the official one. Same row, same mark, different words. */
+  const me0=(typeof sessionMember==="function") ? sessionMember() : null;
+  const forChild=!!(me0 && isChildRole(me0) && me0.id===child.id);
   const rows=strand.objectives.map((o,i)=>{
     const id=objectiveId(subject, strand, i);
+    const lines=objectiveLines(subject, strand, i, forChild);
     const st=objectiveState(child, strand, id);
     const cls = st.status==="secure" ? "done" : st.status==="review" ? "review"
               : st.status==="covered" ? "covered" : "";
@@ -5379,7 +5447,10 @@ function ladderHTML(child, subject, strand, canSecure){
     const mayUndoCovered = st.status==="covered";
     return `<div class="objrow ${cls}">
         <span class="objmark">${mark}</span>
-        <span class="objtext">${escapeHtml(objectiveText(subject, strand, i))}
+        <span class="objtext">${escapeHtml(lines.show)}${
+          lines.hasBoth
+            ? `<span class="objofficial">School calls this: ${escapeHtml(lines.official)}</span>`
+            : ""}
           ${o[1]?`<span class="objdom">${escapeHtml(o[1])}</span>`:""}
           <span class="objstate ${stateLabel[0]}">${stateLabel[1]}</span>
           ${by&&st.status!=="covered"?`<span class="objby">marked by ${escapeHtml(by)}</span>`:""}</span>
@@ -6012,7 +6083,7 @@ async function markObjective(childId, objId, status){
     return true;
   }catch(e){
     console.error("Progress mark refused:", e);
-    alert("That couldn\u2019t be saved. If it keeps happening the security rules may not be published yet.");
+    alert("That couldn\u2019t be saved. Try once more, then tell whoever set the app up.");
     return false;
   }
 }
@@ -6338,7 +6409,7 @@ async function tutorGivePoints(childId){
     alert("Recorded \u2014 "+child.name+"\u2019s parents will see it too. \u{1f44f}");
   }catch(e){
     console.error("Tutor award refused:", e);
-    alert("That couldn\u2019t be sent. If it keeps happening the security rules may not be published yet.");
+    alert("That couldn\u2019t be sent. Try once more, then tell whoever set the app up.");
   }
 }
 async function familyGivePoints(childId){
@@ -6368,7 +6439,7 @@ async function familyGivePoints(childId){
     alert("Sent \u2014 "+child.name+" will see it with your name on it. \u{1f49b}");
   }catch(e){
     console.error("Family award refused:", e);
-    alert("That couldn\u2019t be sent. If it keeps happening the security rules may not be published yet.");
+    alert("That couldn\u2019t be sent. Try once more, then tell whoever set the app up.");
   }
 }
 
@@ -6662,7 +6733,7 @@ const TOURS = {
   kidOlder: [
     {title:"Asalamualaikum, {name}! \u{1f44b}", lede:"This is your points card. Everything you earn lives here, and it\u2019s yours.",
      points:[["\u2b50","How points are earned","Your parents award points for the things worth noticing \u2014 prayer, kindness, helping, telling the truth."],
-             ["\u{1f4c8}","The harder it is, the more it\u2019s worth","Actions are scored 1 to 5. Each of the five daily prayers is worth 5 \u2014 the top of the scale."]]},
+             ["\u{1f4c8}","The harder it is, the more it\u2019s worth","Every action is worth between 1 and 5 points. The five daily prayers are all worth 5."]]},
     {title:"Keeping track \u{1f54c}", lede:"Tap \u2b50 My points at the bottom of the screen.",
      points:[["\u{1f54c}","Your prayer board","Every prayer that gets recorded fills a square. Five in one day lights the whole column."],
              ["\u{1f4ca}","Your line","It runs green while points are coming in, and fades when things go quiet. It\u2019s yours \u2014 nobody else sees it."]]},
@@ -6894,7 +6965,7 @@ function normKey(s){ return String(s||"").trim().toLowerCase(); }
 async function applyRecommendedLists(){
   if(!requireParent()) return;
   closeMenu();
-  if(!confirm("Update to the recommended lists?\n\n\u2022 Prayers become five separate actions worth 5 points each\n\u2022 Every action is rescored 1\u20135 by difficulty\n\u2022 Rewards are repriced, with limits on the ones that cost you time\n\nAnything you added yourself is kept. Points already earned are not affected."))
+  if(!confirm("Update to the recommended lists?\n\n\u2022 Prayers become five separate actions worth 5 points each\n\u2022 Every action is worth 1\u20135 points\n\u2022 Rewards are repriced, with limits on the ones that cost you time\n\nAnything you added yourself is kept. Points already earned are not affected."))
     return;
   let added=0, rescored=0, repriced=0;
   // Categories: match on name, then merge actions by name.
@@ -8190,8 +8261,8 @@ function authErrorMessage(e){
     if(me && isChildRole(me))
       return "\ud83d\udd12 Only Mum and Dad can do that. Nothing is broken \u2014 that button just isn't yours.";
     if(!familyId)
-      return "That code was refused. Check each character, and ask for a fresh one if it\u2019s more than fifteen minutes old. If it keeps failing, the security rules may not be published yet.";
-    return "The database refused that. The security rules may not be deployed yet.";
+      return "That code didn\u2019t work. Check each letter and number \u2014 codes stop working after fifteen minutes, so ask for a fresh one if yours is older.";
+    return "That didn\u2019t save. If it keeps happening, the setup isn\u2019t finished.";
   }
   // Use the timeout's own wording only when it actually says something useful.
   if(code === "timeout")
@@ -8271,7 +8342,7 @@ async function addChild(){
     if(errEarly) errEarly.textContent="The app couldn't load its connection to the database, so nothing can be saved. Reload the page; if it keeps happening, open the app from its web address rather than a local file.";
     return;
   }
-  if(!familyId){ if(errEarly) errEarly.textContent="No family is loaded on this device. Try reloading."; return; }
+  if(!familyId){ if(errEarly) errEarly.textContent="We couldn\u2019t find your family. Try reloading the page."; return; }
   const blocked=localFileBlock();
   if(blocked){
     const e=document.getElementById("addMemberError");
@@ -9278,7 +9349,7 @@ async function leaveFamilyFlow(){
     location.reload();
   }catch(e){
     console.error("Couldn't leave:", e);
-    alert("That didn\u2019t work. If it keeps happening the security rules may not be published yet.");
+    alert("That didn\u2019t work. Try once more, then tell whoever set the app up.");
   }
 }
 async function deleteFamilyFlow(){
@@ -9297,7 +9368,7 @@ async function deleteFamilyFlow(){
     location.reload();
   }catch(e){
     console.error("Couldn't delete the family:", e);
-    alert("That didn\u2019t work. If it keeps happening the security rules may not be published yet.");
+    alert("That didn\u2019t work. Try once more, then tell whoever set the app up.");
   }
 }
 
@@ -9826,7 +9897,7 @@ function rewardEyebrowText(){
   if(lastEdit!==null && lastEdit>=30)
     return "You haven\u2019t changed these rewards in "+lastEdit+" days. Swapping one or two keeps them interesting.";
   const general=[
-    "Refresh these every few weeks. Rewards lose their pull once they become predictable \u2014 swap one out, adjust a price, add a snack.",
+    "Refresh these every few weeks. A list that never changes stops being interesting \u2014 swap one out, adjust a price, add a snack.",
     "Mix the prices. A few cheap everyday treats alongside one big saver-goal works better than everything costing about the same.",
     "Rewards don\u2019t have to cost money \u2014 choosing the meal, picking the pudding, or staying up 15 minutes later all work.",
     "Ask the children what they\u2019d actually like on this list. A reward they chose is worth more than one you picked for them."
@@ -9844,7 +9915,7 @@ function gameEyebrowText(){
   if(games.every(g=>g.points===games[0].points))
     return "Every activity costs the same. Varying the prices lets a child choose between something now and saving for a bigger one.";
   if(lastBuy!==null && lastBuy>=21)
-    return "No activity has been chosen for "+lastBuy+" days \u2014 worth adding something new, or dropping the prices a little.";
+    return "Nothing chosen yet for "+lastBuy+" days \u2014 worth adding something new, or dropping the prices a little.";
   const general=[
     "Change these around now and then. Add one the children suggest \u2014 they\u2019re far more likely to pick it.",
     "Give each one a line of description \u2014 a child choosing between bare names is guessing.",
@@ -11098,7 +11169,7 @@ function behaviourCardHTML(child, forChild){
   }
   if(forChild){
     note = band.key==="green"
-      ? "Brilliant \u2014 your line is green because you\u2019ve been earning points regularly. Keep it up!"
+      ? "Your line is green because points have been landing steadily."
       : band.key==="amber"
       ? "Your line has slipped to orange. A few good points this week will pull it back up to green."
       : "Your line has gone red because it\u2019s been quiet for a while. Pick one small thing today \u2014 it starts climbing straight away.";
@@ -11715,7 +11786,7 @@ function potsHTML(child){
        <span class="potname">${name}</span>
      </button>`;
   return pot("spend","\ud83c\udf81", spend, "To spend", "showScreen('kidSpendScreen')")
-       + pot("bank","\ud83c\udfe6",  bank,  "In the bank","showScreen('kidBankScreen')")
+       + pot("bank","\ud83c\udfe6",  bank,  "Saved","showScreen('kidBankScreen')")
        + pot("give","\ud83e\udd32",  give.left, "Given",  "showScreen('kidGiveScreen')");
 }
 
@@ -12607,7 +12678,7 @@ async function startFamilyHere(){
   }catch(e){
     console.error("Could not create the family:", e);
     errEl.textContent = e && e.code==="permission-denied"
-      ? "The database refused that. The security rules may not be deployed yet."
+      ? "That didn\u2019t save. If it keeps happening, the setup isn\u2019t finished."
       : "That didn't work — check your connection and try again.";
   }
 }
@@ -15566,7 +15637,7 @@ window.DECK_PICS = {"birthday": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0c
    flashcard version worked better with the sound off, so this format assumes it.
 
    No points, and no scoring inside a deck. Playing a deck through marks the
-   topic "talked about"; a grown-up who was there can mark it secure. Same rules
+   v163: nothing here is marked at all any more. Same rules
    as the rest of the Learn screen.
 */
 (function(){
@@ -15599,7 +15670,7 @@ window.DECK_PICS = {"birthday": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0c
   const SUBJECT={
     subject:"talktogether", icon:"\u{1f9e9}", name:"Puzzle decks",
     strands:[{ id:"topics", name:"Topics",
-      blurb:"Eighteen decks of riddles and puzzles to play together. Mark one when you have played it; a grown-up marks it secure once the words come without help.",
+      blurb:"Eighteen decks of riddles and puzzles to play together. Pick whichever ones you fancy, in any order, as many times as you like \u2014 nothing is marked and nothing is scored.",
       objectives: TOPICS.map(id=>[ALL[id].emoji+" "+ALL[id].title]) }]
   };
   /* Kept as a subject object so the existing marking, permissions and
@@ -15904,30 +15975,21 @@ function done(){
     finishTopic();
   }
 
-  async function finishTopic(){
-    const c=child();
-    let marked=false;
-    if(c && typeof markObjective==="function"){
-      if(statusOf(topicIx)==="secure") marked=true;
-      else{
-        try{ marked=await markObjective(c.id, objIdFor(topicIx), "covered"); }
-        catch(e){ console.warn("deck mark failed", e); }
-      }
-      if(typeof render==="function") render();
-    }
-    drawEnd(marked);
-  }
+  /* v163: a deck is no longer marked against anything.
+     These are eleven riddles a grown-up reads to a room. Recording them as
+     "played" and offering to mark them "secure" turned a game into an
+     objective with a state, put a tick against a family sitting on a sofa,
+     and quietly told a parent that some decks were still outstanding. They
+     are not homework and there is nothing to complete: a parent picks the
+     ones they fancy, in any order, as many times as they like.
+     Nothing is written, nothing is read back, and the ladder is gone. */
+  async function finishTopic(){ drawEnd(); }
 
-  function drawEnd(marked){
-    const offer=canSecure(), isSecure=statusOf(topicIx)==="secure";
+  function drawEnd(){
     $("dkStage").innerHTML=`<div class="card win"><div class="star">\u2b50</div>
       <div class="big">That's the deck</div>
       <p class="note" style="margin-top:10px">${esc(ALL[TOPICS[topicIx]].title)} \u2014 eleven puzzles.
-        Nothing was scored; the talking was the point.</p>
-      ${marked?`<p class="note" style="margin-top:8px">Marked as played on the Learn page.</p>`:""}
-      ${offer?`<div class="secure"><p>Could they name these on their own now?</p>
-        <button class="btn go" id="dkSecure">${isSecure?"\u2713 Marked secure":"Yes \u2014 mark it secure"}</button>
-        <span>For a grown-up who was there. No points \u2014 it records what they can do.</span></div>`:""}
+        Nothing is scored and nothing is recorded. The talking was the point.</p>
       </div>`;
     $("dkBottom").innerHTML="";
     const again=document.createElement("button");
@@ -15937,38 +15999,19 @@ function done(){
     pick.className="btn"; pick.textContent="Another deck";
     pick.onclick=menu;
     $("dkBottom").appendChild(again); $("dkBottom").appendChild(pick);
-    const sec=$("dkSecure");
-    if(sec) sec.onclick=async()=>{
-      const c=child();
-      if(!c || typeof markObjective!=="function") return;
-      const now = statusOf(topicIx)==="secure" ? "covered" : "secure";
-      try{ await markObjective(c.id, objIdFor(topicIx), now); }
-      catch(e){ console.warn("secure mark failed", e); }
-      if(typeof render==="function") render();
-      drawEnd(true);
-    };
+    /* The "mark it secure" handler went with the ladder. Nothing here
+       writes to a child's record any more. */
   }
 
-  /* Which deck next? The progress marks already know: the first one nobody has
-     played, or if they have all been played, the one played longest ago. A
-     fixed list of eighteen tiles made every visit start with the same decision,
-     and "All about me" was always going to win by being first. */
+  /* Which deck next? Nothing is recorded any more, so nothing knows - and on
+     reflection nothing should. A parent picking a deck to read tonight is
+     choosing by what suits the room: who is up, how tired they are, what came
+     up at dinner. An app that has never met the room is worse at that choice
+     than they are, and a suggestion carries an implication that the others are
+     still owed. One is offered at random purely so the eighteen tiles do not
+     always open on "All about me", and it is a shuffle, not advice. */
   function suggest(){
-    const c=child();
-    const prog=(c && c.progress) || {};
-    for(let i=0;i<TOPICS.length;i++){
-      if(!prog[objIdFor(i)]) return {i:i, why:"not played yet"};
-    }
-    let oldest=0, when=Infinity;
-    TOPICS.forEach((_,i)=>{
-      const at=prog[objIdFor(i)]||{};
-      const ts=at.coveredTs || at.securedTs || 0;
-      if(ts<when){ when=ts; oldest=i; }
-    });
-    const days = when ? Math.floor((Date.now()-when)/86400000) : null;
-    return {i:oldest, why: days!==null
-      ? (days<1 ? "played today" : days===1 ? "played yesterday" : "last played "+days+" days ago")
-      : "played a while ago"};
+    return { i: Math.floor(Math.random()*TOPICS.length), why:"" };
   }
 
   function menu(){
@@ -15993,10 +16036,7 @@ function done(){
           <div class="em">${ALL[id].emoji}</div>
           <div style="flex:1;min-width:0"><h3>${esc(ALL[id].title)}</h3>
             <p>${ALL[id].cards.length} puzzles</p></div>
-          ${statusOf(i)==="secure"
-            ? `<span class="state sec">\u2713 Secure</span>`
-            : statusOf(i) ? `<span class="state cov">\u25cf Played</span>`
-            : `<span class="go">\u203a</span>`}</div>`).join("")}
+          <span class="go">\u203a</span></div>`).join("")}
       <p class="credit">Symbols: OpenMoji (CC BY-SA 4.0) and Mulberry Symbols,
         copyright 2018\u20132026 Steve Lee (CC BY-SA 4.0).</p></div>`;
     Array.prototype.forEach.call($("dkStage").querySelectorAll(".tile"),
@@ -16024,12 +16064,12 @@ function done(){
 
   if(typeof registerLearnExtra==="function"){
     registerLearnExtra({ order:20, html(c){
-      let played=0;
-      TOPICS.forEach((_,i)=>{ if(statusOf(i)) played++; });
+      /* No count. "3 of 18 played" turned a shelf of games into a list with
+         fifteen things outstanding on it. */
       return `<button type="button" class="docard play" onclick="openDecks()">
         <span class="doglyph" aria-hidden="true">\u{1f9e9}</span>
         <span class="domain"><span class="doname">Puzzle decks</span>
-          <span class="dosub">18 decks \u00b7 ${played} played \u00b7 a grown-up reads, everyone guesses</span></span>
+          <span class="dosub">18 decks \u00b7 a grown-up reads, everyone guesses</span></span>
         <span class="dochev" aria-hidden="true">\u203a</span></button>`;
     }});
   }
@@ -17425,7 +17465,7 @@ window.GROWNUP_DECKS = [
 
       if(tab() === "kids"){
         inner.apply(this, arguments);           /* untouched: chips + ladder */
-        if(sub) sub.textContent = "What each child has covered and what they can do unaided. Every mark shows who made it.";
+        if(sub) sub.textContent = "What each child has practised and what they can do unaided. Every mark shows who made it.";
       }else{
         body.innerHTML = myLearningHTML();
         if(sub) sub.textContent = "Your own learning. The children\u2019s is on the other tab.";
