@@ -602,6 +602,11 @@
     border-radius:14px;padding:11px 13px;font-size:14px;font-weight:700;color:#245a49}
   .givelist li span{flex:1;min-width:0}
   .givelist li em{flex:none;font-style:normal;font-size:12.5px;font-weight:800;color:#4f8874}
+  .giveamts{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+  .giveamts button{background:#fff;border:1px solid #bfe4d2;color:#0b5545;border-radius:16px;
+    padding:14px 6px;font-size:18px;font-weight:800;cursor:pointer;min-height:52px}
+  .giveamts button:active{background:#e3f6ef}
+  .givewhy{margin:10px 0 0;font-size:12.5px;line-height:1.5;color:#2f6b57}
   .givebtn{width:100%;margin-top:14px;background:#177f5c;color:#fff;border:0;border-radius:16px;
     padding:14px;font-size:15px;font-weight:800;cursor:pointer;min-height:50px}
   .banklesson{margin:10px 0 0;background:#f3f7ff;border-left:3px solid #9fb2ee;border-radius:0 12px 12px 0;
@@ -4047,7 +4052,7 @@ const TIP_CATS = [
   {key:"deen", label:"Deen"}
 ];
 
-const APP_VERSION = "v150";
+const APP_VERSION = "v151";
 const today = new Date().toISOString().slice(0,10);
 let app = {families:[],currentFamily:null,currentChild:null};
 let categories = [];
@@ -6713,18 +6718,21 @@ function givingShare(item){
 function givingPot(){
   const f=currentFamily();
   let inn=0, out=0;
-  const spent=[];
+  const spent=[], givers=[];
   (f?f.children:[]).forEach(c=>(c.activityLog||[]).forEach(e=>{
-    if(e.type==="give")    inn += (e.giveAmount||0);
+    if(e.type==="give"){   inn += (e.giveAmount||0);
+      if(e.fromChild) givers.push({who:e.fromChild, amount:e.giveAmount||0, ts:e.ts}); }
     if(e.type==="gaveout"){ out += (e.giveAmount||0);
       spent.push({what:e.actionName||e.label||"", amount:e.giveAmount||0, ts:e.ts}); }
   }));
   return { in:inn, out:out, left:Math.max(0, inn-out),
-           spent:spent.sort((a,b)=>b.ts-a.ts) };
+           spent:spent.sort((a,b)=>b.ts-a.ts),
+           givers:givers.sort((a,b)=>b.ts-a.ts) };
 }
 function givingPotHTML(child){
   const pot=givingPot();
-  if(!pot.in) return "";
+  const canGive = child && isChildRole(child) && availableFor(child)>0;
+  if(!pot.in && !canGive) return "";
   const nums=kidShowsNumbers(child);
   const given=pot.spent.slice(0,3).map(x=>
     `<li><span>${escapeHtml(x.what)}</span>${nums?`<em>${x.amount}</em>`:""}</li>`).join("");
@@ -6739,6 +6747,15 @@ function givingPotHTML(child){
       </div>
       ${nums ? `<div class="givetotal"><strong>${pot.left}</strong><span>waiting to be given</span></div>` : ""}
       ${given ? `<p class="givecap">What it has become</p><ul class="givelist">${given}</ul>` : ""}
+      ${pot.givers.length ? `<p class="givecap">Given by</p>
+        <ul class="givelist">${pot.givers.slice(0,3).map(g=>
+          `<li><span>${escapeHtml(g.who)} gave some of their own</span>${
+            nums?`<em>${g.amount}</em>`:""}</li>`).join("")}</ul>` : ""}
+      ${canGive ? `<p class="givecap">Give some of yours</p>
+        <div class="giveamts">${[10,25,50].filter(v=>v<=availableFor(child))
+          .map(v=>`<button onclick="popThen(this);kidGive(${v})">${v}</button>`).join("")}</div>
+        <p class="givewhy">Giving costs you something \u2014 that is what makes it a gift.
+          Mum or Dad will say yes first.</p>` : ""}
       ${isParentSession() ? `<button class="givebtn" onclick="spendGiving()">
         \ud83e\udd32 Record what we gave</button>` : ""}
     </section>`;
@@ -9593,6 +9610,38 @@ async function recordGiving(childId, item){
     });
   }catch(e){ console.error("giving share not recorded:", e); }
 }
+async function kidGive(amount){
+  const child=sessionMember();
+  if(!child || isParentRole(child)) return;
+  const amt=parseInt(amount,10)||0;
+  if(amt<=0) return;
+  const spendable=availableFor(child);
+  if(spendable<amt){
+    await kidSay({icon:"\ud83e\udd32", tone:"treat", title:"Not that much yet",
+      note:"You have "+spendable+" points to give right now."});
+    return;
+  }
+  const ok=await kidDialog({
+    icon:"\ud83e\udd32", tone:"cheer", title:"Give "+amt+" points?",
+    thing:"To the family giving pot",
+    note:"These leave your points and go to someone else. Mum or Dad will say what it becomes.",
+    cost:amt, yes:"Yes, give them", no:"Not now"
+  });
+  if(!ok) return;
+  try{
+    await window.fpc.createRequest(familyId, {
+      childId:child.id, childName:child.name,
+      type:"givein", itemId:"give", itemName:amt+" points to give away", points:amt
+    });
+  }catch(e){
+    console.error("Gift offer refused:", e);
+    await kidSay({icon:"\ud83d\udce1", tone:"treat", title:"That didn\u2019t send",
+      note:"Check your connection and try again."});
+    return;
+  }
+  await kidSay({icon:"\ud83e\udd32", tone:"cheer", title:"What a thing to offer",
+    thing:amt+" points", note:"Mum or Dad will see it. Your points stay yours until then."});
+}
 async function kidBuy(type, id){
   const child=sessionMember();
   if(!child || isParentRole(child)) return;
@@ -9672,6 +9721,16 @@ async function approveRequest(id){
     }
     entry=Object.assign({ childId:r.childId, points:0, type:"vault",
       vaultAmount:-amt, label:"Vault: "+r.itemName }, who);
+  }else if(r.type==="givein"){
+    // The child's own gift: it leaves their points and lands in the pot.
+    if(child && (child.balance||0) < r.points){
+      alert(child.name+" only has "+(child.balance||0)+" points now \u2014 not enough to give.");
+      return;
+    }
+    entry=Object.assign({ childId:r.childId, points:-r.points, type:"give",
+      giveAmount:r.points, fromChild:(child?child.name:""),
+      label:(child?child.name:"A child")+" gave "+r.points+" points",
+      actionName:"A gift from "+(child?child.name:"a child") }, who);
   }else{
     if(child && (child.balance||0) < r.points){
       alert(child.name+" only has "+(child.balance||0)+" points now \u2014 not enough for this. Turn it down, or give them the points first.");
@@ -9685,7 +9744,7 @@ async function approveRequest(id){
     await window.fpc.approveRequest(familyId, id, entry, me?me.name:"");
     /* And the moment a share goes to the giving pot. Added, not deducted: the
        child paid the price on the label, and the family gives alongside. */
-    if(r.type!=="vaultin"){
+    if(r.type!=="vaultin" && r.type!=="givein"){
       const item=(app.rewards||[]).concat(app.gameNightActivities||[])
         .filter(x=>x.id===r.itemId)[0] || {name:r.itemName, points:r.points};
       await recordGiving(r.childId, item);
@@ -9737,6 +9796,7 @@ function requestRowHTML(r){
   const what = r.type==="game" ? "\ud83c\udfb2 Activity"
              : r.type==="vaultin"  ? "\ud83c\udfe6 Into my bank"
              : r.type==="vaultout" ? "\ud83c\udf1f From my bank"
+             : r.type==="givein"   ? "\ud83e\udd32 A gift to give away"
              : "\ud83c\udf81 Reward";
   return `<div class="requestrow">
     <div style="flex:1;min-width:180px">
