@@ -3818,7 +3818,7 @@ const TIP_CATS = [
   {key:"deen", label:"Deen"}
 ];
 
-const APP_VERSION = "v136";
+const APP_VERSION = "v137";
 const today = new Date().toISOString().slice(0,10);
 let app = {families:[],currentFamily:null,currentChild:null};
 let categories = [];
@@ -9530,8 +9530,8 @@ function whoHeaderHTML(child, people, opts){
     ? `<img src="${child.photo}" alt="">`
     : '<span class="avatar-placeholder">\ud83d\udc64</span>';
   const multi = people.length>1;
-  return `<div class="givehead${opts.tone?" t-"+opts.tone:""}">
-      <span class="givav">${av}</span>
+  return `<div class="givehead${opts.tone?" t-"+opts.tone:""}${opts.noface?" noface":""}">
+      ${opts.noface ? "" : `<span class="givav">${av}</span>`}
       <div class="givwho">
         <button class="givname" onclick="toggleWhoMenu()" aria-haspopup="listbox"
           aria-expanded="false" id="givNameBtn" ${multi?"":"disabled"}>
@@ -16016,6 +16016,9 @@ window.GROWNUP_DECKS = [
       if(e.type==="award" && k.indexOf("notepaid|")===0){ paid.add(k.split("|")[1]); return; }
       if(e.type==="itemoff"  && k.indexOf("itemoff|")===0){ deadItem.add(k.split("|").slice(1).join("|")); return; }
       if(e.type==="itemdone" && k.indexOf("itemdone|")===0){ done.set(k.split("|").slice(1).join("|"), e); return; }
+      /* Append-only, so undoing is a later entry that cancels the tick rather
+         than the removal of the original. */
+      if(e.type==="itemundone" && k.indexOf("itemundone|")===0){ done.delete(k.split("|").slice(1).join("|")); return; }
       if(e.type==="note" && k.indexOf("note|")===0){
         const id=k.split("|")[1];
         out.set(id, { id, childId:e.childId, message:e.actionName||"", due:e.noteDue||dayStr(e.ts),
@@ -16128,6 +16131,10 @@ window.GROWNUP_DECKS = [
   .ntlive{margin:12px 0 0;padding:10px 12px;border-radius:12px;font-size:12.5px;
     font-weight:700;line-height:1.45;background:#f2f3f8;color:#8a90a6}
   .ntlive.on{background:#e3f6ef;color:#1c8a6c}
+  .givehead.noface .givwho{max-width:100%}
+  .ntmsghint{margin:7px 0 0;font-size:12px;font-weight:700;min-height:16px}
+  .ntmsghint.dirty{color:#b0641a}
+  .ntmsghint.ok{color:#1c8a6c}
   .ntmsgrow{display:flex;align-items:stretch;gap:8px}
   .ntmsgsave{flex:none;width:auto;background:#6a4a05;color:#fff;border:0;border-radius:14px;
     padding:0 18px;font-size:14.5px;font-weight:800;cursor:pointer;min-height:52px}
@@ -16143,22 +16150,34 @@ window.GROWNUP_DECKS = [
     border:1px solid #e2cf9e;border-radius:12px;background:#fff;min-height:44px}
   /* One category open at a time, so the picker is a short shelf rather than
      forty-four chips in a single wrap. */
-  .ntcat{border:1px solid #e6e8f0;border-radius:16px;margin-bottom:8px;overflow:hidden;background:#fff}
-  .ntcat.open{border-color:#d3d7f5}
-  .ntcathead{display:flex;align-items:center;gap:11px;width:100%;background:none;border:0;
-    padding:13px 14px;font:inherit;color:inherit;cursor:pointer;text-align:left;min-height:52px}
-  .ntcaticon{font-size:20px;line-height:1;flex:none}
-  .ntcatname{flex:1;min-width:0;font-size:15px;font-weight:800;color:var(--ink)}
-  .ntcatn{flex:none;background:#eef0f6;color:#6a7184;border-radius:99px;padding:3px 9px;
+  .ntcat{border:1px solid #e9ebf3;border-radius:20px;margin-bottom:10px;overflow:hidden;background:#fff}
+  .ntcat.open{border-color:#d3d7f5;box-shadow:0 8px 22px rgba(24,22,60,.07)}
+  .ntcathead{display:flex;align-items:center;gap:13px;width:100%;background:none;border:0;
+    padding:15px;font:inherit;color:inherit;cursor:pointer;text-align:left;min-height:62px}
+  .ntcat.open .ntcathead{background:#f9f9ff}
+  .ntcaticon{flex:none;width:42px;height:42px;border-radius:50%;background:#f2f3fb;
+    display:flex;align-items:center;justify-content:center;font-size:21px;line-height:1}
+  .ntcat.open .ntcaticon{background:#eef0ff}
+  .ntcatname{flex:1;min-width:0;font-size:16px;font-weight:800;color:var(--ink);line-height:1.25}
+  .ntcatn{flex:none;background:#f2f3fb;color:#6a7184;border-radius:99px;padding:4px 10px;
     font-size:11.5px;font-weight:800}
   .ntcatchev{flex:none;width:8px;height:8px;border-right:2.5px solid #a8aec2;
     border-bottom:2.5px solid #a8aec2;transform:rotate(45deg);transition:transform .2s ease}
   .ntcat.open .ntcatchev{transform:rotate(-135deg)}
-  .ntpick{display:flex;flex-wrap:wrap;gap:7px;padding:2px 14px 14px}
-  .ntpick button{width:auto;display:inline-flex;align-items:center;gap:8px;background:#f7f8fc;
-    border:1px solid #e2e5ee;color:var(--ink);border-radius:99px;padding:10px 14px;
-    font-size:14px;font-weight:700;cursor:pointer;min-height:44px}
-  .ntpick button:active{background:#e8dcc2;border-color:#d9c79c}
+  /* A list to read down rather than a bag of pills: one per row, the plus on
+     the left saying what a tap does, the points in their own column. */
+  .ntpick{display:grid;gap:0;padding:0 6px 8px}
+  .ntpick button{display:flex;align-items:center;gap:12px;width:100%;background:none;border:0;
+    border-radius:14px;padding:14px 10px;font-size:15.5px;font-weight:700;color:var(--ink);
+    text-align:left;cursor:pointer;min-height:56px}
+  .ntpick button+button{box-shadow:inset 0 1px 0 #f1f2f8}
+  .ntpick button:active{background:#fff6e4;box-shadow:none}
+  .npplus{flex:none;width:30px;height:30px;border-radius:10px;background:#eef0ff;color:#3e46ad;
+    display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:800}
+  .npname{flex:1;min-width:0;line-height:1.35}
+  .nppts{flex:none;font-size:12.5px;font-weight:800;color:#8a6a1c;background:#fff6e4;
+    border-radius:99px;padding:5px 10px}
+  .ntaddhint{margin:-4px 0 12px;font-size:12.5px;line-height:1.5;color:#8a90a6}
   .ntfreerow{display:flex;gap:8px;align-items:stretch}
   .ntfreerow input{flex:1;min-width:0;margin-bottom:0!important}
   .ntfreerow .primary{flex:none;width:auto;padding:0 18px;min-height:46px}
@@ -16318,11 +16337,16 @@ window.GROWNUP_DECKS = [
   /* The Save button appears only once the line has been changed, so nothing
      is written until a parent says so. */
   window.ntMsgDirty = function(){
-    const el=$("ntMsgLive"), b=$("ntMsgSave");
+    const el=$("ntMsgLive"), b=$("ntMsgSave"), h=$("ntMsgHint");
     if(!el || !b) return;
     const nt=liveNoteFor(pickChild);
     const was=(nt && nt.message) || "";
-    b.classList.toggle("hidden", String(el.value||"")===was);
+    const dirty=String(el.value||"")!==was;
+    b.classList.toggle("hidden", !dirty);
+    if(h){
+      h.textContent = dirty ? "Not saved yet \u2014 tap Save" : (was ? "Saved" : "");
+      h.className = "ntmsghint" + (dirty ? " dirty" : (was ? " ok" : ""));
+    }
   };
   window.ntSetMessage = async function(noteId){
     if(!grown(me()) || busy) return;
@@ -16370,14 +16394,25 @@ window.GROWNUP_DECKS = [
      handed over by a grown-up, the way every other point in this app is. */
   window.ntTick = async function(noteId, iid){
     const nt=notes().filter(x=>x.id===noteId)[0];
-    if(!nt) return;
+    if(!nt || busy) return;
     const it=nt.items.filter(x=>x.id===iid)[0];
     const m=me();
-    if(!it || it.done) return;
+    if(!it) return;
     if(!m || (m.id!==nt.childId && !grown(m))) return;
-    await writeLedger({ childId:nt.childId, points:0, type:"itemdone",
-      label:"Done: "+it.text, catKey:"itemdone|"+noteId+"|"+iid });
-    try{ if(typeof chime==="function") chime("milestone"); }catch(e){}
+    /* Tapping a ticked line takes the tick off again. A mistap should not be
+       permanent, and it was: nothing could be untapped once set. */
+    if(it.done){
+      if(nt.paid){
+        alert("Those points have already been handed over, so this one is settled.");
+        return;
+      }
+      await writeLedger({ childId:nt.childId, points:0, type:"itemundone",
+        label:"Not done after all: "+it.text, catKey:"itemundone|"+noteId+"|"+iid });
+    }else{
+      await writeLedger({ childId:nt.childId, points:0, type:"itemdone",
+        label:"Done: "+it.text, catKey:"itemdone|"+noteId+"|"+iid });
+      try{ if(typeof chime==="function") chime("milestone"); }catch(e){}
+    }
     renderNotesPanel(); renderKidNote(); if(typeof render==="function") render();
   };
 
@@ -16421,8 +16456,9 @@ window.GROWNUP_DECKS = [
 
   function itemRow(nt, it, canTick, canEdit){
     return `<div class="ntrow${it.done?" is-done":""}">
-      <button class="nttick" ${canTick && !it.done ? `onclick="ntTick('${nt.id}','${it.id}')"` : "disabled"}
-        aria-label="Mark done">${it.done?"\u2713":""}</button>
+      <button class="nttick" ${canTick ? `onclick="ntTick('${nt.id}','${it.id}')"` : "disabled"}
+        aria-label="${it.done?"Take the tick off":"Mark done"}"
+        title="${it.done?"Tap to take the tick off":"Tap when it is done"}">${it.done?"\u2713":""}</button>
       <span class="ntmain">
         <span class="nttext">${esc(it.text)}</span>
         ${it.points ? `<span class="ntpts">${it.points} points</span>`
@@ -16497,6 +16533,8 @@ window.GROWNUP_DECKS = [
     const whoName = ((typeof memberById==="function" && memberById(pickChild))||{}).name || "them";
     return `<div class="ntadd">
       <p class="ntaddcap">What you\u2019re asking for</p>
+      <p class="ntaddhint">Tap one and it goes straight onto the note above \u2014
+        there\u2019s nothing to send.</p>
       <div class="ntchips">
         <button class="${mode==="action"?"on":""}" onclick="ntMode('action')">\u2b50 From the points list</button>
         <button class="${mode==="free"?"on":""}" onclick="ntMode('free')">\u{1f9f9} Not on the list</button>
@@ -16515,7 +16553,9 @@ window.GROWNUP_DECKS = [
                   </button>
                   ${openCat===gi ? `<div class="ntpick">${g.items.map(a=>
                     `<button type="button" data-ntadd="${esc(a.name)}" data-ntpts="${a.points}">
-                       \uff0b ${esc(a.name)} <em>${a.points}</em></button>`).join("")}</div>` : ""}
+                       <span class="npplus">\uff0b</span>
+                       <span class="npname">${esc(a.name)}</span>
+                       <span class="nppts">${a.points}</span></button>`).join("")}</div>` : ""}
                 </div>`).join("")
             : `<p class="ntfull" style="margin:0 0 9px">Everything on the points list has already been
                 asked of ${esc(whoName)} today. Add something of your own instead.</p>`)
@@ -16560,7 +16600,7 @@ window.GROWNUP_DECKS = [
 
     /* The same header the awarding and review screens use. */
     let h=(typeof whoHeaderHTML==="function")
-      ? whoHeaderHTML(child, kids, {sub:"Asking", pick:"ntPickChild", tone:"ask"})
+      ? whoHeaderHTML(child, kids, {sub:"Asking", pick:"ntPickChild", tone:"ask", noface:true})
       : `<div class="ntwho">${kids.map(c=>`<button class="${
           c.id===pickChild?"on":""}" onclick="ntPickChild('${c.id}')">
             ${c.photo?`<img src="${c.photo}" alt="">`:'<span class="avatar-placeholder">\ud83d\udc64</span>'}
@@ -16570,7 +16610,7 @@ window.GROWNUP_DECKS = [
        what it is for instead of asking you to fill something in first. */
     h += `<section class="ntcard">
       <div class="nthead">
-        <p class="ntlabel">A line for them to read \u2014 not a job</p>
+        <p class="ntlabel">A line for them to read \u2014 it sits at the top of their note</p>
         <div class="ntmsgrow">
           <input class="ntmsgin" id="ntMsgLive" maxlength="90"
             value="${nt ? esc(nt.message||"") : ""}"
@@ -16580,6 +16620,8 @@ window.GROWNUP_DECKS = [
           <button class="ntmsgsave hidden" id="ntMsgSave"
             onclick="ntSetMessage('${nt ? nt.id : ""}')">Save</button>
         </div>
+        <p class="ntmsghint${nt && nt.message ? " ok" : ""}" id="ntMsgHint">${
+          nt && nt.message ? "Saved" : ""}</p>
         <p class="ntfrom">${nt
           ? "From " + esc(nt.askedBy || (m?m.name:"")) + (nt.due>today() ? " \u00b7 for "+esc(nt.due) : " \u00b7 today")
           : "Add the first thing below and the note starts itself."}</p>
