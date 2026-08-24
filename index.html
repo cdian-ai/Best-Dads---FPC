@@ -4721,7 +4721,7 @@ const TIP_CATS = [
   {key:"deen", label:"Deen"}
 ];
 
-const APP_VERSION = "v165";
+const APP_VERSION = "v166";
 const today = new Date().toISOString().slice(0,10);
 let app = {families:[],currentFamily:null,currentChild:null};
 let categories = [];
@@ -8033,24 +8033,33 @@ async function kidVaultIn(amount){
       note:"You have "+availableFor(child)+" points spare right now, so you can't lock away "+amount+" of them."});
     return;
   }
-  const ok=await kidDialog({icon:"\ud83c\udfe6", tone:"vault", title:"Lock these away?",
-    thing:amount+" points into your vault",
-    note:"Once they're in, they stay in until you reach "+vaultTarget()+" \u2014 then they can go on something big. Mum or Dad say yes first.",
+  /* v166: no longer an ask. Saving is moving your own points from one of your
+     own pockets to another, and the bank only holds them tighter - a child
+     cannot get them out again without a parent. Making them queue for
+     permission to be careful with their own points taught the opposite of what
+     the bank is for, and put the one decision we most want them to make behind
+     a wait. A parent is told it happened; nobody has to say yes. */
+  const ok=await kidDialog({icon:"\ud83c\udfe6", tone:"vault", title:"Put these away?",
+    thing:amount+" points into your bank",
+    note:"Once they're in, they stay in until you reach "+vaultTarget()+" \u2014 then they can go on something big. Mum and Dad will see you did it.",
     cost:amount, yes:"Yes, save them", no:"Not now"});
   if(!ok) return;
   try{
-    await window.fpc.createRequest(familyId, {
-      childId:child.id, childName:child.name, type:"vaultin",
-      itemId:"vault", itemName:amount+" points into my bank", points:amount
+    await window.fpc.addLedgerEntry(familyId, {
+      childId:child.id, points:-amount, type:"vault", vaultAmount:amount,
+      label:"Into my bank", actionName:"Into my bank",
+      byUid:window.fpc.uid(), byName:child.name, byRole:"themselves"
     });
   }catch(e){
     console.error("Vault deposit refused:", e);
-    await kidSay({icon:"\ud83d\udce1", tone:"treat", title:"That didn't send",
+    await kidSay({icon:"\ud83d\udce1", tone:"treat", title:"That didn't save",
       note:"Check your connection and try again."});
     return;
   }
-  await kidSay({icon:"\ud83c\udfe6", tone:"cheer", title:"Asked!",
-    note:"Mum or Dad will say yes, and then "+amount+" points go safely into your vault."});
+  render();
+  await kidSay({icon:"\ud83c\udfe6", tone:"cheer", title:"Safely away",
+    thing:amount+" points",
+    note:"That was your decision, and nobody can spend it but you \u2014 once the bank reaches "+vaultTarget()+"."});
 }
 async function kidVaultOut(goalId){
   const child=sessionMember();
@@ -10921,26 +10930,34 @@ async function kidGive(amount){
       note:"You have "+spendable+" points to give right now."});
     return;
   }
+  /* Also no longer an ask, and for a sharper reason than the bank: a child
+     who has decided to give something away should not then have to apply for
+     permission to be generous. The family still decides what the pot becomes -
+     that is a parent action and it stays one - but the giving itself is theirs.
+     A parent is told. */
   const ok=await kidDialog({
     icon:"\ud83e\udd32", tone:"cheer", title:"Give "+amt+" points?",
     thing:"To the family giving pot",
-    note:"These leave your points and go to someone else. Mum or Dad will say what it becomes.",
+    note:"These leave your points for good, and the family gives something real because of them.",
     cost:amt, yes:"Yes, give them", no:"Not now"
   });
   if(!ok) return;
   try{
-    await window.fpc.createRequest(familyId, {
-      childId:child.id, childName:child.name,
-      type:"givein", itemId:"give", itemName:amt+" points to give away", points:amt
+    await window.fpc.addLedgerEntry(familyId, {
+      childId:child.id, points:-amt, type:"give", giveAmount:amt,
+      fromChild:child.name, label:child.name+" gave "+amt+" points",
+      actionName:"A gift from "+child.name,
+      byUid:window.fpc.uid(), byName:child.name, byRole:"themselves"
     });
   }catch(e){
-    console.error("Gift offer refused:", e);
-    await kidSay({icon:"\ud83d\udce1", tone:"treat", title:"That didn\u2019t send",
+    console.error("Gift refused:", e);
+    await kidSay({icon:"\ud83d\udce1", tone:"treat", title:"That didn\u2019t save",
       note:"Check your connection and try again."});
     return;
   }
-  await kidSay({icon:"\ud83e\udd32", tone:"cheer", title:"What a thing to offer",
-    thing:amt+" points", note:"Mum or Dad will see it. Your points stay yours until then."});
+  render();
+  await kidSay({icon:"\ud83e\udd32", tone:"cheer", title:"That was yours to give",
+    thing:amt+" points", note:"It is in the family pot now. Mum and Dad will see what you did."});
 }
 async function kidBuy(type, id){
   const child=sessionMember();
@@ -11909,15 +11926,19 @@ function quickBuyHTML(child){
       <span class="qbbal ${nums?"figure":"potword"}">${nums?spendable:potWord(spendable)}</span>
     </div>`;
   const rows=top.length
-    ? `<div class="qbitems">${top.map(r=>`<button class="qbitem" onclick="popThen(this);kidBuy('${
+    ? `<div class="qbitems">${top.map(r=>`<button class="qbitem" onclick="event.stopPropagation();popThen(this);kidBuy('${
         r.kind==="activity"?"game":"reward"}','${r.id}')">
         <span class="qbicon">${iconFor(r, r.kind==="activity" ? "\ud83c\udfb2" : "\ud83c\udf81")}</span>
         <span class="qbname">${escapeHtml(r.name)}</span>
         <span class="amount">${nums ? r.points : "yours"}</span>
       </button>`).join("")}</div>`
     : "";
-  return `<section class="c-panel quickbuy">${head}${rows}
-      <button class="qball" onclick="openSpend('tab')">See everything \u203a</button>
+  /* The whole green surface is the button. A child aiming at a 52px strip at
+     the bottom of a card, when the card itself is the thing they want, is a
+     target problem we created by making only the strip tappable. The two item
+     tiles stop the tap from reaching it, so they still buy. */
+  return `<section class="c-panel quickbuy" onclick="openSpend('tab')">${head}${rows}
+      <button class="qball" onclick="openSpend('tab')">Go to Spend my points \u203a</button>
     </section>`;
 }
 /* The balance, wherever a child is looking at prices. One figure, one

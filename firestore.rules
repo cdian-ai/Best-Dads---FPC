@@ -1,6 +1,6 @@
 rules_version = '2';
 
-// Notice Me — Firestore security rules, app v156.
+// Notice Me — Firestore security rules, app v166.
 //
 // Four roles: parent, child, family (grandparents, uncles, aunties) and tutor.
 // Parents run the family. A child may read the family and mark their own
@@ -154,6 +154,28 @@ service cloud.firestore {
                           && request.resource.data.byUid == request.auth.uid
                           // Only ever towards a child, never towards a parent.
                           && roleOf(fid, request.resource.data.childId) != 'parent')
+                      // A child moving their OWN points into their own bank or
+                      // into the family giving pot. Not an ask, because neither
+                      // is spending: the bank only holds them tighter (nothing
+                      // comes out without a parent) and the giving pot is a
+                      // gift they have already decided to make. Making a child
+                      // queue for permission to be careful or generous taught
+                      // the opposite of what both pots are for.
+                      //
+                      // Pinned so it can only ever REDUCE their own balance:
+                      // their own row, negative points, and the amount moved
+                      // must match the points taken. It cannot award, cannot
+                      // touch a sibling, and cannot take anything out.
+                      || ((request.resource.data.type == 'vault'
+                           || request.resource.data.type == 'give')
+                          && request.resource.data.childId == request.auth.uid
+                          && request.resource.data.byUid == request.auth.uid
+                          && request.resource.data.points is int
+                          && request.resource.data.points < 0
+                          && (request.resource.data.type != 'vault'
+                              || request.resource.data.vaultAmount == -request.resource.data.points)
+                          && (request.resource.data.type != 'give'
+                              || request.resource.data.giveAmount == -request.resource.data.points))
                       // Progress marks carry no points. A child may record that
                       // they practised something; only a parent or their own
                       // tutor may record that it is secure.
