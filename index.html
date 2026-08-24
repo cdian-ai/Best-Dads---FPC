@@ -199,7 +199,7 @@
   .accountbar{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-top:18px;padding:14px 16px;background:#f7f7ff;border:1px solid #e1e3f4;border-radius:16px;flex-wrap:wrap}
   /* One photo of the family, at the top of the header — the part of the page
      every screen shares, whoever is signed in. */
-  .familycover{position:relative;height:132px;border-radius:20px;overflow:hidden;margin-top:14px;
+  .familycover{position:relative;height:33svh;min-height:210px;max-height:300px;border-radius:26px;overflow:hidden;margin-top:14px;
                background-size:cover;background-position:center;cursor:pointer}
   .familycover .coverfade{position:absolute;inset:0;
     background:linear-gradient(180deg,rgba(0,0,0,0) 35%,rgba(0,0,0,.55) 100%)}
@@ -506,7 +506,7 @@
   .spendtabs{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
   .spendtabs button{background:#eef0ff;color:#3e46ad;font-size:13px;padding:13px 6px;width:auto}
   .spendtabs button.on{background:var(--accent);color:#fff}
-  @media(max-width:760px){ .familycover{height:112px} }
+  @media(max-width:760px){ .familycover{height:31svh;min-height:190px} }
   .accountbar:empty,.accountbar.bare{background:none;border:0;box-shadow:none;padding:0;margin:0}
   .accountbuttons{display:flex;gap:8px;flex-wrap:wrap}.small{font-size:12px;color:var(--muted);margin-top:3px}
   /* Everything except the one action a parent actually came here to do lives
@@ -662,6 +662,9 @@
   /* Uppercase 10px in grey is a whisper. A group heading has to be findable
      while scrolling past at speed, so it is set at reading size with a rule
      running out from it. */
+  .grid #attention:empty{display:none}
+  .homegrid+.attncard,.homegrid+.coach,.homegrid+.rcard{margin-top:14px}
+  .attncard+.homegrid,.coach+.homegrid,.rcard+.homegrid{margin-top:14px}
   .homegroup{display:flex;align-items:center;gap:12px;margin:26px 2px 12px;
     font-size:15px;font-weight:800;letter-spacing:0;text-transform:none;color:var(--ink)}
   .homegroup::after{content:"";flex:1;height:1px;background:#dfe2ee}
@@ -3758,7 +3761,7 @@ const TIP_CATS = [
   {key:"deen", label:"Deen"}
 ];
 
-const APP_VERSION = "v124";
+const APP_VERSION = "v125";
 const today = new Date().toISOString().slice(0,10);
 let app = {families:[],currentFamily:null,currentChild:null};
 let categories = [];
@@ -8885,6 +8888,9 @@ function renderParentAdminView(parent){
               ? kids.length+" child"+(kids.length===1?"":"ren")+" \u00b7 "+weekTotal+" points this week"
               : "Add a child to get started"}</span></span>
         </button>
+      </div>
+      ${attentionHTML()}
+      <div class="homegrid">
         ${tile("\ud83d\udccc","The note","What you\u2019ve asked of them today","showNotesPanel()")}
         ${tile("\ud83d\udd14","Requests", pend.length?pend.length+" waiting on you":"Nothing waiting","showRequestsPanel()", pend.length||0)}
       </div>
@@ -9511,46 +9517,46 @@ function spendListHTML(child){
     <div class="cattiles">${tiles}</div>${vaultLine}`;
 }
 
-function renderAttention(){
-  const slot=document.getElementById("attention");
-  if(!slot) return;
-  if(!isParentSession() || editMode || screenNow){ slot.innerHTML=""; return; }
-  /* Opening a child means one thing: you are here to award something. The
-     reminder belongs on the dashboard you came from, not between you and the
-     list you came for. */
-  if(viewChildId){ slot.innerHTML=""; return; }
+/* Returns the markup instead of writing it into a slot, so it can be rendered
+   inside the Today group rather than floating above the whole page. */
+function attentionHTML(){
+  if(!isParentSession() || editMode || screenNow) return "";
+  /* Opening a child means one thing: you are here to award something. */
+  if(viewChildId) return "";
   const pend=pendingRequests().filter(r=>daysAgo(r.ts)>=1);
   if(pend.length){
-    slot.innerHTML=`<section class="attncard urgent" onclick="showRequestsPanel()">
+    return `<section class="attncard urgent" onclick="showRequestsPanel()">
         <span class="attnem">\ud83d\udd14</span>
         <span><strong>${pend.length} request${pend.length>1?"s":""} waiting over a day</strong>
           <span>A no is fine \u2014 it\u2019s the waiting that stops them asking again.</span></span>
       </section>`;
-    return;
   }
   const me=sessionMember();
   const picked=me ? pickNudge(me) : null;
   if(picked){
     const [em, head, body]=picked.nudge.text(picked.ctx);
-    slot.innerHTML=`<div class="coach"><span class="cem">${em}</span>
+    if(picked.fresh) recordNudgeShown(me, picked.nudge.id);
+    return `<div class="coach"><span class="cem">${em}</span>
         <span class="cbodytext"><strong>${escapeHtml(head)}</strong>${escapeHtml(body)}</span>
         <button class="cx" title="Not now" onclick="dismissNudge('${picked.nudge.id}')">\u2715</button></div>`;
-    if(picked.fresh) recordNudgeShown(me, picked.nudge.id);
-    return;
   }
   const days=fortnightDays();
   const on=days.filter(d=>d.any).length;
   if(on < 7){
     const mood=moodFor(null, true);
-    slot.innerHTML=`<section class="attncard" onclick="showOverviewPanel()">
+    return `<section class="attncard" onclick="showOverviewPanel()">
         <span class="attnstar">${starBuddySVG(mood)}</span>
         <span><strong>${on} of the last 14 days</strong>
           <span>${on>=3 ? "Worth asking what got in the way on the others."
                         : "One small thing today is worth more than a big catch-up."}</span></span>
       </section>`;
-    return;
   }
-  slot.innerHTML=reminderCardHTML();
+  return reminderCardHTML();
+}
+function renderAttention(){
+  /* The standalone slot is retired: this now renders inside the Today group. */
+  const slot=document.getElementById("attention");
+  if(slot){ slot.innerHTML=""; slot.classList.add("hidden"); }
 }
 
 /* ---------- The fortnight strip ----------
