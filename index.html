@@ -3818,7 +3818,7 @@ const TIP_CATS = [
   {key:"deen", label:"Deen"}
 ];
 
-const APP_VERSION = "v134";
+const APP_VERSION = "v135";
 const today = new Date().toISOString().slice(0,10);
 let app = {families:[],currentFamily:null,currentChild:null};
 let categories = [];
@@ -16185,6 +16185,11 @@ window.GROWNUP_DECKS = [
   .abcount{flex:none;font-size:14px;font-weight:800;color:#8a6a1c;background:#fff6e4;
     border-radius:99px;padding:6px 11px}
   .abcount.all{background:#e3f6ef;color:#1c8a6c}
+  .ntcheck{background:#1f2733;border-radius:20px;padding:16px;margin-top:22px}
+  .ntcheck p{margin:0 0 12px;font-size:13.5px;line-height:1.5;color:#b9c2d4}
+  .ntcheck button{width:100%;background:#5b63d8;color:#fff;border:0;border-radius:14px;
+    padding:15px;font-size:15.5px;font-weight:800;cursor:pointer;min-height:52px}
+  .ntcheck button:active{transform:scale(.98)}
   .ntdiag{white-space:pre-wrap;word-break:break-word;background:#1f2733;color:#dfe6f2;
     border-radius:14px;padding:13px;font-size:12px;line-height:1.6;margin:10px 0 0;
     font-family:ui-monospace,Menlo,monospace}
@@ -16619,8 +16624,9 @@ window.GROWNUP_DECKS = [
     }
 
     if(nt) h += bonusRow(nt);
-    h += `<div style="margin-top:18px">
-      <button class="ntclear" onclick="ntSelfTest()">\u{1f527} Run a check and copy the result</button>
+    h += `<div class="ntcheck">
+      <p>Nothing appearing when you tap something? Run this and send me what it says.</p>
+      <button onclick="ntSelfTest()">\u{1f527} Run a check</button>
       <pre id="ntDiag" class="ntdiag hidden"></pre>
     </div>`;
     if(nt) h += `<button class="ntclear" onclick="ntRemove('${nt.id}','${nt.childId}')">
@@ -16675,7 +16681,11 @@ window.GROWNUP_DECKS = [
     }
     const text=out.join("\n");
     const box=$("ntDiag");
-    if(box){ box.textContent=text; box.classList.remove("hidden"); }
+    if(box){
+      box.textContent=text;
+      box.classList.remove("hidden");
+      if(box.scrollIntoView) box.scrollIntoView({behavior:"smooth", block:"nearest"});
+    }
     try{ if(navigator.clipboard) navigator.clipboard.writeText(text); }catch(e){}
   };
 
