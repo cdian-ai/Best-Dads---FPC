@@ -3769,7 +3769,7 @@ const TIP_CATS = [
   {key:"deen", label:"Deen"}
 ];
 
-const APP_VERSION = "v129";
+const APP_VERSION = "v130";
 const today = new Date().toISOString().slice(0,10);
 let app = {families:[],currentFamily:null,currentChild:null};
 let categories = [];
@@ -16099,6 +16099,9 @@ window.GROWNUP_DECKS = [
     border-radius:14px;padding:11px 13px}
   .ntpastrow span{flex:1;min-width:0;font-size:14px;font-weight:700;color:#5c6479;line-height:1.35}
   .ntpastrow em{flex:none;font-style:normal;font-size:11.5px;font-weight:700;color:#8a90a6}
+  .ntdiag{white-space:pre-wrap;word-break:break-word;background:#1f2733;color:#dfe6f2;
+    border-radius:14px;padding:13px;font-size:12px;line-height:1.6;margin:10px 0 0;
+    font-family:ui-monospace,Menlo,monospace}
   .ntclear{width:100%;margin-top:12px;background:none;border:0;color:#a8aec2;font-size:13px;
     font-weight:700;cursor:pointer;min-height:44px}
   .ntchips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:9px}
@@ -16528,11 +16531,65 @@ window.GROWNUP_DECKS = [
     }
 
     if(nt) h += bonusRow(nt);
+    h += `<div style="margin-top:18px">
+      <button class="ntclear" onclick="ntSelfTest()">\u{1f527} Run a check and copy the result</button>
+      <pre id="ntDiag" class="ntdiag hidden"></pre>
+    </div>`;
     if(nt) h += `<button class="ntclear" onclick="ntRemove('${nt.id}','${nt.childId}')">
         \u{1f5d1} Clear this note</button>`;
     body.innerHTML=h;
   }
   window.renderNotesPanel = renderNotesPanel;
+
+  /* A self-test, because three attempts at this have been guesses made from a
+     machine that cannot reproduce it. It walks the same path a tap takes and
+     writes down what happened at each step, on screen, in plain words. */
+  window.ntSelfTest = async function(){
+    const out=[];
+    const say=(k,v)=>out.push(k+": "+v);
+    try{
+      say("version", (typeof APP_VERSION!=="undefined") ? APP_VERSION : "unknown");
+      const m=me();
+      say("signed in as", m ? (m.name+" / "+(m.role||"?")) : "NOBODY");
+      say("counts as a grown-up", String(!!grown(m)));
+      say("family id", (typeof familyId!=="undefined" && familyId) ? "present" : "MISSING");
+      say("cloud connection", (typeof window.fpc!=="undefined" && window.fpc && window.fpc.addLedgerEntry) ? "present" : "MISSING");
+      say("child selected", pickChild || "NONE");
+      say("busy lock", String(busy));
+      const f=(typeof currentFamily==="function") ? currentFamily() : null;
+      const kid=(f?f.children:[]).filter(c=>c.id===pickChild)[0];
+      const logN=kid ? (kid.activityLog||[]).length : -1;
+      say("entries visible for them", String(logN));
+      const noteTypes=(kid?(kid.activityLog||[]):[]).filter(e=>String(e.type||"").indexOf("note")===0).length;
+      say("note entries visible", String(noteTypes));
+      say("notes folded", String(notes().filter(x=>x.childId===pickChild).length));
+
+      say("--- writing a test entry ---","");
+      const id="selftest"+Date.now().toString(36);
+      const ok=await writeLedger({ childId:pickChild, points:0, type:"noteitem",
+        label:"Self test", catKey:"noteitem|"+id+"|x", actionName:"Self test",
+        itemAction:null, itemPoints:0 });
+      say("write accepted", String(ok));
+      if(!ok) say("reason", lastWriteError || "no reason given");
+
+      say("waiting 4s for it to come back","");
+      await new Promise(r=>setTimeout(r, 4000));
+      const kid2=((typeof currentFamily==="function"?currentFamily():{children:[]}).children||[])
+        .filter(c=>c.id===pickChild)[0];
+      const back=(kid2?(kid2.activityLog||[]):[]).some(e=>String(e.catKey||"").indexOf(id)>=0);
+      say("came back from the cloud", String(back));
+      if(back){
+        const e=(kid2.activityLog||[]).filter(x=>String(x.catKey||"").indexOf(id)>=0)[0];
+        say("kept its fields", ("itemPoints" in e) ? "yes" : "NO \u2014 projection stripped them");
+      }
+    }catch(err){
+      out.push("THREW: "+((err&&(err.message||err.code))||String(err)));
+    }
+    const text=out.join("\n");
+    const box=$("ntDiag");
+    if(box){ box.textContent=text; box.classList.remove("hidden"); }
+    try{ if(navigator.clipboard) navigator.clipboard.writeText(text); }catch(e){}
+  };
 
   window.showNotesPanel = function(){
     if(typeof openPanelFrom==="function") openPanelFrom("notesPanel");
