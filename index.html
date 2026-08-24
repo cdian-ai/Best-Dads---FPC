@@ -516,9 +516,25 @@
             box-shadow:0 12px 28px rgba(15,143,156,.32);margin-bottom:16px}
   .spendbtn small{display:block;font-size:13px;font-weight:600;opacity:.92;margin-top:3px}
   .spendbtn .spendbal{font-size:26px;font-weight:800;white-space:nowrap}
+  body.kidtab-home  {background:linear-gradient(180deg,#fff6ea,#f6f7fb 320px)}
+  body.kidtab-spend {background:linear-gradient(180deg,#fff8e9,#f6f7fb 320px)}
+  body.kidtab-learn {background:linear-gradient(180deg,#f0f1ff,#f6f7fb 320px)}
+  body.kidtab-points{background:linear-gradient(180deg,#ecf9f4,#f6f7fb 320px)}
+  /* One line at the top of each tab, in that tab's own colour, so a child can
+     tell at a glance which screen they are on without reading. */
+  .kidwhere{display:flex;align-items:center;gap:10px;margin:2px 0 14px;padding:13px 16px;
+    border-radius:18px;font-size:17px;font-weight:800;line-height:1.25}
+  .kidwhere::after{content:"";flex:1;height:3px;border-radius:99px;background:currentColor;opacity:.16}
+  .w-spend{background:linear-gradient(150deg,#fff4dd,#ffe6ba);color:#6a4a05}
+  .w-learn{background:linear-gradient(150deg,#e8e9ff,#d9dbfb);color:#2b2e73}
+  .w-points{background:linear-gradient(150deg,#e3f6ef,#cdeee1);color:#0b5545}
   .tabbar{position:fixed;left:0;right:0;bottom:0;z-index:130;display:grid;grid-template-columns:repeat(4,1fr);
           gap:4px;background:#fff;border-top:1px solid #e6e8f0;padding:7px 8px calc(7px + env(safe-area-inset-bottom));
           box-shadow:0 -6px 20px rgba(24,22,60,.08)}
+  .tabbar button.on{color:#3e46ad}
+  body.kidtab-spend  #kidTabSpend.on{color:#8a5b12}
+  body.kidtab-learn  #kidTabLearn.on{color:#2b2e73}
+  body.kidtab-points #kidTabPoints.on{color:#0b5545}
   .tabbar button{display:flex;flex-direction:column;align-items:center;gap:2px;background:none;
                  color:var(--muted);font-size:11.5px;font-weight:700;padding:7px 4px;width:auto;
                  border-radius:14px;min-height:52px}
@@ -1971,6 +1987,7 @@
   </div>
 
   <div id="kidSpendScreen" class="hidden">
+    <p class="kidwhere w-spend">🎁 Spend my points</p>
     <div id="familyNotices"></div>
     <div id="kidGoal"></div>
     <section class="kidcard teal">
@@ -1997,10 +2014,12 @@
   </div>
 
   <div id="kidLearnScreen" class="hidden">
+    <p class="kidwhere w-learn">📖 What I’m learning</p>
     <div id="kidLearnBody"></div>
   </div>
 
   <div id="kidPointsScreen" class="hidden">
+    <p class="kidwhere w-points">⭐ My points</p>
     <div id="kidBest"></div>
     <div id="championToggleRow"></div>
     <div id="prayerWall"></div>
@@ -3819,7 +3838,7 @@ const TIP_CATS = [
   {key:"deen", label:"Deen"}
 ];
 
-const APP_VERSION = "v139";
+const APP_VERSION = "v140";
 const today = new Date().toISOString().slice(0,10);
 let app = {families:[],currentFamily:null,currentChild:null};
 let categories = [];
@@ -4074,6 +4093,15 @@ function renderFamilyCover(){
      people between you and the list. */
   if(typeof viewChildId!=="undefined" && viewChildId){
     cover.classList.add("hidden"); empty.classList.add("hidden"); return;
+  }
+  /* And a child's app is about them, not about the group. Theirs opens on
+     their own face and their own points. */
+  const meNow=(typeof sessionMember==="function") ? sessionMember() : null;
+  if(meNow && typeof isChildRole==="function" && isChildRole(meNow)){
+    cover.classList.add("hidden"); empty.classList.add("hidden");
+    const hdr0=document.querySelector("header");
+    if(hdr0) hdr0.classList.remove("hascover");
+    return;
   }
   const f=currentFamily();
   if(!f){ cover.classList.add("hidden"); empty.classList.add("hidden"); return; }
@@ -6299,6 +6327,14 @@ function showKidTabBar(){
   if(!me || !isChildRole(me)) return;
   bar.classList.remove("hidden");
   document.body.classList.add("haskidbar");
+  /* The page itself takes the tab's colour, faintly, so moving between tabs
+     feels like moving rooms rather than scrolling one long page. */
+  ["kidtab-home","kidtab-spend","kidtab-learn","kidtab-points"]
+    .forEach(c=>document.body.classList.remove(c));
+  document.body.classList.add(
+    screenNow==="kidSpendScreen"  ? "kidtab-spend"  :
+    screenNow==="kidLearnScreen"  ? "kidtab-learn"  :
+    screenNow==="kidPointsScreen" ? "kidtab-points" : "kidtab-home");
   [["kidTabHome",null],["kidTabSpend","kidSpendScreen"],
    ["kidTabLearn","kidLearnScreen"],["kidTabPoints","kidPointsScreen"]]
     .forEach(([bid,scr])=>{
@@ -8624,6 +8660,8 @@ function applyRoleChrome(){
     const bar=document.getElementById("kidTabBar");
     if(bar) bar.classList.add("hidden");
     document.body.classList.remove("haskidbar");
+    ["kidtab-home","kidtab-spend","kidtab-learn","kidtab-points"]
+      .forEach(c=>document.body.classList.remove(c));
   }
   // Last, so nothing above can re-show something an invited relative
   // should never see.
