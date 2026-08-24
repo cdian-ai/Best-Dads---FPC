@@ -3758,7 +3758,7 @@ const TIP_CATS = [
   {key:"deen", label:"Deen"}
 ];
 
-const APP_VERSION = "v123";
+const APP_VERSION = "v124";
 const today = new Date().toISOString().slice(0,10);
 let app = {families:[],currentFamily:null,currentChild:null};
 let categories = [];
@@ -9461,6 +9461,7 @@ function pickWho(id){
   /* selectChild re-renders the dashboard; a panel has to be told. */
   if(screenNow==="reviewPanel" && typeof renderReviewPanel==="function") renderReviewPanel();
   if(screenNow==="progressPanel" && typeof renderProgressPanel==="function") renderProgressPanel();
+  if(screenNow==="notesPanel" && typeof renderNotesPanel==="function") renderNotesPanel();
 }
 /* Tapping anywhere else closes it, the way a menu should. */
 document.addEventListener("click", (e)=>{
@@ -15998,18 +15999,34 @@ window.GROWNUP_DECKS = [
     overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .ntwho button.on span{color:var(--accent)}
   /* The message is the note, so it is written on the note, not in a form. */
-  .ntmsgin{width:100%;background:transparent;border:0;padding:0;font-size:17px;font-weight:800;
-    color:#6a4a05;line-height:1.35;min-height:0}
-  .ntmsgin::placeholder{color:#b08e3c;font-weight:700}
-  .ntmsgin:focus{outline:none}
+  /* Was transparent gold text on a gold gradient with a paler gold placeholder,
+     which is why it read as an empty pane rather than something to type in. */
+  .ntmsgin{width:100%;background:rgba(255,255,255,.78);border:1px solid #e8d7ab;
+    border-radius:14px;padding:13px 14px;font-size:16.5px;font-weight:800;
+    color:#5a3f04;line-height:1.35;min-height:52px}
+  .ntmsgin::placeholder{color:#8a7038;font-weight:600}
+  .ntmsgin:focus{outline:none;border-color:#c9a15c;background:#fff}
   .ntbonusrow{display:flex;align-items:center;gap:12px;flex-wrap:wrap;background:#fffaef;
     border:1px solid #f0e2bd;border-radius:18px;padding:13px 15px;margin-top:12px}
   .ntbonusrow span{flex:1;min-width:150px;font-size:13.5px;line-height:1.5;color:#7a5c15}
   .ntbonusrow select{width:auto;flex:none;padding:10px 12px;font-size:14.5px;font-weight:700;
     border:1px solid #e2cf9e;border-radius:12px;background:#fff;min-height:44px}
-  .ntpick{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:11px}
-  .ntpick button{width:auto;display:inline-flex;align-items:center;gap:7px;background:#fff;
-    border:1px solid #d9dce8;color:var(--ink);border-radius:99px;padding:10px 14px;
+  /* One category open at a time, so the picker is a short shelf rather than
+     forty-four chips in a single wrap. */
+  .ntcat{border:1px solid #e6e8f0;border-radius:16px;margin-bottom:8px;overflow:hidden;background:#fff}
+  .ntcat.open{border-color:#d3d7f5}
+  .ntcathead{display:flex;align-items:center;gap:11px;width:100%;background:none;border:0;
+    padding:13px 14px;font:inherit;color:inherit;cursor:pointer;text-align:left;min-height:52px}
+  .ntcaticon{font-size:20px;line-height:1;flex:none}
+  .ntcatname{flex:1;min-width:0;font-size:15px;font-weight:800;color:var(--ink)}
+  .ntcatn{flex:none;background:#eef0f6;color:#6a7184;border-radius:99px;padding:3px 9px;
+    font-size:11.5px;font-weight:800}
+  .ntcatchev{flex:none;width:8px;height:8px;border-right:2.5px solid #a8aec2;
+    border-bottom:2.5px solid #a8aec2;transform:rotate(45deg);transition:transform .2s ease}
+  .ntcat.open .ntcatchev{transform:rotate(-135deg)}
+  .ntpick{display:flex;flex-wrap:wrap;gap:7px;padding:2px 14px 14px}
+  .ntpick button{width:auto;display:inline-flex;align-items:center;gap:8px;background:#f7f8fc;
+    border:1px solid #e2e5ee;color:var(--ink);border-radius:99px;padding:10px 14px;
     font-size:14px;font-weight:700;cursor:pointer;min-height:44px}
   .ntpick button.on{background:var(--accent);border-color:var(--accent);color:#fff}
   .ntpick em{font-style:normal;font-size:12px;font-weight:800;opacity:.6}
@@ -16052,15 +16069,20 @@ window.GROWNUP_DECKS = [
       .forEach(nt=>nt.items.forEach(it=>out.add(String(it.text||"").toLowerCase())));
     return out;
   }
-  function actionOptions(nt){
+  function actionGroups(nt){
     const on=askedToday(pickChild);
     (nt && nt.items ? nt.items : []).forEach(i=>on.add(String(i.text||"").toLowerCase()));
     const out=[];
-    (typeof app!=="undefined" ? (app.categories||[]) : []).forEach(cat=>(cat.actions||[]).forEach(a=>{
-      if(on.has(String(a[0]).toLowerCase())) return;
-      out.push({name:a[0], points:a[1], icon:cat.icon||""});
-    }));
+    (typeof app!=="undefined" ? (app.categories||[]) : []).forEach(cat=>{
+      const items=(cat.actions||[])
+        .filter(a=>!on.has(String(a[0]).toLowerCase()))
+        .map(a=>({name:a[0], points:a[1], icon:cat.icon||""}));
+      if(items.length) out.push({name:cat.name, icon:cat.icon||"", items});
+    });
     return out;
+  }
+  function actionOptions(nt){
+    return actionGroups(nt).reduce((all,g)=>all.concat(g.items), []);
   }
 
   let busy=false;
@@ -16120,9 +16142,22 @@ window.GROWNUP_DECKS = [
   };
 
   window.ntSetMessage = async function(noteId){
-    if(!grown(me())) return;
+    if(!grown(me()) || busy) return;
     const el=$("ntMsgLive"); if(!el) return;
     const v=String(el.value||"").trim();
+    /* Writing the line is a perfectly good way to begin a note. */
+    if(!noteId){
+      if(!v) return;
+      const id=newId("nt");
+      working(true);
+      const ok=await writeLedger({ childId:pickChild, points:0, type:"note",
+        label:"Note for the day", catKey:"note|"+id, actionName:v,
+        noteDue:today(), noteBonus:5 });
+      working(false);
+      if(!ok) alert("That couldn\u2019t be saved. Check your connection and try again.");
+      renderNotesPanel(); if(typeof render==="function") render();
+      return;
+    }
     await writeLedger({ childId:pickChild, points:0, type:"notemsg",
       label:"Note message", catKey:"notemsg|"+noteId, actionName:v });
     renderNotesPanel(); if(typeof render==="function") render();
@@ -16246,8 +16281,18 @@ window.GROWNUP_DECKS = [
      modes are a toggle rather than a form: pick from the list and it carries
      its points, or type anything and it carries none. */
   let picked = new Set();
-  window.ntTogglePick = function(name){
-    if(picked.has(name)) picked.delete(name); else picked.add(name);
+  let openCat = 0;
+  /* Indexed, not named: the name never travels through an HTML attribute, so
+     an apostrophe in "Read or listen to Qur'an" cannot break the handler. */
+  window.ntTogglePick = function(gi, ii){
+    const g=actionGroups(liveNoteFor(pickChild))[gi];
+    const it=g && g.items[ii];
+    if(!it) return;
+    if(picked.has(it.name)) picked.delete(it.name); else picked.add(it.name);
+    renderNotesPanel();
+  };
+  window.ntOpenCat = function(i){
+    openCat = (openCat===i) ? -1 : i;
     renderNotesPanel();
   };
   function addBoxHTML(nt){
@@ -16257,27 +16302,40 @@ window.GROWNUP_DECKS = [
         \u2713 Six things is a full note. Beyond that a list stops being a list \u2014
         take one off if something more important comes up.</p></div>`;
     }
-    const acts=actionOptions(nt);
+    const groups=actionGroups(nt);
     const id = nt ? nt.id : "";
+    const anyLeft = groups.length>0;
+    const whoName = ((typeof memberById==="function" && memberById(pickChild))||{}).name || "them";
     return `<div class="ntadd">
-      <p class="ntaddcap">Add something to the note</p>
+      <p class="ntaddcap">Add to the note</p>
       <div class="ntchips">
         <button class="${mode==="action"?"on":""}" onclick="ntMode('action')">\u2b50 Earns points</button>
         <button class="${mode==="free"?"on":""}" onclick="ntMode('free')">\u{1f9f9} Just a job</button>
       </div>
       ${mode==="action"
-        ? (acts.length
-            ? `<div class="ntpick">${acts.map(a=>
-                `<button class="${picked.has(a.name)?"on":""}" onclick="ntTogglePick('${esc(a.name).replace(/'/g,"\\'")}')">
-                   ${a.icon} ${esc(a.name)} <em>${a.points}</em></button>`).join("")}</div>`
+        ? (anyLeft
+            /* One category open at a time. Forty-four chips in a single wrap
+               was a wall; this is a shelf you open one shelf of. */
+            ? groups.map((g,gi)=>`
+                <div class="ntcat${openCat===gi?" open":""}">
+                  <button class="ntcathead" onclick="ntOpenCat(${gi})">
+                    <span class="ntcaticon">${g.icon}</span>
+                    <span class="ntcatname">${esc(g.name)}</span>
+                    <span class="ntcatn">${g.items.length}</span>
+                    <span class="ntcatchev"></span>
+                  </button>
+                  ${openCat===gi ? `<div class="ntpick">${g.items.map((a,ii)=>
+                    `<button class="${picked.has(a.name)?"on":""}" onclick="ntTogglePick(${gi},${ii})">
+                       ${esc(a.name)} <em>${a.points}</em></button>`).join("")}</div>` : ""}
+                </div>`).join("")
             : `<p class="ntfull" style="margin:0 0 9px">Everything on the points list has already been
-                asked of ${esc((typeof memberById==="function" && memberById(pickChild)||{}).name||"them")} today.
-                Add something of your own instead.</p>`)
+                asked of ${esc(whoName)} today. Add something of your own instead.</p>`)
         : `<input type="text" id="ntFree" placeholder="e.g. put the bins out" maxlength="70">`}
-      <button class="primary" style="width:100%" onclick="ntAddItem('${id}')">${
-        mode==="action" && picked.size>1 ? "\uff0b Add these "+picked.size : "\uff0b Add it"}</button>
+      ${(mode==="free" || picked.size)
+        ? `<button class="primary" style="width:100%;margin-top:4px" onclick="ntAddItem('${id}')">${
+            picked.size>1 ? "\uff0b Add these "+picked.size : "\uff0b Add it"}</button>` : ""}
       <p class="ntfull">${count} of ${MAX_ITEMS} on the note${count?"":" \u2014 nothing yet"}${
-        mode==="action" && picked.size ? " \u00b7 "+picked.size+" chosen" : ""}</p>
+        picked.size ? " \u00b7 "+picked.size+" chosen" : ""}</p>
     </div>`;
   }
 
@@ -16298,15 +16356,21 @@ window.GROWNUP_DECKS = [
     const f=(typeof currentFamily==="function") ? currentFamily() : null;
     const kids=(f?f.children:[]).filter(c=>typeof isChildRole==="function" && isChildRole(c));
     if(!kids.length){ body.innerHTML='<p class="small">No children added yet.</p>'; return; }
+    /* Whoever the app is pointed at, so the child follows you between
+       screens instead of each one keeping its own idea of who you meant. */
+    const cur=(typeof currentChild==="function") ? currentChild() : null;
+    if(cur && kids.some(c=>c.id===cur.id)) pickChild=cur.id;
     if(!pickChild || !kids.some(c=>c.id===pickChild)) pickChild=kids[0].id;
     const child=kids.filter(c=>c.id===pickChild)[0];
     const nt=liveNoteFor(pickChild);
 
-    /* Faces, not just names: you are writing to a person. */
-    let h=`<div class="ntwho">${kids.map(c=>`<button class="${
-      c.id===pickChild?"on":""}" onclick="ntPickChild('${c.id}')">
-        ${c.photo?`<img src="${c.photo}" alt="">`:'<span class="avatar-placeholder">\ud83d\udc64</span>'}
-        <span>${esc(c.name)}</span></button>`).join("")}</div>`;
+    /* The same header the awarding and review screens use. */
+    let h=(typeof whoHeaderHTML==="function")
+      ? whoHeaderHTML(child, kids, {sub:"The note"})
+      : `<div class="ntwho">${kids.map(c=>`<button class="${
+          c.id===pickChild?"on":""}" onclick="ntPickChild('${c.id}')">
+            ${c.photo?`<img src="${c.photo}" alt="">`:'<span class="avatar-placeholder">\ud83d\udc64</span>'}
+            <span>${esc(c.name)}</span></button>`).join("")}</div>`;
 
     /* The note itself is always on screen, empty or not, so the page shows
        what it is for instead of asking you to fill something in first. */
@@ -16315,7 +16379,7 @@ window.GROWNUP_DECKS = [
         <input class="ntmsgin" id="ntMsgLive" maxlength="90"
           value="${nt ? esc(nt.message||"") : ""}"
           placeholder="Write a line for ${esc(child.name)} \u2014 e.g. Back at six, Dad"
-          ${nt ? `onchange="ntSetMessage('${nt.id}')"` : "disabled"}>
+          onchange="ntSetMessage('${nt ? nt.id : ""}')">
         <p class="ntfrom">${nt
           ? "From " + esc(nt.askedBy || (m?m.name:"")) + (nt.due>today() ? " \u00b7 for "+esc(nt.due) : " \u00b7 today")
           : "Add the first thing below and the note starts itself."}</p>
