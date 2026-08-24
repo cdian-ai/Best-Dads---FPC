@@ -3818,7 +3818,7 @@ const TIP_CATS = [
   {key:"deen", label:"Deen"}
 ];
 
-const APP_VERSION = "v137";
+const APP_VERSION = "v138";
 const today = new Date().toISOString().slice(0,10);
 let app = {families:[],currentFamily:null,currentChild:null};
 let categories = [];
@@ -6289,6 +6289,22 @@ function closeKidDialog(v){
 function kidSay(o){ return kidDialog(Object.assign({}, o, {yes:o.yes||"OK!", no:null})); }
 
 /* ---------- The child's menu ---------- */
+/* Lifted out of renderKidView so it can run before anything that might fail,
+   and again from the router. */
+function showKidTabBar(){
+  const bar=document.getElementById("kidTabBar");
+  if(!bar) return;
+  const me=sessionMember();
+  if(!me || !isChildRole(me)) return;
+  bar.classList.remove("hidden");
+  document.body.classList.add("haskidbar");
+  [["kidTabHome",null],["kidTabSpend","kidSpendScreen"],
+   ["kidTabLearn","kidLearnScreen"],["kidTabPoints","kidPointsScreen"]]
+    .forEach(([bid,scr])=>{
+      const b=document.getElementById(bid);
+      if(b) b.classList.toggle("on", screenNow===scr);
+    });
+}
 function kidViewOpen(){
   const kv=document.getElementById("kidView");
   return !!kv && !kv.classList.contains("hidden");
@@ -6468,6 +6484,7 @@ function showScreen(id){
   if(topBtn) topBtn.classList.add("hidden");
   watchPanelScroll();
   try{ syncPanelBackLabels(); }catch(e){}
+  try{ showKidTabBar(); }catch(e){}
   render();
 }
 function goHome(){ closeMenu(); returnTo=null; showScreen(null); }
@@ -10016,6 +10033,9 @@ function dropConfetti(){
 
 function renderKidView(child){
   document.getElementById("kidView").classList.remove("hidden");
+  /* First, and on its own: this is the way off every screen a child can reach,
+     so it must not depend on the rest of this function surviving. */
+  try{ showKidTabBar(); }catch(e){}
   const kidAv=document.getElementById("kidAvatar");
   kidAv.innerHTML = child.photo
     ? `<img class="avatar-lg tappable" src="${child.photo}">`
@@ -10087,18 +10107,9 @@ function renderKidView(child){
   const pw=document.getElementById("prayerWall");
   if(pw) pw.innerHTML = prayerWallHTML(child, 7, true);
 
-  // Bottom tab bar: three destinations, so nothing needs scrolling to reach.
-  const bar=document.getElementById("kidTabBar");
-  if(bar){
-    bar.classList.remove("hidden");
-    document.body.classList.add("haskidbar");
-    [["kidTabHome",null],["kidTabSpend","kidSpendScreen"],
-     ["kidTabLearn","kidLearnScreen"],["kidTabPoints","kidPointsScreen"]]
-      .forEach(([bid,scr])=>{
-        const b=document.getElementById(bid);
-        if(b) b.classList.toggle("on", screenNow===scr);
-      });
-  }
+  // Bottom tab bar: put up at the top of this function, before anything that
+  // could fail. Re-run here so the selected tab is right.
+  showKidTabBar();
   ["rewards","games","save"].forEach(t=>{
     const btn=document.getElementById("spendTab"+t[0].toUpperCase()+t.slice(1));
     if(btn) btn.classList.toggle("on", spendTab===t);
@@ -16817,9 +16828,14 @@ window.GROWNUP_DECKS = [
   if(typeof renderKidView==="function"){
     const inner=renderKidView;
     window.renderKidView=function(){
-      const r=inner.apply(this, arguments);
-      try{ renderKidNote(); }catch(e){}
-      return r;
+      /* finally, not after: if the child's view throws partway, the card it
+         was going to mount would never appear, and the failure would be
+         invisible. */
+      try{
+        return inner.apply(this, arguments);
+      }finally{
+        try{ renderKidNote(); }catch(e){}
+      }
     };
     renderKidView = window.renderKidView;
   }
