@@ -582,6 +582,28 @@
   /* One row per thing, ordered by how close it is. The bar fills forward and
      can never empty, because points are never taken away. */
   /* A jar that fills. Saving is invisible by nature, so it needs a picture. */
+  /* Giving sits with the bank: spend some, save some, give some — the whole
+     of it in three pots a child can see. */
+  .givecard{background:linear-gradient(150deg,#e9f6ef,#d6efe2);border:1px solid #bfe4d2;
+    border-radius:26px;padding:20px;margin-top:14px}
+  .givetop{display:flex;align-items:flex-start;gap:14px}
+  .giveicon{flex:none;width:54px;height:54px;border-radius:18px;background:#fff;
+    display:flex;align-items:center;justify-content:center;font-size:27px}
+  .givewords{flex:1;min-width:0}
+  .givewords h2{margin:0 0 6px;font-size:20px;color:#0b5545}
+  .givewords p{margin:0;font-size:13.5px;line-height:1.55;color:#2f6b57}
+  .givetotal{display:flex;align-items:baseline;gap:9px;margin:16px 0 0}
+  .givetotal strong{font-size:34px;font-weight:800;line-height:1;color:#0b5545}
+  .givetotal span{font-size:13.5px;color:#2f6b57;font-weight:700}
+  .givecap{margin:16px 0 8px;font-size:11px;font-weight:800;letter-spacing:.06em;
+    text-transform:uppercase;color:#4f8874}
+  .givelist{margin:0;padding:0;list-style:none;display:grid;gap:6px}
+  .givelist li{display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.8);
+    border-radius:14px;padding:11px 13px;font-size:14px;font-weight:700;color:#245a49}
+  .givelist li span{flex:1;min-width:0}
+  .givelist li em{flex:none;font-style:normal;font-size:12.5px;font-weight:800;color:#4f8874}
+  .givebtn{width:100%;margin-top:14px;background:#177f5c;color:#fff;border:0;border-radius:16px;
+    padding:14px;font-size:15px;font-weight:800;cursor:pointer;min-height:50px}
   .banklesson{margin:10px 0 0;background:#f3f7ff;border-left:3px solid #9fb2ee;border-radius:0 12px 12px 0;
     padding:10px 12px;font-size:12.5px;font-weight:600;line-height:1.5;color:#3f4560}
   /* This card is white-on-orange, but the heading and lede were inheriting the
@@ -2153,6 +2175,7 @@
          same list, so saving is the same act as spending, further off. -->
     <div id="kidReachList"></div>
     <div id="kidVault"></div>
+    <div id="kidGivingPot"></div>
     <div id="kidSpendRequests"></div>
     <!-- Kept so existing code that writes here still has somewhere to write. -->
     <div class="hidden">
@@ -3494,6 +3517,33 @@ const DEFAULT_CATEGORIES = [
 function actionOpts(a){ return (a && typeof a[2] === "object" && a[2]) || {}; }
 
 const DEFAULT_REWARDS = [
+  // Food. The most-asked-for rewards in any family, so they are here by name
+  // rather than left for a parent to think of at the point of setup.
+  {name:"Chicken and chips", points:120, kind:"Treat", group:"treats"},
+  {name:"Pizza night, your topping", points:150, kind:"Treat", group:"treats"},
+  {name:"A kebab wrap on the way home", points:120, kind:"Treat", group:"treats"},
+  {name:"Samosas or spring rolls", points:70, kind:"Treat", group:"treats"},
+  {name:"A doughnut of your choosing", points:60, kind:"Treat", group:"treats"},
+  {name:"A slushie or a milkshake", points:60, kind:"Treat", group:"treats"},
+  {name:"Popcorn for a family film night", points:80, kind:"Treat", group:"treats"},
+  {name:"Ice cream after dinner", points:70, kind:"Treat", group:"treats"},
+  {name:"A bag of crisps with lunch", points:35, kind:"Treat", group:"treats"},
+  {name:"Hot chocolate with marshmallows", points:60, kind:"Treat", group:"treats"},
+  {name:"Pick the pudding for everyone on Friday", points:90, kind:"Treat", group:"treats"},
+
+  // Bank only. Things a parent would buy anyway, made into a lesson: they come
+  // from money deliberately set aside, never from one good week.
+  {name:"A bicycle", points:4000, kind:"Big thing", group:"big", bank:true},
+  {name:"A scooter", points:2500, kind:"Big thing", group:"big", bank:true},
+  {name:"A games console game of your choice", points:2000, kind:"Big thing", group:"big", bank:true},
+  {name:"A tablet or games console", points:6000, kind:"Big thing", group:"big", bank:true},
+  {name:"New football boots", points:2200, kind:"Big thing", group:"big", bank:true},
+  {name:"A big Lego or building set", points:1800, kind:"Big thing", group:"big", bank:true},
+  {name:"Your Eid outfit, your choice", points:2500, kind:"Big thing", group:"big", bank:true},
+  {name:"A day out you choose \u2014 zoo, museum, farm", points:3000, kind:"Big thing", group:"big", bank:true},
+  {name:"The next books in a series you love", points:1500, kind:"Big thing", group:"big", bank:true},
+  {name:"A bedroom thing \u2014 poster, lamp, cushion", points:1200, kind:"Big thing", group:"big", bank:true},
+
   // Connection — deliberately cheap. These are what we want chosen most often,
   // so the brake on them is a limit, not a price.
   {name:"Choose what we listen to in the car", points:15, kind:"Time together", group:"choices"},
@@ -3997,7 +4047,7 @@ const TIP_CATS = [
   {key:"deen", label:"Deen"}
 ];
 
-const APP_VERSION = "v149";
+const APP_VERSION = "v150";
 const today = new Date().toISOString().slice(0,10);
 let app = {families:[],currentFamily:null,currentChild:null};
 let categories = [];
@@ -6641,6 +6691,58 @@ function reachListHTML(child){
    screen. These are the real principles, in a child's words: pay yourself
    first, little and often, keep it separate from spending money, and the
    waiting is the part that works. */
+/* ---------- Sadaqah: a share of every reward ----------
+   Not a tax. Nothing is deducted from the child: the share is added to a
+   family pot on top of what they spend, so their points buy exactly what the
+   price says. What a child learns is proportion \u2014 a share of what comes to
+   you goes on to someone else, and a bigger blessing means a bigger share.
+   A parent sets the rate, and may set a higher one for the big things. */
+function givingRate(item){
+  const s=(app.settings||{});
+  const base=Number.isFinite(s.giveRate) ? s.giveRate : 10;
+  const big =Number.isFinite(s.giveRateBig) ? s.giveRateBig : Math.max(base, 20);
+  return (item && item.bank) ? big : base;
+}
+function givingShare(item){
+  const pct=givingRate(item);
+  if(!pct) return 0;
+  return Math.max(1, Math.round((item.points||0) * pct / 100));
+}
+/* Folded from the ledger the way everything else is: what went in, and what a
+   parent recorded it becoming. */
+function givingPot(){
+  const f=currentFamily();
+  let inn=0, out=0;
+  const spent=[];
+  (f?f.children:[]).forEach(c=>(c.activityLog||[]).forEach(e=>{
+    if(e.type==="give")    inn += (e.giveAmount||0);
+    if(e.type==="gaveout"){ out += (e.giveAmount||0);
+      spent.push({what:e.actionName||e.label||"", amount:e.giveAmount||0, ts:e.ts}); }
+  }));
+  return { in:inn, out:out, left:Math.max(0, inn-out),
+           spent:spent.sort((a,b)=>b.ts-a.ts) };
+}
+function givingPotHTML(child){
+  const pot=givingPot();
+  if(!pot.in) return "";
+  const nums=kidShowsNumbers(child);
+  const given=pot.spent.slice(0,3).map(x=>
+    `<li><span>${escapeHtml(x.what)}</span>${nums?`<em>${x.amount}</em>`:""}</li>`).join("");
+  return `<section class="givecard">
+      <div class="givetop">
+        <span class="giveicon">\ud83e\udd32</span>
+        <div class="givewords">
+          <h2>Our giving pot</h2>
+          <p>Every time you get a reward, a little goes in here for someone else.
+             Nothing is taken from your points \u2014 the family gives alongside you.</p>
+        </div>
+      </div>
+      ${nums ? `<div class="givetotal"><strong>${pot.left}</strong><span>waiting to be given</span></div>` : ""}
+      ${given ? `<p class="givecap">What it has become</p><ul class="givelist">${given}</ul>` : ""}
+      ${isParentSession() ? `<button class="givebtn" onclick="spendGiving()">
+        \ud83e\udd32 Record what we gave</button>` : ""}
+    </section>`;
+}
 function bankLesson(child, have, target, spendable){
   const pct = target ? have/target : 0;
   if(have<=0){
@@ -9476,6 +9578,21 @@ async function writeLedger(entry){
 }
 
 /* ---------- Buying: children ask, parents approve, approval spends ---------- */
+/* Called when a reward is granted. The child pays the price; the share is
+   added to the family's giving pot alongside it. */
+async function recordGiving(childId, item){
+  try{
+    const share=givingShare(item);
+    if(!share) return;
+    const me=sessionMember();
+    await window.fpc.addLedgerEntry(familyId, {
+      childId, points:0, type:"give", giveAmount:share,
+      label:"Sadaqah from "+(item.name||"a reward"),
+      actionName:item.name||"", catKey:"give|"+Date.now().toString(36),
+      byUid: window.fpc.uid(), byName: me?me.name:""
+    });
+  }catch(e){ console.error("giving share not recorded:", e); }
+}
 async function kidBuy(type, id){
   const child=sessionMember();
   if(!child || isParentRole(child)) return;
@@ -9566,8 +9683,40 @@ async function approveRequest(id){
   try{
     // Approval is the moment the points move: status and ledger commit together.
     await window.fpc.approveRequest(familyId, id, entry, me?me.name:"");
+    /* And the moment a share goes to the giving pot. Added, not deducted: the
+       child paid the price on the label, and the family gives alongside. */
+    if(r.type!=="vaultin"){
+      const item=(app.rewards||[]).concat(app.gameNightActivities||[])
+        .filter(x=>x.id===r.itemId)[0] || {name:r.itemName, points:r.points};
+      await recordGiving(r.childId, item);
+    }
   }catch(e){
     console.error("Approve failed:", e);
+    alert("That couldn't be saved \u2014 check your connection.");
+  }
+}
+/* A parent turns the pot into something real and writes down what it became.
+   Without that last step it is just another number going up. */
+async function spendGiving(){
+  if(!requireParent()) return;
+  const pot=givingPot();
+  if(pot.left<=0){ alert("The giving pot is empty just now."); return; }
+  const what=prompt("What did the family give?\n\nFor example: coins in the masjid box, food for a neighbour, "
+    + "a gift for someone, a donation you made together.");
+  if(!what || !what.trim()) return;
+  const me=sessionMember();
+  try{
+    await window.fpc.addLedgerEntry(familyId, {
+      childId:(currentFamily().children.filter(isChildRole)[0]||{}).id||null,
+      points:0, type:"gaveout", giveAmount:pot.left,
+      label:"Given: "+what.trim(), actionName:what.trim(),
+      catKey:"gaveout|"+Date.now().toString(36),
+      byUid: window.fpc.uid(), byName: me?me.name:""
+    });
+    alert("Recorded. The children can see what their sadaqah became.");
+    render();
+  }catch(e){
+    console.error("Giving record failed:", e);
     alert("That couldn't be saved \u2014 check your connection.");
   }
 }
@@ -10542,6 +10691,8 @@ function renderKidView(child){
   document.getElementById("kidGameChips").innerHTML =
     chipList(app.gameNightActivities, "game", kidShowAllGames, "toggleAllGames()",
              "\ud83c\udfb2 No activities yet \u2014 ask Mum or Dad what you could do together.");
+  const giveEl=document.getElementById("kidGivingPot");
+  if(giveEl) giveEl.innerHTML = givingPotHTML(child);
   const reachEl=document.getElementById("kidReachList");
   if(reachEl) reachEl.innerHTML = reachListHTML(child);
   const vaultEl=document.getElementById("kidVault");
