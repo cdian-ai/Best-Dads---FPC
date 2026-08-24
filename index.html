@@ -777,6 +777,93 @@
     padding:10px 13px;font-size:20px;font-weight:800;line-height:1;text-align:center}
   .spendbtn .spendbal::after{content:"points";display:block;font-size:9.5px;font-weight:800;
     letter-spacing:.06em;opacity:.7;margin-top:3px}
+  /* ================= MY POINTS — v158 design =================
+     Three surfaces (c-hero / c-panel / c-act) and three kinds of number.
+     Nothing here introduces a fourth of either.
+
+     THE NUMBER RULE
+       .figure   a total that is yours right now. Only ever inside a pot.
+                 Never more than three on a screen.
+       .amount   a price or a change. Always attached to a thing, never
+                 floating. Gold pill = earned, grey pill = costs.
+       .bar      a distance to something. Never a bare number: always a bar
+                 plus words, so it reads identically with figures off.
+     Which is it? Can it go up on its own -> figure. Does it belong to an
+     object -> amount. Is it a distance -> bar.                            */
+
+  /* The one gold rule on the page. Gold appears in exactly three places -
+     here, the earned pill, and the Bank pot - which is what stops a gold tab
+     turning into a yellow page. */
+  .titlerule{height:3px;border-radius:99px;margin:2px 2px 16px;
+    background:linear-gradient(90deg,#dda520,rgba(221,165,32,0))}
+  .kidback{display:inline-flex;align-items:center;gap:6px;background:#fff;
+    border:1px solid #e6e8f0;border-radius:99px;padding:9px 15px;margin:2px 0 12px;
+    font-size:13.5px;font-weight:800;color:#3e46ad;cursor:pointer;min-height:44px}
+  .bestchip{display:inline-flex;align-items:center;gap:8px;margin:0 0 4px;
+    background:#fbeccb;color:#6d4d05;border-radius:99px;padding:8px 14px;
+    font-size:12.5px;font-weight:800}
+  .bestchip.best{background:linear-gradient(150deg,#fbeccb,#f6dda0)}
+
+  /* ---- the moment ---- */
+  .moment{position:relative;overflow:hidden;
+    background:linear-gradient(155deg,#333a7d,#1c2154)}
+  .momentglow{position:absolute;width:170px;height:170px;border-radius:50%;
+    background:rgba(240,189,83,.16);top:-70px;right:-46px;pointer-events:none}
+  .momentwho{position:relative;margin:0;display:flex;align-items:center;gap:8px;
+    font-size:11.5px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;
+    color:#f2d79a}
+  .momentnote{position:relative;margin:12px 0 0;font-size:20px;font-weight:800;
+    line-height:1.35;color:#fff}
+  .momentfoot{position:relative;display:flex;align-items:center;
+    justify-content:space-between;gap:12px;margin-top:16px}
+  .momentwhen{font-size:12px;font-weight:700;color:rgba(255,255,255,.72)}
+  .momentpts{flex:none;background:rgba(240,189,83,.22);color:#ffe6ae;font-size:13px;
+    font-weight:800;padding:7px 12px;border-radius:99px}
+
+  /* ---- the feed, quieter than the moment ---- */
+  .feedpanel{padding:4px 16px}
+  .amount{display:inline-block;font-size:12.5px;font-weight:800;line-height:1;
+    padding:6px 11px;border-radius:99px;background:#eef0f7;color:#4a4570}
+  .amount.earned{background:#fbeccb;color:#6d4d05}
+
+  /* ---- where my points are ---- */
+  .pots{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}
+  .pot{display:flex;flex-direction:column;align-items:flex-start;gap:0;
+    padding:14px 12px 13px;min-height:104px;justify-content:space-between;
+    color:inherit;text-align:left}
+  .potglyph{font-size:19px;line-height:1}
+  .potfig{margin-top:6px;display:block}
+  .figure{font-size:29px;font-weight:800;line-height:1;letter-spacing:-.02em}
+  /* The word form of a figure. Same slot, same weight, smaller so a long word
+     cannot push the pot's name onto a second line. */
+  .potword{font-size:16px;font-weight:800;line-height:1.15}
+  .potname{font-size:11.5px;font-weight:800;color:#8a90a6;line-height:1.2;margin-top:3px}
+  .pot.spend{background:linear-gradient(160deg,#fff,#dff2e9)} .pot.spend .potfig{color:#177f5c}
+  .pot.bank {background:linear-gradient(160deg,#fff,#fbeccb)} .pot.bank  .potfig{color:#c8940f}
+  .pot.give {background:linear-gradient(160deg,#fff,#ddf0ef)} .pot.give  .potfig{color:#2f8f8a}
+  .pot.dim{background:#fff} .pot.dim .potfig{color:#b6bbcc}
+  .potnote{margin:10px 2px 0;font-size:12px;font-weight:600;color:#8a90a6;line-height:1.45}
+
+  /* ---- one idea ---- */
+  .idea{display:flex;align-items:center;gap:13px;padding:14px}
+  .ideaglyph{flex:none;width:42px;height:42px;border-radius:14px;background:#fbeccb;
+    display:flex;align-items:center;justify-content:center;font-size:20px}
+  .ideamain{flex:1;min-width:0}
+  .ideatext{display:block;font-size:14.5px;font-weight:700;line-height:1.35}
+  .ideapts{display:block;margin-top:7px}
+  .ideanext{flex:none;width:40px;height:40px;border-radius:50%;border:1px solid #e6e8f0;
+    background:#fff;font-size:16px;cursor:pointer;color:#8a90a6}
+  .ideanext:active{transform:scale(.94)}
+
+  /* ---- the empty state, designed rather than left to fall out ----
+     It is the first thing every new child sees. Not "no data": a promise
+     about what will appear, drawn in the shape of the card that will appear
+     there, so the page never looks broken or finished. */
+  .empty{text-align:center;padding:26px 18px}
+  .emptyart{font-size:44px;line-height:1}
+  .emptyhead{margin:12px 0 0;font-size:18px;font-weight:800}
+  .emptysay{margin:8px 0 0;font-size:14px;font-weight:600;color:#4a4570;line-height:1.5}
+
   /* A page title, not a tab. The old coloured pill read as a selected tab at
      the top of the screen, which is exactly what it sat under. This is a
      heading: a coloured disc, the name, and one line saying what the room is
@@ -2406,35 +2493,41 @@
          score. It lives in Deen now, with the duas and the reminders.
        - Champion toggle: a setting, not a point. Kept, but at the foot with
          the other housekeeping rather than in the middle of the page. -->
+  <!-- v158. Rebuilt against the design brief. Two ideas do the work:
+       1. The most recent thing somebody noticed gets the hero slot at full
+          size, with the NOTE as the headline. It was ninth on the page.
+       2. A point can only ever be in three places - spendable, saved, or
+          given away. The bank, the big things and the giving pot were three
+          bespoke cards asking that one question three times, stacked. They
+          are now one row of three pots, each opening its own screen. Five
+          screens of scroll became 104px, and it is conceptually true rather
+          than merely tidier. -->
   <div id="kidPointsScreen" class="hidden">
     <header class="kidtitle w-points">
       <span class="kidtitleicon">⭐</span>
       <span><span class="kidtitlename">My points</span>
         <span class="kidtitlesub">What you’ve earned, saved and given</span></span>
     </header>
+    <!-- The one gold rule on the page. -->
+    <div class="titlerule"></div>
 
-    <p class="reachcap ptscap">⭐ What you’ve earned</p>
     <div id="kidBest"></div>
-    <section class="kidcard sun">
-      <h2>⭐ Points I’ve been given</h2>
-      <p class="lede">What you earned, who gave it to you, and what it was for.</p>
+
+    <p class="reachcap ptscap">⭐ Noticed</p>
+    <div id="kidMoment"></div>
+    <section class="c-panel feedpanel" id="kidFeedPanel">
       <div id="kidFeed" class="feed"></div>
     </section>
-    <section class="boostcard hidden" id="kidBoostCard">
-      <h2>🌱 Ways to get more points</h2>
-      <p class="lede">Little things that add up fast.</p>
-      <div id="kidBoostList"></div>
-      <button class="boostmore" onclick="nextKidTips()">Show me different ideas</button>
-    </section>
+    <div id="kidFeedMoreWrap"></div>
 
-    <!-- Saving and giving live here, not in the shop. Rewards answers "what can
-         I have?"; this answers "what have I done with my points?" — and a child
-         going to buy a snack should not have to scroll past a lesson on saving
-         to reach it. -->
-    <p class="reachcap ptscap">🏦 What you do with them</p>
-    <div id="kidVault"></div>
-    <div id="kidBigThings"></div>
-    <div id="kidGivingPot"></div>
+    <p class="reachcap ptscap">🫙 Where my points are</p>
+    <div class="pots" id="kidPots"></div>
+    <p class="potnote" id="kidPotNote">Tap a pot to see what is in it and what it is for.</p>
+
+    <p class="reachcap ptscap">🌱 One more idea</p>
+    <section class="c-panel idea hidden" id="kidBoostCard">
+      <div id="kidBoostList"></div>
+    </section>
 
     <p class="kidfooter">Only Mum and Dad can give points — keep doing kind things and they'll notice! 💛</p>
     <div id="championToggleRow"></div>
@@ -2442,6 +2535,32 @@
     <!-- Kept so the render code that writes the prayer board still has a home;
          on this screen it is written to and never shown. -->
     <div id="prayerWall" class="hidden"></div>
+  </div>
+
+  <!-- What the Bank pot opens. The five jobs the old vault card did at once -
+       picture, total, lesson, deposit control, lock explanation - are one per
+       block here, in that order, with room to breathe. -->
+  <div id="kidBankScreen" class="hidden">
+    <button class="kidback" onclick="showScreen('kidPointsScreen')">← My points</button>
+    <header class="kidtitle w-points">
+      <span class="kidtitleicon">🏦</span>
+      <span><span class="kidtitlename">My bank</span>
+        <span class="kidtitlesub">Points you decided to keep</span></span>
+    </header>
+    <div class="titlerule"></div>
+    <div id="kidVault"></div>
+    <div id="kidBigThings"></div>
+  </div>
+
+  <div id="kidGiveScreen" class="hidden">
+    <button class="kidback" onclick="showScreen('kidPointsScreen')">← My points</button>
+    <header class="kidtitle w-points">
+      <span class="kidtitleicon">🤲</span>
+      <span><span class="kidtitlename">Our giving pot</span>
+        <span class="kidtitlesub">What the family gives away</span></span>
+    </header>
+    <div class="titlerule"></div>
+    <div id="kidGivingPot"></div>
   </div>
 
   <nav id="kidTabBar" class="tabbar hidden">
@@ -4269,7 +4388,7 @@ const TIP_CATS = [
   {key:"deen", label:"Deen"}
 ];
 
-const APP_VERSION = "v157";
+const APP_VERSION = "v158";
 const today = new Date().toISOString().slice(0,10);
 let app = {families:[],currentFamily:null,currentChild:null};
 let categories = [];
@@ -6945,10 +7064,12 @@ async function toggleExcusedToday(childId){
 /* Three kinds of screen: a child's own, a parent's own, and the ones both may
    open. Getting this wrong in either direction closes a screen the moment
    somebody opens it. */
-const KID_ONLY_SCREENS = ["kidSpendScreen","kidLearnScreen","kidPointsScreen"];
+const KID_ONLY_SCREENS = ["kidSpendScreen","kidLearnScreen","kidPointsScreen",
+                          "kidBankScreen","kidGiveScreen"];
 const SHARED_SCREENS   = ["rulesPanel","treePanel","deenPanel","playPanel"];
 const SCREENS = ["accountPanel","overviewPanel","activityPanel","requestsPanel","progressPanel","rewardsPanel","grownupsPanel","pledgesPanel","playPanel","notesPanel","pickPanel","quickPanel","reviewPanel","rulesPanel","tutorPanel","treePanel","deenPanel",
-                 "kidSpendScreen","kidLearnScreen","kidPointsScreen"];
+                 "kidSpendScreen","kidLearnScreen","kidPointsScreen",
+                 "kidBankScreen","kidGiveScreen"];
 let screenNow = null;
 /* Only the parent's full-screen .panel elements scroll inside themselves, so
    only they need the page held still behind them. The child's tab screens
@@ -7016,14 +7137,19 @@ function showKidTabBar(){
   const tone =
     screenNow==="kidSpendScreen"  ? ["kidtab-spend","t-spend"] :
     screenNow==="kidLearnScreen"  ? ["kidtab-learn","t-learn"] :
-    screenNow==="kidPointsScreen" ? ["kidtab-points","t-pts"]  : ["kidtab-home","t-home"];
+    (screenNow==="kidPointsScreen" || screenNow==="kidBankScreen"
+      || screenNow==="kidGiveScreen") ? ["kidtab-points","t-pts"] : ["kidtab-home","t-home"];
   document.body.classList.add(tone[0]);
   document.body.classList.add(tone[1]);
   [["kidTabHome",null],["kidTabSpend","kidSpendScreen"],
-   ["kidTabLearn","kidLearnScreen"],["kidTabPoints","kidPointsScreen"]]
+   ["kidTabLearn","kidLearnScreen"],
+   /* The pot screens live inside My points, so the tab stays lit while you
+      are in one - otherwise opening the bank looks like leaving the room. */
+   ["kidTabPoints","kidPointsScreen|kidBankScreen|kidGiveScreen"]]
     .forEach(([bid,scr])=>{
       const b=document.getElementById(bid);
-      if(b) b.classList.toggle("on", screenNow===scr);
+      if(b) b.classList.toggle("on", String(scr||"").split("|").indexOf(String(screenNow))>=0
+        || (scr===null && screenNow===null));
     });
 }
 function kidViewOpen(){
@@ -10654,7 +10780,7 @@ let kidShowAllGames = false;
 function toggleAllRewards(){ kidShowAllRewards = !kidShowAllRewards; render(); }
 function toggleAllGames(){ kidShowAllGames = !kidShowAllGames; render(); }
 let kidTipOffset = 0;
-function nextKidTips(){ kidTipOffset += 3; renderKidBoost(); }
+function nextKidTips(){ kidTipOffset += 1; renderKidBoost(); }
 function renderKidBoost(){
   const wrap=document.getElementById("kidBoostList");
   const card=document.getElementById("kidBoostCard");
@@ -10663,16 +10789,19 @@ function renderKidBoost(){
   const tips=kidTips(me);
   if(!tips.length){ card.classList.add("hidden"); return; }
   card.classList.remove("hidden");
-  // Three at a time: enough to feel like choices, few enough to read.
-  const shown=[];
-  for(let i=0;i<Math.min(3,tips.length);i++) shown.push(tips[(kidTipOffset+i) % tips.length]);
-  wrap.innerHTML = shown.map(t=>`
-    <div class="boostrow">
-      <span class="bicon">${t.icon}</span>
-      <span class="btext">${escapeHtml(t.text)}</span>
-      ${t.badge?`<span class="bbadge">${escapeHtml(t.badge)}</span>`:""}
-    </div>`).join("");
+  /* One, not three. A list of suggestions on a page about what you have
+     already done reads as a page about what you have not done yet. One idea
+     with a button for another is the same feature at a tenth of the height,
+     and the child asks for the next one rather than being handed a to-do. */
+  const t=tips[kidTipOffset % tips.length];
+  wrap.innerHTML = `
+    <span class="ideaglyph">${t.icon}</span>
+    <span class="ideamain"><span class="ideatext">${escapeHtml(t.text)}</span>
+      ${t.badge?`<span class="ideapts"><span class="amount">${escapeHtml(t.badge)}</span></span>`:""}</span>
+    <button class="ideanext" onclick="nextKidTips()" aria-label="Another idea">\u21bb</button>`;
 }
+let kidShowAllFeed=false;
+function toggleAllFeed(){ kidShowAllFeed=!kidShowAllFeed; render(); }
 
 /* ---------- Celebrating an approval ----------
    Approvals must land whether or not the child was watching. Anything approved
@@ -10966,17 +11095,99 @@ function personalBest(child){
 function personalBestHTML(child){
   const p=personalBest(child);
   if(!p.hasHistory && !p.thisWeek) return "";
+  /* A chip, not a card. It is a nudge about a number, sitting above a screen
+     whose whole point is that the number is not the point - so it gets one
+     line and no surface of its own. */
   if(p.isBest)
-    return `<section class="bestcard best"><span class="bestem">\ud83c\udf1f</span>
-      <span><strong>Your best week yet!</strong>
-        <span>${p.thisWeek} points \u2014 more than any week before. MashaAllah.</span></span></section>`;
+    return `<span class="bestchip best">\ud83c\udf1f Your best week yet</span>`;
   if(p.best>0 && p.thisWeek < p.best)
-    return `<section class="bestcard"><span class="bestem">\ud83c\udfaf</span>
-      <span><strong>${Math.max(1, p.best-p.thisWeek)} to beat your best</strong>
-        <span>Your best week was ${p.best}. You&rsquo;re on ${p.thisWeek}.</span></span></section>`;
+    return `<span class="bestchip">\ud83c\udfaf ${Math.max(1, p.best-p.thisWeek)} to beat your best week</span>`;
   return "";
 }
 
+/* ---------- The moment ----------
+   The most recent thing somebody noticed, at full size, at the top of the
+   screen. The NOTE the parent wrote is the headline; who noticed is above it;
+   the number is the smallest thing on the card. Read aloud it runs
+   who -> what they said -> when -> how much, because a number spoken first
+   turns a compliment into a transaction.
+   Spending never appears here. This card answers "was I noticed", and a
+   reward the child chose is not an answer to that. */
+function momentHTML(child){
+  const e=(child.activityLog||[]).find(x=>x.points>0 && x.type!=="refund");
+  if(!e) return `<section class="c-panel empty">
+      <div class="emptyart">\u2b50</div>
+      <p class="emptyhead">Nothing here yet \u2014 that\u2019s normal!</p>
+      <p class="emptysay">When Mum or Dad notice something you did, it lands right
+        here with their name on it, and what they said about it.</p>
+    </section>`;
+  const nums=kidShowsNumbers(child);
+  const when=momentWhen(e.ts);
+  const who = e.by
+    ? escapeHtml(e.by)+(e.byRole?" ("+escapeHtml(e.byRole)+")":"")+" noticed"
+    : "Somebody noticed";
+  return `<section class="c-hero moment">
+      <span class="momentglow" aria-hidden="true"></span>
+      <p class="momentwho">\ud83d\udc64 ${who}</p>
+      <p class="momentnote">${escapeHtml(e.label||"Something good.")}</p>
+      <div class="momentfoot">
+        <span class="momentwhen">${when}</span>
+        <span class="momentpts">${nums ? "+"+e.points : sizeWord(e.points)}</span>
+      </div>
+    </section>`;
+}
+/* "Today, 4:12pm" for something that just happened; a day name for this week;
+   a date beyond that. A timestamp to the minute on a three-week-old award is
+   precision nobody asked for. */
+function momentWhen(ts){
+  const d=new Date(ts), now=new Date();
+  const days=Math.floor((now.setHours(0,0,0,0)-new Date(ts).setHours(0,0,0,0))/86400000);
+  if(days===0) return "Today, "+d.toLocaleTimeString([], {hour:"numeric", minute:"2-digit"});
+  if(days===1) return "Yesterday";
+  if(days<7)   return d.toLocaleDateString([], {weekday:"long"});
+  return d.toLocaleDateString([], {day:"numeric", month:"short"});
+}
+/* Every figure on this screen has a word form, so turning numbers off changes
+   the words and moves nothing. If hiding the figures needed a different
+   layout, the figures were carrying the layout. */
+function sizeWord(n){
+  const v=Math.abs(n||0);
+  if(!v)      return "none yet";
+  if(v<=2)    return "a little one";
+  if(v<=5)    return "a good one";
+  if(v<=20)   return "a big one";
+  return "a huge one";
+}
+function potWord(n){
+  const v=Math.max(0, n||0);
+  if(!v)      return "Empty";
+  if(v<50)    return "A little";
+  if(v<300)   return "Some";
+  if(v<1500)  return "Lots";
+  return "Loads";
+}
+
+/* ---------- Where my points are ----------
+   Three pots, because a point can be in exactly three places. The spendable
+   pot is green because that is the Rewards tab it spends into: the pot and
+   its destination wear the same colour, which is most of the explaining. */
+function potsHTML(child){
+  const nums=kidShowsNumbers(child);
+  const spend=availableFor(child);
+  const bank=vaultAvailable(child);
+  const give=givingPot();
+  const pot=(cls, glyph, value, name, go) =>
+    `<button class="c-act pot ${cls}${value>0?"":" dim"}" onclick="${go}">
+       <span class="potglyph" aria-hidden="true">${glyph}</span>
+       <span class="potfig ${nums?"figure":"potword"}">${nums?value:potWord(value)}</span>
+       <span class="potname">${name}</span>
+     </button>`;
+  return pot("spend","\ud83c\udf81", spend, "To spend", "showScreen('kidSpendScreen')")
+       + pot("bank","\ud83c\udfe6",  bank,  "In the bank","showScreen('kidBankScreen')")
+       + pot("give","\ud83e\udd32",  give.left, "Given",  "showScreen('kidGiveScreen')");
+}
+
+/* ---------- When points arrive ----------
 /* ---------- When points arrive ----------
    A point awarded at four o'clock used to change a number on a screen nobody
    was looking at. The whole product is a child being noticed, and that moment
@@ -11309,11 +11520,30 @@ function renderKidView(child){
     if(pane) pane.classList.toggle("hidden", spendTab!==t);
   });
 
-  // Feed: what they got, from whom, for what
+  // The moment, the pots, and one idea.
+  const mom=document.getElementById("kidMoment");
+  if(mom) mom.innerHTML = momentHTML(child);
+  const pots=document.getElementById("kidPots");
+  if(pots) pots.innerHTML = potsHTML(child);
+
+  /* Feed: what they got, from whom, for what. The newest positive award is
+     already the hero card above, so it is dropped from the list rather than
+     printed twice. Three rows by default - the panel is a reminder that there
+     is more, not the archive. */
   const feed=document.getElementById("kidFeed");
-  const entries=(child.activityLog||[]).slice(0,14);
+  const log=(child.activityLog||[]);
+  const heroId=(log.find(x=>x.points>0 && x.type!=="refund")||{}).id;
+  const rest=log.filter(e=>e.id!==heroId);
+  const entries=rest.slice(0, kidShowAllFeed ? 20 : 3);
+  const panel=document.getElementById("kidFeedPanel");
+  if(panel) panel.classList.toggle("hidden", !entries.length);
+  const moreWrap=document.getElementById("kidFeedMoreWrap");
+  if(moreWrap) moreWrap.innerHTML = rest.length>3
+    ? `<button class="reachmore" onclick="toggleAllFeed()">${
+        kidShowAllFeed ? "Show fewer" : "See everything from this week"}</button>`
+    : "";
   if(!entries.length){
-    feed.innerHTML='<p class="small">\u2b50 <strong>Nothing here yet!</strong> When Mum or Dad give you points, they show up here \u2014 with who gave them and what they were for.</p>';
+    feed.innerHTML="";
   }else{
     feed.innerHTML=entries.map(e=>{
       const when=new Date(e.ts).toLocaleString([], {weekday:"short", hour:"2-digit", minute:"2-digit"});
