@@ -1660,6 +1660,7 @@
 
       <p class="menugroup">Help</p>
       <button class="light" id="btnHowItWorks" onclick="openHowItWorks()">❓ How this works</button>
+      <button class="light" id="btnErrLog" onclick="showErrorLog()">🩺 What went wrong</button>
       <button class="light" id="btnResetDay" onclick="resetDay()">↻ Reset today</button>
       <button class="light" id="btnSignOut" onclick="signOutDevice()">🔒 Sign out</button>
     </div>
@@ -3818,7 +3819,7 @@ const TIP_CATS = [
   {key:"deen", label:"Deen"}
 ];
 
-const APP_VERSION = "v138";
+const APP_VERSION = "v139";
 const today = new Date().toISOString().slice(0,10);
 let app = {families:[],currentFamily:null,currentChild:null};
 let categories = [];
@@ -10211,6 +10212,53 @@ function renderKidView(child){
 let deferredInstall = null;
 let swRegistration = null;
 
+/* ---------- What went wrong ----------
+   A silent failure is the hardest kind to chase: a button appears to do
+   nothing and leaves no trace. Errors are kept on the device, with who was
+   signed in and which screen was open, so they can be read back afterwards
+   rather than reproduced on demand. */
+const ERR_KEY="nm_errors";
+function noteError(kind, msg, where){
+  try{
+    const list=JSON.parse(localStorage.getItem(ERR_KEY) || "[]");
+    const me=(typeof sessionMember==="function") ? sessionMember() : null;
+    list.push({
+      at: new Date().toISOString().slice(0,19).replace("T"," "),
+      v: (typeof APP_VERSION!=="undefined") ? APP_VERSION : "?",
+      who: me ? (me.name+"/"+(me.role||"?")) : "signed out",
+      screen: (typeof screenNow!=="undefined" && screenNow) ? screenNow : "home",
+      kind, msg: String(msg||"").slice(0,200), where: String(where||"").slice(0,120)
+    });
+    while(list.length>25) list.shift();
+    localStorage.setItem(ERR_KEY, JSON.stringify(list));
+  }catch(e){}
+}
+window.addEventListener("error", (e)=>{
+  noteError("error", (e && (e.message || e.error)) || "unknown",
+    (e && e.filename ? String(e.filename).split("/").pop() : "") + (e && e.lineno ? ":"+e.lineno : ""));
+});
+window.addEventListener("unhandledrejection", (e)=>{
+  const r=e && e.reason;
+  noteError("promise", (r && (r.message || r)) || "unknown", "");
+});
+function errorReport(){
+  let list=[];
+  try{ list=JSON.parse(localStorage.getItem(ERR_KEY) || "[]"); }catch(e){}
+  if(!list.length) return "Nothing has gone wrong on this device since this was added.";
+  return list.slice().reverse().map(x=>
+    x.at+"  "+x.v+"  "+x.who+"  on "+x.screen+"\n  "+x.kind+": "+x.msg+(x.where?"  ("+x.where+")":"")
+  ).join("\n\n");
+}
+function showErrorLog(){
+  const text=errorReport();
+  try{ if(navigator.clipboard) navigator.clipboard.writeText(text); }catch(e){}
+  alert(text.length>1500 ? text.slice(0,1500)+"\n\n\u2026(copied in full)" : text
+    + "\n\n(Copied \u2014 paste it to whoever is fixing this.)");
+}
+function clearErrorLog(){
+  try{ localStorage.removeItem(ERR_KEY); }catch(e){}
+  alert("Cleared.");
+}
 document.addEventListener("keydown", (e)=>{ if(e.key === "Escape" && openCat) closeCatModal(); });
 window.addEventListener("popstate", ()=>{
   // An overlay closing pops its own history entry. That pop is the overlay's,
@@ -16741,6 +16789,14 @@ window.GROWNUP_DECKS = [
     }catch(err){
       out.push("THREW: "+((err&&(err.message||err.code))||String(err)));
     }
+    try{
+      const errs=(typeof errorReport==="function") ? errorReport() : "";
+      if(errs && errs.indexOf("Nothing has gone wrong")!==0){
+        out.push("");
+        out.push("--- errors recorded on this device ---");
+        out.push(errs);
+      }
+    }catch(e){}
     const text=out.join("\n");
     const box=$("ntDiag");
     if(box){
