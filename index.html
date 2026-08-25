@@ -4974,7 +4974,7 @@ const TIP_CATS = [
   {key:"deen", label:"Deen"}
 ];
 
-const APP_VERSION = "v178";
+const APP_VERSION = "v179";
 const today = new Date().toISOString().slice(0,10);
 let app = {families:[],currentFamily:null,currentChild:null};
 let categories = [];
@@ -18235,84 +18235,7 @@ window.GROWNUP_DECKS = [
   /* ---------- the pack ----------
      Chosen for how much of the work a child can safely do, not for the
      cuisine. adult:true is every step with a blade, a flame or an oven door. */
-  /* ---------- Learning to pray ----------
-     Same engine as the recipes - ordered steps, a "what you need", a timer
-     where waiting matters - because that is exactly what these are: a thing
-     done in order, with a right way round, learned by doing it beside somebody.
-
-     ON DIFFERENCE. Wudu and salah differ between the madhhabs, and a course
-     that quietly picked one would be telling a family they pray wrongly. So
-     the steps carry only what is agreed, and where schools differ the card
-     says so in its own words rather than choosing: `differs` marks a step as a
-     point of difference, and the app never resolves it. "Ask whoever teaches
-     you" is a complete answer here and the honest one.
-
-     There is no assessment in any of this and nothing pays points. A child
-     ticking "I did the steps" is not a certificate that their salah is valid,
-     and the app must never imply otherwise. */
   const RECIPES = [
-    { id:"wudu", name:"How to make wudu", art:"cup", tone:"#e3f6ef",
-      kind:"deen", mins:5, age:"from about four, alongside a grown-up",
-      blurb:"The order, in the sink, with somebody beside you. Learn it once and it lasts.",
-      kit:["A tap or a jug","Somewhere the floor can get wet","Sleeves rolled up"],
-      need:["Clean water","A towel"],
-      steps:[
-        {t:"Say Bismillah",d:"Before the water. Nothing else has to be said out loud.",art:"cup"},
-        {t:"Hands, three times",d:"Wrists down, both hands, three times. Between the fingers too.",art:"cup"},
-        {t:"Mouth, three times",d:"A little water into the mouth, swill it, out. Three times.",art:"cup"},
-        {t:"Nose, three times",d:"A little water sniffed up and blown out, gently. Three times.",art:"cup"},
-        {t:"Face, three times",d:"Hairline to chin, ear to ear. Three times.",art:"cup"},
-        {t:"Arms to the elbows",d:"Right arm first, fingertips to elbow, three times. Then the left.",art:"cup"},
-        {t:"Wipe the head",d:"Wet hands, once over the head, front to back. Then the ears with the same water.",
-         differs:"Schools differ on how much of the head and whether the ears are separate. Do it the way you were taught.",art:"cup"},
-        {t:"Feet to the ankles",d:"Right foot first, to the ankle, three times. Between the toes. Then the left.",art:"cup"},
-        {t:"Say the dua after",d:"Ashhadu an la ilaha illallah wa ashhadu anna Muhammadan abduhu wa rasuluh.",art:"cup"}
-      ]},
-    { id:"salah-shape", name:"The shape of one rakah", art:"cup", tone:"#eee6fb",
-      kind:"deen", mins:10, age:"from about five, learned in order",
-      blurb:"One rakah, start to finish. Learn the shape first; the words come with time.",
-      kit:["A clean space","A prayer mat if you have one","Wudu already made"],
-      need:["Somewhere to face qiblah"],
-      steps:[
-        {t:"Stand and intend",d:"Face qiblah, stand still. The intention is in the heart - it does not have to be said.",art:"cup"},
-        {t:"Takbir",d:"Hands up, Allahu akbar. From here you are in the prayer.",art:"cup"},
-        {t:"Stand and recite",d:"Hands folded, read Surah al-Fatihah, then a little more Qur'an.",
-         differs:"Where the hands are folded differs between schools. Follow how you were taught.",art:"cup"},
-        {t:"Ruku",d:"Allahu akbar, bend at the waist, back flat, hands on the knees. Subhana rabbiyal adheem, three times.",art:"cup"},
-        {t:"Stand up again",d:"Sami Allahu liman hamidah. Rabbana lakal hamd. Stand completely still for a moment.",art:"cup"},
-        {t:"Sujud",d:"Allahu akbar, down. Forehead, nose, both hands, both knees, toes. Subhana rabbiyal ala, three times.",art:"cup"},
-        {t:"Sit",d:"Allahu akbar, sit up. Rest here properly before you go down again.",art:"cup"},
-        {t:"Sujud again",d:"The second one, the same as the first. That is one rakah finished.",art:"cup"}
-      ]},
-    { id:"first-prayer", name:"Their first prayer with you", art:"cup", tone:"#fbeccb",
-      kind:"deen", mins:15, age:"a parent's course, not a child's",
-      blurb:"How to start, when to start, and what not to do. For the grown-up.",
-      kit:["No equipment - this one is about how you go about it"],
-      need:["Patience, mostly"],
-      steps:[
-        {t:"Start with standing next to you",d:"Long before they pray properly. They copy; you say nothing about it. Being welcome in the room is the first lesson.",art:"cup"},
-        {t:"One prayer, not five",d:"Pick the one that fits your day - often Maghrib, because everyone is home. Five at once is how a child learns to dread it.",art:"cup"},
-        {t:"Shape before words",d:"Let them do the movements with sounds that are nearly right. Correcting the Arabic early is the fastest way to make them stop trying.",art:"cup"},
-        {t:"Never as a punishment",d:"Salah must not be the thing that happens when they are in trouble. Whatever else you do, protect that.",art:"cup"},
-        {t:"Let them see you pray badly",d:"Tired, rushed, at the end of a long day, still praying. That teaches more than a good one does.",art:"cup"},
-        {t:"Say nothing when they miss one",d:"Notice it, and leave it. A missed prayer that turns into a row is a missed prayer plus a bad memory.",art:"cup"},
-        {t:"Ask them to teach you",d:"Get one step wrong on purpose and let them correct you. Explaining it out loud is how they find out they know it.",art:"cup"}
-      ]},
-    { id:"ghusl-basics", name:"What every child should know about staying clean", art:"cup", tone:"#e6efec",
-      kind:"deen", mins:8, age:"a parent's course - for the conversation, not the child",
-      blurb:"The conversation nobody plans for, and how to have it before it is needed.",
-      kit:["A private moment","No audience"],
-      need:["Having decided in advance what you will say"],
-      steps:[
-        {t:"Have it early and briefly",d:"Before puberty, not during. A short, matter-of-fact conversation at nine is far easier than an urgent one at twelve.",art:"cup"},
-        {t:"Name things plainly",d:"Vague language makes a child think the subject is shameful. It is not shameful; it is fiqh.",art:"cup"},
-        {t:"Say what changes",d:"That prayer and fasting become theirs to keep, and that this is a mark of growing up rather than a burden.",art:"cup"},
-        {t:"Say who to ask",d:"Name the person - you, their mother, an older sibling, a teacher. A child who does not know who to ask asks nobody.",art:"cup"},
-        {t:"Cover the practical",d:"What ghusl is and when it is needed. Details differ between schools and between boys and girls, so teach what you were taught.",
-         differs:"This is a topic where families should follow their own madhhab and, if unsure, ask someone qualified rather than an app.",art:"cup"},
-        {t:"Say it once more later",d:"Nobody takes it in the first time. A second short conversation six months on does more than a long first one.",art:"cup"}
-      ]},
-
     { id:"pancakes", name:"Weekend pancakes", art:"pan", tone:"#fff4dd",
       kind:"cook", mins:20, serves:"4", blurb:"Almost all of it is whisking and pouring, which is the whole point.",
       kit:["A big mixing bowl","A whisk or a fork","A ladle or a mug","A frying pan","A fish slice"],
@@ -18406,7 +18329,1079 @@ window.GROWNUP_DECKS = [
       ]}
   ];
 
-  /* ---------- going somewhere ----------
+  
+  /* ---------- Learn together ----------
+     Their own array, not mixed in with the pancakes. Same engine as the
+     recipes - ordered steps, a "what you need", timers where waiting matters -
+     because that is what all of these are: a thing done in order, with a right
+     way round, learned beside somebody.
+
+     Everything here passes four tests, and things that failed them were left
+     out on purpose. Is it done in order? Beside somebody? Is there a right way
+     round? And will it still be true in five years? Anything with a syllabus -
+     SATs, the eleven plus, the citizenship test - fails the last one and is
+     deliberately absent.
+
+     ON DIFFERENCE. Where schools of fiqh differ, the step says so and the app
+     does NOT resolve it. A course that quietly picked a madhhab would be
+     telling a family they pray wrongly. "Do it the way you were taught" is a
+     complete answer here and the honest one.
+
+     ON LIMITS. Where a thing is genuinely beyond an app - a ruling, a death, a
+     child in trouble at school - the course says so and names who to ask. It
+     is better to be the thing that told you to ring the masjid than to be the
+     thing that guessed.
+
+     Nothing here pays points and nothing is assessed. */
+  const LEARN_TOGETHER = [
+  {
+    "id": "wudu",
+    "name": "How to make wudu",
+    "art": "cup",
+    "tone": "#e3f6ef",
+    "kind": "deen",
+    "section": "deen",
+    "mins": 8,
+    "age": "from about four, alongside a grown-up",
+    "blurb": "The order, at the sink, with somebody beside you. Learn it once and it lasts.",
+    "kit": [
+      "A tap or a jug",
+      "Somewhere the floor can get wet",
+      "Sleeves rolled up"
+    ],
+    "need": [
+      "Clean water",
+      "A towel"
+    ],
+    "steps": [
+      {
+        "t": "Say Bismillah",
+        "d": "Before the water. Nothing else has to be said out loud.",
+        "art": "cup"
+      },
+      {
+        "t": "Hands, three times",
+        "d": "Wrists down, both hands, three times. Between the fingers too.",
+        "art": "cup"
+      },
+      {
+        "t": "Mouth, three times",
+        "d": "A little water into the mouth, swill it, out. Three times.",
+        "art": "cup"
+      },
+      {
+        "t": "Nose, three times",
+        "d": "A little water sniffed up and blown out, gently. Three times.",
+        "art": "cup"
+      },
+      {
+        "t": "Face, three times",
+        "d": "Hairline to chin, ear to ear. Three times.",
+        "art": "cup"
+      },
+      {
+        "t": "Arms to the elbows",
+        "d": "Right arm first, fingertips to elbow, three times. Then the left.",
+        "art": "cup"
+      },
+      {
+        "t": "Wipe the head",
+        "d": "Wet hands, once over the head, front to back. Then the ears with the same water.",
+        "art": "cup",
+        "differs": "Schools differ on how much of the head, and on whether the ears are separate. Do it the way you were taught."
+      },
+      {
+        "t": "Feet to the ankles",
+        "d": "Right foot first, to the ankle, three times. Between the toes. Then the left.",
+        "art": "cup"
+      },
+      {
+        "t": "The dua after",
+        "d": "Ashhadu an la ilaha illallah wa ashhadu anna Muhammadan abduhu wa rasuluh.",
+        "art": "cup"
+      }
+    ]
+  },
+  {
+    "id": "salah-shape",
+    "name": "The shape of one rakah",
+    "art": "cup",
+    "tone": "#eee6fb",
+    "kind": "deen",
+    "section": "deen",
+    "mins": 8,
+    "age": "from about five, learned in order",
+    "blurb": "One rakah, start to finish. Learn the shape first; the words come with time.",
+    "kit": [
+      "A clean space",
+      "A prayer mat if you have one",
+      "Wudu already made"
+    ],
+    "need": [
+      "Somewhere to face qiblah"
+    ],
+    "steps": [
+      {
+        "t": "Stand and intend",
+        "d": "Face qiblah, stand still. The intention is in the heart and does not have to be said.",
+        "art": "cup"
+      },
+      {
+        "t": "Takbir",
+        "d": "Hands up, Allahu akbar. From here you are in the prayer.",
+        "art": "cup"
+      },
+      {
+        "t": "Stand and recite",
+        "d": "Hands folded, Surah al-Fatihah, then a little more Qur'an.",
+        "art": "cup",
+        "differs": "Where the hands are folded differs between schools. Follow how you were taught."
+      },
+      {
+        "t": "Ruku",
+        "d": "Allahu akbar, bend at the waist, back flat, hands on the knees. Subhana rabbiyal adheem, three times.",
+        "art": "cup"
+      },
+      {
+        "t": "Stand up again",
+        "d": "Sami Allahu liman hamidah. Rabbana lakal hamd. Stand completely still for a moment.",
+        "art": "cup"
+      },
+      {
+        "t": "Sujud",
+        "d": "Allahu akbar, down. Forehead, nose, both hands, both knees, toes. Subhana rabbiyal ala, three times.",
+        "art": "cup"
+      },
+      {
+        "t": "Sit",
+        "d": "Allahu akbar, sit up. Rest here properly before you go down again.",
+        "art": "cup"
+      },
+      {
+        "t": "Sujud again",
+        "d": "The second one, the same as the first. That is one rakah finished.",
+        "art": "cup"
+      }
+    ]
+  },
+  {
+    "id": "first-prayer",
+    "name": "Their first prayer with you",
+    "art": "cup",
+    "tone": "#fbeccb",
+    "kind": "deen",
+    "section": "deen",
+    "mins": 8,
+    "age": "a parent's course, not a child's",
+    "blurb": "How to start, when to start, and what not to do. For the grown-up.",
+    "kit": [
+      "No equipment. This one is about how you go about it."
+    ],
+    "need": [
+      "Patience, mostly"
+    ],
+    "steps": [
+      {
+        "t": "Start with standing next to you",
+        "d": "Long before they pray properly. They copy; you say nothing about it. Being welcome in the room is the first lesson.",
+        "art": "cup"
+      },
+      {
+        "t": "One prayer, not five",
+        "d": "Pick the one that fits your day, often Maghrib because everyone is home. Five at once is how a child learns to dread it.",
+        "art": "cup"
+      },
+      {
+        "t": "Shape before words",
+        "d": "Let them do the movements with sounds that are nearly right. Correcting the Arabic early is the fastest way to make them stop trying.",
+        "art": "cup"
+      },
+      {
+        "t": "Never as a punishment",
+        "d": "Salah must not be the thing that happens when they are in trouble. Whatever else you do, protect that.",
+        "art": "cup"
+      },
+      {
+        "t": "Let them see you pray badly",
+        "d": "Tired, rushed, at the end of a long day, still praying. That teaches more than a good one does.",
+        "art": "cup"
+      },
+      {
+        "t": "Say nothing when they miss one",
+        "d": "Notice it and leave it. A missed prayer that turns into a row is a missed prayer plus a bad memory.",
+        "art": "cup"
+      },
+      {
+        "t": "Ask them to teach you",
+        "d": "Get a step wrong on purpose and let them correct you. Explaining it out loud is how they find out they know it.",
+        "art": "cup"
+      }
+    ]
+  },
+  {
+    "id": "growing-up-talk",
+    "name": "The growing-up conversation",
+    "art": "cup",
+    "tone": "#e6efec",
+    "kind": "deen",
+    "section": "deen",
+    "mins": 8,
+    "age": "a parent's course, for the conversation",
+    "blurb": "The one nobody plans for, and how to have it before it is needed.",
+    "kit": [
+      "A private moment",
+      "No audience"
+    ],
+    "need": [
+      "Having decided in advance what you will say"
+    ],
+    "steps": [
+      {
+        "t": "Have it early and briefly",
+        "d": "Before puberty, not during. A short matter-of-fact conversation at nine is far easier than an urgent one at twelve.",
+        "art": "cup"
+      },
+      {
+        "t": "Name things plainly",
+        "d": "Vague language teaches a child the subject is shameful. It is not shameful; it is fiqh.",
+        "art": "cup"
+      },
+      {
+        "t": "Say what changes",
+        "d": "That prayer and fasting become theirs to keep, and that this is a mark of growing up rather than a burden.",
+        "art": "cup"
+      },
+      {
+        "t": "Say who to ask",
+        "d": "Name the person: you, their mother, an older sibling, a teacher. A child who does not know who to ask asks nobody.",
+        "art": "cup"
+      },
+      {
+        "t": "Then teach the practical",
+        "d": "Ghusl, and when it is needed. The next course covers it.",
+        "art": "cup",
+        "differs": "Details differ between schools and between boys and girls. Teach what you were taught, and ask someone qualified rather than an app."
+      },
+      {
+        "t": "Say it once more later",
+        "d": "Nobody takes it in the first time. A second short conversation six months on does more than a long first one.",
+        "art": "cup"
+      }
+    ]
+  },
+  {
+    "id": "ghusl",
+    "name": "Ghusl, properly",
+    "art": "cup",
+    "tone": "#e6efec",
+    "kind": "deen",
+    "section": "deen",
+    "mins": 8,
+    "age": "from puberty, taught by the same-gender parent",
+    "blurb": "The whole wash, in order, so nobody is guessing.",
+    "kit": [
+      "A private bathroom",
+      "Enough time not to rush"
+    ],
+    "need": [
+      "Clean water",
+      "A towel"
+    ],
+    "steps": [
+      {
+        "t": "Intend it",
+        "d": "In the heart, before you begin. Nothing said aloud.",
+        "art": "cup"
+      },
+      {
+        "t": "Wash the hands",
+        "d": "Then wash away anything on the body first, before the wash proper begins.",
+        "art": "cup"
+      },
+      {
+        "t": "Make wudu",
+        "d": "The full wudu, as you would for prayer.",
+        "art": "cup",
+        "differs": "Some schools leave the feet until the end. Follow how you were taught."
+      },
+      {
+        "t": "Water over the head",
+        "d": "Three times, working it through the hair to the scalp. Long hair still needs the water to reach the roots.",
+        "art": "cup"
+      },
+      {
+        "t": "The right side",
+        "d": "Water over the whole right side, front and back.",
+        "art": "cup"
+      },
+      {
+        "t": "The left side",
+        "d": "The same on the left. Nothing dry anywhere - under the arms, behind the ears, between the toes.",
+        "art": "cup"
+      },
+      {
+        "t": "Check nothing was missed",
+        "d": "A dry patch means it does not count. Worth one deliberate check the first few times.",
+        "art": "cup"
+      }
+    ]
+  },
+  {
+    "id": "janazah",
+    "name": "When someone dies: the first hours",
+    "art": "cup",
+    "tone": "#eef0f7",
+    "kind": "deen",
+    "section": "deen",
+    "mins": 8,
+    "age": "a parent's course. Read it before you need it.",
+    "blurb": "What to do in the first hours, in order. Not fiqh rulings - what happens, and who to ring.",
+    "kit": [
+      "This is what to DO, not a ruling. For rulings, ring your masjid."
+    ],
+    "need": [
+      "Your masjid's number, saved in your phone before you need it"
+    ],
+    "steps": [
+      {
+        "t": "Say the words",
+        "d": "Inna lillahi wa inna ilayhi raji'un. Then close the eyes gently, and cover the body.",
+        "art": "cup"
+      },
+      {
+        "t": "Ring the masjid first",
+        "d": "Before anything else. They will tell you what happens next in your city and often do most of it for you. This is what they are for.",
+        "art": "cup"
+      },
+      {
+        "t": "You will need a doctor's certificate",
+        "d": "In the UK a death must be certified before anything can proceed. In hospital the staff arrange it; at home, ring the GP, or 999 if it was sudden.",
+        "art": "cup"
+      },
+      {
+        "t": "Register the death",
+        "d": "At the register office, usually within five days. Take the certificate. They give you the green form the burial needs.",
+        "art": "cup"
+      },
+      {
+        "t": "Ghusl and shrouding",
+        "d": "Done by people of the same gender, often at the masjid or by a Muslim funeral service. You do not have to do this yourself and most families do not.",
+        "art": "cup",
+        "differs": "Who washes, and how, follows local practice and your family's school. The masjid will guide you."
+      },
+      {
+        "t": "The janazah prayer",
+        "d": "Short, standing, no ruku or sujud. The masjid will tell you when. Anyone can attend and it is a communal duty.",
+        "art": "cup"
+      },
+      {
+        "t": "Burial, soon",
+        "d": "Islamically as soon as practical. In the UK the masjid or funeral service handles the cemetery and the paperwork.",
+        "art": "cup"
+      },
+      {
+        "t": "Then let people feed you",
+        "d": "Accept the food, accept the visits, accept the help. Three days of receiving people is the tradition and it exists because grief should not be done alone.",
+        "art": "cup"
+      }
+    ]
+  },
+  {
+    "id": "travel-prayer",
+    "name": "Praying when you are travelling",
+    "art": "cup",
+    "tone": "#ddf0ef",
+    "kind": "deen",
+    "section": "deen",
+    "mins": 8,
+    "age": "from about eight, with a grown-up",
+    "blurb": "Shortening, combining, and praying in a car park without fuss.",
+    "kit": [
+      "Something clean to stand on",
+      "A rough idea of which way is north"
+    ],
+    "need": [
+      "Water, or clean earth if there is none"
+    ],
+    "steps": [
+      {
+        "t": "Work out if you are travelling",
+        "d": "There is a distance at which you count as a traveller, and schools put it differently - roughly 50 to 80 miles is the common range.",
+        "art": "cup",
+        "differs": "The distance and how long you can keep shortening for both differ. Ask whoever teaches you."
+      },
+      {
+        "t": "Shorten the four-rakah prayers",
+        "d": "Dhuhr, Asr and Isha become two rakahs. Fajr and Maghrib do not change.",
+        "art": "cup"
+      },
+      {
+        "t": "Combine if you need to",
+        "d": "Dhuhr with Asr, Maghrib with Isha - either at the earlier time or the later one.",
+        "art": "cup",
+        "differs": "Some schools allow combining more readily than others."
+      },
+      {
+        "t": "Finding qiblah without a phone",
+        "d": "The sun rises roughly east and sets roughly west. Get north from that and you can face close enough. Close enough counts.",
+        "art": "cup"
+      },
+      {
+        "t": "If there is no water",
+        "d": "Tayammum: clean earth, stone or dust. Hands flat on it, wipe the face, then the hands and forearms.",
+        "art": "cup"
+      },
+      {
+        "t": "Just pray",
+        "d": "On the grass, in a car park, in the corner of an airport. Nobody minds nearly as much as a child imagines they will.",
+        "art": "cup"
+      }
+    ]
+  },
+  {
+    "id": "first-fast",
+    "name": "Their first fast",
+    "art": "cup",
+    "tone": "#fbeccb",
+    "kind": "deen",
+    "section": "deen",
+    "mins": 8,
+    "age": "a parent's course",
+    "blurb": "How to start, and how to let them stop without shame.",
+    "kit": [
+      "Nothing but a plan and a calm face"
+    ],
+    "need": [
+      "A good suhoor"
+    ],
+    "steps": [
+      {
+        "t": "Start with half a day",
+        "d": "Suhoor to lunchtime. A completed half day builds far more than a broken whole one.",
+        "art": "cup"
+      },
+      {
+        "t": "Pick a short day",
+        "d": "Winter Ramadan, a weekend, a day with nothing on. Do not start with a school day in June.",
+        "art": "cup"
+      },
+      {
+        "t": "Make suhoor matter",
+        "d": "Up together, eating together, in the quiet. This is the part children remember, not the hunger.",
+        "art": "cup"
+      },
+      {
+        "t": "Agree the exit before you begin",
+        "d": "'If you need to stop, tell me and we stop.' Say it in advance so stopping is a plan, not a failure.",
+        "art": "cup"
+      },
+      {
+        "t": "Let them break it without a word",
+        "d": "No sigh, no 'are you sure', no comment at all. One raised eyebrow can put a child off fasting for years.",
+        "art": "cup"
+      },
+      {
+        "t": "Give them the iftar job",
+        "d": "Pouring the water, passing the dates, calling everyone. Being needed at the table is half the reason to fast.",
+        "art": "cup"
+      },
+      {
+        "t": "Do not announce the score",
+        "d": "Not to relatives, not on the phone. The moment it becomes a number, it stops being theirs.",
+        "art": "cup"
+      }
+    ]
+  },
+  {
+    "id": "new-surah",
+    "name": "Learning a new surah together",
+    "art": "cup",
+    "tone": "#eee6fb",
+    "kind": "deen",
+    "section": "deen",
+    "mins": 8,
+    "age": "from about five",
+    "blurb": "The method that actually works: listen, repeat, cover, recall.",
+    "kit": [
+      "A mushaf or a phone",
+      "Somewhere quiet",
+      "Ten minutes, not an hour"
+    ],
+    "need": [
+      "A recitation you both like"
+    ],
+    "steps": [
+      {
+        "t": "Listen to the whole thing first",
+        "d": "Three or four times, no repeating aloud. Let the shape of it settle before anyone tries to say it.",
+        "art": "cup"
+      },
+      {
+        "t": "One ayah, ten times",
+        "d": "You say it, they say it back. Ten times sounds absurd and is roughly right.",
+        "art": "cup"
+      },
+      {
+        "t": "Join it to the one before",
+        "d": "Never learn an ayah alone. Always recite from the start of the surah to where you are now.",
+        "art": "cup"
+      },
+      {
+        "t": "Cover and recall",
+        "d": "Close the mushaf and say it from memory. The struggle to remember is the part that does the work.",
+        "art": "cup"
+      },
+      {
+        "t": "Sleep on it",
+        "d": "Stop before they are bored. Come back tomorrow - what is still there tomorrow is what was learned.",
+        "art": "cup"
+      },
+      {
+        "t": "Use it in salah",
+        "d": "The fastest way to keep a surah is to pray with it. That is what it is for.",
+        "art": "cup"
+      }
+    ]
+  },
+  {
+    "id": "last-ten",
+    "name": "The last ten nights, as a family",
+    "art": "cup",
+    "tone": "#eee6fb",
+    "kind": "deen",
+    "section": "deen",
+    "mins": 8,
+    "age": "a family plan",
+    "blurb": "Something for each night, so the ten do not disappear.",
+    "kit": [
+      "A plan made before they start",
+      "Low expectations, kept"
+    ],
+    "need": [
+      "An early night on night one"
+    ],
+    "steps": [
+      {
+        "t": "Decide before Ramadan's twentieth",
+        "d": "Ten nights of good intentions with no plan becomes ten nights of nothing. Write it down as a family.",
+        "art": "cup"
+      },
+      {
+        "t": "Give each night one thing",
+        "d": "Not a programme. One: a surah, a dua, twenty minutes of Qur'an, a charity given.",
+        "art": "cup"
+      },
+      {
+        "t": "Let the children stay up once",
+        "d": "One night, properly late, with the grown-ups. They will talk about it for a year.",
+        "art": "cup"
+      },
+      {
+        "t": "Odd nights, extra effort",
+        "d": "Without claiming to know which night it is. Nobody knows, and that is the design.",
+        "art": "cup"
+      },
+      {
+        "t": "Keep a family dua list",
+        "d": "Everyone adds one thing, and it gets read out. Children take dua far more seriously when theirs is on the list.",
+        "art": "cup"
+      },
+      {
+        "t": "Do not measure it",
+        "d": "No tally, no chart, no comparing to last year. This is the one thing in this app that must not be counted.",
+        "art": "cup"
+      }
+    ]
+  },
+  {
+    "id": "dhul-hijjah",
+    "name": "The first ten days of Dhul Hijjah",
+    "art": "cup",
+    "tone": "#fbeccb",
+    "kind": "deen",
+    "section": "deen",
+    "mins": 8,
+    "age": "a family plan",
+    "blurb": "Ten days that pass unnoticed unless somebody plans them.",
+    "kit": [
+      "A note in the calendar a week before"
+    ],
+    "need": [
+      "Nothing to buy"
+    ],
+    "steps": [
+      {
+        "t": "Put it in the calendar now",
+        "d": "These ten days go by unnoticed in most houses purely because nobody looked up when they start.",
+        "art": "cup"
+      },
+      {
+        "t": "One small thing daily",
+        "d": "Extra dhikr, a little charity, a surah. Small and every day beats large and once.",
+        "art": "cup"
+      },
+      {
+        "t": "Talk about why",
+        "d": "Ibrahim, Ismail, and what was actually being asked of them. A good Take a side card, if you have played that deck.",
+        "art": "cup"
+      },
+      {
+        "t": "Fast the day of Arafah",
+        "d": "If you can. Children can do part of it - see Their first fast.",
+        "art": "cup"
+      },
+      {
+        "t": "Involve them in the qurbani",
+        "d": "Where it goes, who eats it, what a third for the poor actually means. Not just the meat arriving.",
+        "art": "cup"
+      },
+      {
+        "t": "Make Eid feel different from a party",
+        "d": "The prayer first, the clothes, the visits. A child who only sees the presents learns only about presents.",
+        "art": "cup"
+      }
+    ]
+  },
+  {
+    "id": "pray-anywhere",
+    "name": "Praying in a room that isn't set up for it",
+    "art": "cup",
+    "tone": "#ddf0ef",
+    "kind": "deen",
+    "section": "home",
+    "mins": 8,
+    "age": "from about six",
+    "blurb": "Clearing a space, finding qiblah, and getting on with it.",
+    "kit": [
+      "Whatever is in the room"
+    ],
+    "need": [
+      "Somewhere clean to stand"
+    ],
+    "steps": [
+      {
+        "t": "Clear a patch, not a room",
+        "d": "Enough for your feet, your knees and your forehead. That is all it has ever needed.",
+        "art": "cup"
+      },
+      {
+        "t": "Find qiblah roughly",
+        "d": "Sun in the east in the morning, west in the evening. From that you can face close enough, and close enough counts.",
+        "art": "cup"
+      },
+      {
+        "t": "Use anything clean",
+        "d": "A towel, a coat, a clean floor. A prayer mat is a nice thing, not a requirement.",
+        "art": "cup"
+      },
+      {
+        "t": "Ignore the audience",
+        "d": "In a park, at a service station, in a friend's spare room. This is the part children need practice at, not the wudu.",
+        "art": "cup"
+      },
+      {
+        "t": "Then put the room back",
+        "d": "Fold the towel, move the chair back. Leaving no trace is part of the manners of using somebody's space.",
+        "art": "cup"
+      }
+    ]
+  },
+  {
+    "id": "ramadan-setup",
+    "name": "Setting the house up for Ramadan",
+    "art": "cup",
+    "tone": "#fff4dd",
+    "kind": "deen",
+    "section": "home",
+    "mins": 8,
+    "age": "a family course, before it starts",
+    "blurb": "Who does what, so the first week is not chaos.",
+    "kit": [
+      "A whiteboard or a piece of paper",
+      "Everybody in the room"
+    ],
+    "need": [
+      "A shopping list"
+    ],
+    "steps": [
+      {
+        "t": "Sit down a week before",
+        "d": "Not on the first night. The first night is already busy enough.",
+        "art": "cup"
+      },
+      {
+        "t": "Write down who does what",
+        "d": "Suhoor, iftar, washing up, waking people. Unwritten jobs land on one person, usually the mother.",
+        "art": "cup"
+      },
+      {
+        "t": "Give every child a real job",
+        "d": "Setting the table, dates in the bowl, filling the water jugs. A job you would have done anyway is not a job.",
+        "art": "cup"
+      },
+      {
+        "t": "Plan the shopping once",
+        "d": "One big shop beats nine evening trips, and evening trips are what wreck the last hour before iftar.",
+        "art": "cup"
+      },
+      {
+        "t": "Decide the screen rules now",
+        "d": "Before anyone is tired and arguing about it at eleven at night.",
+        "art": "cup"
+      },
+      {
+        "t": "Agree what you will NOT do",
+        "d": "Two things you are dropping for the month. A family that adds without removing collapses by day ten.",
+        "art": "cup"
+      }
+    ]
+  },
+  {
+    "id": "laundry",
+    "name": "Washing and folding your own clothes",
+    "art": "cup",
+    "tone": "#eef0f7",
+    "kind": "deen",
+    "section": "home",
+    "mins": 8,
+    "age": "from about eight",
+    "blurb": "A real skill the app already pays points for and never taught.",
+    "kit": [
+      "A washing machine",
+      "A place to dry things"
+    ],
+    "need": [
+      "Detergent",
+      "A hanger or two"
+    ],
+    "steps": [
+      {
+        "t": "Sort into three piles",
+        "d": "Whites, darks, and anything that might run. One red sock is how everybody learns this.",
+        "art": "cup"
+      },
+      {
+        "t": "Check every pocket",
+        "d": "Tissues, pens, receipts. This is the step everyone skips once.",
+        "art": "cup"
+      },
+      {
+        "t": "Load it properly",
+        "d": "Loose, not stuffed. Clothes need room to move or they come out still dirty.",
+        "art": "cup"
+      },
+      {
+        "t": "Detergent and a sensible cycle",
+        "d": "Show them the drawer, the dial and what 30 degrees means. Then let them press it.",
+        "art": "cup"
+      },
+      {
+        "t": "Get it out promptly",
+        "d": "Wet washing left in the drum smells within hours, and everyone learns that the hard way once.",
+        "art": "cup"
+      },
+      {
+        "t": "Fold as you take it down",
+        "d": "Folding warm is easier than ironing cold. Teach the T-shirt fold once and it lasts a lifetime.",
+        "art": "cup"
+      }
+    ]
+  },
+  {
+    "id": "bed-and-bag",
+    "name": "Your bed and your bag",
+    "art": "cup",
+    "tone": "#eef0f7",
+    "kind": "deen",
+    "section": "home",
+    "mins": 8,
+    "age": "from about five",
+    "blurb": "Two small competences that make a morning survivable.",
+    "kit": [
+      "Their own bed",
+      "Their own bag"
+    ],
+    "need": [
+      "Nothing"
+    ],
+    "steps": [
+      {
+        "t": "Bed: pull, straighten, smooth",
+        "d": "Duvet up, corners square, pillow on top. Ninety seconds, not a hotel.",
+        "art": "cup"
+      },
+      {
+        "t": "Do it before you leave the room",
+        "d": "Not later. Later never comes, and a made bed changes how a room feels all day.",
+        "art": "cup"
+      },
+      {
+        "t": "Bag: unpack it the moment you're home",
+        "d": "Lunchbox out, letters out, homework out. Everything that goes wrong in a school morning went wrong the night before.",
+        "art": "cup"
+      },
+      {
+        "t": "Pack for tomorrow at night",
+        "d": "Reading book, PE kit, water bottle. Check the timetable, not your memory.",
+        "art": "cup"
+      },
+      {
+        "t": "Same place, every time",
+        "d": "By the door, not in the bedroom. A bag in the bedroom is a bag left behind.",
+        "art": "cup"
+      }
+    ]
+  },
+  {
+    "id": "giving-money",
+    "name": "Giving money away, in person",
+    "art": "cup",
+    "tone": "#e3f6ef",
+    "kind": "deen",
+    "section": "home",
+    "mins": 8,
+    "age": "from about six",
+    "blurb": "Not a transfer on a phone. Taking something and handing it over.",
+    "kit": [
+      "Cash, not a card",
+      "Somewhere real to take it"
+    ],
+    "need": [
+      "A conversation on the way there"
+    ],
+    "steps": [
+      {
+        "t": "Let them choose who",
+        "d": "From a short list you are happy with. A gift somebody else chose is not their gift.",
+        "art": "cup"
+      },
+      {
+        "t": "Use their own money",
+        "d": "Points saved, pocket money, whatever it is. Giving away your parents' money teaches nothing at all.",
+        "art": "cup"
+      },
+      {
+        "t": "Cash, in a hand",
+        "d": "Not an app, not a card reader. A child needs to feel something leave them for this to land.",
+        "art": "cup"
+      },
+      {
+        "t": "Say nothing about it afterwards",
+        "d": "No retelling it to relatives. Best of all is the one nobody knew about, and children learn that from watching you.",
+        "art": "cup"
+      },
+      {
+        "t": "Talk about it on the way home",
+        "d": "What they noticed, how it felt, whether it was harder than they expected.",
+        "art": "cup"
+      }
+    ]
+  },
+  {
+    "id": "apologise",
+    "name": "How to apologise properly",
+    "art": "cup",
+    "tone": "#ffeef3",
+    "kind": "deen",
+    "section": "talking",
+    "mins": 8,
+    "age": "from about six, and most adults too",
+    "blurb": "Six steps, and most grown-ups cannot do all six.",
+    "kit": [
+      "Nothing but nerve"
+    ],
+    "need": [
+      "Having actually done something wrong"
+    ],
+    "steps": [
+      {
+        "t": "Say what you did",
+        "d": "Plainly. 'I broke it', not 'it got broken'. The passive voice is where an apology goes to die.",
+        "art": "cup"
+      },
+      {
+        "t": "Do not say 'but'",
+        "d": "Everything before the but is deleted by everything after it. Stop at the full stop.",
+        "art": "cup"
+      },
+      {
+        "t": "Say you know why it was wrong",
+        "d": "Not that you got in trouble. Why it was bad for the other person.",
+        "art": "cup"
+      },
+      {
+        "t": "Say sorry, once",
+        "d": "Once, meant. Saying it six times makes the other person comfort you, which reverses the whole thing.",
+        "art": "cup"
+      },
+      {
+        "t": "Ask what would put it right",
+        "d": "And then do that thing, not the thing you would rather do.",
+        "art": "cup"
+      },
+      {
+        "t": "Then let it go",
+        "d": "Do not bring it up again to prove you are a good person. The apology was for them.",
+        "art": "cup"
+      }
+    ]
+  },
+  {
+    "id": "disagree",
+    "name": "Disagreeing without shouting",
+    "art": "cup",
+    "tone": "#e8e9ff",
+    "kind": "deen",
+    "section": "talking",
+    "mins": 8,
+    "age": "from about seven",
+    "blurb": "How to hold your ground and keep the room.",
+    "kit": [
+      "Something you actually disagree about"
+    ],
+    "need": [
+      "Somebody willing to practise with you"
+    ],
+    "steps": [
+      {
+        "t": "Say their point back first",
+        "d": "In your own words, until they agree you have it right. Half of all arguments end here.",
+        "art": "cup"
+      },
+      {
+        "t": "Name the thing you agree on",
+        "d": "There is almost always one. Starting from it makes the gap smaller than it looked.",
+        "art": "cup"
+      },
+      {
+        "t": "Give one reason, not five",
+        "d": "Five reasons sounds like you do not believe any of them. Lead with the strongest.",
+        "art": "cup"
+      },
+      {
+        "t": "Ask a real question",
+        "d": "Not a trap. 'What would change your mind?' is the most useful sentence in any argument.",
+        "art": "cup"
+      },
+      {
+        "t": "Lower your voice when they raise theirs",
+        "d": "It is the only reliable way to bring a room back down. Try it once and you will keep using it.",
+        "art": "cup"
+      },
+      {
+        "t": "Be allowed to change your mind",
+        "d": "Say 'I hadn't thought of that' out loud in front of your children. They copy what they see.",
+        "art": "cup"
+      }
+    ]
+  },
+  {
+    "id": "say-no",
+    "name": "Saying no to a friend",
+    "art": "cup",
+    "tone": "#e8e9ff",
+    "kind": "deen",
+    "section": "talking",
+    "mins": 8,
+    "age": "from about seven",
+    "blurb": "The one skill that matters most and gets taught least.",
+    "kit": [
+      "A friend who asks for things"
+    ],
+    "need": [
+      "Practice, out loud, before it is needed"
+    ],
+    "steps": [
+      {
+        "t": "You do not need a reason",
+        "d": "'No thanks' is a complete sentence. Reasons invite negotiation.",
+        "art": "cup"
+      },
+      {
+        "t": "Have three sentences ready",
+        "d": "Practise them out loud at home. Nobody invents a good no under pressure.",
+        "art": "cup"
+      },
+      {
+        "t": "Offer a different thing",
+        "d": "'Not that, but I'll do this' keeps the friend and loses the thing.",
+        "art": "cup"
+      },
+      {
+        "t": "Say it early",
+        "d": "It gets harder every minute you wait. The first no is much cheaper than the fourth.",
+        "art": "cup"
+      },
+      {
+        "t": "If they keep pushing, that is the information",
+        "d": "A friend who will not take no is telling you something. Notice it.",
+        "art": "cup"
+      },
+      {
+        "t": "Agree a rescue with your parents",
+        "d": "A word or a text that means 'come and get me, no questions'. Then honour it - no questions.",
+        "art": "cup"
+      }
+    ]
+  },
+  {
+    "id": "unkind-at-school",
+    "name": "If someone is unkind to you",
+    "art": "cup",
+    "tone": "#e8e9ff",
+    "kind": "deen",
+    "section": "talking",
+    "mins": 8,
+    "age": "from about six",
+    "blurb": "What to do, in order, and what a grown-up will actually do about it.",
+    "kit": [
+      "Somebody at home who will listen without reacting"
+    ],
+    "need": [
+      "Nothing"
+    ],
+    "steps": [
+      {
+        "t": "It is not your fault",
+        "d": "Start here, every time. A child who thinks they caused it will not tell you the rest.",
+        "art": "cup"
+      },
+      {
+        "t": "Do not go it alone",
+        "d": "Tell somebody the same day. Secrets are what makes unkindness grow.",
+        "art": "cup"
+      },
+      {
+        "t": "Say it flat and walk away",
+        "d": "'Stop.' Then leave. No face, no argument, nothing to feed on.",
+        "art": "cup"
+      },
+      {
+        "t": "Stay where people are",
+        "d": "Corridors, the yard, near an adult. Unkindness needs privacy.",
+        "art": "cup"
+      },
+      {
+        "t": "Write down what happened",
+        "d": "When, where, who saw. A child with three dated notes is taken far more seriously by a school.",
+        "art": "cup"
+      },
+      {
+        "t": "Parents: react calmly first",
+        "d": "Whatever you feel, keep your face still while they talk. Your reaction decides whether they tell you the next one.",
+        "art": "cup"
+      },
+      {
+        "t": "Then go to the school in writing",
+        "d": "Email, not the playground. Ask what will happen and by when, and ask them to reply in writing.",
+        "art": "cup"
+      }
+    ]
+  }
+];
+  RECIPES.push.apply(RECIPES, LEARN_TOGETHER);
+
+/* ---------- going somewhere ----------
      Same pack shape as a recipe, which is the whole argument for building a
      runner rather than a recipe screen: an outing is a thing to take, a few
      things to do while you are there, and a moment at the end. No points.
@@ -18809,11 +19804,14 @@ window.GROWNUP_DECKS = [
     </section>`;
   }
   function renderCookList(){
-    /* Learning to pray is not a recipe. Same engine - ordered steps, a "what
-       you need", a timer where waiting matters - and its own shelf, because a
-       child looking for wudu should not have to scroll past pancakes. */
-    const d=document.getElementById("deenHost");
-    if(d) d.innerHTML = RECIPES.filter(r=>r.kind==="deen").map(cardHTML).join("");
+    /* One shelf per section. Twenty courses in one list is a list nobody
+       reads; a family looking for what to do when somebody has died should
+       not be scrolling past laundry to find it. */
+    const shelf=(id,sec)=>{
+      const el=document.getElementById(id);
+      if(el) el.innerHTML = LEARN_TOGETHER.filter(r=>r.section===sec).map(cardHTML).join("");
+    };
+    shelf("deenHost","deen"); shelf("homeHost","home"); shelf("talkHost","talking");
     const c=document.getElementById("cookHost");
     if(c) c.innerHTML = RECIPES.filter(r=>r.kind!=="deen").map(cardHTML).join("");
     const g=document.getElementById("goHost");
@@ -18829,10 +19827,14 @@ window.GROWNUP_DECKS = [
       const body=document.getElementById("playBody");
       if(!body) return;
       body.insertAdjacentHTML("afterbegin",
-        /* Learning to pray goes first. It is the only thing on this shelf a
-           family will come back to on purpose. */
-        `<p class="playeyebrow" style="margin-top:0">Learn to pray</p>
+        /* Learning together goes first. It is the part of this shelf a family
+           comes back to on purpose, and the part that matters on a bad day. */
+        `<p class="playeyebrow" style="margin-top:0">Prayer and deen</p>
          <div id="deenHost"></div>
+         <p class="playeyebrow">Looking after yourself</p>
+         <div id="homeHost"></div>
+         <p class="playeyebrow">Talking to people</p>
+         <div id="talkHost"></div>
          <p class="playeyebrow">Go somewhere</p>
          <div id="goHost"></div>
          <p class="playeyebrow">Cook something</p>
