@@ -4974,7 +4974,7 @@ const TIP_CATS = [
   {key:"deen", label:"Deen"}
 ];
 
-const APP_VERSION = "v177";
+const APP_VERSION = "v178";
 const today = new Date().toISOString().slice(0,10);
 let app = {families:[],currentFamily:null,currentChild:null};
 let categories = [];
@@ -18235,7 +18235,84 @@ window.GROWNUP_DECKS = [
   /* ---------- the pack ----------
      Chosen for how much of the work a child can safely do, not for the
      cuisine. adult:true is every step with a blade, a flame or an oven door. */
+  /* ---------- Learning to pray ----------
+     Same engine as the recipes - ordered steps, a "what you need", a timer
+     where waiting matters - because that is exactly what these are: a thing
+     done in order, with a right way round, learned by doing it beside somebody.
+
+     ON DIFFERENCE. Wudu and salah differ between the madhhabs, and a course
+     that quietly picked one would be telling a family they pray wrongly. So
+     the steps carry only what is agreed, and where schools differ the card
+     says so in its own words rather than choosing: `differs` marks a step as a
+     point of difference, and the app never resolves it. "Ask whoever teaches
+     you" is a complete answer here and the honest one.
+
+     There is no assessment in any of this and nothing pays points. A child
+     ticking "I did the steps" is not a certificate that their salah is valid,
+     and the app must never imply otherwise. */
   const RECIPES = [
+    { id:"wudu", name:"How to make wudu", art:"cup", tone:"#e3f6ef",
+      kind:"deen", mins:5, age:"from about four, alongside a grown-up",
+      blurb:"The order, in the sink, with somebody beside you. Learn it once and it lasts.",
+      kit:["A tap or a jug","Somewhere the floor can get wet","Sleeves rolled up"],
+      need:["Clean water","A towel"],
+      steps:[
+        {t:"Say Bismillah",d:"Before the water. Nothing else has to be said out loud.",art:"cup"},
+        {t:"Hands, three times",d:"Wrists down, both hands, three times. Between the fingers too.",art:"cup"},
+        {t:"Mouth, three times",d:"A little water into the mouth, swill it, out. Three times.",art:"cup"},
+        {t:"Nose, three times",d:"A little water sniffed up and blown out, gently. Three times.",art:"cup"},
+        {t:"Face, three times",d:"Hairline to chin, ear to ear. Three times.",art:"cup"},
+        {t:"Arms to the elbows",d:"Right arm first, fingertips to elbow, three times. Then the left.",art:"cup"},
+        {t:"Wipe the head",d:"Wet hands, once over the head, front to back. Then the ears with the same water.",
+         differs:"Schools differ on how much of the head and whether the ears are separate. Do it the way you were taught.",art:"cup"},
+        {t:"Feet to the ankles",d:"Right foot first, to the ankle, three times. Between the toes. Then the left.",art:"cup"},
+        {t:"Say the dua after",d:"Ashhadu an la ilaha illallah wa ashhadu anna Muhammadan abduhu wa rasuluh.",art:"cup"}
+      ]},
+    { id:"salah-shape", name:"The shape of one rakah", art:"cup", tone:"#eee6fb",
+      kind:"deen", mins:10, age:"from about five, learned in order",
+      blurb:"One rakah, start to finish. Learn the shape first; the words come with time.",
+      kit:["A clean space","A prayer mat if you have one","Wudu already made"],
+      need:["Somewhere to face qiblah"],
+      steps:[
+        {t:"Stand and intend",d:"Face qiblah, stand still. The intention is in the heart - it does not have to be said.",art:"cup"},
+        {t:"Takbir",d:"Hands up, Allahu akbar. From here you are in the prayer.",art:"cup"},
+        {t:"Stand and recite",d:"Hands folded, read Surah al-Fatihah, then a little more Qur'an.",
+         differs:"Where the hands are folded differs between schools. Follow how you were taught.",art:"cup"},
+        {t:"Ruku",d:"Allahu akbar, bend at the waist, back flat, hands on the knees. Subhana rabbiyal adheem, three times.",art:"cup"},
+        {t:"Stand up again",d:"Sami Allahu liman hamidah. Rabbana lakal hamd. Stand completely still for a moment.",art:"cup"},
+        {t:"Sujud",d:"Allahu akbar, down. Forehead, nose, both hands, both knees, toes. Subhana rabbiyal ala, three times.",art:"cup"},
+        {t:"Sit",d:"Allahu akbar, sit up. Rest here properly before you go down again.",art:"cup"},
+        {t:"Sujud again",d:"The second one, the same as the first. That is one rakah finished.",art:"cup"}
+      ]},
+    { id:"first-prayer", name:"Their first prayer with you", art:"cup", tone:"#fbeccb",
+      kind:"deen", mins:15, age:"a parent's course, not a child's",
+      blurb:"How to start, when to start, and what not to do. For the grown-up.",
+      kit:["No equipment - this one is about how you go about it"],
+      need:["Patience, mostly"],
+      steps:[
+        {t:"Start with standing next to you",d:"Long before they pray properly. They copy; you say nothing about it. Being welcome in the room is the first lesson.",art:"cup"},
+        {t:"One prayer, not five",d:"Pick the one that fits your day - often Maghrib, because everyone is home. Five at once is how a child learns to dread it.",art:"cup"},
+        {t:"Shape before words",d:"Let them do the movements with sounds that are nearly right. Correcting the Arabic early is the fastest way to make them stop trying.",art:"cup"},
+        {t:"Never as a punishment",d:"Salah must not be the thing that happens when they are in trouble. Whatever else you do, protect that.",art:"cup"},
+        {t:"Let them see you pray badly",d:"Tired, rushed, at the end of a long day, still praying. That teaches more than a good one does.",art:"cup"},
+        {t:"Say nothing when they miss one",d:"Notice it, and leave it. A missed prayer that turns into a row is a missed prayer plus a bad memory.",art:"cup"},
+        {t:"Ask them to teach you",d:"Get one step wrong on purpose and let them correct you. Explaining it out loud is how they find out they know it.",art:"cup"}
+      ]},
+    { id:"ghusl-basics", name:"What every child should know about staying clean", art:"cup", tone:"#e6efec",
+      kind:"deen", mins:8, age:"a parent's course - for the conversation, not the child",
+      blurb:"The conversation nobody plans for, and how to have it before it is needed.",
+      kit:["A private moment","No audience"],
+      need:["Having decided in advance what you will say"],
+      steps:[
+        {t:"Have it early and briefly",d:"Before puberty, not during. A short, matter-of-fact conversation at nine is far easier than an urgent one at twelve.",art:"cup"},
+        {t:"Name things plainly",d:"Vague language makes a child think the subject is shameful. It is not shameful; it is fiqh.",art:"cup"},
+        {t:"Say what changes",d:"That prayer and fasting become theirs to keep, and that this is a mark of growing up rather than a burden.",art:"cup"},
+        {t:"Say who to ask",d:"Name the person - you, their mother, an older sibling, a teacher. A child who does not know who to ask asks nobody.",art:"cup"},
+        {t:"Cover the practical",d:"What ghusl is and when it is needed. Details differ between schools and between boys and girls, so teach what you were taught.",
+         differs:"This is a topic where families should follow their own madhhab and, if unsure, ask someone qualified rather than an app.",art:"cup"},
+        {t:"Say it once more later",d:"Nobody takes it in the first time. A second short conversation six months on does more than a long first one.",art:"cup"}
+      ]},
+
     { id:"pancakes", name:"Weekend pancakes", art:"pan", tone:"#fff4dd",
       kind:"cook", mins:20, serves:"4", blurb:"Almost all of it is whisking and pouring, which is the whole point.",
       kit:["A big mixing bowl","A whisk or a fork","A ladle or a mug","A frying pan","A fish slice"],
@@ -18420,6 +18497,9 @@ window.GROWNUP_DECKS = [
   .tg-d{margin:0;font-size:16.5px;line-height:1.6;color:#3f4560}
   .tg-adult{display:inline-flex;align-items:center;gap:7px;background:#fff2e6;border:1px solid #f3cfa6;
     color:#8a4b12;border-radius:99px;padding:7px 13px;font-size:12.5px;font-weight:800;margin:12px 0 0}
+  .tg-differs{margin:12px 0 0;padding:12px 14px;border-radius:14px;background:#f3ecff;
+    border:1px solid #e0d3f6;color:#452a7a;font-size:13.5px;line-height:1.5;text-align:left}
+  .tg-differs strong{display:block;margin-bottom:3px}
   .tg-need{background:#fff;border:1px solid #e6e8f0;border-radius:18px;padding:4px 16px;margin:0 0 14px}
   .tg-need li{display:flex;align-items:flex-start;gap:11px;padding:12px 0;font-size:15.5px;
     line-height:1.45;color:#243044;list-style:none;border-bottom:1px solid #f2f3f8}
@@ -18561,6 +18641,11 @@ window.GROWNUP_DECKS = [
       <h2 class="tg-h">${esc(s.t)}</h2>
       <p class="tg-d">${esc(s.d)}</p>`;
     if(s.adult) h+=`<p class="tg-adult">\u26a0\ufe0f A grown-up does this one</p>`;
+    /* A point of difference, named as one. The app does not resolve it and
+       must not: a course that quietly picked a madhhab would be telling a
+       family they pray wrongly. "Do it the way you were taught" is a complete
+       answer here, and the honest one. */
+    if(s.differs) h+=`<p class="tg-differs"><strong>Schools differ here.</strong> ${esc(s.differs)}</p>`;
     if(s.timer){
       const left=remaining(step, s.timer);
       if(left===null){
@@ -18709,10 +18794,11 @@ window.GROWNUP_DECKS = [
   }
   function cardHTML(r){
     const n=cookedCount(r);
-    const cook = r.kind !== "go";
-    const meta = cook
-      ? `About ${r.mins} minutes \u00b7 ${r.steps.length} steps \u00b7 serves ${esc(r.serves)}`
-      : `About ${r.mins} minutes \u00b7 ${r.steps.length} things to do`;
+    const meta = r.kind==="deen"
+      ? `${r.steps.length} steps \u00b7 ${esc(r.age||"learn it together")}`
+      : r.kind==="go"
+        ? `About ${r.mins} minutes \u00b7 ${r.steps.length} things to do`
+        : `About ${r.mins} minutes \u00b7 ${r.steps.length} steps \u00b7 serves ${esc(r.serves)}`;
     return `<section class="tgcard" onclick="openTogether('${r.id}')">
       <svg viewBox="0 0 120 100" role="img" aria-hidden="true"
         style="background:${r.tone||"#f6f7fb"}">${ARTBODY(r.art)}</svg>
@@ -18723,8 +18809,13 @@ window.GROWNUP_DECKS = [
     </section>`;
   }
   function renderCookList(){
+    /* Learning to pray is not a recipe. Same engine - ordered steps, a "what
+       you need", a timer where waiting matters - and its own shelf, because a
+       child looking for wudu should not have to scroll past pancakes. */
+    const d=document.getElementById("deenHost");
+    if(d) d.innerHTML = RECIPES.filter(r=>r.kind==="deen").map(cardHTML).join("");
     const c=document.getElementById("cookHost");
-    if(c) c.innerHTML = RECIPES.map(cardHTML).join("");
+    if(c) c.innerHTML = RECIPES.filter(r=>r.kind!=="deen").map(cardHTML).join("");
     const g=document.getElementById("goHost");
     if(g) g.innerHTML = OUTINGS.map(cardHTML).join("");
   }
@@ -18738,7 +18829,11 @@ window.GROWNUP_DECKS = [
       const body=document.getElementById("playBody");
       if(!body) return;
       body.insertAdjacentHTML("afterbegin",
-        `<p class="playeyebrow" style="margin-top:0">Go somewhere</p>
+        /* Learning to pray goes first. It is the only thing on this shelf a
+           family will come back to on purpose. */
+        `<p class="playeyebrow" style="margin-top:0">Learn to pray</p>
+         <div id="deenHost"></div>
+         <p class="playeyebrow">Go somewhere</p>
          <div id="goHost"></div>
          <p class="playeyebrow">Cook something</p>
          <div id="cookHost"></div>
