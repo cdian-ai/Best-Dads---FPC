@@ -1280,11 +1280,17 @@
   /* Two sides of one room, at the top of both panels. */
   /* The thought of the day, kept but demoted. It was the biggest object on a
      screen for doing things. */
-  .dashthought{margin-top:14px}
-  .dashthought .rcard{padding:14px 16px;border-radius:18px}
+  /* The thought of the day, kept but demoted. It was the biggest object on a
+     screen for doing things. The selectors below had no effect until the
+     source was checked - the card is .rcard with .rlead and .rtag inside it,
+     and the earlier attempt guessed at .rtext. */
+  .dashthought{margin-top:2px}
+  .dashthought .rcard{padding:14px 16px;border-radius:18px;min-height:0}
   .dashthought .rcard .rglyph{display:none}
-  .dashthought .rcard .rtext,.dashthought .rlead{font-size:15px;line-height:1.45}
-  .dashthought .rcard h2,.dashthought .rtag{font-size:10.5px;letter-spacing:.08em}
+  .dashthought .rcard .rpin{font-size:10px;padding:4px 9px}
+  .dashthought .rcard .rtag{font-size:10px;letter-spacing:.08em}
+  .dashthought .rcard .rlead{font-size:15px;line-height:1.45;margin:8px 0 0}
+  .dashthought .rcard .rsrc{font-size:11.5px;margin:7px 0 0}
   .askswitch{display:grid;grid-template-columns:1fr 1fr;gap:6px;background:#eef0f7;
     border-radius:99px;padding:4px;margin:0 0 16px}
   .askswitch button{width:auto;min-height:42px;border:0;border-radius:99px;background:none;
@@ -1360,6 +1366,11 @@
   .todaytile .hname{font-size:15.5px;font-weight:800;line-height:1.2}
   .todaytile .hsub{font-size:11.5px;font-weight:600;line-height:1.35;opacity:.8}
   .todaytile.t-gold{background:linear-gradient(150deg,#fff4dd,#ffe6ba);border-color:#f0dcb2;color:#6a4a05}
+  /* Both halves of Asking wear the room's indigo. Gold on "You asked them"
+     matched the reminder card - two unrelated things looking alike while the
+     two sides of one room looked different. Filled is the side with something
+     waiting on you; outlined is the side you drive. */
+  .todaytile.t-ask{background:#fff;border-color:#cdd0f5;color:#2b2e73}
   .todaytile.t-bell{background:linear-gradient(150deg,#e8e9ff,#d9dbfb);border-color:#cdd0f5;color:#2b2e73}
   .shelf{margin:0 -16px}
   .shelfrow{display:flex;gap:11px;overflow-x:auto;padding:2px 16px 8px;
@@ -4932,7 +4943,7 @@ const TIP_CATS = [
   {key:"deen", label:"Deen"}
 ];
 
-const APP_VERSION = "v174";
+const APP_VERSION = "v175";
 const today = new Date().toISOString().slice(0,10);
 let app = {families:[],currentFamily:null,currentChild:null};
 let categories = [];
@@ -11010,12 +11021,15 @@ function renderParentAdminView(parent){
       <div class="todaypair">
         ${todayTile("bell","\ud83d\udd14","They asked you",
             pend.length?pend.length+" waiting":"Nothing waiting","showAskingPanel('them')", pend.length||0)}
-        ${todayTile("gold","\ud83d\udccc","You asked them",
+        ${todayTile("ask","\ud83d\udccc","You asked them",
             "What you\u2019ve put on their list","showAskingPanel('you')")}
       </div>
-      <!-- The one non-task on this screen, and the reason it stays: a screen
-           made only of jobs is a to-do list, and this app is not one. It is a
-           strip now rather than the largest object on the page. -->
+      <!-- Under its own heading, not under "Waiting on you" - a thought for
+           the day is not a job, and filing it beneath that heading told a
+           parent it was one more thing outstanding. The one non-task on this
+           screen, and the reason it stays: a screen made only of jobs is a
+           to-do list, and this app is not one. -->
+      <p class="homegroup">Something to think about</p>
       <div class="dashthought">${reminderCardHTML()}</div>
     </div>`;
   document.getElementById("summarySection").classList.add("hidden");
@@ -11797,7 +11811,13 @@ function attentionHTML(){
                         : "One small thing today is worth more than a big catch-up."}</span></span>
       </section>`;
   }
-  return reminderCardHTML();
+  /* Was: return reminderCardHTML(). That fallthrough is why the same hadith
+     appeared twice on the dashboard from v173 - once here when nothing needed
+     attention, and once in the thought strip below it. The reminder has a home
+     of its own now, so this slot returns nothing when it has nothing to say.
+     An attention slot with no attention in it should be empty, not filled with
+     something else. */
+  return "";
 }
 /* ---------- Asking, one room ----------
    "I'm asking…" and "They're asking…" were two tiles with near-identical
