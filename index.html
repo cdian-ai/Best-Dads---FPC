@@ -1256,6 +1256,11 @@
   .panel.r-play   > h2,.panel.r-play   .panelgrid > section > h2{color:#8a4a15}
   .menupills{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px;padding-top:22px;
     border-top:1px solid #e6e8f0}
+  .menupills+.menupills{margin-top:0;padding-top:10px;border-top:0}
+  /* The one destructive button on the screen, pushed well away from anything
+     you might be aiming at. */
+  .menuout{margin-top:26px!important;padding-top:0!important;border-top:0!important}
+  .menuout button{flex:0 1 auto;color:#9a3d3d;border-color:#efd9d9;background:#fff}
   .menupills button{flex:1 1 auto;width:auto;min-height:48px;padding:13px 16px;border-radius:99px;
     border:1px solid #e6e8f0;background:#fff;font-size:13.5px;font-weight:700;
     color:#5a6172;cursor:pointer}
@@ -1660,6 +1665,28 @@
   .ks3{background:linear-gradient(140deg,#ffb454,#f59023)}
   .kidcard{background:#fff;border-radius:24px;padding:18px;box-shadow:var(--shadow);margin-bottom:16px;border-top:6px solid var(--k4)}
   .kidcard.pink{border-top-color:var(--k1)} .kidcard.teal{border-top-color:var(--k3)} .kidcard.sun{border-top-color:var(--k2)}
+  /* ---- colour per room, tutor and wider-family side ----
+     These screens were using --k1/--k3 (a pink and a teal from the child
+     palette) which mean nothing anywhere else in the app. A tutor's work is
+     Learn, so it is violet; a grandparent giving points is in the points room,
+     so gold; offering to buy something is Rewards, so green. Same colours as
+     the tabs, the menu tiles and the parent panels - a tutor and a parent
+     talking about "the purple screen" now mean the same screen. */
+  .kidcard.r-learn {border-top-color:#7457d4}
+  .kidcard.r-points{border-top-color:#dda520}
+  .kidcard.r-spend {border-top-color:#177f5c}
+  .kidcard.r-today {border-top-color:#4d56c9}
+  .kidcard.r-deen  {border-top-color:#2f8f8a}
+  .kidcard.r-learn  > h2{color:#452a7a}
+  .kidcard.r-points > h2{color:#6d4d05}
+  .kidcard.r-spend  > h2{color:#12603f}
+  .kidcard.r-today  > h2{color:#2b2e73}
+  .kidcard.r-deen   > h2{color:#12554f}
+  /* A helper's own greeting card wears their role's colour rather than the
+     child's indigo, so signing in as Nani does not look like signing in as a
+     seven-year-old. */
+  .kidhero.h-tutor {background:linear-gradient(155deg,#5a45a8,#33245f)}
+  .kidhero.h-family{background:linear-gradient(155deg,#1f6b5c,#124237)}
   .kidcard h2{margin:0 0 3px;font-size:19px}
   .kidcard .lede{margin:0 0 12px;color:var(--muted);font-size:13px}
   .feed{display:grid;gap:9px;max-height:330px;overflow:auto}
@@ -2244,6 +2271,8 @@
        the bottom, where a child is not looking unless they want them. -->
   <div class="menupills">
     <button id="soundBtn" onclick="setSoundOn(!soundOn())">🔊 Sound on</button>
+  </div>
+  <div class="menupills menuout">
     <button onclick="signOutDevice()">🔒 Sign out</button>
   </div>
 </div>
@@ -2372,6 +2401,11 @@
     <button id="btnHowItWorks" onclick="openHowItWorks()">❓ How this works</button>
     <button id="btnErrLog" onclick="showErrorLog()">🩺 What went wrong</button>
     <button id="btnResetDay" onclick="resetDay()">↻ Reset today</button>
+  </div>
+  <!-- On its own, at the very bottom, with air above it. Sitting in a row with
+       "How this works" it was one mis-tap from ending the session, and it is
+       the only button on this screen that undoes something. -->
+  <div class="menupills menuout">
     <button id="btnSignOut" onclick="signOutDevice()">🔒 Sign out</button>
   </div>
 </div>
@@ -4845,7 +4879,7 @@ const TIP_CATS = [
   {key:"deen", label:"Deen"}
 ];
 
-const APP_VERSION = "v171";
+const APP_VERSION = "v172";
 const today = new Date().toISOString().slice(0,10);
 let app = {families:[],currentFamily:null,currentChild:null};
 let categories = [];
@@ -6673,14 +6707,14 @@ function renderTutorView(me){
   }));
   mine.sort((a,b)=>b.e.ts-a.e.ts);
   document.getElementById("familyViewBody").innerHTML = `
-    <section class="kidhero">
+    <section class="kidhero h-tutor">
       <div class="kidherorow"><div>
         <p class="kidhi">Asalamualaikum, ${escapeHtml(me.name)}! \u{1f44b}</p>
         <p class="kidsub">${escapeHtml(relationLabel(me))}</p>
       </div></div>
     </section>
     ${(typeof askingBoardHTML==="function") ? askingBoardHTML() : ""}
-    <section class="kidcard teal">
+    <section class="kidcard r-learn">
       <h2>\u{1f4da} After the lesson</h2>
       <p class="lede">Record how it went. Up to ${TUTOR_MAX_PER_AWARD} points, once a day each \u2014 their parents see everything you record.</p>
       <div style="display:grid;gap:8px">${kids.length ? kids.map(c=>{
@@ -6695,13 +6729,13 @@ function renderTutorView(me){
         </div>`;}).join("")
         : '<p class="small">\u{1f4cb} No children assigned to you yet. A parent chooses who you work with, under Family members on their own device.</p>'}</div>
     </section>
-    ${kids.length ? `<section class="kidcard teal">
+    ${kids.length ? `<section class="kidcard r-learn">
       <h2>\u{1f4d6} Their programme</h2>
       <p class="lede">Mark what they can do unaided. Nothing here awards points \u2014 it records what they know.</p>
       ${kids.map(c=>`<div style="margin-top:14px"><strong>${escapeHtml(c.name)}</strong>
         ${learnScreenHTML(c)}</div>`).join("")}
     </section>` : ""}
-    <section class="kidcard pink">
+    <section class="kidcard r-points">
       <h2>\u{1f5d3}\ufe0f What you\u2019ve recorded</h2>
       <div class="feed">${mine.length ? mine.slice(0,10).map(m=>`<div class="feeditem">
           <div class="feedemoji">\u2b50</div>
@@ -6723,7 +6757,7 @@ function renderFamilyView(me){
   const mine=(app.requests||[]).filter(r=>r.type==="offer" && r.sponsorId===me.id).slice(0,5);
   const goal=activeGoal();
   document.getElementById("familyViewBody").innerHTML = `
-    <section class="kidhero">
+    <section class="kidhero h-family">
       <div class="kidherorow">
         <div>
           <p class="kidhi">Asalamualaikum, ${escapeHtml(me.name)}! \u{1f44b}</p>
@@ -6731,7 +6765,7 @@ function renderFamilyView(me){
         </div>
       </div>
     </section>
-    <section class="kidcard teal">
+    <section class="kidcard r-points">
       <h2>\u{1f465} The children this week</h2>
       <p class="lede">What they\u2019ve earned since Monday.</p>
       <div style="display:grid;gap:8px">${kids.length ? kids.map(c=>{
@@ -6750,7 +6784,7 @@ function renderFamilyView(me){
       <p class="small" style="margin:12px 0 0">You have ${FAMILY_WEEKLY_ALLOWANCE} points a week for each child. It fills up again every Monday \u2014 so they\u2019re worth spending on something you actually noticed.</p>
     </section>
     ${goal ? goalCardHTML(goal, true) : ""}
-    <section class="kidcard pink">
+    <section class="kidcard r-spend">
       <h2>\u{1f381} Do something for them</h2>
       <p class="lede">A parent sees it first, then the children do.</p>
       <div style="display:grid;gap:8px;margin-top:10px">
