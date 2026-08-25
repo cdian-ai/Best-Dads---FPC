@@ -2608,6 +2608,18 @@
     <div id="tipsBody"></div>
   </div>
 
+  <!-- Prayer and deen has its own room from v182. Eleven courses inline was
+       the longest shelf on the page and pushed everything else below the fold;
+       it is also the part of Do together a family opens on purpose, so it
+       earns a door rather than a scroll. -->
+  <div id="learnDeenPanel" class="panel r-deen hidden">
+    <button class="panelback" onclick="showPlayPanel()">← Do together</button>
+    <h2>🕌 Prayer and deen</h2>
+    <p class="small">Wudu, salah, fasting, and what to do when somebody dies.
+      Nothing here is scored and nothing is recorded.</p>
+    <div id="learnDeenHost"></div>
+  </div>
+
   <div id="treePanel" class="panel r-plain hidden">
     <button class="panelback" onclick="goHome()">← Home</button>
     <div id="treeBody"></div>
@@ -4974,7 +4986,7 @@ const TIP_CATS = [
   {key:"deen", label:"Deen"}
 ];
 
-const APP_VERSION = "v181";
+const APP_VERSION = "v182";
 const today = new Date().toISOString().slice(0,10);
 let app = {families:[],currentFamily:null,currentChild:null};
 let categories = [];
@@ -7801,7 +7813,7 @@ async function toggleExcusedToday(childId){
 const KID_ONLY_SCREENS = ["kidSpendScreen","kidLearnScreen","kidPointsScreen",
                           "kidBankScreen","kidGiveScreen"];
 const SHARED_SCREENS   = ["rulesPanel","treePanel","deenPanel","playPanel"];
-const SCREENS = ["accountPanel","overviewPanel","activityPanel","requestsPanel","progressPanel","rewardsPanel","grownupsPanel","pledgesPanel","playPanel","notesPanel","pickPanel","quickPanel","reviewPanel","rulesPanel","tutorPanel","treePanel","deenPanel","tipsPanel",
+const SCREENS = ["accountPanel","overviewPanel","activityPanel","requestsPanel","progressPanel","rewardsPanel","grownupsPanel","pledgesPanel","playPanel","notesPanel","pickPanel","quickPanel","reviewPanel","rulesPanel","tutorPanel","treePanel","deenPanel","tipsPanel","learnDeenPanel",
                  "kidSpendScreen","kidLearnScreen","kidPointsScreen",
                  "kidBankScreen","kidGiveScreen"];
 let screenNow = null;
@@ -18317,6 +18329,41 @@ window.GROWNUP_DECKS = [
     rowpray:`<rect x="10" y="86" width="100" height="5" rx="2.5" fill="#e0c894"/><circle cx="28" cy="31" r="7" fill="#e8c6a0"/><path d="M21 29a7 7 0 0 1 14 0c-3-4-7 -5-7-5s-4 1-7 5z" fill="#4a3f35"/><circle cx="31" cy="31" r="1.8" fill="#3a3129"/><path d="M20 40h16l4 46H16z" fill="#6aa89a"/><circle cx="60" cy="31" r="7" fill="#e8c6a0"/><path d="M53 29a7 7 0 0 1 14 0c-3-4-7 -5-7-5s-4 1-7 5z" fill="#4a3f35"/><circle cx="63" cy="31" r="1.8" fill="#3a3129"/><path d="M52 40h16l4 46H48z" fill="#6aa89a"/><circle cx="92" cy="31" r="7" fill="#e8c6a0"/><path d="M85 29a7 7 0 0 1 14 0c-3-4-7 -5-7-5s-4 1-7 5z" fill="#4a3f35"/><circle cx="95" cy="31" r="1.8" fill="#3a3129"/><path d="M84 40h16l4 46H80z" fill="#6aa89a"/>`,
     phone:`<circle cx="52" cy="30" r="14" fill="#e8c6a0"/><path d="M38 28a14 14 0 0 1 28 0c-3-4-14 -5-14-5s-11 1-14 5z" fill="#4a3f35"/><circle cx="55" cy="30" r="1.8" fill="#3a3129"/><path d="M36 48h32l6 38H30z" fill="#6aa89a"/><path d="M66 54c8-2 12-8 12-14" fill="none" stroke="#e8c6a0" stroke-width="7" stroke-linecap="round"/><rect x="72" y="22" width="13" height="24" rx="4" fill="#4b5566"/><path d="M92 26c5 5 5 15 0 20" fill="none" stroke="#6aa89a" stroke-width="4" stroke-linecap="round"/>`,
   });
+  /* ---- v182: show the ACTION, not the subject ----
+     A face with a droplet beside it shows you a face. It does not show a
+     child washing their face, which is the step. Every wudu card now has
+     hands in it, doing the thing the sentence describes: hands rubbing
+     each other, a hand cupped at the mouth, both hands flat on the cheeks,
+     a hand running down the forearm, both hands wiping back over the head,
+     a hand on the foot. The hand is what makes it an instruction.
+
+     And anything that is SAID gets a speech bubble, because a dua is
+     speech and nothing else on a card communicates that. */
+  Object.assign(ART, {
+    w_hands:`<rect x="10" y="78" width="100" height="6" rx="3" fill="#dbe6ee"/><g transform="translate(44,46) rotate(-18) scale(1.0)"><rect x="-12" y="-5" width="24" height="18" rx="8" fill="#dcb28a"/><rect x="-11.5" y="-14" width="6.5" height="13" rx="3.2" fill="#dcb28a"/><rect x="-3.5" y="-16" width="6.5" height="15" rx="3.2" fill="#dcb28a"/><rect x="4.5" y="-14" width="6.5" height="13" rx="3.2" fill="#dcb28a"/><path d="M-12 2h24" stroke="#cb9d75" stroke-width="1.6" opacity=".7"/></g><g transform="translate(74,52) rotate(160) scale(1.0)"><rect x="-12" y="-5" width="24" height="18" rx="8" fill="#dcb28a"/><rect x="-11.5" y="-14" width="6.5" height="13" rx="3.2" fill="#dcb28a"/><rect x="-3.5" y="-16" width="6.5" height="15" rx="3.2" fill="#dcb28a"/><rect x="4.5" y="-14" width="6.5" height="13" rx="3.2" fill="#dcb28a"/><path d="M-12 2h24" stroke="#cb9d75" stroke-width="1.6" opacity=".7"/></g><circle cx="50" cy="30" r="3" fill="#7fc6e8"/><circle cx="71" cy="25" r="2.4" fill="#5fb3dd"/><circle cx="63" cy="38" r="2.6" fill="#7fc6e8"/><path d="M22 70c8-5 14 4 22 0s14 4 22 0 14 4 22 0" stroke="#7fc6e8" stroke-width="4" fill="none" stroke-linecap="round"/>`,
+    w_mouth:`<ellipse cx="33" cy="46" rx="5" ry="7" fill="#cb9d75"/><ellipse cx="87" cy="46" rx="5" ry="7" fill="#cb9d75"/><path d="M36 38c0-14 10-25 24-25s24 11 24 25v9c0 14-11 24-24 24s-24-10-24-24z" fill="#e8c6a0"/><path d="M35 38c1-16 11-25 25-25s24 9 25 25c-3-5-11-9-25-9s-22 4-25 9z" fill="#4a3f35"/><circle cx="51" cy="45" r="3" fill="#3a3129"/><circle cx="69" cy="45" r="3" fill="#3a3129"/><path d="M60 48v7" stroke="#cb9d75" stroke-width="3" stroke-linecap="round"/><ellipse cx="60" cy="62" rx="7" ry="5.5" fill="#8a5a52"/><g transform="translate(60,74) rotate(0) scale(0.9)"><rect x="-12" y="-5" width="24" height="18" rx="8" fill="#dcb28a"/><rect x="-11.5" y="-14" width="6.5" height="13" rx="3.2" fill="#dcb28a"/><rect x="-3.5" y="-16" width="6.5" height="15" rx="3.2" fill="#dcb28a"/><rect x="4.5" y="-14" width="6.5" height="13" rx="3.2" fill="#dcb28a"/><path d="M-12 2h24" stroke="#cb9d75" stroke-width="1.6" opacity=".7"/></g><circle cx="74" cy="34" r="3" fill="#7fc6e8"/><circle cx="95" cy="29" r="2.4" fill="#5fb3dd"/><circle cx="87" cy="42" r="2.6" fill="#7fc6e8"/><path d="M60 68c0-8 0-10 0-12" stroke="#7fc6e8" stroke-width="5" fill="none" stroke-linecap="round"/><path d="M22 92c8-5 14 4 22 0s14 4 22 0 14 4 22 0" stroke="#7fc6e8" stroke-width="4" fill="none" stroke-linecap="round"/>`,
+    w_nose:`<ellipse cx="33" cy="46" rx="5" ry="7" fill="#cb9d75"/><ellipse cx="87" cy="46" rx="5" ry="7" fill="#cb9d75"/><path d="M36 38c0-14 10-25 24-25s24 11 24 25v9c0 14-11 24-24 24s-24-10-24-24z" fill="#e8c6a0"/><path d="M35 38c1-16 11-25 25-25s24 9 25 25c-3-5-11-9-25-9s-22 4-25 9z" fill="#4a3f35"/><circle cx="51" cy="45" r="3" fill="#3a3129"/><circle cx="69" cy="45" r="3" fill="#3a3129"/><path d="M60 48v7" stroke="#cb9d75" stroke-width="3" stroke-linecap="round"/><path d="M53 61c4 3 10 3 14 0" fill="none" stroke="#8a5a52" stroke-width="3" stroke-linecap="round"/><g transform="translate(60,72) rotate(0) scale(0.85)"><rect x="-12" y="-5" width="24" height="18" rx="8" fill="#dcb28a"/><rect x="-11.5" y="-14" width="6.5" height="13" rx="3.2" fill="#dcb28a"/><rect x="-3.5" y="-16" width="6.5" height="15" rx="3.2" fill="#dcb28a"/><rect x="4.5" y="-14" width="6.5" height="13" rx="3.2" fill="#dcb28a"/><path d="M-12 2h24" stroke="#cb9d75" stroke-width="1.6" opacity=".7"/></g><path d="M60 62c0-4 0-6 0-8" stroke="#7fc6e8" stroke-width="5" fill="none" stroke-linecap="round"/><circle cx="76" cy="32" r="3" fill="#7fc6e8"/><circle cx="97" cy="27" r="2.4" fill="#5fb3dd"/><circle cx="89" cy="40" r="2.6" fill="#7fc6e8"/><path d="M22 92c8-5 14 4 22 0s14 4 22 0 14 4 22 0" stroke="#7fc6e8" stroke-width="4" fill="none" stroke-linecap="round"/>`,
+    w_face:`<ellipse cx="33" cy="48" rx="5" ry="7" fill="#cb9d75"/><ellipse cx="87" cy="48" rx="5" ry="7" fill="#cb9d75"/><path d="M36 40c0-14 10-25 24-25s24 11 24 25v9c0 14-11 24-24 24s-24-10-24-24z" fill="#e8c6a0"/><path d="M35 40c1-16 11-25 25-25s24 9 25 25c-3-5-11-9-25-9s-22 4-25 9z" fill="#4a3f35"/><circle cx="51" cy="47" r="3" fill="#3a3129"/><circle cx="69" cy="47" r="3" fill="#3a3129"/><path d="M60 50v7" stroke="#cb9d75" stroke-width="3" stroke-linecap="round"/><path d="M53 63c4 3 10 3 14 0" fill="none" stroke="#8a5a52" stroke-width="3" stroke-linecap="round"/><path d="M36 40c0-14 10-25 24-25s24 11 24 25v9c0 14-11 24-24 24s-24-10-24-24z" fill="#7fc6e8" opacity=".28"/><g transform="translate(34,56) rotate(22) scale(0.95)"><rect x="-12" y="-5" width="24" height="18" rx="8" fill="#dcb28a"/><rect x="-11.5" y="-14" width="6.5" height="13" rx="3.2" fill="#dcb28a"/><rect x="-3.5" y="-16" width="6.5" height="15" rx="3.2" fill="#dcb28a"/><rect x="4.5" y="-14" width="6.5" height="13" rx="3.2" fill="#dcb28a"/><path d="M-12 2h24" stroke="#cb9d75" stroke-width="1.6" opacity=".7"/></g><g transform="translate(86,56) rotate(-22) scale(0.95)"><rect x="-12" y="-5" width="24" height="18" rx="8" fill="#dcb28a"/><rect x="-11.5" y="-14" width="6.5" height="13" rx="3.2" fill="#dcb28a"/><rect x="-3.5" y="-16" width="6.5" height="15" rx="3.2" fill="#dcb28a"/><rect x="4.5" y="-14" width="6.5" height="13" rx="3.2" fill="#dcb28a"/><path d="M-12 2h24" stroke="#cb9d75" stroke-width="1.6" opacity=".7"/></g><circle cx="50" cy="16" r="3" fill="#7fc6e8"/><circle cx="71" cy="11" r="2.4" fill="#5fb3dd"/><circle cx="63" cy="24" r="2.6" fill="#7fc6e8"/><path d="M22 92c8-5 14 4 22 0s14 4 22 0 14 4 22 0" stroke="#7fc6e8" stroke-width="4" fill="none" stroke-linecap="round"/>`,
+    w_arms:`<path d="M14 60c0-9 9-13 18-11l48 11c9 2 11 13 2 16l-46 8c-13 2-22-7-22-17z" fill="#e8c6a0"/><path d="M38 54v22" stroke="#cb9d75" stroke-width="3"/><g transform="translate(56,42) rotate(105) scale(0.95)"><rect x="-12" y="-5" width="24" height="18" rx="8" fill="#dcb28a"/><rect x="-11.5" y="-14" width="6.5" height="13" rx="3.2" fill="#dcb28a"/><rect x="-3.5" y="-16" width="6.5" height="15" rx="3.2" fill="#dcb28a"/><rect x="4.5" y="-14" width="6.5" height="13" rx="3.2" fill="#dcb28a"/><path d="M-12 2h24" stroke="#cb9d75" stroke-width="1.6" opacity=".7"/></g><circle cx="82" cy="34" r="3" fill="#7fc6e8"/><circle cx="103" cy="29" r="2.4" fill="#5fb3dd"/><circle cx="95" cy="42" r="2.6" fill="#7fc6e8"/><path d="M22 92c8-5 14 4 22 0s14 4 22 0 14 4 22 0" stroke="#7fc6e8" stroke-width="4" fill="none" stroke-linecap="round"/>`,
+    w_head:`<ellipse cx="33" cy="58" rx="5" ry="7" fill="#cb9d75"/><ellipse cx="87" cy="58" rx="5" ry="7" fill="#cb9d75"/><path d="M36 50c0-14 10-25 24-25s24 11 24 25v9c0 14-11 24-24 24s-24-10-24-24z" fill="#e8c6a0"/><path d="M35 50c1-16 11-25 25-25s24 9 25 25c-3-5-11-9-25-9s-22 4-25 9z" fill="#4a3f35"/><circle cx="51" cy="57" r="3" fill="#3a3129"/><circle cx="69" cy="57" r="3" fill="#3a3129"/><path d="M60 60v7" stroke="#cb9d75" stroke-width="3" stroke-linecap="round"/><path d="M53 73c4 3 10 3 14 0" fill="none" stroke="#8a5a52" stroke-width="3" stroke-linecap="round"/><path d="M28 50c6-16 18-25 32-25s26 9 32 25c-8-5-14 1-20-2-7-4-13 3-20 0-8-3-16 5-24 2z" fill="#cb9d75"/><g transform="translate(38,34) rotate(-30) scale(0.9)"><rect x="-12" y="-5" width="24" height="18" rx="8" fill="#dcb28a"/><rect x="-11.5" y="-14" width="6.5" height="13" rx="3.2" fill="#dcb28a"/><rect x="-3.5" y="-16" width="6.5" height="15" rx="3.2" fill="#dcb28a"/><rect x="4.5" y="-14" width="6.5" height="13" rx="3.2" fill="#dcb28a"/><path d="M-12 2h24" stroke="#cb9d75" stroke-width="1.6" opacity=".7"/></g><g transform="translate(82,34) rotate(30) scale(0.9)"><rect x="-12" y="-5" width="24" height="18" rx="8" fill="#dcb28a"/><rect x="-11.5" y="-14" width="6.5" height="13" rx="3.2" fill="#dcb28a"/><rect x="-3.5" y="-16" width="6.5" height="15" rx="3.2" fill="#dcb28a"/><rect x="4.5" y="-14" width="6.5" height="13" rx="3.2" fill="#dcb28a"/><path d="M-12 2h24" stroke="#cb9d75" stroke-width="1.6" opacity=".7"/></g><circle cx="50" cy="14" r="3" fill="#7fc6e8"/><circle cx="71" cy="9" r="2.4" fill="#5fb3dd"/><circle cx="63" cy="22" r="2.6" fill="#7fc6e8"/>`,
+    w_feet:`<rect x="10" y="80" width="100" height="6" rx="3" fill="#dbe6ee"/><path d="M28 80V58c0-9 13-11 15-2l3 15 10-1v10z" fill="#e8c6a0"/><path d="M64 80V54c0-9 13-11 15-2l3 17 10-1v12z" fill="#e8c6a0"/><g transform="translate(46,50) rotate(-70) scale(0.8)"><rect x="-12" y="-5" width="24" height="18" rx="8" fill="#dcb28a"/><rect x="-11.5" y="-14" width="6.5" height="13" rx="3.2" fill="#dcb28a"/><rect x="-3.5" y="-16" width="6.5" height="15" rx="3.2" fill="#dcb28a"/><rect x="4.5" y="-14" width="6.5" height="13" rx="3.2" fill="#dcb28a"/><path d="M-12 2h24" stroke="#cb9d75" stroke-width="1.6" opacity=".7"/></g><circle cx="82" cy="34" r="3" fill="#7fc6e8"/><circle cx="103" cy="29" r="2.4" fill="#5fb3dd"/><circle cx="95" cy="42" r="2.6" fill="#7fc6e8"/>`,
+    w_dua:`<path d="M28 66c-4-9 5-15 10-8l10 13 3-22c1-9 13-9 13 0l1 22 10-13c5-7 14-1 10 8l-11 22c-4 9-12 12-22 12s-18-4-22-12z" fill="#e8c6a0"/><rect x="34" y="8" width="52" height="32" rx="11" fill="#fff" stroke="#c3c8e6" stroke-width="2.5"/><path d="M44 40l-6 10 16-10z" fill="#fff"/><circle cx="49.0" cy="24.0" r="3.2" fill="#9aa7ba"/><circle cx="60.0" cy="24.0" r="3.2" fill="#9aa7ba"/><circle cx="71.0" cy="24.0" r="3.2" fill="#9aa7ba"/>`,
+  });
+  /* Anything SAID gets a speech bubble: the takbir, the tasbih in ruku and
+     sujud, a dua, a phone call, two people talking. Without one, a picture
+     of a person standing still is indistinguishable from a picture of a
+     person standing still and saying something - which is the whole
+     difference between two of the steps in a rakah. */
+  Object.assign(ART, {
+    s_takbir:`<rect x="10" y="86" width="100" height="5" rx="2.5" fill="#e0c894"/><circle cx="52" cy="30" r="9" fill="#e8c6a0"/><path d="M43 28a9 9 0 0 1 18 0c-3-4-9 -5-9-5s-6 1-9 5z" fill="#4a3f35"/><circle cx="55" cy="30" r="1.8" fill="#3a3129"/><path d="M41 41h22l7 45H34z" fill="#6aa89a"/><path d="M42 46l-6-16M62 46l6-16" stroke="#54897d" stroke-width="6" stroke-linecap="round"/><circle cx="36" cy="26" r="5" fill="#dcb28a"/><circle cx="68" cy="26" r="5" fill="#dcb28a"/><rect x="72" y="8" width="42" height="26" rx="10" fill="#fff" stroke="#c3c8e6" stroke-width="2.5"/><path d="M105 34l6 10-15-10z" fill="#fff"/><circle cx="83.0" cy="21.0" r="3" fill="#9aa7ba"/><circle cx="93.0" cy="21.0" r="3" fill="#9aa7ba"/><circle cx="103.0" cy="21.0" r="3" fill="#9aa7ba"/>`,
+    s_fold:`<rect x="10" y="86" width="100" height="5" rx="2.5" fill="#e0c894"/><circle cx="52" cy="24" r="9" fill="#e8c6a0"/><path d="M43 22a9 9 0 0 1 18 0c-3-4-9 -5-9-5s-6 1-9 5z" fill="#4a3f35"/><circle cx="55" cy="24" r="1.8" fill="#3a3129"/><path d="M41 35h22l7 51H34z" fill="#6aa89a"/><path d="M40 42c0 14 6 18 12 18s12-4 12-18" fill="none" stroke="#54897d" stroke-width="6" stroke-linecap="round"/><rect x="70" y="10" width="44" height="26" rx="10" fill="#fff" stroke="#c3c8e6" stroke-width="2.5"/><path d="M105 36l6 10-15-10z" fill="#fff"/><circle cx="82.0" cy="23.0" r="3" fill="#9aa7ba"/><circle cx="92.0" cy="23.0" r="3" fill="#9aa7ba"/><circle cx="102.0" cy="23.0" r="3" fill="#9aa7ba"/>`,
+    s_ruku:`<rect x="10" y="86" width="100" height="5" rx="2.5" fill="#e0c894"/><path d="M34 44h48c6 0 8 4 8 9l-2 33h-14l1-28H40z" fill="#6aa89a"/><circle cx="28" cy="50" r="9" fill="#e8c6a0"/><path d="M19 48a9 9 0 0 1 18 0c-3-4-9 -5-9-5s-6 1-9 5z" fill="#4a3f35"/><circle cx="25" cy="50" r="1.8" fill="#3a3129"/><path d="M40 56v26M76 54v28" stroke="#54897d" stroke-width="6" stroke-linecap="round"/><rect x="56" y="6" width="44" height="24" rx="10" fill="#fff" stroke="#c3c8e6" stroke-width="2.5"/><path d="M65 30l-6 10 15-10z" fill="#fff"/><circle cx="68.0" cy="18.0" r="3" fill="#9aa7ba"/><circle cx="78.0" cy="18.0" r="3" fill="#9aa7ba"/><circle cx="88.0" cy="18.0" r="3" fill="#9aa7ba"/>`,
+    s_sujud:`<rect x="16" y="82" width="88" height="9" rx="4" fill="#d8c9a8"/><path d="M46 60c0-10 10-16 22-16h20l4 38H50z" fill="#6aa89a"/><circle cx="34" cy="74" r="9" fill="#e8c6a0"/><path d="M25 72a9 9 0 0 1 18 0c-3-4-9 -5-9-5s-6 1-9 5z" fill="#4a3f35"/><circle cx="31" cy="74" r="1.8" fill="#3a3129"/><path d="M46 68h14" stroke="#54897d" stroke-width="6" stroke-linecap="round"/><rect x="52" y="4" width="46" height="26" rx="10" fill="#fff" stroke="#c3c8e6" stroke-width="2.5"/><path d="M61 30l-6 10 15-10z" fill="#fff"/><circle cx="65.0" cy="17.0" r="3" fill="#9aa7ba"/><circle cx="75.0" cy="17.0" r="3" fill="#9aa7ba"/><circle cx="85.0" cy="17.0" r="3" fill="#9aa7ba"/>`,
+    dua:`<path d="M26 62c-4-9 5-15 10-8l10 13 3-22c1-9 13-9 13 0l1 22 10-13c5-7 14-1 10 8l-11 22c-4 9-12 12-22 12s-18-4-22-12z" fill="#e8c6a0"/><rect x="60" y="8" width="50" height="28" rx="10" fill="#fff" stroke="#c3c8e6" stroke-width="2.5"/><path d="M101 36l6 10-15-10z" fill="#fff"/><circle cx="75.0" cy="22.0" r="3" fill="#9aa7ba"/><circle cx="85.0" cy="22.0" r="3" fill="#9aa7ba"/><circle cx="95.0" cy="22.0" r="3" fill="#9aa7ba"/>`,
+    speech:`<rect x="8" y="16" width="58" height="32" rx="10" fill="#fff" stroke="#c3c8e6" stroke-width="2.5"/><path d="M17 48l-6 10 15-10z" fill="#fff"/><circle cx="27.0" cy="32.0" r="3" fill="#9aa7ba"/><circle cx="37.0" cy="32.0" r="3" fill="#9aa7ba"/><circle cx="47.0" cy="32.0" r="3" fill="#9aa7ba"/><rect x="56" y="54" width="56" height="30" rx="10" fill="#fff" stroke="#c3c8e6" stroke-width="2.5"/><path d="M103 84l6 10-15-10z" fill="#fff"/><circle cx="74.0" cy="69.0" r="3" fill="#9aa7ba"/><circle cx="84.0" cy="69.0" r="3" fill="#9aa7ba"/><circle cx="94.0" cy="69.0" r="3" fill="#9aa7ba"/>`,
+    talk2:`<circle cx="28" cy="32" r="11" fill="#e8c6a0"/><path d="M17 30a11 11 0 0 1 22 0c-3-4-11 -5-11-5s-8 1-11 5z" fill="#4a3f35"/><circle cx="31" cy="32" r="1.8" fill="#3a3129"/><path d="M16 48h24l4 38H12z" fill="#6aa89a"/><circle cx="84" cy="50" r="8" fill="#e8c6a0"/><path d="M76 48a8 8 0 0 1 16 0c-3-4-8 -5-8-5s-5 1-8 5z" fill="#4a3f35"/><circle cx="81" cy="50" r="1.8" fill="#3a3129"/><path d="M75 60h18l3 26H72z" fill="#e8a33d"/><rect x="44" y="10" width="44" height="26" rx="10" fill="#fff" stroke="#c3c8e6" stroke-width="2.5"/><path d="M53 36l-6 10 15-10z" fill="#fff"/><circle cx="56.0" cy="23.0" r="3" fill="#9aa7ba"/><circle cx="66.0" cy="23.0" r="3" fill="#9aa7ba"/><circle cx="76.0" cy="23.0" r="3" fill="#9aa7ba"/>`,
+    phone:`<circle cx="48" cy="30" r="14" fill="#e8c6a0"/><path d="M34 28a14 14 0 0 1 28 0c-3-4-14 -5-14-5s-11 1-14 5z" fill="#4a3f35"/><circle cx="51" cy="30" r="1.8" fill="#3a3129"/><path d="M32 48h32l6 38H26z" fill="#6aa89a"/><path d="M62 54c8-2 12-8 12-14" fill="none" stroke="#dcb28a" stroke-width="7" stroke-linecap="round"/><rect x="68" y="22" width="13" height="24" rx="4" fill="#4b5566"/><rect x="76" y="50" width="38" height="24" rx="10" fill="#fff" stroke="#c3c8e6" stroke-width="2.5"/><path d="M105 74l6 10-15-10z" fill="#fff"/><circle cx="85.0" cy="62.0" r="3" fill="#9aa7ba"/><circle cx="95.0" cy="62.0" r="3" fill="#9aa7ba"/><circle cx="105.0" cy="62.0" r="3" fill="#9aa7ba"/>`,
+  });
   function ARTBODY(key){ return ART[key]||ART.plate; }
   function art(key, tone){
     const d=ART[key]||ART.plate;
@@ -19616,6 +19663,10 @@ window.GROWNUP_DECKS = [
   .tgtag.who-child {background:#e8f4ee;color:#12603f}
   .tgtag.who-parent{background:#eceefe;color:#2b2e73}
   .tgtag.who-family{background:#fdf0e2;color:#8a5b12}
+  /* The one card on this page that opens a room rather than a course. */
+  .tgcard.tgbig{background:linear-gradient(150deg,#fff,#e3f6ef);border-color:#c7e9db}
+  .tgcard.tgbig .n{font-size:18px}
+  .tgcard.tgbig svg{width:96px;height:80px}
   .tg-need{background:#fff;border:1px solid #e6e8f0;border-radius:18px;padding:4px 16px;margin:0 0 14px}
   .tg-need li{display:flex;align-items:flex-start;gap:11px;padding:12px 0;font-size:15.5px;
     line-height:1.45;color:#243044;list-style:none;border-bottom:1px solid #f2f3f8}
@@ -19945,13 +19996,29 @@ window.GROWNUP_DECKS = [
       const el=document.getElementById(id);
       if(el) el.innerHTML = LEARN_TOGETHER.filter(r=>r.section===sec).map(cardHTML).join("");
     };
-    shelf("deenHost","deen"); shelf("homeHost","home"); shelf("talkHost","talking");
+    /* One tile, not eleven cards. */
+    const dn=LEARN_TOGETHER.filter(r=>r.section==="deen").length;
+    const dh=document.getElementById("deenHost");
+    if(dh) dh.innerHTML=`<section class="tgcard tgbig" onclick="showLearnDeen()">
+        <svg viewBox="0 0 120 100" role="img" aria-hidden="true"
+          style="background:#e3f6ef">${ARTBODY("mosque")}</svg>
+        <span class="m"><span class="n">Prayer and deen</span>
+          <span class="s">Wudu, salah, fasting, and what to do when somebody dies.</span>
+          <span class="tgtags"><span class="tgtag who-family">\ud83d\udd4c ${dn} courses</span>
+            <span class="tgtag">Open the room \u203a</span></span></span>
+      </section>`;
+    shelf("homeHost","home"); shelf("talkHost","talking");
     const c=document.getElementById("cookHost");
     if(c) c.innerHTML = RECIPES.filter(r=>r.kind!=="deen").map(cardHTML).join("");
     const g=document.getElementById("goHost");
     if(g) g.innerHTML = OUTINGS.map(cardHTML).join("");
   }
   window.renderCookList = renderCookList;
+  window.showLearnDeen = function(){
+    if(typeof openPanel==="function") openPanel("learnDeenPanel");
+    const h=document.getElementById("learnDeenHost");
+    if(h) h.innerHTML = LEARN_TOGETHER.filter(r=>r.section==="deen").map(cardHTML).join("");
+  };
 
   /* Wrapped, not edited: Do together gains a Cook section above the puzzles. */
   if(typeof renderPlayPanel==="function"){
@@ -19963,9 +20030,8 @@ window.GROWNUP_DECKS = [
       body.insertAdjacentHTML("afterbegin",
         /* Learning together goes first. It is the part of this shelf a family
            comes back to on purpose, and the part that matters on a bad day. */
-        `<p class="playeyebrow" style="margin-top:0">Prayer and deen</p>
-         <div id="deenHost"></div>
-         <p class="playeyebrow">Looking after yourself</p>
+        `<div id="deenHost"></div>
+         <p class="playeyebrow" style="margin-top:18px">Looking after yourself</p>
          <div id="homeHost"></div>
          <p class="playeyebrow">Talking to people</p>
          <div id="talkHost"></div>
