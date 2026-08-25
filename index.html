@@ -1254,6 +1254,44 @@
   .panel.r-spend  > h2,.panel.r-spend  .panelgrid > section > h2{color:#12603f}
   .panel.r-deen   > h2,.panel.r-deen   .panelgrid > section > h2{color:#12554f}
   .panel.r-play   > h2,.panel.r-play   .panelgrid > section > h2{color:#8a4a15}
+  /* ---- the parent's bar ----
+     Five slots: four places and one action. The action is raised and gold so
+     it never reads as a fifth destination - a verb should not look like a
+     noun. Tones match the rooms they open, the same system the child's bar,
+     the menu tiles and the panels all use. */
+  .ptabbar{grid-template-columns:1fr 1fr 1.15fr 1fr 1fr}
+  .ptabbar button{position:relative;font-size:10px;line-height:1.15;padding:6px 2px 4px}
+  .ptabbar .tabemoji{font-size:19px}
+  .ptabbar #pTabAsk.on{color:#2b2e73} .ptabbar #pTabProgress.on{color:#6d4d05}
+  .ptabbar #pTabHome.on{color:#3e46ad} .ptabbar #pTabMore.on{color:#5a6172}
+  .ptabbar .tabaction{color:#6d4d05;font-weight:800}
+  .ptabbar .tabaction .tabemoji{display:inline-flex;align-items:center;justify-content:center;
+    width:46px;height:46px;margin-top:-16px;border-radius:50%;
+    background:linear-gradient(150deg,#f6cf76,#dda520);
+    box-shadow:0 6px 16px rgba(190,140,20,.38);font-size:22px}
+  .ptabbar .tabaction:active .tabemoji{transform:scale(.94)}
+  .tbadge{position:absolute;top:2px;right:calc(50% - 22px);min-width:17px;height:17px;
+    border-radius:99px;background:#4d56c9;color:#fff;font-size:10px;font-weight:800;
+    display:flex;align-items:center;justify-content:center;padding:0 4px}
+  body.hasparentbar{padding-bottom:calc(78px + env(safe-area-inset-bottom))}
+  /* The portrait was a third of the screen above a page full of jobs. It keeps
+     the warmth and gives back the fold. */
+  body.hasparentbar .familycover,.familycover.compact{height:auto;min-height:132px;max-height:150px}
+  /* Two sides of one room, at the top of both panels. */
+  /* The thought of the day, kept but demoted. It was the biggest object on a
+     screen for doing things. */
+  .dashthought{margin-top:14px}
+  .dashthought .rcard{padding:14px 16px;border-radius:18px}
+  .dashthought .rcard .rglyph{display:none}
+  .dashthought .rcard .rtext,.dashthought .rlead{font-size:15px;line-height:1.45}
+  .dashthought .rcard h2,.dashthought .rtag{font-size:10.5px;letter-spacing:.08em}
+  .askswitch{display:grid;grid-template-columns:1fr 1fr;gap:6px;background:#eef0f7;
+    border-radius:99px;padding:4px;margin:0 0 16px}
+  .askswitch button{width:auto;min-height:42px;border:0;border-radius:99px;background:none;
+    font-size:13.5px;font-weight:800;color:#6a7184;cursor:pointer;padding:10px 8px}
+  .askswitch button.on{background:#fff;color:#2b2e73;box-shadow:0 2px 8px rgba(24,22,60,.10)}
+  .askcount{display:inline-flex;align-items:center;justify-content:center;min-width:19px;height:19px;
+    border-radius:99px;background:#4d56c9;color:#fff;font-size:11px;margin-left:5px;padding:0 5px}
   .menupills{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px;padding-top:22px;
     border-top:1px solid #e6e8f0}
   .menupills+.menupills{margin-top:0;padding-top:10px;border-top:0}
@@ -2878,6 +2916,21 @@
     <div class="titlerule"></div>
     <div id="kidGivingPot"></div>
   </div>
+
+  <!-- The parent's bar. Four places and one action, and the action is drawn
+       differently on purpose: "I noticed" is a verb and the other four are
+       nouns, so it is raised and gold rather than pretending to be a
+       destination. It is the most-used control in the app and it now exists on
+       every parent screen instead of only on the dashboard.
+       Asking is ONE room with two sides, which is why the two near-identical
+       labels are gone. -->
+  <nav id="parentTabBar" class="tabbar ptabbar hidden">
+    <button id="pTabHome" onclick="goHome()"><span class="tabemoji">🏠</span>Home</button>
+    <button id="pTabAsk" onclick="showAskingPanel()"><span class="tabemoji">💬</span>Asking<span class="tbadge hidden" id="pTabAskBadge"></span></button>
+    <button id="pTabNotice" class="tabaction" onclick="showPicker('give')"><span class="tabemoji">⭐</span>Notice</button>
+    <button id="pTabProgress" onclick="showOverviewPanel()"><span class="tabemoji">📊</span>How they're doing</button>
+    <button id="pTabMore" onclick="toggleMenu()"><span class="tabemoji">☰</span>More</button>
+  </nav>
 
   <nav id="kidTabBar" class="tabbar hidden">
     <button id="kidTabHome" onclick="showScreen(null)"><span class="tabemoji">🏠</span>Home</button>
@@ -4879,7 +4932,7 @@ const TIP_CATS = [
   {key:"deen", label:"Deen"}
 ];
 
-const APP_VERSION = "v172";
+const APP_VERSION = "v173";
 const today = new Date().toISOString().slice(0,10);
 let app = {families:[],currentFamily:null,currentChild:null};
 let categories = [];
@@ -7758,6 +7811,28 @@ function kidSay(o){ return kidDialog(Object.assign({}, o, {yes:o.yes||"OK!", no:
 /* ---------- The child's menu ---------- */
 /* Lifted out of renderKidView so it can run before anything that might fail,
    and again from the router. */
+/* The parent's bar follows the same rule as the child's: present whenever the
+   parent is signed in and not gated, hidden in edit mode where the page itself
+   becomes the tool. */
+function showParentTabBar(){
+  const bar=document.getElementById("parentTabBar");
+  if(!bar) return;
+  if(typeof gateIsOpen==="function" && gateIsOpen()){ bar.classList.add("hidden"); return; }
+  const on = isParentSession() && !editMode && !kidViewOpen();
+  bar.classList.toggle("hidden", !on);
+  document.body.classList.toggle("hasparentbar", on);
+  if(!on) return;
+  const map={pTabHome:!screenNow, pTabAsk:(screenNow==="requestsPanel"||screenNow==="notesPanel"),
+             pTabProgress:(screenNow==="overviewPanel"), pTabMore:false};
+  Object.keys(map).forEach(id=>{
+    const b=document.getElementById(id); if(b) b.classList.toggle("on", !!map[id]);
+  });
+  const n=pendingRequests().length;
+  const badge=document.getElementById("pTabAskBadge");
+  if(badge){ badge.textContent=n>9?"9+":String(n); badge.classList.toggle("hidden", !n); }
+  const fc=document.getElementById("familyCover");
+  if(fc) fc.classList.add("compact");
+}
 function showKidTabBar(){
   const bar=document.getElementById("kidTabBar");
   if(!bar) return;
@@ -10606,6 +10681,7 @@ function render(){
     mf.textContent = (open || onPanel) ? "\u2715 Close" : "\u2630 Menu";
     mf.classList.toggle("closing", open || onPanel);
   }
+  try{ showParentTabBar(); renderAskTabs(); }catch(e){ console.error("parent bar:", e); }
   const vtl=document.getElementById("vaultTargetLabel");
   if(vtl) vtl.textContent = vaultTarget();
   applyEditGates();
@@ -10919,52 +10995,21 @@ function renderParentAdminView(parent){
       <span class="hicon">${icon}</span>
       <span class="hname">${name}</span>
       <span class="hsub">${sub}</span></button>`;
-  /* One card wide enough to read, narrow enough that the next one shows at the
-     edge \u2014 which is what tells you the row moves. */
-  const shelfTile=(icon,name,sub,fn,badge)=>`<button class="shelftile" onclick="${fn}">
-      ${badge?`<span class="hbadge">${badge}</span>`:""}
-      <span class="hicon">${icon}</span>
-      <span class="hname">${name}</span>
-      <span class="hsub">${sub}</span></button>`;
-  const tile=(icon,name,sub,fn,badge)=>`<button class="hometile" onclick="${fn}">
-      ${badge?`<span class="hbadge">${badge}</span>`:""}
-      <span class="hicon">${icon}</span><span class="hname">${name}</span>
-      <span class="hsub">${sub}</span></button>`;
+  /* shelfTile and the plain hometile went with the shelf in v173. */
   cards.innerHTML = `
     <div style="grid-column:1/-1">
-      <p class="homegroup" style="margin-top:2px">Today</p>
-      <div class="homegrid">
-        <button class="hometile wide" onclick="showPicker('give')">
-          <span class="hicon">\u2b50</span>
-          <span><span class="hname">I noticed\u2026</span>
-            <span class="hsub">${kids.length
-              ? kids.length+" child"+(kids.length===1?"":"ren")+" \u00b7 "+weekTotal+" points this week"
-              : "Add a child to get started"}</span></span>
-        </button>
-      </div>
+      <p class="homegroup" style="margin-top:2px">${waiting ? "Waiting on you" : "Today"}</p>
       ${attentionHTML()}
       <div class="todaypair">
-        ${todayTile("gold","\ud83d\udccc","I\u2019m asking\u2026","What you\u2019ve asked of them","showNotesPanel()")}
-        ${todayTile("bell","\ud83d\udd14","They\u2019re asking\u2026", pend.length?pend.length+" waiting on you":"Nothing waiting","showRequestsPanel()", pend.length||0)}
+        ${todayTile("bell","\ud83d\udd14","They asked you",
+            pend.length?pend.length+" waiting":"Nothing waiting","showAskingPanel('them')", pend.length||0)}
+        ${todayTile("gold","\ud83d\udccc","You asked them",
+            "What you\u2019ve put on their list","showAskingPanel('you')")}
       </div>
-      <!-- Ten tiles stacked under two headings was most of the scrolling on
-           this screen. Everything that is not today lives on one shelf you
-           flick through, so the dashboard ends where Today ends. -->
-      <p class="homegroup">Everything else</p>
-      <div class="shelf">
-        <div class="shelfrow" id="homeShelf">
-          ${shelfTile("\ud83d\udde3\ufe0f","Review together","Go through the week","showReviewPanel()")}
-          ${shelfTile("\ud83d\udcca","Overview","Everyone at a glance","showOverviewPanel()")}
-          ${shelfTile("\ud83d\udcd6","Learn","Yours and theirs","showProgressPanel()")}
-          ${shelfTile("\ud83c\udf81","Rewards","What points are for","showRewardsPanel()")}
-          ${shelfTile("\ud83e\udd1d","The grown-ups","You and your partner","showGrownupsPanel()", offers.length||0)}
-          ${shelfTile("\ud83e\udd1e","Pledges","What you promise","showPledgesPanel()")}
-          ${shelfTile("\ud83e\udde9","Do together","Cook, play, puzzle","showPlayPanel()")}
-          ${shelfTile("\ud83d\udc68\u200d\ud83d\udc69\u200d\ud83d\udc67","Family and friends","Logins and tutors","showPicker('people')")}
-          ${shelfTile("\ud83d\udccb","History","Awarded today","showActivityPanel()", outsideAwards(7).length||0)}
-          ${shelfTile("\ud83d\udcdc","House rules","How points work","showRulesPanel()")}
-        </div>
-      </div>
+      <!-- The one non-task on this screen, and the reason it stays: a screen
+           made only of jobs is a to-do list, and this app is not one. It is a
+           strip now rather than the largest object on the page. -->
+      <div class="dashthought">${reminderCardHTML()}</div>
     </div>`;
   document.getElementById("summarySection").classList.add("hidden");
   updateRewardPacing(null);
@@ -11746,6 +11791,37 @@ function attentionHTML(){
       </section>`;
   }
   return reminderCardHTML();
+}
+/* ---------- Asking, one room ----------
+   "I'm asking…" and "They're asking…" were two tiles with near-identical
+   labels for opposite directions of travel. On a bar with ninety pixels a
+   label, nobody reads that at seven in the morning. They are one room now with
+   two sides, so the question stops being "which of these two words is mine"
+   and becomes "who asked". */
+let askSide="them";
+function showAskingPanel(side){
+  askSide = side || askSide;
+  if(askSide==="you") showNotesPanel(); else showRequestsPanel();
+  renderAskTabs();
+}
+function renderAskTabs(){
+  const pend=(typeof pendingRequests==="function") ? pendingRequests().length : 0;
+  ["requestsPanel","notesPanel"].forEach(id=>{
+    const p=document.getElementById(id); if(!p) return;
+    let strip=p.querySelector(".askswitch");
+    if(!strip){
+      strip=document.createElement("div");
+      strip.className="askswitch";
+      const back=p.querySelector(".panelback");
+      if(back && back.nextSibling) p.insertBefore(strip, back.nextSibling);
+      else p.insertBefore(strip, p.firstChild);
+    }
+    const onThem = id==="requestsPanel";
+    strip.innerHTML =
+      `<button class="${onThem?"on":""}" onclick="showAskingPanel('them')">They asked you${
+        pend?` <span class="askcount">${pend}</span>`:""}</button>
+       <button class="${onThem?"":"on"}" onclick="showAskingPanel('you')">You asked them</button>`;
+  });
 }
 function renderAttention(){
   /* The standalone slot is retired: this now renders inside the Today group. */
