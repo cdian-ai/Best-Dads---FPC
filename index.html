@@ -2608,15 +2608,14 @@
     <div id="tipsBody"></div>
   </div>
 
-  <!-- Prayer and deen has its own room from v182. Eleven courses inline was
-       the longest shelf on the page and pushed everything else below the fold;
-       it is also the part of Do together a family opens on purpose, so it
-       earns a door rather than a scroll. -->
-  <div id="learnDeenPanel" class="panel r-deen hidden">
+  <!-- One room, reused by all six sections. Do together is a shelf of doors
+       now rather than fifty-odd cards on one scroll, and every door leads back
+       to it - which the deen room in v182 did and the inline shelves could not,
+       because they were never rooms. -->
+  <div id="learnDeenPanel" class="panel r-plain hidden">
     <button class="panelback" onclick="showPlayPanel()">← Do together</button>
-    <h2>🕌 Prayer and deen</h2>
-    <p class="small">Wudu, salah, fasting, and what to do when somebody dies.
-      Nothing here is scored and nothing is recorded.</p>
+    <h2 id="tgSecTitle">Do together</h2>
+    <p class="small" id="tgSecSub"></p>
     <div id="learnDeenHost"></div>
   </div>
 
@@ -4986,7 +4985,7 @@ const TIP_CATS = [
   {key:"deen", label:"Deen"}
 ];
 
-const APP_VERSION = "v182";
+const APP_VERSION = "v183";
 const today = new Date().toISOString().slice(0,10);
 let app = {families:[],currentFamily:null,currentChild:null};
 let categories = [];
@@ -18364,6 +18363,24 @@ window.GROWNUP_DECKS = [
     talk2:`<circle cx="28" cy="32" r="11" fill="#e8c6a0"/><path d="M17 30a11 11 0 0 1 22 0c-3-4-11 -5-11-5s-8 1-11 5z" fill="#4a3f35"/><circle cx="31" cy="32" r="1.8" fill="#3a3129"/><path d="M16 48h24l4 38H12z" fill="#6aa89a"/><circle cx="84" cy="50" r="8" fill="#e8c6a0"/><path d="M76 48a8 8 0 0 1 16 0c-3-4-8 -5-8-5s-5 1-8 5z" fill="#4a3f35"/><circle cx="81" cy="50" r="1.8" fill="#3a3129"/><path d="M75 60h18l3 26H72z" fill="#e8a33d"/><rect x="44" y="10" width="44" height="26" rx="10" fill="#fff" stroke="#c3c8e6" stroke-width="2.5"/><path d="M53 36l-6 10 15-10z" fill="#fff"/><circle cx="56.0" cy="23.0" r="3" fill="#9aa7ba"/><circle cx="66.0" cy="23.0" r="3" fill="#9aa7ba"/><circle cx="76.0" cy="23.0" r="3" fill="#9aa7ba"/>`,
     phone:`<circle cx="48" cy="30" r="14" fill="#e8c6a0"/><path d="M34 28a14 14 0 0 1 28 0c-3-4-14 -5-14-5s-11 1-14 5z" fill="#4a3f35"/><circle cx="51" cy="30" r="1.8" fill="#3a3129"/><path d="M32 48h32l6 38H26z" fill="#6aa89a"/><path d="M62 54c8-2 12-8 12-14" fill="none" stroke="#dcb28a" stroke-width="7" stroke-linecap="round"/><rect x="68" y="22" width="13" height="24" rx="4" fill="#4b5566"/><rect x="76" y="50" width="38" height="24" rx="10" fill="#fff" stroke="#c3c8e6" stroke-width="2.5"/><path d="M105 74l6 10-15-10z" fill="#fff"/><circle cx="85.0" cy="62.0" r="3" fill="#9aa7ba"/><circle cx="95.0" cy="62.0" r="3" fill="#9aa7ba"/><circle cx="105.0" cy="62.0" r="3" fill="#9aa7ba"/>`,
   });
+  /* ---- v183: the postures were wrong ----
+     Sujud was drawn as a person lying face down, which is a different
+     thing entirely and teaches the wrong shape. In sujud the knees are
+     down, the shins are along the floor, the HIPS ARE THE HIGHEST POINT
+     of the body, and the back slopes forward and down to a forehead on
+     the ground with the hands flat either side of the head. Redrawn to
+     that, and the hips now read as the top of the silhouette.
+
+     Ruku was too close to it. It is now unmistakably a different posture:
+     legs straight, back flat and level, hands on the knees.
+
+     Sitting is a real sitting-on-the-heels rather than a blob: shins
+     along the floor, torso upright, hands resting on the thighs. */
+  Object.assign(ART, {
+    s_sujud:`<rect x="10" y="84" width="100" height="8" rx="4" fill="#d8c9a8"/><path d="M62 84h34c5 0 5-11 0-11H66c-6 0-9 5-4 11z" fill="#54897d"/><path d="M84 42c9 1 13 10 13 20v22H72V64z" fill="#54897d"/><path d="M88 44c0 0-6-6-16-2L40 60c-8 3-9 12-3 17l6 6 12-8 34-19z" fill="#6aa89a"/><circle cx="32" cy="76" r="10" fill="#e8c6a0"/><path d="M22 74a10 10 0 0 1 20 0c-3-4-10 -5-10-5s-7 1-10 5z" fill="#4a3f35"/><circle cx="29" cy="76" r="1.8" fill="#3a3129"/><path d="M44 72l-8 12" stroke="#dcb28a" stroke-width="6" stroke-linecap="round"/><ellipse cx="34" cy="83" rx="8" ry="4" fill="#dcb28a"/><ellipse cx="54" cy="83" rx="8" ry="4" fill="#dcb28a"/><rect x="58" y="4" width="46" height="24" rx="10" fill="#fff" stroke="#c3c8e6" stroke-width="2.5"/><path d="M67 28l-6 10 15-10z" fill="#fff"/><circle cx="71.0" cy="16.0" r="3" fill="#9aa7ba"/><circle cx="81.0" cy="16.0" r="3" fill="#9aa7ba"/><circle cx="91.0" cy="16.0" r="3" fill="#9aa7ba"/>`,
+    s_sit:`<rect x="10" y="84" width="100" height="8" rx="4" fill="#d8c9a8"/><path d="M40 84h44c5 0 5-11 0-11H46c-7 0-11 5-6 11z" fill="#54897d"/><circle cx="58" cy="26" r="10" fill="#e8c6a0"/><path d="M48 24a10 10 0 0 1 20 0c-3-4-10 -5-10-5s-7 1-10 5z" fill="#4a3f35"/><circle cx="61" cy="26" r="1.8" fill="#3a3129"/><path d="M48 37h20l8 38H42z" fill="#6aa89a"/><path d="M50 46l-4 24M68 46l6 22" stroke="#54897d" stroke-width="6" stroke-linecap="round"/><ellipse cx="46" cy="70" rx="7" ry="4" fill="#dcb28a"/><ellipse cx="74" cy="70" rx="7" ry="4" fill="#dcb28a"/>`,
+    s_ruku:`<rect x="10" y="86" width="100" height="5" rx="2.5" fill="#e0c894"/><path d="M36 44h44c6 0 8 5 8 10s-3 9-8 9H36z" fill="#6aa89a"/><circle cx="26" cy="50" r="10" fill="#e8c6a0"/><path d="M16 48a10 10 0 0 1 20 0c-3-4-10 -5-10-5s-7 1-10 5z" fill="#4a3f35"/><circle cx="23" cy="50" r="1.8" fill="#3a3129"/><path d="M74 62v24M84 62v24" stroke="#54897d" stroke-width="7" stroke-linecap="round"/><path d="M56 60v14" stroke="#dcb28a" stroke-width="6" stroke-linecap="round"/><circle cx="56" cy="76" r="5" fill="#dcb28a"/><rect x="50" y="4" width="46" height="24" rx="10" fill="#fff" stroke="#c3c8e6" stroke-width="2.5"/><path d="M59 28l-6 10 15-10z" fill="#fff"/><circle cx="63.0" cy="16.0" r="3" fill="#9aa7ba"/><circle cx="73.0" cy="16.0" r="3" fill="#9aa7ba"/><circle cx="83.0" cy="16.0" r="3" fill="#9aa7ba"/>`,
+  });
   function ARTBODY(key){ return ART[key]||ART.plate; }
   function art(key, tone){
     const d=ART[key]||ART.plate;
@@ -19992,33 +20009,62 @@ window.GROWNUP_DECKS = [
     /* One shelf per section. Twenty courses in one list is a list nobody
        reads; a family looking for what to do when somebody has died should
        not be scrolling past laundry to find it. */
-    const shelf=(id,sec)=>{
-      const el=document.getElementById(id);
-      if(el) el.innerHTML = LEARN_TOGETHER.filter(r=>r.section===sec).map(cardHTML).join("");
-    };
-    /* One tile, not eleven cards. */
-    const dn=LEARN_TOGETHER.filter(r=>r.section==="deen").length;
+    /* Six tiles, not fifty-six cards. Each opens a room and every room has a
+       way back to this page. */
     const dh=document.getElementById("deenHost");
-    if(dh) dh.innerHTML=`<section class="tgcard tgbig" onclick="showLearnDeen()">
-        <svg viewBox="0 0 120 100" role="img" aria-hidden="true"
-          style="background:#e3f6ef">${ARTBODY("mosque")}</svg>
-        <span class="m"><span class="n">Prayer and deen</span>
-          <span class="s">Wudu, salah, fasting, and what to do when somebody dies.</span>
-          <span class="tgtags"><span class="tgtag who-family">\ud83d\udd4c ${dn} courses</span>
-            <span class="tgtag">Open the room \u203a</span></span></span>
-      </section>`;
-    shelf("homeHost","home"); shelf("talkHost","talking");
-    const c=document.getElementById("cookHost");
-    if(c) c.innerHTML = RECIPES.filter(r=>r.kind!=="deen").map(cardHTML).join("");
+    if(dh) dh.innerHTML = TG_SECTIONS.map(sectionTileHTML).join("");
     const g=document.getElementById("goHost");
     if(g) g.innerHTML = OUTINGS.map(cardHTML).join("");
   }
   window.renderCookList = renderCookList;
-  window.showLearnDeen = function(){
+  /* The shelf of doors. `pick` returns the cards for a room, so a section can
+     come from LEARN_TOGETHER, from RECIPES, or from anywhere else later. */
+  const TG_SECTIONS=[
+    {key:"deen",  icon:"mosque", tone:"#e3f6ef", title:"Prayer and deen",
+     sub:"Wudu, salah, fasting, and what to do when somebody dies.",
+     pick:()=>LEARN_TOGETHER.filter(r=>r.section==="deen")},
+    {key:"home",  icon:"laundry", tone:"#eef0f7", title:"Looking after yourself",
+     sub:"Washing, packing, making a bed, giving something away.",
+     pick:()=>LEARN_TOGETHER.filter(r=>r.section==="home")},
+    {key:"talk",  icon:"speech", tone:"#e8e9ff", title:"Talking to people",
+     sub:"Apologising, disagreeing, saying no, and being treated unkindly.",
+     pick:()=>LEARN_TOGETHER.filter(r=>r.section==="talking")},
+    {key:"go",    icon:"park", tone:"#e9f6dd", title:"Go somewhere",
+     sub:"Days out that need nothing but time.",
+     pick:()=>RECIPES.filter(r=>r.kind==="go")},
+    {key:"cook",  icon:"bowl", tone:"#fff4dd", title:"Cook something",
+     sub:"Food a child can do most of themselves.",
+     pick:()=>RECIPES.filter(r=>r.kind!=="go" && r.kind!=="deen")},
+    {key:"play",  icon:"books", tone:"#fdeadb", title:"Play something",
+     sub:"Riddles, odd-one-out, act-it-out and take-a-side. You read; everyone joins in.",
+     open:()=>{ if(typeof openDecks==="function") openDecks(); }}
+  ];
+  function sectionTileHTML(sec){
+    const n = sec.pick ? sec.pick().length : 20;
+    const noun = sec.key==="play" ? "decks" : (sec.key==="cook"||sec.key==="go" ? "things to do" : "courses");
+    return `<section class="tgcard tgbig" onclick="openTgSection('${sec.key}')">
+      <svg viewBox="0 0 120 100" role="img" aria-hidden="true"
+        style="background:${sec.tone}">${ARTBODY(sec.icon)}</svg>
+      <span class="m"><span class="n">${esc(sec.title)}</span>
+        <span class="s">${esc(sec.sub)}</span>
+        <span class="tgtags"><span class="tgtag who-family">${n} ${noun}</span>
+          <span class="tgtag">Open \u203a</span></span></span>
+    </section>`;
+  }
+  window.openTgSection = function(key){
+    const sec=TG_SECTIONS.filter(x=>x.key===key)[0];
+    if(!sec) return;
+    if(sec.open) return sec.open();
     if(typeof openPanel==="function") openPanel("learnDeenPanel");
+    const t=document.getElementById("tgSecTitle");
+    const b=document.getElementById("tgSecSub");
     const h=document.getElementById("learnDeenHost");
-    if(h) h.innerHTML = LEARN_TOGETHER.filter(r=>r.section==="deen").map(cardHTML).join("");
+    if(t) t.textContent=sec.title;
+    if(b) b.textContent=sec.sub+" Nothing here is scored and nothing is recorded.";
+    if(h) h.innerHTML=sec.pick().map(cardHTML).join("");
+    const p=document.getElementById("learnDeenPanel"); if(p) p.scrollTop=0;
   };
+  window.showLearnDeen = ()=>openTgSection("deen");
 
   /* Wrapped, not edited: Do together gains a Cook section above the puzzles. */
   if(typeof renderPlayPanel==="function"){
@@ -20030,16 +20076,7 @@ window.GROWNUP_DECKS = [
       body.insertAdjacentHTML("afterbegin",
         /* Learning together goes first. It is the part of this shelf a family
            comes back to on purpose, and the part that matters on a bad day. */
-        `<div id="deenHost"></div>
-         <p class="playeyebrow" style="margin-top:18px">Looking after yourself</p>
-         <div id="homeHost"></div>
-         <p class="playeyebrow">Talking to people</p>
-         <div id="talkHost"></div>
-         <p class="playeyebrow">Go somewhere</p>
-         <div id="goHost"></div>
-         <p class="playeyebrow">Cook something</p>
-         <div id="cookHost"></div>
-         <p class="playeyebrow">Play something</p>`);
+        `<div id="deenHost"></div>`);
       renderCookList();
     };
     renderPlayPanel = window.renderPlayPanel;
