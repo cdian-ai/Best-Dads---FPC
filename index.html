@@ -1543,6 +1543,27 @@
      stop and look at. */
   .tips{margin-bottom:16px}
   .rcard.tipcard{min-height:0;padding:22px 20px 18px}
+  /* Both dashboard cards, one size. The tip card was full-height while the
+     reminder had been shrunk to a strip, so two cards doing the same job on
+     the same screen looked like different kinds of thing. */
+  .rcard.dashcard{padding:14px 16px;border-radius:18px;min-height:0;cursor:pointer}
+  .rcard.dashcard .rglyph{display:none}
+  .rcard.dashcard .rtag{font-size:10px;letter-spacing:.08em}
+  .rcard.dashcard h3{font-size:16px;margin:8px 0 0}
+  .rcard.dashcard .rsub{font-size:13.5px;line-height:1.45;margin:6px 0 0}
+  .rcard.dashcard .tiptry{margin-top:10px;padding:10px 12px;font-size:13px}
+  .rcard.dashcard:active{transform:scale(.99)}
+  /* The library list inside the room. */
+  .tiplist{display:grid;gap:8px;margin-top:2px}
+  .tiprow{display:flex;align-items:flex-start;gap:12px;width:100%;text-align:left;
+    background:#fff;border:1px solid #e6e8f0;border-radius:16px;padding:13px 14px;
+    cursor:pointer;min-height:60px;font:inherit;color:inherit}
+  .tiprow:active{background:#f7f8fc}
+  .trglyph{flex:none;font-size:19px;line-height:1.2}
+  .trmain{flex:1;min-width:0}
+  .trtitle{display:block;font-size:14.5px;font-weight:800;color:#2c3350;line-height:1.3}
+  .trsub{display:block;font-size:12.5px;font-weight:600;color:#8a90a6;line-height:1.4;
+    margin-top:3px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
   .rcard.tipcard h3{margin:0 0 8px}
   .tiptry{margin-top:15px;background:rgba(255,255,255,.62);border-radius:15px;padding:12px 14px}
   .tiptry strong{display:block;font-size:10.5px;font-weight:800;letter-spacing:.09em;
@@ -2426,6 +2447,7 @@
   <div class="menugrid">
     <button class="menutile t-deen" id="btnDeen" onclick="showDeenPanel()"><span>🤲</span>Duas &amp; bedtime</button>
     <button class="menutile t-play" id="btnPlay" onclick="showPlayPanel()"><span>🧩</span>Do together</button>
+    <button class="menutile t-play" id="btnTips" onclick="showTipsPanel()"><span>💛</span>Being with them</button>
     <button class="menutile t-plain" id="btnRules" onclick="showRulesPanel()"><span>📜</span>House rules</button>
   </div>
   <p class="menugroup">People</p>
@@ -2575,6 +2597,15 @@
       <button id="deenTabPrayers" onclick="setDeenTab('prayers')">🕌 Prayers</button>
     </div>
     <div id="deenBody"></div>
+  </div>
+
+  <!-- Being with them. 120 ideas that had no door until v176. -->
+  <div id="tipsPanel" class="panel r-play hidden">
+    <button class="panelback" onclick="goHome()">← Home</button>
+    <h2>💛 Being with them</h2>
+    <p class="small">Ideas for time together, talking, encouraging and calm moments.
+      Nothing here is a task and nothing is tracked — take what is useful.</p>
+    <div id="tipsBody"></div>
   </div>
 
   <div id="treePanel" class="panel r-plain hidden">
@@ -4943,7 +4974,7 @@ const TIP_CATS = [
   {key:"deen", label:"Deen"}
 ];
 
-const APP_VERSION = "v175";
+const APP_VERSION = "v176";
 const today = new Date().toISOString().slice(0,10);
 let app = {families:[],currentFamily:null,currentChild:null};
 let categories = [];
@@ -7770,7 +7801,7 @@ async function toggleExcusedToday(childId){
 const KID_ONLY_SCREENS = ["kidSpendScreen","kidLearnScreen","kidPointsScreen",
                           "kidBankScreen","kidGiveScreen"];
 const SHARED_SCREENS   = ["rulesPanel","treePanel","deenPanel","playPanel"];
-const SCREENS = ["accountPanel","overviewPanel","activityPanel","requestsPanel","progressPanel","rewardsPanel","grownupsPanel","pledgesPanel","playPanel","notesPanel","pickPanel","quickPanel","reviewPanel","rulesPanel","tutorPanel","treePanel","deenPanel",
+const SCREENS = ["accountPanel","overviewPanel","activityPanel","requestsPanel","progressPanel","rewardsPanel","grownupsPanel","pledgesPanel","playPanel","notesPanel","pickPanel","quickPanel","reviewPanel","rulesPanel","tutorPanel","treePanel","deenPanel","tipsPanel",
                  "kidSpendScreen","kidLearnScreen","kidPointsScreen",
                  "kidBankScreen","kidGiveScreen"];
 let screenNow = null;
@@ -10141,8 +10172,8 @@ function currentTip(){
   const dayIndex = Math.floor(Date.now() / 86400000);
   return pool[(dayIndex + tipOffset) % pool.length];
 }
-function setTipCat(cat){ tipCat = cat; tipOffset = 0; renderTips(); }
-function nextTip(){ tipOffset++; renderTips(); }
+function setTipCat(cat){ tipCat = cat; tipOffset = 0; renderTips(); renderTipsPanel(); }
+function nextTip(){ tipOffset++; renderTips(); renderTipsPanel(); }
 function renderTips(){
   const card = document.getElementById("tipsCard");
   if(!card) return;
@@ -10152,11 +10183,48 @@ function renderTips(){
   if(!tip){ card.classList.add("hidden"); return; }
   card.classList.remove("hidden");
   const t = TIP_THEME[tip.cat] || {theme:"t1", glyph:"\ud83d\udca1", label:"Idea"};
-  const pool = tipPool().length;
-  const nudge = (tipCat === "all" && anyChildStruggling())
-    ? '<p class="tipnote">A quiet stretch on the graph is more often about connection than about behaviour \u2014 the time-together ideas are worth trying first.</p>'
-    : "";
+  /* v176: the dashboard shows the idea and nothing else. It used to carry the
+     whole apparatus - eight filter chips, a pool count and a reroll button -
+     on a screen whose job is "what needs me right now". Filtering a hundred and
+     twenty parenting ideas is not something anyone does at the school gate; it
+     is something you do when you have sat down to look. The card is a peek and
+     the controls live in a room of their own, one tap away.
+     .dashcard is shared with the reminder above it, so neither is bigger than
+     the other by accident. */
   card.innerHTML = `
+    <section class="rcard tipcard dashcard ${t.theme}" onclick="showTipsPanel()">
+      <span class="rglyph" aria-hidden="true">${t.glyph}</span>
+      <span class="rtag">${escapeHtml(t.label)}</span>
+      <h3>${escapeHtml(tip.title)}</h3>
+      <p class="rsub">${escapeHtml(tip.body)}</p>
+      <div class="tiptry"><strong>Try this</strong><span>${escapeHtml(tip.try)}</span></div>
+    </section>`;
+}
+
+/* ---------- Being with them ----------
+   A hundred and twenty ideas about time, talking, encouraging and calm, and
+   until now no door to them: no menu tile, no panel, no way to see more than
+   whichever one the dashboard happened to be showing. An oversight rather than
+   a decision. This is the room. */
+function showTipsPanel(){
+  const me=sessionMember();
+  if(me && isChildRole(me)) return;
+  openPanel("tipsPanel");
+  renderTipsPanel();
+}
+function renderTipsPanel(){
+  const body=document.getElementById("tipsBody");
+  if(!body) return;
+  const pool=tipPool();
+  const tip=currentTip();
+  const t=tip ? (TIP_THEME[tip.cat] || {theme:"t1", glyph:"\ud83d\udca1", label:"Idea"}) : null;
+  const chips=`<div class="tipcats">${TIP_CATS.map(c=>
+      `<button class="${c.key===tipCat?"on":""}" onclick="setTipCat('${c.key}')">${escapeHtml(c.label)}</button>`
+    ).join("")}</div>`;
+  const nudge=(tipCat==="all" && anyChildStruggling())
+    ? `<p class="tipnote">A quiet stretch on the graph is more often about connection than about behaviour \u2014 the time-together ideas are worth trying first.</p>`
+    : "";
+  const featured = tip ? `
     <section class="rcard tipcard ${t.theme}">
       <span class="rglyph" aria-hidden="true">${t.glyph}</span>
       <span class="rtag">${escapeHtml(t.label)}</span>
@@ -10164,12 +10232,31 @@ function renderTips(){
       <p class="rsub">${escapeHtml(tip.body)}</p>
       <div class="tiptry"><strong>Try this</strong><span>${escapeHtml(tip.try)}</span></div>
       <button class="tipmore" onclick="nextTip()">Another idea \u21bb</button>
-    </section>
-    <p class="tipeyebrow">\ud83d\udc9b Being with them \u00b7 ${pool} ideas</p>
-    <div class="tipcats">
-      ${TIP_CATS.map(c => `<button class="${c.key===tipCat?"on":""}" onclick="setTipCat('${c.key}')">${c.label}</button>`).join("")}
-    </div>
-    ${nudge}`;
+    </section>` : "";
+  /* The rest of the pool underneath, so a parent can see there IS a rest. One
+     at a time is right for a dashboard and wrong for a library. */
+  const others = pool.map((x,i)=>({x,i})).filter(o=>o.x!==tip).slice(0,40).map(o=>{
+    const th=TIP_THEME[o.x.cat] || {glyph:"\ud83d\udca1", label:"Idea"};
+    return `<button class="tiprow" onclick="jumpToTip(${o.i})">
+        <span class="trglyph">${th.glyph}</span>
+        <span class="trmain"><span class="trtitle">${escapeHtml(o.x.title)}</span>
+          <span class="trsub">${escapeHtml(o.x.body)}</span></span>
+      </button>`;
+  }).join("");
+  body.innerHTML = chips + nudge + featured
+    + `<p class="reachcap">\ud83d\udcab ${pool.length} idea${pool.length===1?"":"s"}${tipCat==="all"?"":" in this group"}</p>`
+    + `<div class="tiplist">${others}</div>`;
+}
+/* Index into the current pool, not the title: a title has apostrophes in it,
+   and escaping one through two nested templates into an inline onclick is
+   three chances to get it wrong. */
+function jumpToTip(at){
+  const pool=tipPool();
+  if(at<0 || at>=pool.length) return;
+  const dayIndex=Math.floor(Date.now()/86400000);
+  tipOffset = ((at - dayIndex) % pool.length + pool.length) % pool.length;
+  renderTipsPanel(); renderTips();
+  const p=document.getElementById("tipsPanel"); if(p) p.scrollTop=0;
 }
 
 /* ---------- Onboarding ----------
