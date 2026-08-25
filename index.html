@@ -4932,7 +4932,7 @@ const TIP_CATS = [
   {key:"deen", label:"Deen"}
 ];
 
-const APP_VERSION = "v173";
+const APP_VERSION = "v174";
 const today = new Date().toISOString().slice(0,10);
 let app = {families:[],currentFamily:null,currentChild:null};
 let categories = [];
@@ -10995,7 +10995,14 @@ function renderParentAdminView(parent){
       <span class="hicon">${icon}</span>
       <span class="hname">${name}</span>
       <span class="hsub">${sub}</span></button>`;
-  /* shelfTile and the plain hometile went with the shelf in v173. */
+  /* shelfTile and the plain hometile went with the shelf in v173.
+
+     v173.1: this const was defined here and the cleanup commit deleted it
+     along with the helpers above, so the dashboard threw on first render. The
+     heading is the only thing that reads it - the screen says "Waiting on you"
+     when something is, and "Today" when nothing is, so a parent knows whether
+     to put the phone down before reading a word. */
+  const waiting = pend.length + offers.length;
   cards.innerHTML = `
     <div style="grid-column:1/-1">
       <p class="homegroup" style="margin-top:2px">${waiting ? "Waiting on you" : "Today"}</p>
