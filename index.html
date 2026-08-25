@@ -1631,6 +1631,10 @@
   .askempty h3{margin:12px 0 0;font-size:18px;font-weight:800}
   .askempty p{margin:8px 0 0;font-size:14px;color:#6a7184;line-height:1.5}
   .rollup{display:block;margin-top:6px;font-size:12px;font-weight:700;color:#6a7184}
+  /* Left over, not outstanding. Grey rather than gold, so it does not read as
+     something a parent has to think about. */
+  .requestrow.legacy{background:#fafbfd;border-color:#e6e8f0}
+  .requestrow.legacy .rollup{color:#8a90a6;font-weight:600}
   .requestrow .rbtns{display:flex;gap:6px}
   .requestrow button{width:auto;padding:7px 12px;font-size:13px}
   .approve{background:#e4f7ed;color:#19744a}
@@ -5002,7 +5006,7 @@ const TIP_CATS = [
   {key:"deen", label:"Deen"}
 ];
 
-const APP_VERSION = "v184";
+const APP_VERSION = "v185";
 const today = new Date().toISOString().slice(0,10);
 let app = {families:[],currentFamily:null,currentChild:null};
 let categories = [];
@@ -11494,6 +11498,23 @@ function requestRowHTML(r){
       </div>
     </div>`;
   }
+  /* Named as what it is. A parent seeing "would like 25 points into my bank"
+     with an Approve button reasonably concludes that saving needs their
+     permission - which it has not since v166. */
+  if(isLegacyAsk(r)){
+    const kind = r.type==="vaultin" ? "into their bank" : "to the giving pot";
+    return `<div class="requestrow legacy">
+      <div style="flex:1;min-width:180px">
+        <div><strong>${escapeHtml(r.childName)}</strong> put <strong>${r.points} points</strong> ${kind}</div>
+        <div class="logmeta">Sent before saving and giving stopped needing a yes \u00b7 ${when}</div>
+        <span class="rollup">Nothing to decide \u2014 they can do this themselves now.</span>
+      </div>
+      <div class="rbtns">
+        <button class="approve" onclick="approveRequest('${r.id}')">\u2713 Let it through</button>
+        <button class="notyet" onclick="declineRequest('${r.id}')">Clear it</button>
+      </div>
+    </div>`;
+  }
   const what = r.type==="game" ? "\ud83c\udfb2 Activity"
              : r.type==="vaultin"  ? "\ud83c\udfe6 Into my bank"
              : r.type==="vaultout" ? "\ud83c\udf1f From my bank"
@@ -11516,10 +11537,15 @@ function requestRowHTML(r){
    nobody intended. A parent is usually saying not now, so the button says
    that - and it stops being red, because none of these is destructive. */
 function declineWord(r){
+  /* Bank and giving-pot asks stopped existing in v166 - a child moves their own
+     points into their own pockets without permission. Anything of that type
+     still on the board was sent before that changed, so the words are about
+     clearing it, not about deciding it. */
   return r.type==="prayer"  ? "Not yet"
-       : r.type==="vaultin" || r.type==="givein" ? "Leave it for now"
+       : isLegacyAsk(r)     ? "Clear it"
        : "Not now";
 }
+function isLegacyAsk(r){ return r.type==="vaultin" || r.type==="givein"; }
 /* ---------- The board ----------
    Four different things were in one list wearing one card. A child asking for
    ice cream and a child telling you they prayed Maghrib are not the same act,
@@ -11555,15 +11581,21 @@ function askBoardHTML(list){
     const total=g.reduce((n,r)=>n+(r.points||0),0);
     const ids=g.map(r=>r.id).join(",");
     const r0=g[0];
-    return `<div class="requestrow">
+    const leg=isLegacyAsk(r0);
+    return `<div class="requestrow${leg?" legacy":""}">
       <div style="flex:1;min-width:180px">
-        <div><strong>${escapeHtml(r0.childName)}</strong> would like
-          <strong>${escapeHtml(r0.itemName)}</strong></div>
-        <div class="logmeta">${g.length} times today \u00b7 ${total} pts altogether</div>
-        <span class="rollup">One yes covers all ${g.length}.</span>
+        <div><strong>${escapeHtml(r0.childName)}</strong> ${leg
+          ? `put <strong>${total} points</strong> ${r0.type==="vaultin"?"into their bank":"to the giving pot"}`
+          : `would like <strong>${escapeHtml(r0.itemName)}</strong>`}</div>
+        <div class="logmeta">${g.length} times \u00b7 ${total} pts altogether \u00b7 ${
+          leg ? "sent before this stopped needing a yes" : "today"}</div>
+        <span class="rollup">${leg
+          ? "Nothing to decide \u2014 they can do this themselves now."
+          : "One yes covers all "+g.length+"."}</span>
       </div>
       <div class="rbtns">
-        <button class="approve" onclick="approveMany('${ids}')">\u2713 Yes, all ${g.length}</button>
+        <button class="approve" onclick="approveMany('${ids}')">${
+          isLegacyAsk(r0) ? "\u2713 Let all "+g.length+" through" : "\u2713 Yes, all "+g.length}</button>
         <button class="notyet" onclick="declineMany('${ids}')">${declineWord(r0)}</button>
       </div>
     </div>`;
@@ -11593,7 +11625,10 @@ function askBoardHTML(list){
   return (confirms.length
       ? `<p class="askgroup">\ud83d\udd4c They prayed \u2014 confirm when you can</p>`
         + confirms.map(requestRowHTML).join("") : "")
-    + (askHTML ? `<p class="askgroup">\ud83c\udf81 They\u2019re asking for something</p>`+askHTML : "")
+    + (askHTML ? `<p class="askgroup">${
+        asks.every(isLegacyAsk)
+          ? "\ud83c\udfe6 Left over from before"
+          : "\ud83c\udf81 They\u2019re asking for something"}</p>`+askHTML : "")
     + (doneHTML ? `<p class="askgroup">Answered recently</p>${doneHTML}` : "");
 }
 /* One decision, one tap, however many rows it was made of. */
