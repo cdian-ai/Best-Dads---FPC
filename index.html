@@ -5006,7 +5006,7 @@ const TIP_CATS = [
   {key:"deen", label:"Deen"}
 ];
 
-const APP_VERSION = "v186";
+const APP_VERSION = "v188";
 const today = new Date().toISOString().slice(0,10);
 let app = {families:[],currentFamily:null,currentChild:null};
 let categories = [];
@@ -21215,5 +21215,963 @@ window.GROWNUP_DECKS = [
   }
 })();
 </script>
+<!-- ===== addons/design-pass-01.js  (v187) =====
+     Executing design brief 02, first pass.
+
+     Add-only. Nothing above this line is edited. Where a screen needed
+     restructuring rather than restyling, this observes the element the app
+     renders into and rearranges the result, so the original render functions
+     keep their behaviour and this cannot desynchronise from them.
+
+     In this pass: the three bugs, the one name picker across four screens,
+     and the six page items that were component-level rather than rebuilds.
+     Items 6, 9, 11, 12, 14, 15 and 16 are page rebuilds and are not here.
+-->
+<style>
+/* ---------- One name picker ----------
+   The dropdown header wins. It was already the best of the four: it reads as
+   a page title rather than a list, and it costs the same height whether a
+   family has two children or six. Three variants, one component. */
+
+/* Switching. The existing .givehead, with faces restored everywhere. */
+#progressBody .givehead{margin-bottom:18px}
+
+/* Jumping. All at once keeps every child on the page, so this scrolls rather
+   than filters — faces only, because a name column here would be a second
+   list of the same children the page already shows. Slim enough to sit above
+   a page that already has a note bar pinned below it. */
+.nmjump{position:sticky;top:0;z-index:60;display:flex;gap:9px;align-items:center;
+  overflow-x:auto;padding:11px 2px 12px;margin:0 0 4px;
+  background:linear-gradient(180deg,#f6f7fb 72%,rgba(246,247,251,0));
+  scrollbar-width:none}
+.nmjump::-webkit-scrollbar{display:none}
+.nmjump button{flex:none;width:auto;min-height:0;padding:0;background:none;border:0;
+  display:grid;gap:5px;justify-items:center;cursor:pointer}
+.nmjump img,.nmjump .avatar-placeholder{width:44px;height:44px;border-radius:50%;
+  object-fit:cover;display:flex;align-items:center;justify-content:center;
+  font-size:19px;background:#e4e6f5;box-shadow:0 0 0 2px #fff,0 0 0 3px #e1e3f4}
+.nmjump em{font-style:normal;font-size:10.5px;font-weight:800;color:var(--muted);
+  max-width:52px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.nmjump .nmj-on img,.nmjump .nmj-on .avatar-placeholder{box-shadow:0 0 0 2px #fff,0 0 0 3px var(--accent)}
+.nmjump .nmj-on em{color:#3e46ad}
+
+/* ---------- 2. The family name ----------
+   Off the photograph. Families upload their own pictures, so no position on
+   the image is safe — the name landed on a face more often than not. As a
+   centred page title above the photograph it is legible on any picture,
+   obscures nothing, and is more prominent than it was, not less. */
+#nmFamilyTitle{display:block;text-align:center;margin:16px 0 0;
+  font:800 21px/1.25 Inter,system-ui,sans-serif;color:var(--ink);
+  letter-spacing:-.2px;overflow-wrap:anywhere}
+#nmFamilyTitle.hidden{display:none}
+#nmFamilyTitle + .familycover{margin-top:11px}
+.familycover .covername{display:none}
+/* The scrim only has the camera button to earn its keep now, so it lightens. */
+.familycover .coverfade{background:linear-gradient(180deg,rgba(0,0,0,0) 62%,rgba(0,0,0,.28) 100%)}
+header.hascover .coverfade{background:linear-gradient(180deg,rgba(0,0,0,0) 62%,rgba(0,0,0,.28) 100%)}
+
+/* ---------- 3. They're asking ---------- */
+.nmdone{border:1px solid #e6e8f0;background:#fff;border-radius:18px;
+  padding:0 14px;margin-top:14px}
+.nmdone > summary{list-style:none;cursor:pointer;padding:14px 0;
+  display:flex;align-items:center;gap:10px;
+  font:800 11px/1 Inter,system-ui,sans-serif;letter-spacing:.07em;
+  text-transform:uppercase;color:var(--muted)}
+.nmdone > summary::-webkit-details-marker{display:none}
+.nmdone > summary .nmcount{margin-left:auto;font-size:12px;letter-spacing:0;
+  text-transform:none;font-weight:700;color:#8a90a6}
+.nmdone > summary .nmchev{flex:none;width:7px;height:7px;border-right:2px solid #8a90a6;
+  border-bottom:2px solid #8a90a6;transform:translateY(-2px) rotate(45deg);transition:transform .15s}
+.nmdone[open] > summary .nmchev{transform:translateY(1px) rotate(225deg)}
+.nmdone .nmdonebody{padding:0 0 12px;display:grid;gap:8px}
+
+/* Offers are rare, time-sensitive and reach nobody until a parent says yes.
+   When one is waiting it moves above the answered history and wears a colour;
+   when none is, it drops to the bottom as a quiet line. */
+.nmoffers{margin:0 0 4px}
+.nmoffers.live{background:linear-gradient(160deg,#fff,#e0f2ea);
+  border:1px solid #cbe7db;border-radius:20px;padding:15px 16px;margin-bottom:16px}
+.nmoffers.live h2{margin:0 0 2px!important;font-size:16px!important;color:#12603f!important}
+.nmoffers.live > p.small{margin:0 0 10px}
+.nmoffers.quiet{margin-top:18px;opacity:.72}
+.nmoffers.quiet h2{margin:0 0 2px!important;font-size:13px!important;color:var(--muted)!important;
+  font-weight:800;letter-spacing:.04em}
+
+/* ---------- 4. The asking card is the hero ----------
+   Asking is gold in this app — the header already knew that and the card did
+   not. Same room, same colour. */
+#notesPanel .ntcard.ntedit{background:linear-gradient(168deg,#fffdf5,#fff 190px);
+  border-color:#f0dcb2;box-shadow:0 10px 30px rgba(122,92,21,.10)}
+#notesPanel .ntcard.ntedit .nthead{border-bottom:1px solid #f4e6c8}
+#notesPanel .ntcard.ntedit .ntlabel{color:#8a6a1c}
+#notesPanel .ntcard.ntedit .ntmsgin{border-color:#ecdcb4;background:#fffdf7}
+#notesPanel .ntcard.ntedit .ntmsgin:focus{border-color:#d8ab4a;background:#fff}
+
+/* ---------- 5. The bonus belongs to the note ---------- */
+#notesPanel .ntbody .ntbonusrow{margin:14px 0 0;border-color:#f0dcb2}
+.nmbonusnote{flex:1 0 100%;margin:8px 0 0;font-size:12.5px;font-weight:700;color:#7a5c15}
+
+/* ---------- 10. Duas & bedtime: two rows become two lanes ---------- */
+#deenPanel .spendtabs{display:flex!important;flex-wrap:nowrap;gap:8px;overflow-x:auto;
+  scroll-snap-type:x proximity;max-width:none!important;padding-bottom:4px;
+  scrollbar-width:none;-webkit-overflow-scrolling:touch}
+#deenPanel .spendtabs::-webkit-scrollbar{display:none}
+#deenPanel .spendtabs button{flex:0 0 auto;white-space:nowrap;padding:12px 16px;
+  scroll-snap-align:start}
+#deenPanel .duachips{display:flex!important;flex-wrap:nowrap;overflow-x:auto;
+  gap:8px;padding-bottom:4px;scrollbar-width:none}
+#deenPanel .duachips::-webkit-scrollbar{display:none}
+#deenPanel .duachips button{flex:0 0 auto;white-space:nowrap}
+/* The edge of the lane says there is more of it. */
+#deenPanel .spendtabs,#deenPanel .duachips{
+  -webkit-mask-image:linear-gradient(90deg,#000 0,#000 calc(100% - 22px),transparent 100%);
+  mask-image:linear-gradient(90deg,#000 0,#000 calc(100% - 22px),transparent 100%)}
+
+/* Prayers, for a parent who has not opened a child. */
+.nmprayhead{margin:0 0 14px}
+</style>
+<script>
+(function(){
+  "use strict";
+  if(window.__nmDesign01) return;
+  window.__nmDesign01 = true;
+
+  var $ = function(id){ return document.getElementById(id); };
+  function esc(s){ return (typeof escapeHtml==="function") ? escapeHtml(s) : String(s==null?"":s); }
+  function fam(){ return (typeof currentFamily==="function") ? currentFamily() : null; }
+  function childList(){
+    var f=fam();
+    if(!f || !f.children) return [];
+    return f.children.filter(function(c){
+      return (typeof isChildRole==="function") ? isChildRole(c) : true;
+    });
+  }
+  function faceHTML(c){
+    return c && c.photo
+      ? '<img src="'+c.photo+'" alt="">'
+      : '<span class="avatar-placeholder">\uD83D\uDC64</span>';
+  }
+  /* Every rearrangement below is a DOM pass over something the app has just
+     drawn. Passes must therefore not trigger themselves. */
+  var busy = false;
+  function pass(fn){
+    if(busy) return;
+    busy = true;
+    try{ fn(); }catch(e){ console.error("[design01]", e); }
+    finally{ busy = false; }
+  }
+  function watch(id, fn){
+    var el = $(id);
+    if(!el) return;
+    pass(fn);
+    new MutationObserver(function(){ pass(fn); })
+      .observe(el, {childList:true, subtree:true});
+  }
+
+  /* =================================================================
+     BUG a — the menu tile lost its icon wrapper
+     Every tile is <span>icon</span> then label. renderRequests rewrote this
+     one's innerHTML to hang a count on it and dropped the span, so the bell
+     fell to label size and sat inline. Same structure as its neighbours,
+     count or no count.
+     ================================================================= */
+  function fixMenuTile(){
+    var btn = $("btnRequests");
+    if(!btn) return;
+    var badge = btn.querySelector(".badge");
+    var n = badge ? badge.textContent : "";
+    var want = '<span>\uD83D\uDD14</span>They\u2019re asking\u2026'
+             + (n ? '<span class="badge">'+esc(n)+'</span>' : '');
+    if(btn.innerHTML !== want) btn.innerHTML = want;
+  }
+  watch("btnRequests", fixMenuTile);
+
+  /* =================================================================
+     BUG b — "Update lists" did nothing
+     The function was sound. It closed the menu and then called a native
+     confirm(), and a page that has thrown as many dialogs as this one has
+     gets its later ones suppressed by the browser: menu closes, nothing
+     happens. It asks with the app's own dialog now, and the native calls
+     inside the original are answered without being shown.
+     ================================================================= */
+  (function(){
+    var orig = window.applyRecommendedLists;
+    if(typeof orig !== "function") return;
+    window.applyRecommendedLists = async function(){
+      if(typeof requireParent === "function" && !requireParent()) return;
+      if(typeof closeMenu === "function") closeMenu();
+      var go = (typeof kidDialog === "function")
+        ? await kidDialog({
+            icon:"\u2728", title:"Update to the recommended lists?",
+            note:"The five prayers become separate actions worth 5 points each, "
+               + "every action is scored 1\u20135, and rewards are repriced. "
+               + "Anything you wrote yourself is left exactly as it is.",
+            yes:"Update them", no:"Not now"})
+        : true;
+      if(!go) return;
+      var rc = window.confirm, ra = window.alert, said = null;
+      window.confirm = function(){ return true; };
+      window.alert = function(m){ said = m; };
+      try{ await orig.call(this); }
+      finally{ window.confirm = rc; window.alert = ra; }
+      if(said && typeof kidSay === "function"){
+        kidSay({icon:"\u2705", title:"Lists updated", note:String(said)
+          .replace(/^Done\.\s*/,"").trim()});
+      }
+    };
+  })();
+
+  /* =================================================================
+     1 — Learn: the explainer, once, above the tabs
+     It decodes a vocabulary both tabs share, so it is not a property of
+     either one. Every copy comes out and one goes back at the top.
+     ================================================================= */
+  /* 2 (of the picker work) — Learn switches children with the same control
+     as everywhere else. The chip column and the big square portrait were the
+     only instance of that pattern in the app, and they cost a block of the
+     page proportional to the number of children in the family. */
+  window.nmPickLearn = function(id){
+    if(typeof closeWhoMenu === "function") closeWhoMenu();
+    if(typeof selectChild === "function") selectChild(id);
+    if(typeof renderProgressPanel === "function") renderProgressPanel();
+  };
+  function fixLearn(){
+    var body = $("progressBody");
+    if(!body) return;
+
+    /* Keep the first one, put it at the very top of the panel, and drop the
+       rest. Whichever tab drew it, there is one and it is above the tabs. */
+    var olds = body.querySelectorAll("details.learnhow");
+    var i, wasOpen = false;
+    for(i=0;i<olds.length;i++) if(olds[i].open) wasOpen = true;
+    var keep = olds[0] || null;
+    for(i=1;i<olds.length;i++) olds[i].parentNode.removeChild(olds[i]);
+    if(!keep && typeof legendHTML === "function"){
+      var holder = document.createElement("div");
+      holder.innerHTML = legendHTML(wasOpen);
+      keep = holder.firstElementChild;
+    }
+    if(keep && (keep.parentElement !== body || keep.previousElementSibling !== null)){
+      body.insertBefore(keep, body.firstChild);
+    }
+
+    var lw = body.querySelector(".learnwho");
+    if(lw && typeof whoHeaderHTML === "function"){
+      var kids = childList();
+      var cur = (typeof currentChild === "function") ? currentChild() : null;
+      var who = (cur && kids.some(function(c){ return c.id===cur.id; })) ? cur : kids[0];
+      if(who){
+        var holder2 = document.createElement("div");
+        holder2.innerHTML = whoHeaderHTML(who, kids,
+          {sub:"What they\u2019ve practised", pick:"nmPickLearn"});
+        var head = holder2.firstElementChild;
+        if(head) lw.parentNode.replaceChild(head, lw);
+      }
+    }
+  }
+  watch("progressBody", fixLearn);
+
+  /* =================================================================
+     3 — They're asking: collapse the history, promote the offers
+     ================================================================= */
+  function fixRequests(){
+    var panel = $("requestsPanel");
+    var list  = $("requestsPanelList");
+    if(!panel || !list) return;
+
+    /* Answered recently is reference material. It arrives folded, with its
+       count on the summary, so a busy week cannot bury what is waiting. */
+    if(!list.querySelector(".nmdone")){
+      var caps = list.querySelectorAll("p.askgroup"), cap = null, k;
+      for(k=0;k<caps.length;k++){
+        if(/answered recently/i.test(caps[k].textContent||"")) cap = caps[k];
+      }
+      if(cap){
+        var rows = [], n = cap.nextElementSibling;
+        while(n){ rows.push(n); n = n.nextElementSibling; }
+        if(rows.length){
+          var d = document.createElement("details");
+          d.className = "nmdone";
+          d.innerHTML = '<summary><span>Answered recently</span>'
+            + '<span class="nmcount">'+rows.length+'</span>'
+            + '<span class="nmchev"></span></summary>'
+            + '<div class="nmdonebody"></div>';
+          var slot = d.querySelector(".nmdonebody");
+          cap.parentNode.insertBefore(d, cap);
+          cap.parentNode.removeChild(cap);
+          for(k=0;k<rows.length;k++) slot.appendChild(rows[k]);
+        }
+      }
+    }
+
+    /* The offers block is three loose elements in the markup. Wrapped once,
+       then moved by whether anything is actually waiting. */
+    var box = panel.querySelector(".nmoffers");
+    if(!box){
+      var slot2 = $("offersList");
+      if(!slot2) return;
+      var h = slot2.previousElementSibling;          // the lede
+      var h2 = h ? h.previousElementSibling : null;  // the heading
+      if(!h || !h2) return;
+      box = document.createElement("section");
+      box.className = "nmoffers";
+      h2.parentNode.insertBefore(box, h2);
+      box.appendChild(h2); box.appendChild(h); box.appendChild(slot2);
+    }
+    var live = (typeof pendingOffers === "function") && pendingOffers().length > 0;
+    box.classList.toggle("live", live);
+    box.classList.toggle("quiet", !live);
+    var lede = box.children[1];
+    if(lede) lede.classList.toggle("hidden", !live);
+    if(live){
+      if(box.previousElementSibling !== null || box.parentElement !== list.parentElement){
+        list.parentNode.insertBefore(box, list);
+      }
+    }else if(box.nextElementSibling !== null){
+      box.parentNode.appendChild(box);
+    }
+  }
+  watch("requestsPanel", fixRequests);
+
+  /* =================================================================
+     4 & 5 — I'm asking
+     The header here was the one place the picker was drawn without a face.
+     The bonus was five sections below the total it changes.
+     ================================================================= */
+  function fixNotes(){
+    var body = $("notesBody");
+    if(!body) return;
+
+    var head = body.querySelector(".givehead.noface");
+    if(head){
+      var kids = (typeof askableChildren === "function") ? askableChildren() : childList();
+      var nameEl = head.querySelector(".givname strong");
+      var nm = nameEl ? nameEl.textContent : "";
+      var who = null;
+      for(var i=0;i<kids.length;i++) if(kids[i].name === nm) who = kids[i];
+      head.classList.remove("noface");
+      var av = document.createElement("span");
+      av.className = "givav";
+      av.innerHTML = faceHTML(who);
+      head.insertBefore(av, head.firstChild);
+    }
+
+    var bonus = body.querySelector(".ntbonusrow");
+    var card  = body.querySelector(".ntcard.ntedit .ntbody");
+    if(bonus && card && !card.contains(bonus)){
+      var payout = card.querySelector("button.primary");
+      if(payout) card.insertBefore(bonus, payout);
+      else card.appendChild(bonus);
+    }
+    if(bonus){
+      var sel = bonus.querySelector("select");
+      var v = sel ? Number(sel.value||0) : 0;
+      var note = body.querySelector(".nmbonusnote");
+      if(v > 0){
+        /* Inside the row, not after it: anything between the bonus and the
+           total would put them back out of each other's sight. */
+        if(!note){
+          note = document.createElement("p");
+          note.className = "nmbonusnote";
+          bonus.appendChild(note);
+        }
+        note.textContent = "\u2b50 " + v + " bonus points are included in the total below.";
+      }else if(note){ note.parentNode.removeChild(note); }
+    }
+  }
+  watch("notesBody", fixNotes);
+
+  /* =================================================================
+     7 — All at once: a way to reach the fourth child
+     Every child is on this page and should be, so this scrolls rather than
+     filters. Faces only: the names are already on the cards below, and the
+     page has a note bar pinned to the bottom that this must not crowd.
+     ================================================================= */
+  window.nmJumpTo = function(n){
+    var cards = document.querySelectorAll("#quickBody .quickcard");
+    var el = cards[n];
+    if(el) el.scrollIntoView({behavior:"smooth", block:"start"});
+  };
+  function fixQuick(){
+    var body = $("quickBody");
+    if(!body) return;
+    var kids = childList();
+    var bar = $("nmJump");
+    if(kids.length < 2){ if(bar) bar.parentNode.removeChild(bar); return; }
+    if(!bar){
+      bar = document.createElement("div");
+      bar.id = "nmJump";
+      bar.className = "nmjump";
+      body.parentNode.insertBefore(bar, body);
+    }
+    var want = kids.map(function(c,i){
+      return '<button type="button" onclick="nmJumpTo('+i+')">'
+        + faceHTML(c) + '<em>' + esc(c.name) + '</em></button>';
+    }).join("");
+    if(bar.innerHTML !== want) bar.innerHTML = want;
+  }
+  watch("quickBody", fixQuick);
+
+  /* =================================================================
+     BUG c / 10 — Prayers was not empty, it was unaddressed
+     It draws a seven-day wall for a selected child. A parent who has not
+     opened one got the fallback sentence, which is the usual state on
+     arrival. It uses the same picker as everywhere else now.
+     ================================================================= */
+  window.nmPickPrayer = function(id){
+    if(typeof closeWhoMenu === "function") closeWhoMenu();
+    window.__nmPrayChild = id;
+    if(typeof renderDeenPanel === "function") renderDeenPanel();
+  };
+  function fixDeen(){
+    var body = $("deenBody");
+    if(!body) return;
+    if(typeof deenTab === "undefined" || deenTab !== "prayers") return;
+    if(body.querySelector(".nmprayhead")) return;
+    if(body.querySelector(".praywall, .prayrow, table")) return;
+    var kids = childList();
+    if(!kids.length) return;
+    var pick = kids[0];
+    for(var i=0;i<kids.length;i++) if(kids[i].id === window.__nmPrayChild) pick = kids[i];
+    if(typeof prayerWallHTML !== "function" || typeof whoHeaderHTML !== "function") return;
+    body.innerHTML =
+      '<div class="nmprayhead">'
+      + whoHeaderHTML(pick, kids, {sub:"The last week", pick:"nmPickPrayer"})
+      + '</div>'
+      + '<p class="small">A square is a prayer somebody recorded. Nothing here counts '
+      + 'towards points, and nothing is taken away for a square that is empty.</p>'
+      + prayerWallHTML(pick, 7, true);
+  }
+  watch("deenBody", fixDeen);
+
+  /* =================================================================
+     2 — The family name comes off the photograph
+     ================================================================= */
+  function fixCover(){
+    var cover = $("familyCover");
+    var src = $("coverName");
+    if(!cover || !src) return;
+    var t = $("nmFamilyTitle");
+    if(!t){
+      t = document.createElement("p");
+      t.id = "nmFamilyTitle";
+      cover.parentNode.insertBefore(t, cover);
+    }
+    var name = (src.textContent || "").trim();
+    var show = !!name && !cover.classList.contains("hidden");
+    t.classList.toggle("hidden", !show);
+    if(show && t.textContent !== name) t.textContent = name;
+  }
+  watch("familyCover", fixCover);
+  (function(){
+    var src = $("coverName");
+    if(src) new MutationObserver(function(){ pass(fixCover); })
+      .observe(src, {childList:true, characterData:true, subtree:true});
+  })();
+
+})();
+</script>
+
+<!-- ===== addons/design-pass-02.js  (v188) =====
+     Design brief 02, second pass — the seven page items left from v187.
+
+     6  I'm asking, the whole flow      12  Family members
+     9  Overview                        14  Pledges
+     11 Being with them                 15  Rewards & activities
+                                        16  Edit mode
+
+     Same method as pass 01: observe what the app draws and rearrange the
+     result. Nothing above this line is edited.
+-->
+<style>
+/* =====================================================================
+   6 — I'm asking: the note and the picker in each other's sight
+   The picker sits below the note, so tapping something changed a card that
+   was off the top of the screen. Rather than move either — the note is the
+   page and belongs first — the note now has a small live echo at the head of
+   the picker: what is on it, how full it is, and a flash when it changes.
+   ===================================================================== */
+.nmmini{position:sticky;top:0;z-index:20;margin:-15px -15px 12px;padding:12px 15px 11px;
+  background:linear-gradient(180deg,#fffdf5,#fffefa);
+  border-bottom:1px solid #f0e2c2;border-radius:20px 20px 0 0}
+.nmmini-top{display:flex;align-items:baseline;gap:8px;margin:0 0 7px}
+.nmmini-cap{font:800 11px/1 Inter,system-ui,sans-serif;letter-spacing:.06em;
+  text-transform:uppercase;color:#8a6a1c}
+.nmmini-n{margin-left:auto;font:700 12px/1 Inter,system-ui,sans-serif;color:#a08340}
+.nmmini-n.full{color:#9a5a1c}
+.nmmini-items{display:flex;flex-wrap:wrap;gap:5px}
+.nmmini-items span{background:#fff;border:1px solid #f0dcb2;border-radius:99px;
+  padding:5px 10px;font-size:12.5px;font-weight:700;color:#7a5c15;
+  max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.nmmini-items span.done{opacity:.5;text-decoration:line-through}
+.nmmini-empty{font-size:12.5px;font-weight:600;color:#a08340}
+.nmmini.flash{animation:nmflash .55s ease}
+@keyframes nmflash{0%{background:#fdf0cf}100%{background:#fffdf5}}
+@media (prefers-reduced-motion:reduce){.nmmini.flash{animation:none}}
+
+/* =====================================================================
+   9 — Overview
+   Brought into the card language, and taken out of rank order. The tiles
+   were sorted by weekly points, which turned a glance at your family into a
+   league table — the one thing the house rules explicitly refuse to do
+   ("nothing is ever taken away", "arguing never changes a number"). Family
+   order instead. The numbers are still on every tile.
+   ===================================================================== */
+#overviewPanel .overviewgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:11px}
+@media (max-width:400px){#overviewPanel .overviewgrid{grid-template-columns:1fr}}
+#overviewPanel .ovtile{background:linear-gradient(160deg,#fff,#fbeccb);
+  border:1px solid #f2ddb4;border-radius:22px;padding:15px 14px 13px;
+  display:grid;gap:10px;width:auto;min-height:0;text-align:left;
+  box-shadow:0 6px 18px rgba(109,77,5,.07);transition:transform .12s ease}
+#overviewPanel .ovtile:active{transform:scale(.98)}
+#overviewPanel .ovhead{display:flex;align-items:center;gap:10px}
+#overviewPanel .ovhead img,#overviewPanel .ovhead .avatar-placeholder{
+  width:42px;height:42px;border-radius:50%;object-fit:cover;flex:none;
+  display:flex;align-items:center;justify-content:center;font-size:18px;
+  background:#fff;box-shadow:0 0 0 2px #fff,0 0 0 3px #f2ddb4}
+#overviewPanel .ovname{font:800 15.5px/1.2 Inter,system-ui,sans-serif;color:#6d4d05;
+  min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#overviewPanel .ovfoot{display:flex;gap:12px;align-items:baseline;
+  padding-top:10px;border-top:1px solid #f2ddb4}
+.nmovnote{margin:0 0 14px;font-size:12.5px;line-height:1.55;color:var(--muted)}
+
+/* =====================================================================
+   11 — Being with them
+   The structure was already right and stays. Only the surface moves: the
+   room's colour is play-orange, and the list rows stop looking like tasks
+   with a tick missing.
+   ===================================================================== */
+#tipsPanel .tipcats{display:flex;flex-wrap:nowrap;overflow-x:auto;gap:8px;
+  padding-bottom:4px;margin-bottom:14px;scrollbar-width:none;
+  -webkit-mask-image:linear-gradient(90deg,#000 0,#000 calc(100% - 22px),transparent 100%);
+  mask-image:linear-gradient(90deg,#000 0,#000 calc(100% - 22px),transparent 100%)}
+#tipsPanel .tipcats::-webkit-scrollbar{display:none}
+#tipsPanel .tipcats button{flex:0 0 auto;white-space:nowrap;border-radius:99px;
+  padding:10px 15px;font-size:13px;font-weight:700;
+  background:#fff;border:1px solid #f6d9c4;color:#8a4a15;width:auto}
+#tipsPanel .tipcats button.on{background:#8a4a15;border-color:#8a4a15;color:#fff}
+#tipsPanel .tipcard{border-radius:24px;box-shadow:0 10px 30px rgba(138,74,21,.10)}
+#tipsPanel .reachcap{margin:22px 0 10px;font:800 11px/1 Inter,system-ui,sans-serif;
+  letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}
+#tipsPanel .tiplist{display:grid;gap:8px}
+#tipsPanel .tiprow{display:flex;gap:12px;align-items:flex-start;text-align:left;
+  background:#fff;border:1px solid #f6d9c4;border-radius:18px;padding:13px 14px;
+  width:auto;min-height:0;cursor:pointer}
+#tipsPanel .tiprow .trglyph{flex:none;font-size:19px;line-height:1.2}
+#tipsPanel .tiprow .trtitle{display:block;font:800 14.5px/1.3 Inter,system-ui,sans-serif;color:#8a4a15}
+#tipsPanel .tiprow .trsub{display:block;margin-top:3px;font-size:12.5px;line-height:1.5;
+  font-weight:500;color:var(--muted)}
+
+/* =====================================================================
+   12 — Family members
+   Arrival is your family: a face, a name, and one way in. Everything that
+   administers a person — logins, resets, role changes, removal — lives
+   behind that one way in, so a parent looking at their children is not
+   standing in a console with a delete button under each child's face.
+   ===================================================================== */
+#accountPanel .childrow{display:block;padding:0;background:#fff;
+  border:1px solid #e6e8f0;border-radius:20px;overflow:hidden}
+#accountPanel .childrow.selected{border-color:var(--accent);box-shadow:0 0 0 2px #eef0ff}
+.nmmemhead{display:flex;align-items:center;gap:12px;padding:13px 14px}
+#accountPanel .childrow .memberhead{flex:1;min-width:0;gap:12px}
+#accountPanel .childrow .memberhead img,
+#accountPanel .childrow .memberhead .avatar-placeholder{
+  width:52px;height:52px;border-radius:50%;object-fit:cover;flex:none;
+  display:flex;align-items:center;justify-content:center;font-size:22px;background:#e4e6f5}
+#accountPanel .childrow .memberhead span{font:800 16px/1.25 Inter,system-ui,sans-serif;color:var(--ink)}
+#accountPanel .childrow .memberhead .small{font-weight:600;color:var(--muted);margin-top:2px}
+.nmedit{flex:none;width:auto!important;min-height:44px;padding:9px 14px;border-radius:99px;
+  background:#f2f3f9;border:1px solid #e1e3f4;color:#3e46ad;
+  font:700 13px/1 Inter,system-ui,sans-serif;cursor:pointer}
+.nmedit[aria-expanded="true"]{background:var(--accent);border-color:var(--accent);color:#fff}
+.nmmemacts{display:none;gap:7px;flex-wrap:wrap;padding:0 14px 14px;
+  border-top:1px dashed #e6e8f0;margin-top:0}
+.nmmemacts.open{display:flex;padding-top:13px}
+.nmmemacts .xbtn{order:99;margin-left:auto}
+.nmdanger{order:98;flex:1 0 100%;margin:6px 0 0;font-size:12px;color:var(--muted)}
+#accountPanel .nmaddwrap{margin-top:20px;padding-top:18px;border-top:1px solid #e6e8f0}
+.nmaddcap{margin:0 0 10px;font:800 11px/1 Inter,system-ui,sans-serif;
+  letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}
+
+/* =====================================================================
+   14 — Pledges
+   A pledge is a promise between two adults. It was wearing the reward
+   furniture — the same card, the same rows, the same word "claim" as a
+   thing with a price. Two facing panels instead: what is being offered to
+   you, and what you are offering. No prices anywhere, because there are none.
+   ===================================================================== */
+#pledgeSection{background:none!important;border:0!important;padding:0!important;
+  box-shadow:none!important}
+#pledgeSection > .eyebrow{margin-bottom:8px}
+#pledgeSection > h2{font-size:19px}
+.nmpl{border-radius:22px;padding:15px 16px;margin-top:14px}
+.nmpl-cap{display:flex;align-items:baseline;gap:8px;margin:0 0 11px;
+  font:800 11px/1 Inter,system-ui,sans-serif;letter-spacing:.07em;text-transform:uppercase}
+.nmpl-theirs{background:linear-gradient(160deg,#fff,#e0f2ea);border:1px solid #cbe7db}
+.nmpl-theirs .nmpl-cap{color:#12603f}
+.nmpl-ours{background:#fff;border:1px solid #e6e8f0}
+.nmpl-ours .nmpl-cap{color:var(--muted)}
+.nmpl-add{background:#f8f9fc;border:1px dashed #d8dbe8}
+.nmpl-add .nmpl-cap{color:var(--muted)}
+#pledgeSection .pledgerow{border-radius:16px;padding:12px 14px;gap:12px}
+.nmpl-theirs .pledgerow{border-color:#cbe7db}
+#pledgeSection .pledgerow strong{font:800 15px/1.25 Inter,system-ui,sans-serif}
+#pledgeSection .pledgerow .confirm{border-radius:99px;padding:10px 16px;font-weight:700}
+#pledgeSection .chip{min-height:40px}
+
+/* =====================================================================
+   15 — Rewards & activities
+   This is under "Set up" in the menu. It is where a parent maintains a list,
+   not a room they visit. It should read as settings: quiet, sectioned, and
+   not competing with the rooms for colour.
+   ===================================================================== */
+#rewardsPanel{background:#f6f7fb}
+#rewardsPanel .reward,#rewardsPanel #rewardSection,#rewardsPanel #gameNightSection{
+  background:#fff!important;border:1px solid #e6e8f0!important;border-radius:20px;
+  box-shadow:none!important;padding:16px}
+#rewardsPanel .reward h2,#rewardsPanel #rewardSection h2,#rewardsPanel #gameNightSection h2{
+  font-size:16px;color:var(--ink)}
+#rewardsPanel .eyebrow{color:var(--muted)!important;background:none!important}
+.nmsetupnote{margin:0 0 14px;padding:12px 14px;background:#fff;border:1px solid #e6e8f0;
+  border-radius:16px;font-size:12.5px;line-height:1.55;color:var(--muted)}
+
+/* =====================================================================
+   16 — Edit mode
+   Two faults. The tile lost its icon the same way the requests tile did —
+   textContent on a .menutile discards the icon span — and it was given
+   .primary/.light, classes from a component it is not. And a mode with no
+   persistent signal is a trap: the banner scrolls away and everything on
+   screen stays editable.
+   ===================================================================== */
+#nmEditBar{position:sticky;top:0;z-index:150;display:flex;align-items:center;gap:12px;
+  margin:0 0 14px;padding:12px 15px;border-radius:0 0 18px 18px;
+  background:linear-gradient(160deg,#3e46ad,#2b2e73);color:#fff;
+  box-shadow:0 8px 24px rgba(43,46,115,.28)}
+#nmEditBar.hidden{display:none}
+#nmEditBar .nmeb-t{flex:1;min-width:0;font:800 13.5px/1.3 Inter,system-ui,sans-serif}
+#nmEditBar .nmeb-t small{display:block;font-weight:600;font-size:11.5px;opacity:.82;margin-top:2px}
+#nmEditBar button{flex:none;width:auto;min-height:40px;padding:9px 15px;border-radius:99px;
+  background:#fff;color:#2b2e73;border:0;font:700 13px/1 Inter,system-ui,sans-serif;cursor:pointer}
+body.nm-editing #editModeNote{display:none}
+</style>
+<script>
+(function(){
+  "use strict";
+  if(window.__nmDesign02) return;
+  window.__nmDesign02 = true;
+
+  var $ = function(id){ return document.getElementById(id); };
+  function esc(s){ return (typeof escapeHtml==="function") ? escapeHtml(s) : String(s==null?"":s); }
+  function fam(){ return (typeof currentFamily==="function") ? currentFamily() : null; }
+
+  var busy = false;
+  function pass(fn){
+    if(busy) return;
+    busy = true;
+    try{ fn(); }catch(e){ console.error("[design02]", e); }
+    finally{ busy = false; }
+  }
+  function watch(id, fn){
+    var el = $(id);
+    if(!el) return;
+    pass(fn);
+    new MutationObserver(function(){ pass(fn); })
+      .observe(el, {childList:true, subtree:true});
+  }
+
+  /* =================================================================
+     6 — the note, echoed at the head of the picker
+     ================================================================= */
+  var lastSig = null;
+  function fixAskFlow(){
+    var body = $("notesBody");
+    if(!body) return;
+    var add = body.querySelector(".ntadd");
+    if(!add) return;
+
+    /* Read the note from what the card is showing, so this cannot disagree
+       with it — there is no second copy of the truth. */
+    var card = body.querySelector(".ntcard.ntedit .ntbody");
+    var items = [];
+    if(card){
+      var rows = card.querySelectorAll(".itemrow, .ntitem, [data-ntitem]");
+      for(var i=0;i<rows.length;i++){
+        var label = rows[i].querySelector(".itemtext, .ntitemtext, strong, span");
+        var txt = (label ? label.textContent : rows[i].textContent) || "";
+        txt = txt.replace(/\s+/g," ").trim();
+        if(txt) items.push({text:txt, done:/\bdone\b/i.test(rows[i].className) ||
+          rows[i].classList.contains("done")});
+      }
+    }
+    var max = 6;
+    var mini = add.querySelector(".nmmini");
+    if(!mini){
+      mini = document.createElement("div");
+      mini.className = "nmmini";
+      add.insertBefore(mini, add.firstChild);
+    }
+    var html = '<div class="nmmini-top"><span class="nmmini-cap">On the note</span>'
+      + '<span class="nmmini-n' + (items.length>=max ? " full" : "") + '">'
+      + items.length + " of " + max + "</span></div>";
+    html += items.length
+      ? '<div class="nmmini-items">' + items.map(function(it){
+          return '<span' + (it.done?' class="done"':'') + '>' + esc(it.text) + "</span>";
+        }).join("") + "</div>"
+      : '<p class="nmmini-empty">Nothing on it yet. Tap something below and it lands here.</p>';
+    if(mini.innerHTML !== html){
+      mini.innerHTML = html;
+      var sig = items.map(function(x){ return x.text; }).join("|");
+      if(lastSig !== null && sig !== lastSig){
+        mini.classList.remove("flash");
+        void mini.offsetWidth;
+        mini.classList.add("flash");
+      }
+      lastSig = sig;
+    }
+  }
+  watch("notesBody", fixAskFlow);
+
+  /* =================================================================
+     9 — Overview out of rank order
+     The tiles arrive sorted by weekly points. Put them back in family order:
+     a parent opening Overview is looking at their children, not at a table
+     of who is winning. Every tile still carries its own numbers.
+     ================================================================= */
+  function fixOverview(){
+    var list = $("overviewList");
+    if(!list) return;
+    var f = fam();
+    if(!f || !f.children) return;
+    var order = {}, i;
+    for(i=0;i<f.children.length;i++) order[f.children[i].id] = i;
+
+    var tiles = list.querySelectorAll(".ovtile");
+    if(tiles.length > 1){
+      var arr = [];
+      for(i=0;i<tiles.length;i++){
+        var oc = tiles[i].getAttribute("onclick") || "";
+        var m = oc.match(/'([^']+)'/);
+        arr.push({el:tiles[i], at: m && order[m[1]] !== undefined ? order[m[1]] : 999});
+      }
+      var sorted = arr.slice().sort(function(a,b){ return a.at - b.at; });
+      var same = true;
+      for(i=0;i<arr.length;i++) if(arr[i].el !== sorted[i].el) same = false;
+      if(!same) for(i=0;i<sorted.length;i++) list.appendChild(sorted[i].el);
+    }
+
+    var panel = $("overviewPanel");
+    if(panel && !panel.querySelector(".nmovnote") && tiles.length){
+      var p = document.createElement("p");
+      p.className = "nmovnote";
+      p.textContent = "In the order they are in your family, not in order of points \u2014 "
+        + "this is a look at everyone, not a table of who is winning.";
+      list.parentNode.insertBefore(p, list);
+    }
+  }
+  watch("overviewList", fixOverview);
+
+  /* =================================================================
+     12 — Family members
+     ================================================================= */
+  window.nmToggleMember = function(btn){
+    var acts = btn.closest(".childrow").querySelector(".nmmemacts");
+    if(!acts) return;
+    var open = acts.classList.toggle("open");
+    btn.setAttribute("aria-expanded", open ? "true" : "false");
+    btn.textContent = open ? "Done" : "\u270e Edit";
+  };
+  function fixMembers(){
+    var panel = $("accountPanel");
+    var list = $("childrenList");
+    if(!panel || !list) return;
+
+    /* Prayer times is a setting about where you are. It was the first thing
+       on a page about people, and the reason prayers felt misfiled. It moves
+       to sit with the other settings. */
+    var place = $("placeRow");
+    if(place){
+      var praySec = place.closest("section");
+      var settings = null, secs = panel.querySelectorAll("section"), i;
+      for(i=0;i<secs.length;i++){
+        var h = secs[i].querySelector("h2");
+        if(h && /settings/i.test(h.textContent||"")) settings = secs[i];
+      }
+      if(praySec && settings && praySec.nextElementSibling !== settings.nextElementSibling){
+        if(settings.nextElementSibling !== praySec){
+          settings.parentNode.insertBefore(praySec, settings.nextElementSibling);
+        }
+      }
+    }
+
+    /* Everything administrative goes behind one Edit. */
+    var rows = list.querySelectorAll(".childrow");
+    for(var r=0;r<rows.length;r++){
+      var row = rows[r];
+      if(row.querySelector(".nmedit")) continue;
+      var head = row.firstElementChild;                 // .memberhead
+      var btns = row.children[1];                       // the action cluster
+      if(!head || !btns) continue;
+
+      var top = document.createElement("div");
+      top.className = "nmmemhead";
+      row.insertBefore(top, head);
+      top.appendChild(head);
+
+      var edit = document.createElement("button");
+      edit.className = "nmedit";
+      edit.type = "button";
+      edit.setAttribute("aria-expanded", "false");
+      edit.textContent = "\u270e Edit";
+      edit.setAttribute("onclick", "nmToggleMember(this)");
+      top.appendChild(edit);
+
+      btns.className = "nmmemacts";
+      btns.removeAttribute("style");
+
+      var warn = document.createElement("p");
+      warn.className = "nmdanger";
+      warn.textContent = "Removing someone, or changing whether they are a parent, "
+        + "cannot be undone from here.";
+      btns.appendChild(warn);
+    }
+
+    /* Adding someone belongs below the family, not among it. */
+    var reveal = $("revealAddBtn");
+    if(reveal && !panel.querySelector(".nmaddwrap")){
+      var wrap = document.createElement("div");
+      wrap.className = "nmaddwrap";
+      reveal.parentNode.insertBefore(wrap, reveal);
+      var cap = document.createElement("p");
+      cap.className = "nmaddcap";
+      cap.textContent = "Add someone";
+      wrap.appendChild(cap);
+      wrap.appendChild(reveal);
+    }
+  }
+  watch("accountPanel", fixMembers);
+
+  /* =================================================================
+     14 — Pledges as two facing promises
+     ================================================================= */
+  function fixPledges(){
+    var host = $("pledgeHost");
+    if(!host) return;
+    var sec = host.querySelector("#pledgeSection");
+    if(!sec || sec.querySelector(".nmpl")) return;
+
+    /* The markup is caption / list, caption / list, then the add form. Each
+       pair becomes a panel of its own. */
+    var caps = sec.querySelectorAll(":scope > p.small > strong");
+    var made = 0;
+    for(var i=0;i<caps.length && made<2;i++){
+      var capP = caps[i].parentElement;
+      var listEl = capP.nextElementSibling;
+      if(!listEl) continue;
+      var box = document.createElement("section");
+      box.className = "nmpl " + (made === 0 ? "nmpl-theirs" : "nmpl-ours");
+      sec.insertBefore(box, capP);
+      var cap = document.createElement("p");
+      cap.className = "nmpl-cap";
+      cap.textContent = capP.textContent.replace(/\s+/g," ").trim();
+      capP.parentNode.removeChild(capP);
+      box.appendChild(cap);
+      box.appendChild(listEl);
+      made++;
+    }
+    if(made){
+      var form = null, kids = sec.children;
+      for(var k=kids.length-1;k>=0;k--){
+        if(kids[k].querySelector && kids[k].querySelector("#pledgeName")){ form = kids[k]; break; }
+      }
+      if(form && !form.classList.contains("nmpl")){
+        form.classList.add("nmpl","nmpl-add");
+        var fcap = document.createElement("p");
+        fcap.className = "nmpl-cap";
+        fcap.textContent = "Offer something";
+        form.insertBefore(fcap, form.firstChild);
+      }
+    }
+  }
+  watch("pledgeHost", fixPledges);
+
+  /* =================================================================
+     15 — Rewards & activities reads as set-up
+     ================================================================= */
+  function fixRewardsSetup(){
+    var panel = $("rewardsPanel");
+    var body = $("rewardsPanelBody");
+    if(!panel || !body) return;
+    if(panel.querySelector(".nmsetupnote")) return;
+    if(!body.children.length) return;
+    var note = document.createElement("p");
+    note.className = "nmsetupnote";
+    note.textContent = "This is the list itself \u2014 what the children can ask for, "
+      + "and what it costs. Changes here apply the next time somebody asks; "
+      + "nothing already spent or saved is affected.";
+    body.parentNode.insertBefore(note, body);
+  }
+  watch("rewardsPanel", fixRewardsSetup);
+
+  /* =================================================================
+     16 — Edit mode: keep the tile, and say you are in a mode
+     ================================================================= */
+  function fixEditTile(){
+    var b = $("editModeBtn");
+    if(!b) return;
+    var on = (typeof editMode !== "undefined") && !!editMode;
+    /* Only write when something is actually wrong. This element is watched
+       for class changes, and a write that changes nothing would still be a
+       mutation — which would call this again, forever. */
+    if(b.classList.contains("primary")) b.classList.remove("primary");
+    if(b.classList.contains("light")) b.classList.remove("light");
+    if(!b.classList.contains("menutile")) b.classList.add("menutile");
+    if(!b.classList.contains("t-plain")) b.classList.add("t-plain");
+    var want = on
+      ? '<span>\u2715</span>Close editor'
+      : '<span>\u270F\uFE0F</span>Edit mode';
+    if(b.innerHTML !== want) b.innerHTML = want;
+  }
+  function editBar(){
+    var bar = $("nmEditBar");
+    if(!bar){
+      bar = document.createElement("div");
+      bar.id = "nmEditBar";
+      bar.className = "hidden";
+      bar.innerHTML = '<span class="nmeb-t">You are editing the lists'
+        + "<small>Names and point values are live. Changes save as you make them.</small></span>"
+        + '<button type="button" onclick="toggleEditMode()">Done</button>';
+      var host = $("editModeNote");
+      if(host && host.parentNode) host.parentNode.insertBefore(bar, host);
+      else document.body.insertBefore(bar, document.body.firstChild);
+    }
+    return bar;
+  }
+  function syncEditMode(){
+    var on = (typeof editMode !== "undefined") && !!editMode;
+    var bar = editBar();
+    bar.classList.toggle("hidden", !on);
+    document.body.classList.toggle("nm-editing", on);
+    fixEditTile();
+  }
+  (function(){
+    var orig = window.toggleEditMode;
+    if(typeof orig === "function"){
+      window.toggleEditMode = function(){
+        var r = orig.apply(this, arguments);
+        try{ syncEditMode(); }catch(e){ console.error("[design02 edit]", e); }
+        return r;
+      };
+    }
+  })();
+  syncEditMode();
+  (function(){
+    var b = $("editModeBtn");
+    if(b) new MutationObserver(function(){ pass(fixEditTile); })
+      .observe(b, {childList:true, characterData:true, subtree:true, attributes:true,
+                   attributeFilter:["class"]});
+  })();
+
+})();
+
 </body>
 </html>
