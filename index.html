@@ -5006,7 +5006,7 @@ const TIP_CATS = [
   {key:"deen", label:"Deen"}
 ];
 
-const APP_VERSION = "v185";
+const APP_VERSION = "v186";
 const today = new Date().toISOString().slice(0,10);
 let app = {families:[],currentFamily:null,currentChild:null};
 let categories = [];
@@ -11561,7 +11561,11 @@ function isLegacyAsk(r){ return r.type==="vaultin" || r.type==="givein"; }
    makes the whole board read as nagging. Same child, same kind of thing, same
    day, one card - approving it approves all of them. */
 function rollUpKey(r){
-  return [r.childId, r.type, r.itemId||r.itemName||"", dayStr(r.ts)].join("|");
+  /* dateStr, not dayStr. dayStr is defined in the notes addon - a LATER script
+     block - so calling it from here threw a ReferenceError and took the whole
+     parent dashboard down. Same class of mistake as the v173 one: the file
+     parses fine and the failure only appears at run time. */
+  return [r.childId, r.type, r.itemId||r.itemName||"", dateStr(new Date(r.ts))].join("|");
 }
 function askBoardHTML(list){
   const pend=list.filter(r=>r.status==="pending");
