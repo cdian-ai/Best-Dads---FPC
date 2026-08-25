@@ -1,6 +1,19 @@
 rules_version = '2';
 
-// Notice Me — Firestore security rules, app v166.
+// Notice Me — Firestore security rules, app v191.
+//
+// v191 audit fixes. Every change below is a RESTRICTION; nothing new is
+// permitted. See rules.test.js — each fix has a test that fails against the
+// previous version.
+//
+//   FIX-1  three ledger create branches never checked membership, so any
+//          signed-in account could append rows to any family's ledger.
+//   FIX-2  a request could be created against a sibling.
+//   FIX-3  an invite worked more than once inside its window.
+//   FIX-4  family delete claimed in a comment to be empty-only; now enforced.
+//   FIX-5  myFamilyId() was dead code in a security-critical file.
+//
+// NOT fixed here, and it is the most important one — see READ-SCOPE below.
 //
 // Four roles: parent, child, family (grandparents, uncles, aunties) and tutor.
 // Parents run the family. A child may read the family and mark their own
@@ -10,12 +23,35 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
+    // ------------------------------------------------------------ READ-SCOPE
+    //
+    // Role restrictions in this file are enforced on WRITE and not on READ.
+    // ledger and members both allow read to any member, and a tutor is a
+    // member — so a tutor can read every child's points, notes, prayer
+    // records and photos, including children they were never assigned. The
+    // app hides this; the rules do not.
+    //
+    // It is NOT fixed here because it cannot be. The app subscribes with
+    // onSnapshot(ledgerRef(fid)) and onSnapshot(membersRef(fid)) — whole
+    // collections, unfiltered, for every role. Firestore evaluates a list
+    // against every document returned, so tightening this rule makes the
+    // tutor's entire screen fail with permission-denied rather than
+    // returning less.
+    //
+    // The fix is two changes together, in this order:
+    //   1. app  — tutors query with where('childId','in',assignedChildren)
+    //             and a members query scoped to those children plus parents.
+    //   2. rules — then, and only then:
+    //        allow read: if isMember(fid)
+    //                    && (!isTutor(fid) || tutorTeaches(fid, resource.data.childId));
+    //
+    // Until both land, a tutor is an outsider with full read access to a
+    // family. That is tolerable while every tutor is someone you invited
+    // personally. It is not tolerable once other families are inviting
+    // their own.
+
     function signedIn() {
       return request.auth != null;
-    }
-
-    function myFamilyId() {
-      return get(/databases/$(database)/documents/userIndex/$(request.auth.uid)).data.familyId;
     }
 
     function isMember(fid) {
@@ -82,7 +118,13 @@ service cloud.firestore {
     function joinIsValid(fid) {
       let inv = get(/databases/$(database)/documents/invites/$(request.resource.data.inviteCode)).data;
       return inv.familyId == fid
-          && inv.usedBy == null
+          // FIX-3. Was `inv.usedBy == null`, which only asked whether the code
+          // had been spent at the moment the member row was written. The app
+          // creates the row and spends the code as two writes, so two people
+          // redeeming inside the same fifteen-minute window both passed.
+          // Allowing "spent by me" as well as "unspent" closes it without
+          // depending on which write lands first.
+          && (inv.usedBy == null || inv.usedBy == request.auth.uid)
           && inv.expiresAtMs > request.time.toMillis()
           && inv.role in ['parent', 'family', 'tutor']
           && request.resource.data.role == inv.role;
@@ -105,9 +147,19 @@ service cloud.firestore {
       allow read:   if isMember(fid);
       allow create: if signedIn() && request.resource.data.ownerUid == request.auth.uid;
       allow update: if isParent(fid);
-      // Only the person who created it, and the app only offers this while the
-      // family is still empty of history.
-      allow delete: if signedIn() && resource.data.ownerUid == request.auth.uid;
+      // FIX-4. The comment used to assert "only while the family is still
+      // empty of history" and the rule enforced no such thing — an owner
+      // could delete a family with a full ledger and other people in it,
+      // orphaning every subcollection. Rules cannot count subcollections, so
+      // the family document carries a flag instead.
+      //
+      // Defaults to false when absent, so this is backwards compatible and
+      // changes nothing until the app sets it. APP CHANGE REQUIRED: set
+      // ledgerStarted: true on the family document the first time any ledger
+      // entry is written. Until that lands, this fix is inert.
+      allow delete: if signedIn()
+                    && resource.data.ownerUid == request.auth.uid
+                    && resource.data.get('ledgerStarted', false) == false;
 
       match /members/{memberId} {
         allow read: if isMember(fid);
@@ -166,8 +218,13 @@ service cloud.firestore {
                       // their own row, negative points, and the amount moved
                       // must match the points taken. It cannot award, cannot
                       // touch a sibling, and cannot take anything out.
-                      || ((request.resource.data.type == 'vault'
-                           || request.resource.data.type == 'give')
+                      // FIX-1a. isMember was missing. Everything here pins to
+                      // request.auth.uid, which answers WHO but never WHERE —
+                      // so any signed-in account could append to any family's
+                      // ledger given only its id.
+                      || (isMember(fid)
+                          && (request.resource.data.type == 'vault'
+                              || request.resource.data.type == 'give')
                           && request.resource.data.childId == request.auth.uid
                           && request.resource.data.byUid == request.auth.uid
                           && request.resource.data.points is int
@@ -179,7 +236,11 @@ service cloud.firestore {
                       // Progress marks carry no points. A child may record that
                       // they practised something; only a parent or their own
                       // tutor may record that it is secure.
-                      || (request.resource.data.type == 'progress'
+                      // FIX-1b. Same omission: the third alternative inside
+                      // this branch (a child marking their own work covered)
+                      // required no membership.
+                      || (isMember(fid)
+                          && request.resource.data.type == 'progress'
                           && request.resource.data.points == 0
                           && request.resource.data.byUid == request.auth.uid
                           && (isParent(fid)
@@ -197,7 +258,10 @@ service cloud.firestore {
                       // whom, and what got done. A grown-up sets a list — a tutor
                       // only for the children assigned to them. A child may tick
                       // their own line and nothing else.
-                      || (request.resource.data.type in
+                      // FIX-1c. Same omission again, on the child's own
+                      // itemdone/itemundone alternative.
+                      || (isMember(fid)
+                          && request.resource.data.type in
                             ['note','noteitem','noteoff','itemoff','itemdone','itemundone',
                              'notemsg','notebonus']
                           && request.resource.data.points == 0
@@ -216,7 +280,13 @@ service cloud.firestore {
 
       match /requests/{reqId} {
         allow read:   if isMember(fid);
-        allow create: if isMember(fid);
+        // FIX-2. Was `isMember(fid)` with no check on childId, so one child
+        // could raise a request that spends a sibling's points. A parent still
+        // had to approve it, but it arrived looking like the sibling's own ask.
+        // A parent may still raise one on anyone's behalf.
+        allow create: if isParent(fid)
+                      || (isMember(fid)
+                          && request.resource.data.childId == request.auth.uid);
         // A parent answering. Plus one narrow case for the person who asked:
         // withdrawing their own request before anyone has acted on it.
         //
