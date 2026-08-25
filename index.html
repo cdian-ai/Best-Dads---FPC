@@ -1195,12 +1195,13 @@
     animation:menuup .26s cubic-bezier(.2,.85,.25,1)}
   @keyframes menuup{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:none}}
   @media (prefers-reduced-motion:reduce){.menupanel{animation:none}}
-  .menutop{display:flex;align-items:center;gap:12px;margin:2px 2px 10px;min-height:44px}
+  /* The floating Menu button is fixed at 14px from the top and about 44px
+     tall, so the panel starts below it. Without this the name sat underneath
+     the button and could not be read. */
+  .menutop{display:flex;align-items:center;margin:0 2px 10px;
+    padding-top:calc(44px + 14px)}
   .menuhi{flex:1;min-width:0;margin:0;font-size:15px;font-weight:800;color:#2c3350;
     overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  .menuclose{flex:none;width:44px;height:44px;border-radius:50%;border:1px solid #e6e8f0;
-    background:#fff;font-size:16px;font-weight:800;color:#5a6172;cursor:pointer;padding:0}
-  .menuclose:active{transform:scale(.94)}
   .menugroup{margin:20px 2px 9px;font-size:11px;font-weight:800;letter-spacing:.09em;
     text-transform:uppercase;color:var(--muted)}
   .menugrid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}
@@ -2220,7 +2221,6 @@
 <div class="menupanel kidsheet hidden" id="kidMenuSheet">
   <div class="menutop">
     <p class="menuhi" id="kidMenuWho"></p>
-    <button class="menuclose" onclick="closeKidMenu()" aria-label="Close menu">✕</button>
   </div>
 
   <p class="menugroup">Go to</p>
@@ -2330,7 +2330,6 @@
     <div class="menupanel hidden" id="menuSheet">
   <div class="menutop">
     <p class="menuhi" id="menuWho"></p>
-    <button class="menuclose" onclick="closeMenu()" aria-label="Close menu">✕</button>
   </div>
   <p class="menugroup">Today</p>
   <div class="menugrid">
@@ -4846,7 +4845,7 @@ const TIP_CATS = [
   {key:"deen", label:"Deen"}
 ];
 
-const APP_VERSION = "v170";
+const APP_VERSION = "v171";
 const today = new Date().toISOString().slice(0,10);
 let app = {families:[],currentFamily:null,currentChild:null};
 let categories = [];
@@ -7784,6 +7783,11 @@ function closeKidMenu(){
   if(sheet && !sheet.classList.contains("hidden")){
     sheet.classList.add("hidden");
     setMenuScrim(false);
+    /* render() is what recomputes the floating button. Without it the button
+       kept whatever state it was left in when the menu opened and stayed gone
+       until something else happened to re-render - which is why tapping a tab
+       brought it back. Opening already called render; closing did not. */
+    render();
   }
 }
 function closeAnyMenu(){ closeKidMenu(); closeMenu(); }
@@ -8304,11 +8308,14 @@ function toggleMenu(){
   if(!sheet) return;
   const open=sheet.classList.toggle("hidden") === false;
   setMenuScrim(open);
+  render();
 }
 function closeMenu(){
   const sheet=document.getElementById("menuSheet");
+  const was = sheet && !sheet.classList.contains("hidden");
   if(sheet) sheet.classList.add("hidden");
   setMenuScrim(false);
+  if(was) render();          // same reason as closeKidMenu
 }
 /* The sheet floats over the page, so the page behind it has to recede or it
    reads as part of what is underneath. */
@@ -10556,16 +10563,14 @@ function render(){
       || (screenNow==="kidSpendScreen" && spendVia==="points");
     const sheet=document.getElementById(kidOn ? "kidMenuSheet" : "menuSheet");
     const open = !!sheet && !sheet.classList.contains("hidden");
-    /* v170: while the menu is open the fab is hidden outright. It used to turn
-       into a second "Close" pinned to the top-left of the screen, which landed
-       squarely on top of the name inside the panel - so the child could not
-       see whose menu they were in, and there were two controls doing the same
-       job. The panel has its own close, in its own top row, which is where a
-       close belongs on a screen. */
-    mf.classList.toggle("hidden", gated || inPot || open || !(ready && (parentOn || kidOn)));
+    /* The fab is the one and only close for the menu: it is already there, it
+       is already where a thumb is, and it turns into "Close" when the menu is
+       open. The second close I added inside the panel in v169 was both
+       redundant and sitting on top of the name. */
+    mf.classList.toggle("hidden", gated || inPot || !(ready && (parentOn || kidOn)));
     const onPanel = !!screenNow && !kidOn;
-    mf.textContent = onPanel ? "\u2715 Close" : "\u2630 Menu";
-    mf.classList.toggle("closing", onPanel);
+    mf.textContent = (open || onPanel) ? "\u2715 Close" : "\u2630 Menu";
+    mf.classList.toggle("closing", open || onPanel);
   }
   const vtl=document.getElementById("vaultTargetLabel");
   if(vtl) vtl.textContent = vaultTarget();
