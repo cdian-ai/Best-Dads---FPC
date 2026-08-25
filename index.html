@@ -4974,7 +4974,7 @@ const TIP_CATS = [
   {key:"deen", label:"Deen"}
 ];
 
-const APP_VERSION = "v180";
+const APP_VERSION = "v181";
 const today = new Date().toISOString().slice(0,10);
 let app = {families:[],currentFamily:null,currentChild:null};
 let categories = [];
@@ -18282,6 +18282,41 @@ window.GROWNUP_DECKS = [
     clock:`<circle cx="60" cy="54" r="34" fill="#fff" stroke="#c3c8e6" stroke-width="3"/><path d="M60 34v20l14 8" fill="none" stroke="#6aa89a" stroke-width="5" stroke-linecap="round"/><circle cx="60" cy="54" r="4" fill="#e8a33d"/>`,
     note:`<rect x="26" y="20" width="68" height="66" rx="7" fill="#fff9e8" stroke="#e0d3ac" stroke-width="2.5"/><path d="M38 38h44M38 50h44M38 62h28" stroke="#e0d3ac" stroke-width="4" stroke-linecap="round"/><path d="M74 70l8 8 16-18" fill="none" stroke="#6aa89a" stroke-width="5" stroke-linecap="round"/>`,
   });
+  /* ---- v181: faces ----
+     The no-faces rule was mine and it was wrong. A head drawn as a plain
+     circle with one line through it does not read as a face - it reads as
+     a clock, which on a wudu card is worse than no picture at all. A face
+     is the thing a human eye is best in the world at recognising, and
+     removing it to avoid depicting a particular person removed the only
+     cue that these were people.
+
+     So: eyes, nose, mouth, ears, hair. Neutral rather than expressive,
+     one warm mid-tone rather than a specific complexion, and hair drawn as
+     a mass rather than a style - recognisably a person, deliberately not a
+     particular one. The praying figures get a profile with a single eye,
+     which is what makes them read as somebody praying rather than as a
+     shape bent over.
+
+     And the phone card is now a person holding a phone rather than a
+     handset floating on its own, which is the difference between 'ring the
+     masjid' and 'a phone exists'. */
+  Object.assign(ART, {
+    w_mouth:`<ellipse cx="33" cy="50" rx="5" ry="7" fill="#d9b189"/><ellipse cx="87" cy="50" rx="5" ry="7" fill="#d9b189"/><path d="M36 42c0-14 10-25 24-25s24 11 24 25v9c0 14-11 24-24 24S36 65 36 51z" fill="#e8c6a0"/><path d="M35 42c1-16 11-25 25-25s24 9 25 25c-3-5-11-9-25-9s-22 4-25 9z" fill="#4a3f35"/><circle cx="51" cy="49" r="3" fill="#3a3129"/><circle cx="69" cy="49" r="3" fill="#3a3129"/><path d="M60 52v7" stroke="#d9b189" stroke-width="3" stroke-linecap="round" fill="none"/><ellipse cx="60" cy="66" rx="7" ry="5" fill="#8a5a52"/><path d="M78 24c-6 10-9 20-12 30" stroke="#7fc6e8" stroke-width="4" fill="none" stroke-linecap="round"/><circle cx="70" cy="58" r="3" fill="#7fc6e8"/><path d="M24 84c8-5 14 4 22 0s14 4 22 0 14 4 22 0" stroke="#7fc6e8" stroke-width="4" fill="none" stroke-linecap="round"/>`,
+    w_nose:`<ellipse cx="33" cy="50" rx="5" ry="7" fill="#d9b189"/><ellipse cx="87" cy="50" rx="5" ry="7" fill="#d9b189"/><path d="M36 42c0-14 10-25 24-25s24 11 24 25v9c0 14-11 24-24 24S36 65 36 51z" fill="#e8c6a0"/><path d="M35 42c1-16 11-25 25-25s24 9 25 25c-3-5-11-9-25-9s-22 4-25 9z" fill="#4a3f35"/><circle cx="51" cy="49" r="3" fill="#3a3129"/><circle cx="69" cy="49" r="3" fill="#3a3129"/><path d="M60 52v7" stroke="#d9b189" stroke-width="3" stroke-linecap="round" fill="none"/><path d="M53 65c4 3 10 3 14 0" fill="none" stroke="#8a5a52" stroke-width="3" stroke-linecap="round"/><circle cx="60" cy="61" r="3.5" fill="#7fc6e8"/><path d="M74 26c-5 9-9 18-11 26" stroke="#7fc6e8" stroke-width="4" fill="none" stroke-linecap="round"/><path d="M24 84c8-5 14 4 22 0s14 4 22 0 14 4 22 0" stroke="#7fc6e8" stroke-width="4" fill="none" stroke-linecap="round"/>`,
+    w_face:`<ellipse cx="33" cy="50" rx="5" ry="7" fill="#d9b189"/><ellipse cx="87" cy="50" rx="5" ry="7" fill="#d9b189"/><path d="M36 42c0-14 10-25 24-25s24 11 24 25v9c0 14-11 24-24 24S36 65 36 51z" fill="#e8c6a0"/><path d="M35 42c1-16 11-25 25-25s24 9 25 25c-3-5-11-9-25-9s-22 4-25 9z" fill="#4a3f35"/><circle cx="51" cy="49" r="3" fill="#3a3129"/><circle cx="69" cy="49" r="3" fill="#3a3129"/><path d="M60 52v7" stroke="#d9b189" stroke-width="3" stroke-linecap="round" fill="none"/><path d="M53 65c4 3 10 3 14 0" fill="none" stroke="#8a5a52" stroke-width="3" stroke-linecap="round"/><path d="M36 42c0-14 10-25 24-25s24 11 24 25v9c0 14-11 24-24 24S36 65 36 51z" fill="#7fc6e8" opacity=".35"/><path d="M30 20c8-4 14 5 22 1s14 5 22 1" stroke="#7fc6e8" stroke-width="4" fill="none" stroke-linecap="round"/><path d="M24 84c8-5 14 4 22 0s14 4 22 0 14 4 22 0" stroke="#7fc6e8" stroke-width="4" fill="none" stroke-linecap="round"/>`,
+    w_head:`<ellipse cx="33" cy="50" rx="5" ry="7" fill="#d9b189"/><ellipse cx="87" cy="50" rx="5" ry="7" fill="#d9b189"/><path d="M36 42c0-14 10-25 24-25s24 11 24 25v9c0 14-11 24-24 24S36 65 36 51z" fill="#e8c6a0"/><path d="M35 42c1-16 11-25 25-25s24 9 25 25c-3-5-11-9-25-9s-22 4-25 9z" fill="#4a3f35"/><circle cx="51" cy="49" r="3" fill="#3a3129"/><circle cx="69" cy="49" r="3" fill="#3a3129"/><path d="M60 52v7" stroke="#d9b189" stroke-width="3" stroke-linecap="round" fill="none"/><path d="M53 65c4 3 10 3 14 0" fill="none" stroke="#8a5a52" stroke-width="3" stroke-linecap="round"/><path d="M28 40c6-16 18-24 32-24s26 8 32 24c-6-4-10 2-14-2-5-5-11 2-18-2-6-4-12 4-16 2-6-3-10 4-16 2z" fill="#d9b189"/><path d="M30 22c8-5 14 4 22 0s14 4 22 0" stroke="#7fc6e8" stroke-width="4" fill="none" stroke-linecap="round"/>`,
+    w_dua:`<path d="M30 54c-4-9 5-15 10-8l10 13 3-22c1-9 13-9 13 0l1 22 10-13c5-7 14-1 10 8l-11 24c-4 9-12 12-22 12s-18-4-22-12z" fill="#e8c6a0"/><path d="M60 16v10M48 22l5 9M72 22l-5 9" stroke="#e8a33d" stroke-width="4" stroke-linecap="round"/>`,
+    s_stand:`<rect x="10" y="86" width="100" height="5" rx="2.5" fill="#e0c894"/><circle cx="60" cy="22" r="9" fill="#e8c6a0"/><path d="M51 20a9 9 0 0 1 18 0c-3-4-9 -5-9-5s-6 1-9 5z" fill="#4a3f35"/><circle cx="63" cy="22" r="1.8" fill="#3a3129"/><path d="M49 33h22l7 53H42z" fill="#6aa89a"/><path d="M50 38l-6 30M70 38l6 30" stroke="#54897d" stroke-width="6" stroke-linecap="round"/>`,
+    s_takbir:`<rect x="10" y="86" width="100" height="5" rx="2.5" fill="#e0c894"/><circle cx="60" cy="26" r="9" fill="#e8c6a0"/><path d="M51 24a9 9 0 0 1 18 0c-3-4-9 -5-9-5s-6 1-9 5z" fill="#4a3f35"/><circle cx="63" cy="26" r="1.8" fill="#3a3129"/><path d="M49 37h22l7 49H42z" fill="#6aa89a"/><path d="M50 42l-6-18M70 42l6-18" stroke="#54897d" stroke-width="6" stroke-linecap="round"/><circle cx="44" cy="22" r="5" fill="#e8c6a0"/><circle cx="76" cy="22" r="5" fill="#e8c6a0"/>`,
+    s_fold:`<rect x="10" y="86" width="100" height="5" rx="2.5" fill="#e0c894"/><circle cx="60" cy="22" r="9" fill="#e8c6a0"/><path d="M51 20a9 9 0 0 1 18 0c-3-4-9 -5-9-5s-6 1-9 5z" fill="#4a3f35"/><circle cx="63" cy="22" r="1.8" fill="#3a3129"/><path d="M49 33h22l7 53H42z" fill="#6aa89a"/><path d="M48 40c0 14 6 18 12 18s12-4 12-18" fill="none" stroke="#54897d" stroke-width="6" stroke-linecap="round"/>`,
+    s_ruku:`<rect x="10" y="86" width="100" height="5" rx="2.5" fill="#e0c894"/><path d="M34 44h48c6 0 8 4 8 9l-2 33h-14l1-28H40z" fill="#6aa89a"/><circle cx="28" cy="50" r="9" fill="#e8c6a0"/><path d="M19 48a9 9 0 0 1 18 0c-3-4-9 -5-9-5s-6 1-9 5z" fill="#4a3f35"/><circle cx="25" cy="50" r="1.8" fill="#3a3129"/><path d="M40 56v26M76 54v28" stroke="#54897d" stroke-width="6" stroke-linecap="round"/>`,
+    s_rise:`<rect x="10" y="86" width="100" height="5" rx="2.5" fill="#e0c894"/><circle cx="60" cy="22" r="9" fill="#e8c6a0"/><path d="M51 20a9 9 0 0 1 18 0c-3-4-9 -5-9-5s-6 1-9 5z" fill="#4a3f35"/><circle cx="63" cy="22" r="1.8" fill="#3a3129"/><path d="M49 33h22l7 53H42z" fill="#6aa89a"/><path d="M48 40l-4 30M72 40l4 30" stroke="#54897d" stroke-width="6" stroke-linecap="round"/><circle cx="44" cy="72" r="5" fill="#e8c6a0"/><circle cx="76" cy="72" r="5" fill="#e8c6a0"/>`,
+    s_sujud:`<rect x="16" y="82" width="88" height="9" rx="4" fill="#d8c9a8"/><path d="M46 60c0-10 10-16 22-16h20l4 38H50z" fill="#6aa89a"/><circle cx="34" cy="74" r="9" fill="#e8c6a0"/><path d="M25 72a9 9 0 0 1 18 0c-3-4-9 -5-9-5s-6 1-9 5z" fill="#4a3f35"/><circle cx="31" cy="74" r="1.8" fill="#3a3129"/><path d="M46 68h14" stroke="#54897d" stroke-width="6" stroke-linecap="round"/>`,
+    s_sit:`<rect x="16" y="82" width="88" height="9" rx="4" fill="#d8c9a8"/><circle cx="60" cy="30" r="9" fill="#e8c6a0"/><path d="M51 28a9 9 0 0 1 18 0c-3-4-9 -5-9-5s-6 1-9 5z" fill="#4a3f35"/><circle cx="63" cy="30" r="1.8" fill="#3a3129"/><path d="M50 41h20l6 27H44z" fill="#6aa89a"/><path d="M36 74h48c4 0 4 8 0 8H36c-4 0-4-8 0-8z" fill="#54897d"/>`,
+    talk2:`<circle cx="30" cy="30" r="11" fill="#e8c6a0"/><path d="M19 28a11 11 0 0 1 22 0c-3-4-11 -5-11-5s-8 1-11 5z" fill="#4a3f35"/><circle cx="33" cy="30" r="1.8" fill="#3a3129"/><path d="M18 46h24l4 40H14z" fill="#6aa89a"/><circle cx="82" cy="48" r="8" fill="#e8c6a0"/><path d="M74 46a8 8 0 0 1 16 0c-3-4-8 -5-8-5s-5 1-8 5z" fill="#4a3f35"/><circle cx="79" cy="48" r="1.8" fill="#3a3129"/><path d="M73 58h18l3 28H70z" fill="#e8a33d"/><path d="M50 20h30a5 5 0 0 1 5 5v10a5 5 0 0 1-5 5H62l-8 6v-6h-4a5 5 0 0 1-5-5V25a5 5 0 0 1 5-5z" fill="#eef1f7" stroke="#c3c8e6" stroke-width="2"/>`,
+    rowpray:`<rect x="10" y="86" width="100" height="5" rx="2.5" fill="#e0c894"/><circle cx="28" cy="31" r="7" fill="#e8c6a0"/><path d="M21 29a7 7 0 0 1 14 0c-3-4-7 -5-7-5s-4 1-7 5z" fill="#4a3f35"/><circle cx="31" cy="31" r="1.8" fill="#3a3129"/><path d="M20 40h16l4 46H16z" fill="#6aa89a"/><circle cx="60" cy="31" r="7" fill="#e8c6a0"/><path d="M53 29a7 7 0 0 1 14 0c-3-4-7 -5-7-5s-4 1-7 5z" fill="#4a3f35"/><circle cx="63" cy="31" r="1.8" fill="#3a3129"/><path d="M52 40h16l4 46H48z" fill="#6aa89a"/><circle cx="92" cy="31" r="7" fill="#e8c6a0"/><path d="M85 29a7 7 0 0 1 14 0c-3-4-7 -5-7-5s-4 1-7 5z" fill="#4a3f35"/><circle cx="95" cy="31" r="1.8" fill="#3a3129"/><path d="M84 40h16l4 46H80z" fill="#6aa89a"/>`,
+    phone:`<circle cx="52" cy="30" r="14" fill="#e8c6a0"/><path d="M38 28a14 14 0 0 1 28 0c-3-4-14 -5-14-5s-11 1-14 5z" fill="#4a3f35"/><circle cx="55" cy="30" r="1.8" fill="#3a3129"/><path d="M36 48h32l6 38H30z" fill="#6aa89a"/><path d="M66 54c8-2 12-8 12-14" fill="none" stroke="#e8c6a0" stroke-width="7" stroke-linecap="round"/><rect x="72" y="22" width="13" height="24" rx="4" fill="#4b5566"/><path d="M92 26c5 5 5 15 0 20" fill="none" stroke="#6aa89a" stroke-width="4" stroke-linecap="round"/>`,
+  });
   function ARTBODY(key){ return ART[key]||ART.plate; }
   function art(key, tone){
     const d=ART[key]||ART.plate;
@@ -18568,7 +18603,7 @@ window.GROWNUP_DECKS = [
       {
         "t": "One prayer, not five",
         "d": "Pick the one that fits your day, often Maghrib because everyone is home. Five at once is how a child learns to dread it.",
-        "art": "clock"
+        "art": "prayermat"
       },
       {
         "t": "Shape before words",
@@ -18578,7 +18613,7 @@ window.GROWNUP_DECKS = [
       {
         "t": "Never as a punishment",
         "d": "Salah must not be the thing that happens when they are in trouble. Whatever else you do, protect that.",
-        "art": "prayermat"
+        "art": "note"
       },
       {
         "t": "Let them see you pray badly",
@@ -18588,7 +18623,7 @@ window.GROWNUP_DECKS = [
       {
         "t": "Say nothing when they miss one",
         "d": "Notice it and leave it. A missed prayer that turns into a row is a missed prayer plus a bad memory.",
-        "art": "note"
+        "art": "talk2"
       },
       {
         "t": "Ask them to teach you",
@@ -18796,7 +18831,7 @@ window.GROWNUP_DECKS = [
       {
         "t": "Shorten the four-rakah prayers",
         "d": "Dhuhr, Asr and Isha become two rakahs. Fajr and Maghrib do not change.",
-        "art": "clock"
+        "art": "road"
       },
       {
         "t": "Combine if you need to",
@@ -18825,7 +18860,7 @@ window.GROWNUP_DECKS = [
   {
     "id": "first-fast",
     "name": "Their first fast",
-    "art": "clock",
+    "art": "dates",
     "tone": "#fbeccb",
     "kind": "deen",
     "section": "deen",
@@ -18842,7 +18877,7 @@ window.GROWNUP_DECKS = [
       {
         "t": "Start with half a day",
         "d": "Suhoor to lunchtime. A completed half day builds far more than a broken whole one.",
-        "art": "clock"
+        "art": "dates"
       },
       {
         "t": "Pick a short day",
@@ -18862,12 +18897,12 @@ window.GROWNUP_DECKS = [
       {
         "t": "Let them break it without a word",
         "d": "No sigh, no 'are you sure', no comment at all. One raised eyebrow can put a child off fasting for years.",
-        "art": "note"
+        "art": "talk2"
       },
       {
         "t": "Give them the iftar job",
         "d": "Pouring the water, passing the dates, calling everyone. Being needed at the table is half the reason to fast.",
-        "art": "dates"
+        "art": "fooddoor"
       },
       {
         "t": "Do not announce the score",
@@ -18960,12 +18995,12 @@ window.GROWNUP_DECKS = [
       {
         "t": "Let the children stay up once",
         "d": "One night, properly late, with the grown-ups. They will talk about it for a year.",
-        "art": "clock"
+        "art": "moonlamp"
       },
       {
         "t": "Odd nights, extra effort",
         "d": "Without claiming to know which night it is. Nobody knows, and that is the design.",
-        "art": "moonlamp"
+        "art": "calendar"
       },
       {
         "t": "Keep a family dua list",
@@ -19116,7 +19151,7 @@ window.GROWNUP_DECKS = [
       {
         "t": "Decide the screen rules now",
         "d": "Before anyone is tired and arguing about it at eleven at night.",
-        "art": "clock"
+        "art": "talk2"
       },
       {
         "t": "Agree what you will NOT do",
@@ -19168,7 +19203,7 @@ window.GROWNUP_DECKS = [
       {
         "t": "Get it out promptly",
         "d": "Wet washing left in the drum smells within hours, and everyone learns that the hard way once.",
-        "art": "clock"
+        "art": "laundry"
       },
       {
         "t": "Fold as you take it down",
@@ -19405,12 +19440,12 @@ window.GROWNUP_DECKS = [
       {
         "t": "Say it early",
         "d": "It gets harder every minute you wait. The first no is much cheaper than the fourth.",
-        "art": "clock"
+        "art": "speech"
       },
       {
         "t": "If they keep pushing, that is the information",
         "d": "A friend who will not take no is telling you something. Notice it.",
-        "art": "note"
+        "art": "talk2"
       },
       {
         "t": "Agree a rescue with your parents",
