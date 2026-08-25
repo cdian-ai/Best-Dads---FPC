@@ -5006,7 +5006,7 @@ const TIP_CATS = [
   {key:"deen", label:"Deen"}
 ];
 
-const APP_VERSION = "v189";
+const APP_VERSION = "v190";
 const today = new Date().toISOString().slice(0,10);
 let app = {families:[],currentFamily:null,currentChild:null};
 let categories = [];
@@ -22173,21 +22173,30 @@ body.nm-editing #editModeNote{display:none}
 
 })();
 
-<!-- ===== addons/design-pass-03.js  (v189) =====
-     All at once: choose a child, then award them.
+</script>
 
-     The page opened on every child stacked, which is what its name meant. It
-     opens on a list of names now; pick one and the page becomes that child's
-     card, with their face on it. The other children's cards are not shown.
+<!-- ===== addons/design-pass-03.js  (v190) =====
+     All at once becomes one action: write, choose, select, send.
 
-     The faces-only jump strip from v187 goes with it - it existed to reach a
-     child three screens down, and there is nothing to reach any more.
+     Before this, the page did two unrelated things and did not say so. Tapping
+     an action awarded points immediately. A note box was pinned to the bottom
+     of the screen, under the back-to-top button, and attached itself to
+     whatever you tapped next - so the note was a mode you were in without
+     knowing it, and the field you typed into was the one thing you could not
+     reach.
+
+     Now it is one form. Pick who. Write what you noticed. Tick the things it
+     was. Send. Nothing is written until you send, and nothing is attached to
+     a tap you did not mean to make.
 -->
 <style>
-/* The strip solved a scrolling problem that no longer exists. */
+/* The pinned bar is the thing that was covered. It goes, and with it the
+   whole idea of a note that attaches itself to your next tap. */
+#quickPanel .notebar{display:none!important}
+#quickPanel #quickBody{padding-bottom:8px!important}
 #nmJump{display:none!important}
+body.nm-composing #panelTop{display:none!important}
 
-.nmqpick{margin:0 0 4px}
 .nmqpick-cap{margin:0 0 12px;font-size:13.5px;line-height:1.55;color:var(--muted)}
 .nmqpick-list{display:grid;gap:9px}
 .nmqrow{display:flex;align-items:center;gap:13px;width:auto;text-align:left;
@@ -22197,20 +22206,42 @@ body.nm-editing #editModeNote{display:none}
 .nmqrow img,.nmqrow .avatar-placeholder{width:52px;height:52px;border-radius:50%;
   object-fit:cover;flex:none;display:flex;align-items:center;justify-content:center;
   font-size:22px;background:#e4e6f5}
-.nmqrow .nmqwho{flex:1;min-width:0}
-.nmqrow .nmqname{display:block;font:800 16.5px/1.25 Inter,system-ui,sans-serif;
-  color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.nmqrow .nmqsub{display:block;margin-top:3px;font-size:12.5px;font-weight:600;color:var(--muted)}
-.nmqrow .nmqgo{flex:none;width:8px;height:8px;border-right:2.5px solid #b9bed0;
+.nmqwho{flex:1;min-width:0}
+.nmqname{display:block;font:800 16.5px/1.25 Inter,system-ui,sans-serif;color:var(--ink);
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.nmqsub{display:block;margin-top:3px;font-size:12.5px;font-weight:600;color:var(--muted)}
+.nmqgo{flex:none;width:8px;height:8px;border-right:2.5px solid #b9bed0;
   border-bottom:2.5px solid #b9bed0;transform:rotate(-45deg)}
 
-/* Awarding one child. The face belongs at the top of the page you are on,
-   not repeated inside the card underneath it. */
-.nmqhead{margin:0 0 6px}
-#quickBody .quickcard.nmq-hide{display:none}
-#quickBody .quickcard.nmq-only{background:#fff;border:1px solid #e6e8f0;border-radius:22px;
-  padding:16px;box-shadow:0 8px 24px rgba(36,48,68,.07)}
-#quickBody .quickcard.nmq-only > .quickhead{display:none}
+/* One card, in the room's gold, the same as the asking card it becomes. */
+.nmcompose{background:linear-gradient(168deg,#fffdf5,#fff 200px);
+  border:1px solid #f0dcb2;border-radius:24px;padding:16px;
+  box-shadow:0 10px 30px rgba(122,92,21,.10)}
+.nmc-label{display:block;margin:0 0 7px;font:800 11px/1 Inter,system-ui,sans-serif;
+  letter-spacing:.06em;text-transform:uppercase;color:#8a6a1c}
+.nmc-note{width:100%;box-sizing:border-box;min-height:82px;resize:vertical;
+  font:500 15.5px/1.5 Inter,system-ui,sans-serif;color:var(--ink);
+  border:1px solid #ecdcb4;background:#fffdf7;border-radius:16px;padding:12px 13px}
+.nmc-note:focus{outline:none;border-color:#d8ab4a;background:#fff}
+.nmc-sep{margin:16px 0 0;padding-top:15px;border-top:1px solid #f4e6c8}
+.nmc-hint{margin:0 0 10px;font-size:12.5px;line-height:1.5;color:#a08340}
+.nmc-acts{display:flex;flex-wrap:wrap;gap:7px}
+.nmc-act{display:inline-flex;align-items:center;gap:7px;width:auto;min-height:44px;
+  padding:10px 13px;border-radius:99px;background:#fff;border:1px solid #f0dcb2;
+  font:700 13.5px/1 Inter,system-ui,sans-serif;color:#7a5c15;cursor:pointer;
+  transition:transform .1s ease}
+.nmc-act:active{transform:scale(.96)}
+.nmc-act .nmc-pts{font-size:12px;font-weight:800;color:#a08340}
+.nmc-act.on{background:#7a5c15;border-color:#7a5c15;color:#fff}
+.nmc-act.on .nmc-pts{color:#f2dfae}
+.nmc-act.ticked{opacity:.45;cursor:default}
+.nmc-foot{display:flex;align-items:center;gap:12px;margin-top:16px;padding-top:15px;
+  border-top:1px solid #f4e6c8}
+.nmc-sum{flex:1;min-width:0;font:700 13px/1.4 Inter,system-ui,sans-serif;color:#7a5c15}
+.nmc-sum small{display:block;font-weight:600;color:#a08340;margin-top:2px}
+.nmc-send{flex:none;width:auto!important;min-height:48px;padding:13px 20px;border-radius:99px;
+  background:#7a5c15;color:#fff;border:0;font:800 14.5px/1 Inter,system-ui,sans-serif;cursor:pointer}
+.nmc-send[disabled]{opacity:.4;cursor:default}
 .nmqswitch{width:100%;margin-top:14px;background:none;border:0;padding:10px;
   font:700 13px/1 Inter,system-ui,sans-serif;color:var(--accent);cursor:pointer;min-height:44px}
 </style>
@@ -22246,119 +22277,236 @@ body.nm-editing #editModeNote{display:none}
     finally{ busy=false; }
   }
 
-  /* Chosen for this visit only. Opening the page again asks again, which is
-     the point of the change: the page is a question now, not a wall. */
+  var picked = null;      // child id being noticed
+  var acts   = [];        // the actions offered, in the order drawn
+  var chosen = {};        // index -> true
+  var sending = false;
+
   window.__nmQuickChild = null;
 
+  /* ---------- choosing ---------- */
   window.nmQuickPick = function(id){
     if(typeof closeWhoMenu==="function") closeWhoMenu();
-    window.__nmQuickChild = id || null;
-    if(typeof renderQuickPanel==="function") renderQuickPanel();
-    else pass(fixQuick);
+    picked = id || null;
+    window.__nmQuickChild = picked;
+    chosen = {};
+    document.body.classList.toggle("nm-composing", !!picked);
+    pass(function(){ draw(true); });
     try{ window.scrollTo({top:0, behavior:"smooth"}); }catch(e){}
   };
   window.nmQuickBack = function(){ window.nmQuickPick(null); };
 
-  function chooser(body, kids){
-    var have = body.querySelector(".nmqpick");
-    var rows = kids.map(function(c){
-      var t = todayFor(c);
-      return '<button type="button" class="nmqrow" onclick="nmQuickPick(\''+c.id+'\')">'
-        + faceHTML(c)
-        + '<span class="nmqwho"><span class="nmqname">'+esc(c.name)+"</span>"
-        + '<span class="nmqsub">'+(t===null?"Tap to award":(t+" today"))+"</span></span>"
-        + '<span class="nmqgo"></span></button>';
-    }).join("");
-    var html = '<section class="nmqpick">'
-      + '<p class="nmqpick-cap">Who are you noticing? Pick a name and their card opens '
-      + "on its own \u2014 nobody else\u2019s is in the way.</p>"
-      + '<div class="nmqpick-list">'+rows+"</div></section>";
-    if(!have || body.innerHTML.indexOf('class="nmqpick"') === -1 || have.innerHTML !== html){
-      body.innerHTML = html;
+  /* ---------- selecting ---------- */
+  window.nmcToggle = function(btn, i){
+    if(btn.classList.contains("ticked")) return;
+    if(chosen[i]) delete chosen[i]; else chosen[i]=true;
+    btn.classList.toggle("on", !!chosen[i]);
+    btn.setAttribute("aria-pressed", chosen[i] ? "true" : "false");
+    summarise();
+  };
+  window.nmcNoteInput = function(){ summarise(); };
+
+  function selected(){
+    var out=[];
+    for(var k in chosen) if(chosen[k]) out.push(acts[k]);
+    return out.filter(Boolean);
+  }
+  function summarise(){
+    var sum=$("nmcSum"), send=$("nmcSend"), note=$("nmcNote");
+    if(!sum || !send) return;
+    var picks=selected(), pts=0;
+    for(var i=0;i<picks.length;i++) pts += Number(picks[i].points)||0;
+    var hasNote = !!(note && note.value.trim());
+    if(!picks.length && !hasNote){
+      sum.innerHTML = "Nothing to send yet<small>Write what you noticed, tick what it was, or both.</small>";
+    }else if(!picks.length){
+      sum.innerHTML = "A note, no points<small>That is allowed \u2014 the noticing is the point.</small>";
+    }else{
+      sum.innerHTML = picks.length + (picks.length===1?" thing":" things")
+        + " \u00b7 +" + pts + " points"
+        + "<small>" + (hasNote ? "Your note goes with it." : "No note \u2014 add one if you like.") + "</small>";
     }
+    send.disabled = (!picks.length && !hasNote) || sending;
   }
 
-  function fixQuick(){
+  /* ---------- sending ---------- */
+  window.nmcSend = async function(){
+    if(sending) return;
+    var child = (typeof memberById==="function") ? memberById(picked) : null;
+    if(!child) return;
+    if(typeof requireParent==="function" && !requireParent()) return;
+    var noteEl=$("nmcNote");
+    var note = noteEl ? noteEl.value.trim() : "";
+    var picks = selected();
+    if(!picks.length && !note) return;
+
+    sending = true;
+    var send=$("nmcSend");
+    if(send){ send.disabled=true; send.textContent="Sending\u2026"; }
+
+    var wrote = 0, failed = 0;
+    try{
+      for(var i=0;i<picks.length;i++){
+        var a = picks[i];
+        /* The note rides with the first line only. Repeating it on every one
+           would read to the child as four separate messages that happen to
+           say the same thing. */
+        var label = (i===0 && note) ? a.name + " \u2014 " + note : a.name;
+        var ok = await writeLedger({
+          childId: child.id, points: a.points, label: label, type:"award",
+          catKey: (typeof catKeyFor==="function") ? catKeyFor(a.cat, a.name) : null,
+          actionName: a.name, tag: (a.opts && a.opts.tag) || null
+        });
+        if(ok) wrote++; else failed++;
+      }
+      if(!picks.length && note){
+        /* A note on its own is still worth sending. Zero points, so nothing
+           is bought with it - it is only the noticing. */
+        var ok2 = await writeLedger({
+          childId: child.id, points: 0, label: note, type:"award",
+          catKey:null, actionName:null, tag:null
+        });
+        if(ok2) wrote++; else failed++;
+      }
+    }catch(e){
+      console.error("[design03 send]", e);
+      failed++;
+    }
+    sending = false;
+
+    if(failed && !wrote){
+      if(send){ send.disabled=false; send.textContent="Send"; }
+      if(typeof kidSay==="function"){
+        kidSay({icon:"\u26A0\uFE0F", title:"That did not send",
+          note:"Nothing was recorded. Check your connection and try again."});
+      }
+      return;
+    }
+    if(typeof kidSay==="function"){
+      kidSay({icon:"\u2728", title:"Sent to " + child.name,
+        note: wrote + (wrote===1?" thing":" things") + " noticed."
+          + (failed ? " " + failed + " did not send." : "")});
+    }
+    window.nmQuickPick(null);
+  };
+
+  /* ---------- drawing ---------- */
+  function chooser(body, kids){
+    body.innerHTML = '<section class="nmqpick">'
+      + '<p class="nmqpick-cap">Who did you notice? Pick a name, then write it down and '
+      + "choose what it was \u2014 it all goes over in one go.</p>"
+      + '<div class="nmqpick-list">'
+      + kids.map(function(c){
+          var t=todayFor(c);
+          return '<button type="button" class="nmqrow" onclick="nmQuickPick(\''+c.id+'\')">'
+            + faceHTML(c)
+            + '<span class="nmqwho"><span class="nmqname">'+esc(c.name)+"</span>"
+            + '<span class="nmqsub">'+(t===null?"Tap to notice something":(t+" today"))+"</span></span>"
+            + '<span class="nmqgo"></span></button>';
+        }).join("")
+      + "</div></section>";
+  }
+
+  function compose(body, kids, child){
+    acts = [];
+    try{
+      var raw = (typeof topActionsForFamily==="function") ? topActionsForFamily(8) : [];
+      var s = (typeof stateForChild==="function") ? stateForChild(child) : null;
+      for(var i=0;i<raw.length;i++){
+        var a = raw[i];
+        var done = false;
+        try{
+          done = !!(a.opts && a.opts.once && s &&
+            (typeof valueFor==="function") && valueFor(s, a.cat, a.name) > 0);
+        }catch(e){}
+        acts.push({ci:a.ci, cat:a.cat, name:a.name, points:a.points, opts:a.opts, done:done});
+      }
+    }catch(e){ console.error("[design03 acts]", e); }
+
+    var head = (typeof whoHeaderHTML==="function")
+      ? whoHeaderHTML(child, kids, {sub:"Noticing", pick:"nmQuickPick"}) : "";
+
+    body.innerHTML = head
+      + '<section class="nmcompose">'
+      + '<label class="nmc-label" for="nmcNote">What did you notice?</label>'
+      + '<textarea id="nmcNote" class="nmc-note" oninput="nmcNoteInput()" '
+      + 'placeholder="You helped your brother without being asked. I saw it."></textarea>'
+      + '<div class="nmc-sep">'
+      + '<p class="nmc-label">Was it any of these?</p>'
+      + '<p class="nmc-hint">Tick as many as fit. Nothing is recorded until you send.</p>'
+      + '<div class="nmc-acts">'
+      + acts.map(function(a,i){
+          return '<button type="button" class="nmc-act'+(a.done?" ticked":"")+'"'
+            + (a.done?' disabled aria-disabled="true"':' aria-pressed="false"')
+            + ' onclick="nmcToggle(this,'+i+')">'
+            + "<span>"+esc(a.name)+"</span>"
+            + '<span class="nmc-pts">'+(a.done?"\u2713 today":"+"+a.points)+"</span></button>";
+        }).join("")
+      + "</div></div>"
+      + '<div class="nmc-foot"><span class="nmc-sum" id="nmcSum"></span>'
+      + '<button type="button" class="nmc-send" id="nmcSend" onclick="nmcSend()" disabled>Send</button>'
+      + "</div></section>"
+      + '<button type="button" class="nmqswitch" onclick="nmQuickBack()">\u2190 Someone else</button>';
+    summarise();
+  }
+
+  function draw(force){
     var body = $("quickBody");
     if(!body) return;
     var kids = kidsOf();
     if(!kids.length) return;
 
-    var picked = window.__nmQuickChild;
-    var at = -1, i;
-    for(i=0;i<kids.length;i++) if(kids[i].id === picked) at = i;
-
-    /* Nobody chosen: the page is the question. */
-    if(at < 0){
-      if(!body.querySelector(".nmqpick")) chooser(body, kids);
-      var note = $("quickNote");
-      if(note) note.placeholder = "What did you notice? (optional \u2014 they\u2019ll read this)";
+    if(!picked){
+      if(force || !body.querySelector(".nmqpick")) chooser(body, kids);
       return;
     }
+    var child = null;
+    for(var i=0;i<kids.length;i++) if(kids[i].id === picked) child = kids[i];
+    if(!child){ picked=null; chooser(body, kids); return; }
 
-    /* Chosen: one card, with their face above it. */
-    var cards = body.querySelectorAll(".quickcard");
-    if(!cards.length) return;                 // the app has not drawn them yet
-    for(i=0;i<cards.length;i++){
-      var only = (i === at);
-      cards[i].classList.toggle("nmq-hide", !only);
-      cards[i].classList.toggle("nmq-only", only);
-    }
-    var head = body.querySelector(".nmqhead");
-    if(!head && typeof whoHeaderHTML === "function"){
-      var holder = document.createElement("div");
-      holder.className = "nmqhead";
-      holder.innerHTML = whoHeaderHTML(kids[at], kids,
-        {sub:"Noticing", pick:"nmQuickPick"});
-      body.insertBefore(holder, body.firstChild);
-    }else if(head && typeof whoHeaderHTML === "function"){
-      var nameEl = head.querySelector(".givname strong");
-      if(nameEl && nameEl.textContent !== kids[at].name){
-        head.innerHTML = whoHeaderHTML(kids[at], kids, {sub:"Noticing", pick:"nmQuickPick"});
-      }
-    }
-    if(!body.querySelector(".nmqswitch")){
-      var back = document.createElement("button");
-      back.type = "button";
-      back.className = "nmqswitch";
-      back.textContent = "\u2190 Someone else";
-      back.setAttribute("onclick","nmQuickBack()");
-      body.appendChild(back);
-    }
+    /* Only rebuild when there is nothing there, or the child changed.
+       Rebuilding on every mutation would wipe what is being typed. */
+    var existing = body.querySelector(".nmcompose");
+    var shownName = body.querySelector(".givname strong");
+    var stale = !existing || (shownName && shownName.textContent !== child.name);
+    if(force || stale) compose(body, kids, child);
   }
 
   (function(){
     var el = $("quickBody");
     if(!el) return;
-    pass(fixQuick);
-    new MutationObserver(function(){ pass(fixQuick); })
-      .observe(el, {childList:true, subtree:true});
+    pass(function(){ draw(false); });
+    new MutationObserver(function(){ pass(function(){ draw(false); }); })
+      .observe(el, {childList:true});
   })();
 
-  /* Opening the page asks again. */
+  /* Opening the page starts over. */
   (function(){
     var orig = window.showQuickPanel;
     if(typeof orig !== "function") return;
     window.showQuickPanel = function(){
+      picked = null; chosen = {}; sending = false;
       window.__nmQuickChild = null;
+      document.body.classList.remove("nm-composing");
       var r = orig.apply(this, arguments);
-      try{ pass(fixQuick); }catch(e){}
+      try{ pass(function(){ draw(true); }); }catch(e){}
       return r;
     };
   })();
 
-  /* The page's own standfirst described a wall of children. */
+  /* The standfirst described a wall of children and a note that attached
+     itself to your next tap. Neither is true now. */
   (function(){
     var panel = $("quickPanel");
     if(!panel) return;
     var ps = panel.querySelectorAll(":scope > p.small");
-    if(ps.length){
-      ps[0].textContent = "One child at a time. Pick a name, award what you noticed, "
-        + "then come back for the next one if you are catching up on the week.";
-    }
+    if(ps[0]) ps[0].textContent = "One child at a time. Write what you noticed, "
+      + "tick what it was, and send it over together.";
+    if(ps[1]) ps[1].remove();
   })();
 
 })();
+</script>
 
 </body>
 </html>
