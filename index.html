@@ -1394,6 +1394,36 @@
   .homegroup{display:flex;align-items:center;gap:12px;margin:24px 2px 12px;
     font-size:15px;font-weight:800;letter-spacing:0;text-transform:none;color:var(--ink)}
   .homegroup::after{content:"";flex:1;height:1px;background:#dfe2ee}
+  /* v195: "Waiting on you" and "Today" are the same heading saying two
+     different things, and until now they looked identical. Amber marks the
+     one that has something in it - warm rather than alarming, which is the
+     whole reason the red bar came off the card underneath. */
+  .homegroup.waiting{color:#8a5a08}
+  .homegroup.waiting::after{background:#eccf95}
+
+  /* v195: nudges. Both fire ONCE when the card comes into view and then stop -
+     they re-arm only after the card has scrolled back out. Nothing on this
+     screen loops. A card that waves at you forever is wallpaper by Tuesday.
+     nudge-lift is for the things waiting on you; nudge-tap is a smaller
+     "there's something under here" for the two thought cards. */
+  @keyframes nudgeLift{
+    0%{transform:translateY(0)}
+    26%{transform:translateY(-7px)}
+    52%{transform:translateY(0)}
+    70%{transform:translateY(-3px)}
+    100%{transform:translateY(0)}
+  }
+  @keyframes nudgeTap{
+    0%{transform:scale(1)}
+    38%{transform:scale(1.022)}
+    72%{transform:scale(.997)}
+    100%{transform:scale(1)}
+  }
+  .nudge-lift{animation:nudgeLift 1.05s cubic-bezier(.34,.02,.24,1)}
+  .nudge-tap{animation:nudgeTap .92s ease-out}
+  @media(prefers-reduced-motion:reduce){
+    .nudge-lift,.nudge-tap{animation:none}
+  }
   .hometile{position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:4px;
             text-align:left;background:#fff;border:1px solid #e6e8f0;border-radius:20px;
             padding:16px 15px;width:auto;min-height:104px;color:var(--ink);box-shadow:var(--shadow)}
@@ -5011,7 +5041,7 @@ const TIP_CATS = [
   {key:"deen", label:"Deen"}
 ];
 
-const APP_VERSION = "v194";
+const APP_VERSION = "v195";
 const today = new Date().toISOString().slice(0,10);
 let app = {families:[],currentFamily:null,currentChild:null};
 let categories = [];
@@ -5351,6 +5381,40 @@ function renderFab(){
 }
 if(typeof window.addEventListener === "function"){
   window.addEventListener("scroll", renderFab, {passive:true});
+}
+
+/* ---------- Nudges (v195) ----------
+   Two things on the parent's home ask for something back: the cards for what
+   is waiting on you, and the two thought cards, which look like reading and
+   are actually doors. Both now move once when they come into view and then
+   stop. In view is the whole trigger - nothing nudges off screen, nothing
+   loops, and a card that has just nudged stays quiet for a minute however
+   many times a sync re-renders it. Motion that repeats forever stops being a
+   signal by the second day. */
+const NUDGE_QUIET_MS = 60000;
+const nudgeLastAt = {};
+let nudgeObs = null;
+function armNudges(){
+  if(typeof IntersectionObserver !== "function") return;   // older browsers: no nudge, no harm
+  if(nudgeObs){ nudgeObs.disconnect(); }
+  else {
+    nudgeObs = new IntersectionObserver(function(entries){
+      entries.forEach(function(en){
+        if(!en.isIntersecting || en.intersectionRatio < 0.6) return;
+        const el = en.target;
+        const key = el.getAttribute("data-nudge-key") || "nudge";
+        const now = Date.now();
+        if(now - (nudgeLastAt[key] || 0) < NUDGE_QUIET_MS) return;
+        nudgeLastAt[key] = now;
+        const cls = el.getAttribute("data-nudge") === "tap" ? "nudge-tap" : "nudge-lift";
+        el.classList.remove(cls);
+        void el.offsetWidth;                                // restart the animation
+        el.classList.add(cls);
+        el.addEventListener("animationend", function(){ el.classList.remove(cls); }, {once:true});
+      });
+    }, {threshold:[0, 0.6]});
+  }
+  document.querySelectorAll("[data-nudge]").forEach(function(el){ nudgeObs.observe(el); });
 }
 
 function showVersion(){
@@ -10229,7 +10293,7 @@ function renderTips(){
      .dashcard is shared with the reminder above it, so neither is bigger than
      the other by accident. */
   card.innerHTML = `
-    <section class="rcard tipcard dashcard ${t.theme}" onclick="showTipsPanel()">
+    <section class="rcard tipcard dashcard ${t.theme}" data-nudge="tap" data-nudge-key="tip" onclick="showTipsPanel()">
       <span class="rglyph" aria-hidden="true">${t.glyph}</span>
       <span class="rtag">${escapeHtml(t.label)}</span>
       <h3>${escapeHtml(tip.title)}</h3>
@@ -10838,6 +10902,7 @@ function render(){
   checkForGifts();
   checkForCelebrations();
   checkForArrivals();
+  try{ armNudges(); }catch(e){ console.error("nudges:", e); }
   renderRequests();
   renderOffersPanel();
   renderEyebrows();
@@ -11124,7 +11189,8 @@ function renderParentAdminView(parent){
   const weekTotal=kids.reduce((a,c)=>a+weeklyTotalFor(c,weekDates),0);
   /* Today's two jobs. Coloured and weightier than the shelf below, because
      they are things to do now rather than places to go. */
-  const todayTile=(tone,icon,name,sub,fn,badge)=>`<button class="todaytile t-${tone}" onclick="${fn}">
+  const todayTile=(tone,icon,name,sub,fn,badge,nudge)=>`<button class="todaytile t-${tone}"${
+      nudge?` data-nudge="lift" data-nudge-key="${nudge}"`:""} onclick="${fn}">
       ${badge?`<span class="hbadge">${badge}</span>`:""}
       <span class="hicon">${icon}</span>
       <span class="hname">${name}</span>
@@ -11154,11 +11220,12 @@ function renderParentAdminView(parent){
             : "Add a child first, under Family members"}</span>
         </span>
       </button>
-      <p class="homegroup" style="margin-top:2px">${waiting ? "Waiting on you" : "Today"}</p>
+      <p class="homegroup${waiting ? " waiting" : ""}" style="margin-top:2px">${waiting ? "Waiting on you" : "Today"}</p>
       ${attentionHTML()}
       <div class="todaypair">
         ${todayTile("bell","\ud83d\udd14","They asked you",
-            pend.length?pend.length+" waiting":"Nothing waiting","showAskingPanel('them')", pend.length||0)}
+            pend.length?pend.length+" waiting":"Nothing waiting","showAskingPanel('them')",
+            pend.length||0, pend.length?"askedyou":"")}
         ${todayTile("ask","\ud83d\udccc","You asked them",
             "What you\u2019ve put on their list","showAskingPanel('you')")}
       </div>
@@ -11168,7 +11235,7 @@ function renderParentAdminView(parent){
            screen, and the reason it stays: a screen made only of jobs is a
            to-do list, and this app is not one. -->
       <p class="homegroup">Something to think about</p>
-      <div class="dashthought">${reminderCardHTML()}</div>
+      <div class="dashthought" data-nudge="tap" data-nudge-key="thought">${reminderCardHTML()}</div>
     </div>`;
   document.getElementById("summarySection").classList.add("hidden");
   updateRewardPacing(null);
@@ -12018,7 +12085,7 @@ function attentionHTML(){
   if(viewChildId) return "";
   const pend=pendingRequests().filter(r=>daysAgo(r.ts)>=1);
   if(pend.length){
-    return `<section class="attncard" onclick="showRequestsPanel()">
+    return `<section class="attncard" data-nudge="lift" data-nudge-key="waiting" onclick="showRequestsPanel()">
         <span class="attnem">\ud83d\udd14</span>
         <span><strong>${pend.length} ${pend.length>1?"things":"thing"} they asked for, waiting over a day</strong>
           <span>A no is fine \u2014 it\u2019s the waiting that stops them asking again.</span></span>
