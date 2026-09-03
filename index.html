@@ -1103,13 +1103,13 @@
                    background:#eef0ff;color:#3e46ad}
   .duachips button.on{background:var(--accent);color:#fff}
   .duacard.now{border-left-color:#e0b13c;background:linear-gradient(180deg,#fffaef,#fff)}
+  /* v193: no coloured bar at all. It was red first, which read as an alarm on a
+     screen where nothing has gone wrong; indigo was quieter but still a stripe
+     down the side of the one card that is meant to be calm. The card carries
+     its weight through position and wording, not a flag. */
   .attncard{display:flex;align-items:center;gap:13px;background:#fff;border:1px solid #e6e8f0;
-            border-left:7px solid #7c83ef;border-radius:20px;padding:15px;margin-bottom:16px;
+            border-radius:20px;padding:15px 16px;margin-bottom:16px;
             box-shadow:none}
-  /* v192: the urgent card used to carry a red left bar. Red reads as an alarm,
-     and a child asking for a reward is not one - it made the calmest screen in
-     the app look like something had gone wrong. It wears the Asking room's
-     indigo now, same as both halves of the pair below it. */
   .attncard .attnem{font-size:28px;line-height:1}
   .attncard .attnstar{width:52px;height:48px;flex-shrink:0}
   .attncard strong{display:block;font-size:16px;line-height:1.25}
@@ -5008,7 +5008,7 @@ const TIP_CATS = [
   {key:"deen", label:"Deen"}
 ];
 
-const APP_VERSION = "v192";
+const APP_VERSION = "v193";
 const today = new Date().toISOString().slice(0,10);
 let app = {families:[],currentFamily:null,currentChild:null};
 let categories = [];
