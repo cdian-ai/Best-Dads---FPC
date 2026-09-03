@@ -1106,7 +1106,10 @@
   .attncard{display:flex;align-items:center;gap:13px;background:#fff;border:1px solid #e6e8f0;
             border-left:7px solid #7c83ef;border-radius:20px;padding:15px;margin-bottom:16px;
             box-shadow:none}
-  .attncard.urgent{border-left-color:#d85b5b}
+  /* v192: the urgent card used to carry a red left bar. Red reads as an alarm,
+     and a child asking for a reward is not one - it made the calmest screen in
+     the app look like something had gone wrong. It wears the Asking room's
+     indigo now, same as both halves of the pair below it. */
   .attncard .attnem{font-size:28px;line-height:1}
   .attncard .attnstar{width:52px;height:48px;flex-shrink:0}
   .attncard strong{display:block;font-size:16px;line-height:1.25}
@@ -1402,7 +1405,7 @@
   .hometile.wide .hicon{font-size:30px}
   .hometile.wide .hname{font-size:19px}
   .hometile.wide .hsub{color:rgba(255,255,255,.9)}
-  .hometile .hbadge{position:absolute;top:10px;right:10px;background:#d85b5b;color:#fff;
+  .hometile .hbadge,.todaytile .hbadge{position:absolute;top:10px;right:10px;background:#d85b5b;color:#fff;
                     font-size:11px;font-weight:800;min-width:20px;height:20px;border-radius:99px;
                     display:flex;align-items:center;justify-content:center;padding:0 6px}
   .menufab{position:fixed;left:14px;top:calc(14px + env(safe-area-inset-top));z-index:159;
@@ -5005,7 +5008,7 @@ const TIP_CATS = [
   {key:"deen", label:"Deen"}
 ];
 
-const APP_VERSION = "v191";
+const APP_VERSION = "v192";
 const today = new Date().toISOString().slice(0,10);
 let app = {families:[],currentFamily:null,currentChild:null};
 let categories = [];
@@ -12012,7 +12015,7 @@ function attentionHTML(){
   if(viewChildId) return "";
   const pend=pendingRequests().filter(r=>daysAgo(r.ts)>=1);
   if(pend.length){
-    return `<section class="attncard urgent" onclick="showRequestsPanel()">
+    return `<section class="attncard" onclick="showRequestsPanel()">
         <span class="attnem">\ud83d\udd14</span>
         <span><strong>${pend.length} ${pend.length>1?"things":"thing"} they asked for, waiting over a day</strong>
           <span>A no is fine \u2014 it\u2019s the waiting that stops them asking again.</span></span>
