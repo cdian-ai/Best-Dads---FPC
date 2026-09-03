@@ -1487,7 +1487,10 @@
     .wrap{padding:14px}
     header{padding:0}
     h1{font-size:24px}
-    .card,.reward,.graphcard,.tips,.boostcard,.kidcard{padding:15px}
+    .card,.reward,.graphcard,.boostcard,.kidcard{padding:15px}
+    /* .tips is a bare wrapper round one card, not a card itself. The 15px it
+       used to take from this rule inset the tip card 15px each side, so it sat
+       narrower than the reminder card directly above it. */
     .accountbuttons{width:100%}
     .accountbuttons button{flex:1}
     /* Stack the numbers under the name rather than squeezing them alongside. */
@@ -1544,7 +1547,7 @@
      every tile around it, so it read as furniture. It now uses the reminder
      card's language, because that is the thing on this page people actually
      stop and look at. */
-  .tips{margin-bottom:16px}
+  .tips{margin-bottom:16px;padding:0}
   .rcard.tipcard{min-height:0;padding:22px 20px 18px}
   /* Both dashboard cards, one size. The tip card was full-height while the
      reminder had been shrunk to a strip, so two cards doing the same job on
@@ -5008,7 +5011,7 @@ const TIP_CATS = [
   {key:"deen", label:"Deen"}
 ];
 
-const APP_VERSION = "v193";
+const APP_VERSION = "v194";
 const today = new Date().toISOString().slice(0,10);
 let app = {families:[],currentFamily:null,currentChild:null};
 let categories = [];
