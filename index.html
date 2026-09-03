@@ -2444,7 +2444,6 @@
       </div>
     </div>
     <div class="accountbuttons hidden" id="quickActions">
-      <button class="primary hidden" id="btnGivePoints" onclick="addPointPrompt()">＋ Give points</button>
       <button class="light hidden" id="btnMenu" onclick="toggleMenu()">☰ Menu <span id="menuBadge"></span></button>
     </div>
     <div class="menupanel hidden" id="menuSheet">
@@ -3001,7 +3000,7 @@
   <nav id="parentTabBar" class="tabbar ptabbar hidden">
     <button id="pTabHome" onclick="goHome()"><span class="tabemoji">🏠</span>Home</button>
     <button id="pTabAsk" onclick="showAskingPanel()"><span class="tabemoji">💬</span>Asking<span class="tbadge hidden" id="pTabAskBadge"></span></button>
-    <button id="pTabNotice" class="tabaction" onclick="showPicker('give')"><span class="tabemoji">⭐</span>Notice</button>
+    <button id="pTabNotice" class="tabaction" onclick="showPicker('give')"><span class="tabemoji">⭐</span>Give points</button>
     <button id="pTabProgress" onclick="showOverviewPanel()"><span class="tabemoji">📊</span>How they're doing</button>
     <button id="pTabMore" onclick="toggleMenu()"><span class="tabemoji">☰</span>More</button>
   </nav>
@@ -5006,7 +5005,7 @@ const TIP_CATS = [
   {key:"deen", label:"Deen"}
 ];
 
-const APP_VERSION = "v190";
+const APP_VERSION = "v191";
 const today = new Date().toISOString().slice(0,10);
 let app = {families:[],currentFamily:null,currentChild:null};
 let categories = [];
@@ -10720,9 +10719,9 @@ function applyRoleChrome(){
   ["btnFamily","btnOverview","btnActivity","btnRequests","btnProgress","btnRewardsMenu","btnGrownups",
    "btnTutors","btnTree","btnDeen","btnRules","btnQuickMenu","btnReviewMenu","editModeBtn","btnResetDay"]
     .forEach(id=>set(id, !kid));
-  // One Give points and one menu: the wide tile on the home screen, and the
-  // fixed button. The pair inside the old account bar were the duplicates.
-  set("btnGivePoints", false);
+  // Give points has two doors and both are deliberate: the wide tile at the top
+  // of home, and the raised tab on every parent screen. The account-bar pair
+  // that used to sit here were duplicates of neither and are gone (v191).
   set("btnMenu", false);
   set("identityHead", false);
   const ab=document.getElementById("accountBar");
@@ -10762,7 +10761,6 @@ function applyRoleChrome(){
      "editModeNote","tipsCard","undoBar","whoStrip","championBanner","coachNudge","parentGoal","kidTabBar","championFab"]
       .forEach(id=>set(id, false));
     const mb=document.getElementById("btnMenu"); if(mb) mb.classList.add("hidden");
-    const gp=document.getElementById("btnGivePoints"); if(gp) gp.classList.add("hidden");
     document.body.classList.remove("haskidbar");
   }
   if(kid){
@@ -11135,6 +11133,21 @@ function renderParentAdminView(parent){
   const waiting = pend.length + offers.length;
   cards.innerHTML = `
     <div style="grid-column:1/-1">
+      <!-- v191: the home screen had no primary action on it at all. The shelf
+           went in v173 and took the Give points tile with it, leaving two ask
+           tiles and a thought - a page you read rather than a page you use.
+           The tab bar carries the same action on every screen; this is the one
+           on the page you land on. -->
+      <button class="hometile wide" style="width:100%;margin-bottom:16px"
+              onclick="showPicker('give')">
+        <span class="hicon">\u2b50</span>
+        <span style="display:flex;flex-direction:column;gap:2px;align-items:flex-start;min-width:0">
+          <span class="hname">Give points</span>
+          <span class="hsub">${kids.length
+            ? "Pick a child, then say what you noticed"
+            : "Add a child first, under Family members"}</span>
+        </span>
+      </button>
       <p class="homegroup" style="margin-top:2px">${waiting ? "Waiting on you" : "Today"}</p>
       ${attentionHTML()}
       <div class="todaypair">
@@ -11207,29 +11220,9 @@ async function removeCustomAward(catKey, amount){
   await writeLedger({childId:child.id, points:-amount, label:"Adjusted: "+label,
                      type:"adjust", catKey:catKey, actionName:label});
 }
-async function addPointPrompt(){
-  if(!requireParent()) return;
-  let child=currentChild();
-  if(!child || !isChildRole(child)){ showPicker("give"); return; }
-  if(false){
-    // With a single child there is no ambiguity — open them rather than
-    // sending the parent back to the dashboard for no reason.
-    const f=currentFamily();
-    const kids=f ? f.children.filter(c=>isChildRole(c)) : [];
-    if(kids.length===1){ viewChildId=kids[0].id; child=kids[0]; renderAccounts(); render(); }
-    else { alert(kids.length
-      ? "Open a child's card first — tap their name on your dashboard, then give points."
-      : "Add a child first, under Family members."); return; }
-  }
-  if(isParentRole(child)){alert("Points are for the children. Tap a child's name on your dashboard first.");return;}
-  const choice=prompt("What positive action did you notice?\n\nExample: said a dua, helped a sibling, tidied up, told the truth.");
-  if(!choice)return;
-  const p=parseInt(prompt("How many points? (1–5)","2"));
-  if(!Number.isNaN(p)&&p>=1&&p<=5){
-    const okWrite=await writeLedger({childId:child.id, points:p, label:choice, type:"award", catKey:"custom|"+choice, actionName:choice});
-    if(okWrite) alert("🎉 "+child.name+" earned "+p+" points for: "+choice);
-  }
-}
+/* addPointPrompt() lived here until v191. It was the last caller of the old
+   prompt()/alert() award flow and nothing had reached it since v173 removed
+   the button that called it. Awarding goes through showPicker("give") now. */
 /* One place where every points movement is written, so the "who wrote this"
    fields can never drift apart from the signed-in account. */
 async function writeLedger(entry){
