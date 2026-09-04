@@ -5041,7 +5041,7 @@ const TIP_CATS = [
   {key:"deen", label:"Deen"}
 ];
 
-const APP_VERSION = "v197";
+const APP_VERSION = "v198";
 const today = new Date().toISOString().slice(0,10);
 let app = {families:[],currentFamily:null,currentChild:null};
 let categories = [];
@@ -21281,6 +21281,63 @@ window.GROWNUP_DECKS = [
   }
 })();
 </script>
+<!-- ===== addons/watchdog.js  (v198) =====
+     A brake on the design-pass watchers, which are the only things in the app
+     that write to the DOM in response to the DOM changing. -->
+<script>
+/* Every design pass watches a panel with a MutationObserver and edits that
+   panel when it fires. Each one guards itself with a synchronous "busy" flag,
+   which stops a watcher re-entering itself inside one call - but observer
+   callbacks are delivered asynchronously, so the flag is always back to false
+   by the time the next one runs. It cannot stop two watchers triggering each
+   other, and it cannot stop one whose own write is a mutation it will see.
+
+   A loop like that never throws. It just holds the main thread, which on a
+   phone looks like this: scrolling still moves, because the compositor handles
+   it, and nothing else responds at all, because every tap needs the thread.
+   Every button in this app is an inline onclick, so there is no other way for
+   all of them to stop working at once.
+
+   So: count how often each watcher fires. If one exceeds a rate no honest
+   watcher reaches, disconnect it and write down which one. The app loses that
+   watcher's cosmetic fix and stays usable, and the name is waiting in the
+   error log the next time somebody asks. */
+(function(){
+  "use strict";
+  if(window.__nmObserve) return;
+
+  var LIMIT  = 80;    // mutations from one watcher...
+  var WINDOW = 1000;  // ...inside this many ms is not honest work
+  var seq = 0;
+
+  window.__nmTrips = [];
+
+  window.__nmObserve = function(name, el, fn, opts){
+    if(!el || typeof MutationObserver !== "function") return null;
+    var label = name + "#" + (++seq);
+    var fires = 0, since = 0, obs;
+
+    obs = new MutationObserver(function(){
+      var now = Date.now();
+      if(now - since > WINDOW){ since = now; fires = 0; }
+      if(++fires > LIMIT){
+        obs.disconnect();
+        var msg = label + " fired " + fires + " times in under a second - disconnected";
+        window.__nmTrips.push(msg);
+        try{ if(typeof noteError === "function") noteError("watchdog", msg, ""); }catch(e){}
+        try{ console.error("[watchdog]", msg); }catch(e){}
+        return;
+      }
+      fn();
+    });
+
+    try{ obs.observe(el, opts || {childList:true, subtree:true}); }
+    catch(e){ return null; }
+    return obs;
+  };
+})();
+</script>
+
 <!-- ===== addons/design-pass-01.js  (v187) =====
      Executing design brief 02, first pass.
 
@@ -21430,8 +21487,7 @@ header.hascover .coverfade{background:linear-gradient(180deg,rgba(0,0,0,0) 62%,r
     var el = $(id);
     if(!el) return;
     pass(fn);
-    new MutationObserver(function(){ pass(fn); })
-      .observe(el, {childList:true, subtree:true});
+    window.__nmObserve(id, el, function(){ pass(fn); }, {childList:true, subtree:true});
   }
 
   /* =================================================================
@@ -21731,8 +21787,8 @@ header.hascover .coverfade{background:linear-gradient(180deg,rgba(0,0,0,0) 62%,r
   watch("familyCover", fixCover);
   (function(){
     var src = $("coverName");
-    if(src) new MutationObserver(function(){ pass(fixCover); })
-      .observe(src, {childList:true, characterData:true, subtree:true});
+    if(src) window.__nmObserve("coverName", src, function(){ pass(fixCover); },
+      {childList:true, characterData:true, subtree:true});
   })();
 
 })();
@@ -21914,6 +21970,16 @@ header.hascover .coverfade{background:linear-gradient(180deg,rgba(0,0,0,0) 62%,r
   background:linear-gradient(160deg,#3e46ad,#2b2e73);color:#fff;
   box-shadow:0 8px 24px rgba(43,46,115,.28)}
 #nmEditBar.hidden{display:none}
+/* The base markup carries its own edit banner, #editBar, with its own Done
+   button, and render() re-shows it on every pass. This addon added a second
+   banner and never hid the first, so edit mode showed two banners and two
+   Done buttons. Both call toggleEditMode(), so nothing is lost by hiding one.
+   Done in CSS rather than by writing a class, because render() would win any
+   fight over the class. The padding went with it: body.editing reserves 64px
+   for a bar that is fixed to the top and is now not there, and #nmEditBar is
+   sticky, so it needs no room made for it. */
+body.editing #editBar{display:none!important}
+body.editing{padding-top:0!important}
 #nmEditBar .nmeb-t{flex:1;min-width:0;font:800 13.5px/1.3 Inter,system-ui,sans-serif}
 #nmEditBar .nmeb-t small{display:block;font-weight:600;font-size:11.5px;opacity:.82;margin-top:2px}
 #nmEditBar button{flex:none;width:auto;min-height:40px;padding:9px 15px;border-radius:99px;
@@ -21941,8 +22007,7 @@ body.nm-editing #editModeNote{display:none}
     var el = $(id);
     if(!el) return;
     pass(fn);
-    new MutationObserver(function(){ pass(fn); })
-      .observe(el, {childList:true, subtree:true});
+    window.__nmObserve(id, el, function(){ pass(fn); }, {childList:true, subtree:true});
   }
 
   /* =================================================================
@@ -22232,9 +22297,9 @@ body.nm-editing #editModeNote{display:none}
   syncEditMode();
   (function(){
     var b = $("editModeBtn");
-    if(b) new MutationObserver(function(){ pass(fixEditTile); })
-      .observe(b, {childList:true, characterData:true, subtree:true, attributes:true,
-                   attributeFilter:["class"]});
+    if(b) window.__nmObserve("editModeBtn", b, function(){ pass(fixEditTile); },
+      {childList:true, characterData:true, subtree:true, attributes:true,
+       attributeFilter:["class"]});
   })();
 
 })();
@@ -22542,8 +22607,8 @@ body.nm-composing #panelTop{display:none!important}
     var el = $("quickBody");
     if(!el) return;
     pass(function(){ draw(false); });
-    new MutationObserver(function(){ pass(function(){ draw(false); }); })
-      .observe(el, {childList:true});
+    window.__nmObserve("quickBody", el, function(){ pass(function(){ draw(false); }); },
+      {childList:true});
   })();
 
   /* Opening the page starts over. */
