@@ -119,6 +119,45 @@
   .cattile:nth-child(15){animation-delay:1.40s}
   .cattile:nth-child(16){animation-delay:1.40s}
   .cattile:active{animation:none}
+
+  /* v206: the same offer, on the two Learn screens. These are bordered cards
+     with no resting shadow, so the shadow rises from nothing rather than from
+     a resting one - otherwise a row would look permanently lifted. Never on an
+     open card: it has grown into a panel and has a ladder inside it, and a
+     panel that bobs is a fault, not an invitation. */
+  @keyframes offerRise{
+    0%,66%,100%{transform:translateY(0);box-shadow:0 0 0 rgba(24,22,60,0)}
+    76%{transform:translateY(-7px);box-shadow:0 12px 24px rgba(24,22,60,.14)}
+    88%{transform:translateY(-2px);box-shadow:0 5px 12px rgba(24,22,60,.08)}
+  }
+  .subjgrid .subjcell:not(.open),
+  .subjfold:not(.open),
+  #courseSection>.coursecard:not(.open){animation:offerRise 3.2s ease-in-out infinite}
+  .subjgrid .subjcell:nth-child(3){animation-delay:0.20s}
+  .subjgrid .subjcell:nth-child(4){animation-delay:0.20s}
+  .subjgrid .subjcell:nth-child(5){animation-delay:0.40s}
+  .subjgrid .subjcell:nth-child(6){animation-delay:0.40s}
+  .subjgrid .subjcell:nth-child(7){animation-delay:0.60s}
+  .subjgrid .subjcell:nth-child(8){animation-delay:0.60s}
+  #courseSection>.coursecard:nth-child(2){animation-delay:0.20s}
+  #courseSection>.coursecard:nth-child(3){animation-delay:0.40s}
+  #courseSection>.coursecard:nth-child(4){animation-delay:0.60s}
+  #courseSection>.coursecard:nth-child(5){animation-delay:0.80s}
+  #courseSection>.coursecard:nth-child(6){animation-delay:1.00s}
+  #courseSection>.coursecard:nth-child(7){animation-delay:1.20s}
+  #courseSection>.coursecard:nth-child(8){animation-delay:1.40s}
+  /* :active matches the pressed element and its ancestors, so pressing the
+     tile inside stills the card around it. */
+  .subjcell:active,.subjfold:active,.coursecard:active{animation:none}
+  @media(hover:hover) and (pointer:fine){
+    .subjgrid .subjcell:not(.open):hover,
+    .subjfold:not(.open):hover,
+    #courseSection>.coursecard:not(.open):hover{
+      animation:none;transform:translateY(-4px);box-shadow:0 12px 26px rgba(24,22,60,.15)}
+  }
+  @media(prefers-reduced-motion:reduce){
+    .subjcell,.subjfold,.coursecard{animation:none}
+  }
   @media(prefers-reduced-motion:reduce){
     .cattile{transition:none;animation:none}
   }
@@ -5142,7 +5181,7 @@ const TIP_CATS = [
   {key:"deen", label:"Deen"}
 ];
 
-const APP_VERSION = "v205";
+const APP_VERSION = "v206";
 const today = new Date().toISOString().slice(0,10);
 let app = {families:[],currentFamily:null,currentChild:null};
 let categories = [];
@@ -18609,7 +18648,7 @@ window.GROWNUP_DECKS = [
           <span class="fulname">${esc(x.name)}</span>
           <span class="fulcount">${x.done}/${x.total}</span>
         </button>`).join("") : "";
-      h += `<section class="subjfold s-fulfulde${open?" open":""}">
+      h += `<section class="subjfold s-fulfulde${open?" open":""}" style="animation-delay:.2s">
         ${shelfHead("s-fulfulde", "\u{1f4d7}", pack.title || "Janngu Fulfulde",
             total ? done+" of "+total+" practised" : "Audio on every item",
             pct, "tapSubject('"+m.id+"','fulfulde')", open)}
