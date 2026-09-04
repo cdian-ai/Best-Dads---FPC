@@ -1,4 +1,4 @@
-// Dougoun Kids — service worker
+// Notice Me — service worker
 //
 // Deliberately conservative about what it caches. The app is a single HTML file
 // that changes with every release, so serving a stale copy would be worse than
@@ -11,8 +11,9 @@
 //
 // Firestore keeps its own offline cache, so data is not this worker's job.
 
-const CACHE = 'dougoun-shell-v2';
-const SHELL = ['./', './manifest.json', './icon-192.png', './icon-512.png', './apple-touch-icon.png'];
+const CACHE = 'noticeme-shell-v1';
+const SHELL = ['./', './manifest.json', './icon-192.png', './icon-512.png',
+               './icon-maskable-512.png', './apple-touch-icon.png'];
 
 self.addEventListener('install', (event) => {
   event.waitUntil(

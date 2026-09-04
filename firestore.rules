@@ -1,6 +1,15 @@
 rules_version = '2';
 
-// Notice Me — Firestore security rules, app v191.
+// Notice Me — Firestore security rules, app v196.
+//
+// NOTHING IN THIS FILE CHANGED AT v196. It is republished only so the repo copy
+// matches what is live in the console. Two things did change around it:
+//
+//   * v196 sets ledgerStarted on the family document on the first parent ledger
+//     write, so the family-delete guard below is finally live rather than inert.
+//   * v196 scopes a tutor's ledger and members subscriptions in the app, which
+//     is the prerequisite for the READ-SCOPE fix. That rules change is staged
+//     in firestore.rules.readscope — see the note there before publishing it.
 //
 // v191 audit fixes. Every change below is a RESTRICTION; nothing new is
 // permitted. See rules.test.js — each fix has a test that fails against the
@@ -154,9 +163,12 @@ service cloud.firestore {
       // the family document carries a flag instead.
       //
       // Defaults to false when absent, so this is backwards compatible and
-      // changes nothing until the app sets it. APP CHANGE REQUIRED: set
-      // ledgerStarted: true on the family document the first time any ledger
-      // entry is written. Until that lands, this fix is inert.
+      // changes nothing until the app sets it. LANDED IN v196: the app sets
+      // ledgerStarted: true on the first parent ledger write, so this guard is
+      // now live. Families that predate v196 pick the flag up on the next
+      // parent award, which is also the first moment they have anything to
+      // lose. Only a parent may write the family document, so a child's vault
+      // move or a tutor's award cannot set it - which is the right way round.
       allow delete: if signedIn()
                     && resource.data.ownerUid == request.auth.uid
                     && resource.data.get('ledgerStarted', false) == false;
