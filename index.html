@@ -1294,6 +1294,18 @@
   .dashthought .rcard .rtag{font-size:10px;letter-spacing:.08em}
   .dashthought .rcard .rlead{font-size:15px;line-height:1.45;margin:8px 0 0}
   .dashthought .rcard .rsrc{font-size:11.5px;margin:7px 0 0}
+  /* One shelf, several kinds of thought. Only the live slide is in the flow,
+     so the deck is exactly as tall as the card being read and does not leave
+     a hole the size of the longest one. */
+  .thslide{display:none}
+  .thslide.on{display:block}
+  .thdots{display:flex;gap:6px;justify-content:center;margin-top:10px}
+  .dashthought .tipcard .rglyph{display:none}
+  .dashthought .tipcard h3{font-size:15.5px;margin:6px 0 0}
+  .dashthought .tipcard .rsub{font-size:13.5px;line-height:1.45;margin:6px 0 0}
+  .dashthought .tipcard .tiptry{margin-top:10px}
+  .dashthought .rcard h3{font-size:15.5px;margin:6px 0 0}
+  .dashthought .rcard .rsub{font-size:13px;margin:6px 0 0}
   .askswitch{display:grid;grid-template-columns:1fr 1fr;gap:6px;background:#eef0f7;
     border-radius:99px;padding:4px;margin:0 0 16px}
   .askswitch button{width:auto;min-height:42px;border:0;border-radius:99px;background:none;
@@ -2485,6 +2497,13 @@
     <div class="menupanel hidden" id="menuSheet">
   <div class="menutop">
     <p class="menuhi" id="menuWho"></p>
+  </div>
+  <!-- Every panel has a Home button at its head, but the menu opens over the
+       top of one and had no way back except closing it again and finding that
+       button underneath. First thing in the sheet, above the groups, because
+       it is a way out rather than a place to go. -->
+  <div class="menupills">
+    <button id="btnHomeMenu" onclick="goHome()">🏠 Home</button>
   </div>
   <p class="menugroup">Today</p>
   <div class="menugrid">
@@ -5041,7 +5060,7 @@ const TIP_CATS = [
   {key:"deen", label:"Deen"}
 ];
 
-const APP_VERSION = "v198";
+const APP_VERSION = "v199";
 const today = new Date().toISOString().slice(0,10);
 let app = {families:[],currentFamily:null,currentChild:null};
 let categories = [];
@@ -8511,7 +8530,10 @@ function showScreen(id){
   try{ showKidTabBar(); }catch(e){}
   render();
 }
-function goHome(){ closeMenu(); returnTo=null; showScreen(null); }
+/* Coming back to home is the moment somebody is looking for something new, so
+   the thought shelf moves on by one. Not on a timer: a card that changes while
+   it is being read is worse than one that never changes. */
+function goHome(){ closeMenu(); returnTo=null; __thoughtAt++; showScreen(null); }
 /* Panels used to have one exit and it was the front door. Opening My courses
    from Learn and pressing back put you on the dashboard, so getting back to
    where you were meant starting again. */
@@ -9638,6 +9660,125 @@ function reminderCardHTML(){
       <p class="rsrc">${escapeHtml(r.src)}</p>
     </section>`;
 }
+/* ---------- Something to think about ----------
+   This shelf used to be two cards stacked: a hadith, and a parenting idea
+   underneath it. Two cards competing for the same glance is how you get
+   neither read, and it pushed everything else off the bottom of the screen.
+
+   One card now, and the other kinds take turns on it: a reminder, an idea
+   about being with them, and a dua chosen for the time of day - the bedtime
+   one after seven, waking before ten, eating around the middle of the day.
+   Swipe to change it by hand, tap a dot to jump, tap the card to open the
+   room it came from.
+
+   No timer. Five minutes is longer than most visits to this screen, so it
+   would almost never fire; anything shorter moves the text under someone
+   mid-sentence. The card changes when you come back to home instead, which is
+   the moment a person is looking for something new rather than reading. */
+let __thoughtAt = 0;
+function duaForNow(){
+  if(!Array.isArray(DUAS) || !DUAS.length) return null;
+  const h = new Date().getHours();
+  let want;
+  if(h >= 19 || h < 4)      want = "Before sleeping";
+  else if(h < 10)           want = "On waking";
+  else if(h < 15)           want = "Before eating";
+  else                      want = "For your parents";
+  return DUAS.filter(d => d.when === want)[0] || pickOfDay(DUAS);
+}
+/* Each entry knows how to draw itself and where it goes when tapped, so the
+   deck never has to ask what kind of card it is holding. */
+function thoughtCards(){
+  const out = [];
+  const r = pickOfDay(REMINDERS);
+  if(r) out.push({ open:"deen", html: remCardHTML(r, true) });
+
+  const tip = currentTip();
+  if(tip){
+    const t = TIP_THEME[tip.cat] || {theme:"t1", glyph:"\ud83d\udca1", label:"Idea"};
+    out.push({ open:"tips", html:
+      `<section class="rcard tipcard ${t.theme}">
+        <span class="rglyph" aria-hidden="true">${t.glyph}</span>
+        <span class="rtag">${escapeHtml(t.label)}</span>
+        <h3>${escapeHtml(tip.title)}</h3>
+        <p class="rsub">${escapeHtml(tip.body)}</p>
+        <div class="tiptry"><strong>Try this</strong><span>${escapeHtml(tip.try)}</span></div>
+      </section>` });
+  }
+
+  const d = duaForNow();
+  if(d) out.push({ open:"deen", html: duaCardHTML(d, true) });
+
+  return out;
+}
+function thoughtDeckHTML(){
+  const cards = thoughtCards();
+  if(!cards.length) return "";
+  const at = ((__thoughtAt % cards.length) + cards.length) % cards.length;
+  const slides = cards.map((c,i) =>
+    `<div class="thslide${i===at?" on":""}" data-open="${c.open}">${c.html}</div>`).join("");
+  const dots = cards.length < 2 ? "" :
+    `<div class="thdots">${cards.map((c,i) =>
+      `<button type="button" class="ndot${i===at?" on":""}" data-i="${i}"
+         aria-label="Card ${i+1} of ${cards.length}"></button>`).join("")}</div>`;
+  return slides + dots;
+}
+/* Re-attached after every render, because the deck's markup is rebuilt with the
+   rest of the dashboard. __thoughtAt lives outside, so the card being read
+   survives a render it did not ask for. */
+function startThoughtDeck(){
+  const deck = document.querySelector(".dashthought");
+  if(!deck) return;
+  const slides = deck.querySelectorAll(".thslide");
+  if(!slides.length) return;
+  const dots = deck.querySelectorAll(".ndot");
+  const go = n => {
+    __thoughtAt = ((n % slides.length) + slides.length) % slides.length;
+    slides.forEach((el,i) => el.classList.toggle("on", i === __thoughtAt));
+    dots.forEach((el,i) => el.classList.toggle("on", i === __thoughtAt));
+  };
+  dots.forEach(d => d.onclick = (e) => {
+    e.stopPropagation();
+    go(parseInt(d.dataset.i, 10));
+  });
+
+  /* A swipe and a tap start the same way. Anything that travelled more than a
+     few pixels sideways is a swipe and must not also open a panel, or every
+     change of card would land the parent somewhere they did not ask to be. */
+  let x0 = null, y0 = null, moved = false;
+  deck.addEventListener("touchstart", (e) => {
+    const t = e.changedTouches[0];
+    x0 = t.clientX; y0 = t.clientY; moved = false;
+  }, {passive:true});
+  deck.addEventListener("touchmove", (e) => {
+    if(x0 === null) return;
+    const t = e.changedTouches[0];
+    if(Math.abs(t.clientX - x0) > 10) moved = true;
+  }, {passive:true});
+  deck.addEventListener("touchend", (e) => {
+    if(x0 === null) return;
+    const t = e.changedTouches[0];
+    const dx = t.clientX - x0, dy = t.clientY - y0;
+    x0 = null;
+    // Sideways, and more sideways than up and down, or it is a scroll.
+    if(Math.abs(dx) > 45 && Math.abs(dx) > Math.abs(dy)){
+      moved = true;
+      go(__thoughtAt + (dx < 0 ? 1 : -1));
+    }
+  }, {passive:true});
+
+  deck.addEventListener("click", (e) => {
+    if(moved){ moved = false; return; }
+    if(e.target.closest(".ndot")) return;
+    const slide = e.target.closest(".thslide");
+    const open = slide && slide.dataset.open;
+    // A fixed set of destinations, looked up by name. Nothing here builds a
+    // function out of a string.
+    if(open === "deen") showDeenPanel();
+    else if(open === "tips") showTipsPanel();
+  });
+}
+
 /* The same thought a grown-up gets, sized for a child's home screen: one line,
    no narrator, no source. The attribution is not dropped - it is one tap away
    in Reminders, where a parent reading with them can see it. Putting "Meaning
@@ -10275,31 +10416,16 @@ function currentTip(){
 }
 function setTipCat(cat){ tipCat = cat; tipOffset = 0; renderTips(); renderTipsPanel(); }
 function nextTip(){ tipOffset++; renderTips(); renderTipsPanel(); }
+/* v199: the parenting idea is a card in the "Something to think about" deck
+   now, alongside the reminder and the dua, so this standalone one below the
+   dashboard would be the same idea printed twice. The slot stays in the markup
+   and stays empty - the panel behind it, and tipCat and tipOffset with it, are
+   all still live and still reached from the menu. */
 function renderTips(){
   const card = document.getElementById("tipsCard");
   if(!card) return;
-  const onDashboard = isParentSession() && !viewChildId && !editMode;
-  if(!onDashboard){ card.classList.add("hidden"); return; }
-  const tip = currentTip();
-  if(!tip){ card.classList.add("hidden"); return; }
-  card.classList.remove("hidden");
-  const t = TIP_THEME[tip.cat] || {theme:"t1", glyph:"\ud83d\udca1", label:"Idea"};
-  /* v176: the dashboard shows the idea and nothing else. It used to carry the
-     whole apparatus - eight filter chips, a pool count and a reroll button -
-     on a screen whose job is "what needs me right now". Filtering a hundred and
-     twenty parenting ideas is not something anyone does at the school gate; it
-     is something you do when you have sat down to look. The card is a peek and
-     the controls live in a room of their own, one tap away.
-     .dashcard is shared with the reminder above it, so neither is bigger than
-     the other by accident. */
-  card.innerHTML = `
-    <section class="rcard tipcard dashcard ${t.theme}" data-nudge="tap" data-nudge-key="tip" onclick="showTipsPanel()">
-      <span class="rglyph" aria-hidden="true">${t.glyph}</span>
-      <span class="rtag">${escapeHtml(t.label)}</span>
-      <h3>${escapeHtml(tip.title)}</h3>
-      <p class="rsub">${escapeHtml(tip.body)}</p>
-      <div class="tiptry"><strong>Try this</strong><span>${escapeHtml(tip.try)}</span></div>
-    </section>`;
+  card.classList.add("hidden");
+  card.innerHTML = "";
 }
 
 /* ---------- Being with them ----------
@@ -11235,8 +11361,11 @@ function renderParentAdminView(parent){
            screen, and the reason it stays: a screen made only of jobs is a
            to-do list, and this app is not one. -->
       <p class="homegroup">Something to think about</p>
-      <div class="dashthought" data-nudge="tap" data-nudge-key="thought">${reminderCardHTML()}</div>
+      <div class="dashthought" data-nudge="tap" data-nudge-key="thought">${thoughtDeckHTML()}</div>
     </div>`;
+  // The deck's markup is rebuilt with the dashboard, so its handlers go back on
+  // straight after. Cheap: three listeners and a few dots.
+  startThoughtDeck();
   document.getElementById("summarySection").classList.add("hidden");
   updateRewardPacing(null);
   renderChampionBanner();
