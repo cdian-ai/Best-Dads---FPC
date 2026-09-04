@@ -252,7 +252,19 @@
   .noticetabs button.on{background:var(--accent);color:#fff}
   /* Out of reach is dimmed rather than hidden — seeing the next one up is
      half the reason a child saves. */
-  .cattile.outofreach{opacity:.55}
+  /* v207: a tile that cannot be pressed today must not ask to be. This one
+     class marks every out-of-reach tile in the app - the parent's spend tab,
+     the child's rewards and the bank - so all three go still together. */
+  .cattile.outofreach{opacity:.55;animation:none}
+  /* The two halves are parted by a caption whose rule fades out rather than a
+     drawn line: enough to say "these are different", not enough to cut the
+     list in two. */
+  .softcap{margin:24px 2px 12px;font-size:13px;font-weight:800;color:#6a7184;
+    display:flex;align-items:center;gap:12px}
+  .softcap::after{content:"";flex:1;height:1px;border-radius:99px;
+    background:linear-gradient(90deg,rgba(24,22,60,.15),rgba(24,22,60,0))}
+  .softcap.first{margin-top:4px}
+  .softcap.saving{color:#9096aa}
   .cattile .tgap{font-size:11px;font-weight:700;color:var(--muted);line-height:1.25}
   .cattile.outofreach .tgap{color:#8a90a6}
   .tname{font-size:14.5px;font-weight:800;line-height:1.25;overflow-wrap:break-word;
@@ -2632,12 +2644,17 @@
     <button class="menutile t-today" id="btnRequests" onclick="showRequestsPanel()"><span>🔔</span>They’re asking…</button>
     <button class="menutile t-today" id="btnTasks" onclick="showNotesPanel()"><span>📌</span>I’m asking…</button>
     <button class="menutile t-today" id="btnReviewMenu" onclick="showReviewPanel()"><span>🗣️</span>Review together</button>
-    <button class="menutile t-today" id="btnActivity" onclick="showActivityPanel()"><span>📋</span>History</button>
+    <button class="menutile t-learn" id="btnProgress" onclick="showProgressPanel()"><span>📖</span>Learn</button>
+  </div>
+  <p class="menugroup">Just for the grown-ups</p>
+  <div class="menugrid">
+    <button class="menutile t-spend" id="btnGrownups" onclick="showGrownupsPanel()"><span>🤝</span>Your reward list</button>
+    <button class="menutile t-spend" id="btnPledges" onclick="showPledgesPanel()"><span>🤞</span>Pledges</button>
   </div>
   <p class="menugroup">How they’re doing</p>
   <div class="menugrid">
     <button class="menutile t-points" id="btnOverview" onclick="showOverviewPanel()"><span>📊</span>Overview</button>
-    <button class="menutile t-learn" id="btnProgress" onclick="showProgressPanel()"><span>📖</span>Learn</button>
+    <button class="menutile t-plain" id="btnActivity" onclick="showActivityPanel()"><span>📋</span>History</button>
   </div>
   <p class="menugroup">Together</p>
   <div class="menugrid">
@@ -2651,11 +2668,6 @@
     <button class="menutile t-plain" id="btnFamily" onclick="showAccountPanel()"><span>👨‍👩‍👧</span>Family members</button>
     <button class="menutile t-plain" id="btnTree" onclick="showTreePanel()"><span>🌳</span>Family tree</button>
     <button class="menutile t-plain" id="btnTutors" onclick="showTutorPanel()"><span>📚</span>Tutors</button>
-  </div>
-  <p class="menugroup">Just for the grown-ups</p>
-  <div class="menugrid">
-    <button class="menutile t-spend" id="btnGrownups" onclick="showGrownupsPanel()"><span>🤝</span>Your reward list</button>
-    <button class="menutile t-spend" id="btnPledges" onclick="showPledgesPanel()"><span>🤞</span>Pledges</button>
   </div>
   <p class="menugroup">Set up</p>
   <div class="menugrid">
@@ -5181,7 +5193,7 @@ const TIP_CATS = [
   {key:"deen", label:"Deen"}
 ];
 
-const APP_VERSION = "v206";
+const APP_VERSION = "v207";
 const today = new Date().toISOString().slice(0,10);
 let app = {families:[],currentFamily:null,currentChild:null};
 let categories = [];
@@ -12377,7 +12389,7 @@ function spendListHTML(child){
     return `<p class="small">Nothing on the list yet. Add rewards and activities under
       <strong>Rewards &amp; activities</strong> in the menu.</p>`;
   }
-  const tiles = items.map((it,i)=>{
+  const tileHTML = (it,i)=>{
     const can = bal >= it.points;
     const gap = it.points - bal;
     return `<article class="cattile k${i%6}${can?"":" outofreach"}">
@@ -12390,13 +12402,25 @@ function spendListHTML(child){
           : (can ? "" : gap + " to go")}</span>
       </div>
     </article>`;
-  }).join("");
+  };
+  /* Split rather than sorted-and-mixed: the half that moves is exactly the
+     half that can be chosen today. */
+  const inReach = items.filter(x=>bal>=x.points);
+  const saving  = items.filter(x=>bal< x.points);
+  const grid = arr => `<div class="cattiles">${arr.map(tileHTML).join("")}</div>`;
+  const tiles =
+    (inReach.length
+      ? `<p class="softcap first">In reach now</p>${grid(inReach)}`
+      : `<p class="softcap first">Nothing in reach yet \u2014 the nearest one is below</p>`)
+    + (saving.length
+      ? `<p class="softcap saving">Saving up for</p>${grid(saving)}`
+      : "");
   const vaultLine = vault>0
     ? `<p class="small" style="margin:12px 0 0">\ud83c\udfe6 ${escapeHtml(child?child.name:"They")} has
         <strong>${vault}</strong> saved in the bank as well, growing towards something big.</p>` : "";
   return `<p class="small" style="margin:0 0 12px"><strong>${bal}</strong> point${bal===1?"":"s"}
       to spend right now \u00b7 ${items.filter(x=>bal>=x.points).length} of ${items.length} within reach.</p>
-    <div class="cattiles">${tiles}</div>${vaultLine}`;
+    ${tiles}${vaultLine}`;
 }
 
 /* Returns the markup instead of writing it into a slot, so it can be rendered
