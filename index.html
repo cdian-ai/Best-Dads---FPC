@@ -85,7 +85,27 @@
            box-shadow:0 7px 18px rgba(36,48,68,.11);overflow:hidden;
            transition:box-shadow .16s ease,transform .16s ease}
   .cattile:active{box-shadow:0 2px 7px rgba(36,48,68,.13)}
-  @media(prefers-reduced-motion:reduce){ .cattile{transition:none} }
+  /* v204: on anything with a real pointer the tile lifts under the cursor. A
+     phone has no hover, so the invitation there is the wiggle below. */
+  @media(hover:hover) and (pointer:fine){
+    .cattile:hover{transform:translateY(-4px);box-shadow:0 14px 30px rgba(36,48,68,.17)}
+  }
+  /* Each tile takes its turn rather than the whole grid moving at once - a
+     wave reads as "any of these", where one big movement reads as an alert.
+     Fired once when the grid arrives on screen, then quiet. */
+  @keyframes tileWiggle{
+    0%  {transform:rotate(0) scale(1)}
+    16% {transform:rotate(-1.7deg) scale(1.04)}
+    36% {transform:rotate(1.5deg)  scale(1.032)}
+    56% {transform:rotate(-.9deg)  scale(1.016)}
+    78% {transform:rotate(.4deg)   scale(1.004)}
+    100%{transform:rotate(0) scale(1)}
+  }
+  .cattile.wiggle{animation:tileWiggle .6s ease-in-out both}
+  @media(prefers-reduced-motion:reduce){
+    .cattile{transition:none}
+    .cattile.wiggle{animation:none}
+  }
   .cattilebtn{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:11px;
               width:100%;height:100%;background:none;padding:14px 10px;border-radius:0;
               font:inherit;color:inherit;text-align:center}
@@ -5106,7 +5126,7 @@ const TIP_CATS = [
   {key:"deen", label:"Deen"}
 ];
 
-const APP_VERSION = "v203";
+const APP_VERSION = "v204";
 const today = new Date().toISOString().slice(0,10);
 let app = {families:[],currentFamily:null,currentChild:null};
 let categories = [];
@@ -5474,6 +5494,7 @@ function armNudges(){
         const now = Date.now();
         if(now - (nudgeLastAt[key] || 0) < NUDGE_QUIET_MS) return;
         nudgeLastAt[key] = now;
+        if(el.getAttribute("data-nudge") === "wiggle"){ wiggleTiles(el); return; }
         const cls = el.getAttribute("data-nudge") === "tap" ? "nudge-tap" : "nudge-lift";
         el.classList.remove(cls);
         void el.offsetWidth;                                // restart the animation
@@ -5482,7 +5503,27 @@ function armNudges(){
       });
     }, {threshold:[0, 0.6]});
   }
+  /* Tile grids are rebuilt on every render, so they are tagged here rather
+     than at each of the five places that build one. */
+  document.querySelectorAll(".cattiles").forEach(function(el,i){
+    el.setAttribute("data-nudge","wiggle");
+    el.setAttribute("data-nudge-key","tiles"+i);
+  });
   document.querySelectorAll("[data-nudge]").forEach(function(el){ nudgeObs.observe(el); });
+}
+function wiggleTiles(grid){
+  const tiles = grid.children;
+  for(let i=0;i<tiles.length;i++){
+    (function(t,n){
+      t.classList.remove("wiggle");
+      void t.offsetWidth;                       // restart the animation
+      t.style.animationDelay = (n*70) + "ms";
+      t.classList.add("wiggle");
+      t.addEventListener("animationend", function(){
+        t.classList.remove("wiggle"); t.style.animationDelay = "";
+      }, {once:true});
+    })(tiles[i], i);
+  }
 }
 
 function showVersion(){
@@ -11130,7 +11171,9 @@ function render(){
   checkForGifts();
   checkForCelebrations();
   checkForArrivals();
-  try{ armNudges(); }catch(e){ console.error("nudges:", e); }
+  /* Deferred: render() has several branches that return before the tiles are
+     built, so arming inline only ever caught the grids of one of them. */
+  setTimeout(function(){ try{ armNudges(); }catch(e){ console.error("nudges:", e); } }, 0);
   renderRequests();
   renderOffersPanel();
   renderEyebrows();
@@ -11270,11 +11313,6 @@ function render(){
     }else{
       tileWrap = document.createElement("div");
       tileWrap.className = "cattiles";
-      /* One movement, once, when the grid arrives on screen - the same
-         mechanism the waiting-on-you cards use. It says press me without
-         looping, which stops being a signal by the second day. */
-      tileWrap.setAttribute("data-nudge","tap");
-      tileWrap.setAttribute("data-nudge-key","cattiles");
       cards.appendChild(tileWrap);
     }
   }
@@ -11364,9 +11402,6 @@ function render(){
   const activityPanel=document.getElementById("activityPanel");
   if(activityPanel && !activityPanel.classList.contains("hidden")) renderActivityLog();
   refreshChildStats();
-  /* render() arms the nudges before this function builds the tiles, so the
-     grid would never have been observed. */
-  try{ armNudges(); }catch(e){ console.error("nudges:", e); }
 }
 /* The grown-ups' own card, lifted off the home screen into its own page. */
 function grownupsCardHTML(parent){
@@ -12318,7 +12353,7 @@ function spendListHTML(child){
         <span class="tpts ${can?"earned":""}">${it.points} pts</span>
         <span class="tgap">${it.kind==="Big goal"
           ? "\ud83c\udfe6 Vault goal" + (can ? "" : " \u00b7 " + gap + " to go")
-          : (can ? "Can have it now" : gap + " to go")}</span>
+          : (can ? "" : gap + " to go")}</span>
       </div>
     </article>`;
   }).join("");
