@@ -2498,15 +2498,19 @@
   <div class="menutop">
     <p class="menuhi" id="menuWho"></p>
   </div>
-  <!-- Every panel has a Home button at its head, but the menu opens over the
-       top of one and had no way back except closing it again and finding that
-       button underneath. First thing in the sheet, above the groups, because
-       it is a way out rather than a place to go. -->
-  <div class="menupills">
-    <button id="btnHomeMenu" onclick="goHome()">🏠 Home</button>
-  </div>
   <p class="menugroup">Today</p>
   <div class="menugrid">
+    <!-- Every panel has a Home button at its head, but the menu opens over the
+         top of one and had no way back except closing it again and finding
+         that button underneath.
+
+         v199 put it above the groups as a pill, which was wrong twice:
+         .menupills carries a top border, so it drew a stray rule under the
+         greeting, and it was the only thing in the sheet that was not a tile.
+         As a tile it also fills the grid - five tiles in three columns left a
+         gap on the second row, and six do not. First in the row because it is
+         a way out rather than a place to go. -->
+    <button class="menutile t-today" id="btnHomeMenu" onclick="goHome()"><span>🏠</span>Home</button>
     <button class="menutile t-today" id="btnQuickMenu" onclick="showQuickPanel()"><span>🔥</span>All at once</button>
     <button class="menutile t-today" id="btnRequests" onclick="showRequestsPanel()"><span>🔔</span>They’re asking…</button>
     <button class="menutile t-today" id="btnTasks" onclick="showNotesPanel()"><span>📌</span>I’m asking…</button>
@@ -5060,7 +5064,7 @@ const TIP_CATS = [
   {key:"deen", label:"Deen"}
 ];
 
-const APP_VERSION = "v199";
+const APP_VERSION = "v200";
 const today = new Date().toISOString().slice(0,10);
 let app = {families:[],currentFamily:null,currentChild:null};
 let categories = [];
