@@ -14,6 +14,32 @@
 <meta name="apple-mobile-web-app-title" content="Notice Me">
 <meta name="description" content="One place to notice what your children do well — prayers, kindness, homework and effort — and to keep track of what they are learning. Points they earn, rewards they choose, and a record you can share.">
 <style>
+/* ================= design tokens =================
+   Stage one of the method lift. Nothing reads these yet — they are declared so
+   that everything CAN, and so the next person changing a colour has somewhere
+   to change it. The app currently carries 401 distinct hex values and 40
+   literal font sizes; that is an accumulation rather than a palette, and it is
+   how the Fulfulde course reached 218 colours before anyone noticed.
+
+   Migrating to them is deliberately gradual: swap a component at a time,
+   verify, move on. Nothing a child recognises changes — these ARE the purple,
+   the teal and the warmth, written down once instead of four hundred times. */
+:root{
+  /* the house palette, taken from what the app already uses most */
+  --nm-purple:#7457d4; --nm-purple-d:#5a45a8; --nm-blue:#4a86c8; --nm-teal:#2ea59a;
+  --nm-amber:#efa93f;  --nm-amber-d:#d97a1c;
+  --nm-ink:#243044;    --nm-ink-2:#5a6478;  --nm-muted:#8b93a7;
+  --nm-ground:#EEF0FA; --nm-card:#ffffff;   --nm-line:#e4e7f2;
+  /* the two courses, so the shelf can speak their colours */
+  --nm-maths:#2F7D62;  --nm-english:#4C5BA8;
+  /* one type scale: 11 13 15 17.5 20 24 30 38 */
+  --nm-t1:11px; --nm-t2:13px; --nm-t3:15px; --nm-t4:17.5px;
+  --nm-t5:20px; --nm-t6:24px; --nm-t7:30px; --nm-t8:38px;
+  /* one radius family, one shadow */
+  --nm-r-s:12px; --nm-r-m:16px; --nm-r-l:22px; --nm-r-pill:999px;
+  --nm-shadow:0 10px 26px rgba(80,66,180,.22);
+}
+
   :root {
     --ink:#243044; --muted:#657084; --paper:#f7f8fc; --card:#fff;
     --accent:#5b63d8; --accent2:#7c83ef; --good:#2e9b68; --danger:#d85b5b;
@@ -2099,8 +2125,20 @@
     border:0;border-radius:22px;padding:16px;margin-bottom:10px;color:#fff;cursor:pointer;
     min-height:80px;transition:transform .12s ease}
   .docard:active{transform:scale(.985)}
+  /* Every course wore the same purple-to-teal gradient and two of them carried
+     the same emoji, so three different courses were one row repeated. The
+     gradient stays — it is what a child recognises as Notice Me — but each
+     course now shifts it toward its own colour and brings its own drawn mark.
+     Same shape, same warmth, three different faces. */
   .docard.lang{background:linear-gradient(135deg,#7457d4 0%,#4a86c8 52%,#2ea59a 100%);
     box-shadow:0 10px 26px rgba(80,66,180,.26)}
+  .docard.ff{background:linear-gradient(135deg,#7457d4 0%,#5a6fc8 55%,#3f8f6b 100%);
+    box-shadow:0 10px 26px rgba(80,66,180,.26)}
+  .docard.ohm{background:linear-gradient(135deg,#6f5bc4 0%,#3f7f8f 50%,#2F7D62 100%);
+    box-shadow:0 10px 26px rgba(47,125,98,.26)}
+  .docard.ohe{background:linear-gradient(135deg,#7457d4 0%,#5a63b8 55%,#4C5BA8 100%);
+    box-shadow:0 10px 26px rgba(76,91,168,.26)}
+  .doglyph svg{width:30px;height:30px;display:block}
   .docard.play{background:linear-gradient(135deg,#efa93f,#d97a1c);
     box-shadow:0 10px 26px rgba(200,120,20,.24)}
   .doglyph{flex:none;width:46px;height:46px;border-radius:16px;display:flex;
@@ -14171,14 +14209,45 @@ window.FULFULDE_M1 = {
   if(typeof registerLearnExtra==='function'){
     registerLearnExtra({ order:10, html(c){
       const done=coveredIds().size, total=Object.keys(OBJ).length;
-      return `<button type="button" class="docard lang" onclick="openFulfulde()">
-        <span class="doglyph" aria-hidden="true">\u{1f4d7}</span>
+      return `<button type="button" class="docard ff" onclick="openFulfulde()">
+        <span class="doglyph" aria-hidden="true">${window.NM_MARK?NM_MARK("fulfulde"):""}</span>
         <span class="domain"><span class="doname">${PACK.title}</span>
         <span class="dosub">${done} of ${total} stops walked</span></span></button>`;
     }});
   }
 })();
 
+</script>
+<script>
+/* ================= drawn marks =================
+   Stage one of lifting the method: the Learn shelf stops using emoji. These
+   are the same construction as the courses' own icon set — one weight, one
+   corner treatment — so a row looks made rather than typed. The other 470
+   emoji in the app are untouched for now; converting them all in one pass on a
+   working family app is how you break it. */
+window.NM_MARK = function(kind){
+ const W="#fff", A="rgba(255,255,255,.62)";
+ const P={
+  fulfulde:`<path d="M6 9 C13 6 20 6 24 9 L24 40 C20 37 13 37 6 40 Z" fill="none" stroke="${W}" stroke-width="3" stroke-linejoin="round"/>
+    <path d="M42 9 C35 6 28 6 24 9 L24 40 C28 37 35 37 42 40 Z" fill="none" stroke="${W}" stroke-width="3" stroke-linejoin="round"/>
+    <circle cx="24" cy="24" r="3" fill="${A}"/>`,
+  maths:`<path d="M8 14 H20 M14 8 V20" stroke="${W}" stroke-width="3.4" stroke-linecap="round"/>
+    <path d="M28 8 L40 20 M40 8 L28 20" stroke="${A}" stroke-width="3.4" stroke-linecap="round"/>
+    <path d="M8 34 H20" stroke="${A}" stroke-width="3.4" stroke-linecap="round"/>
+    <circle cx="34" cy="29" r="2.4" fill="${W}"/><path d="M27 34 H41" stroke="${W}" stroke-width="3.4" stroke-linecap="round"/>
+    <circle cx="34" cy="39" r="2.4" fill="${W}"/>`,
+  english:`<text x="10" y="30" font-size="20" font-weight="700" fill="${W}"
+     font-family="ui-sans-serif,system-ui">a</text>
+    <text x="26" y="32" font-size="24" font-weight="700" fill="${A}"
+     font-family="ui-sans-serif,system-ui">;</text>
+    <path d="M8 38 H40" stroke="${A}" stroke-width="3" stroke-linecap="round"/>`,
+  decks:`<path d="M10 16 C10 12 14 8 18 8 C22 8 24 11 24 15 C28 13 32 15 33 19
+     C37 19 40 22 40 26 C40 32 35 36 29 36 L18 36 C13 36 9 32 9 27 C9 23 9 19 10 16 Z"
+     fill="none" stroke="${W}" stroke-width="3" stroke-linejoin="round"/>
+    <circle cx="20" cy="22" r="2.6" fill="${A}"/><circle cx="30" cy="26" r="2.6" fill="${A}"/>`,
+ };
+ return `<svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">${P[kind]||P.decks}</svg>`;
+};
 </script>
 <!-- ===== packs/one-hundred-packs.js ===== -->
 <script>
@@ -14336,7 +14405,10 @@ window.ONE_HUNDRED = {
   Object.keys(P).forEach(key=>{
     const pack=P[key];
     const subj = {
-      subject: pack.subject, icon:"\u{1f4af}", name: pack.title,
+      /* The tracker list still renders its subject marks as text, so this is a
+         distinct glyph per course rather than the same one twice. Converting
+         that list to drawn marks is the next stage, not this one. */
+      subject: pack.subject, icon: key==="maths"?"\u2797":"\u270e", name: pack.title,
       strands: pack.sections.map(sec=>({
         id: sec.id.replace(/\./g,'-'),
         name: sec.title,
@@ -14462,8 +14534,8 @@ window.ONE_HUNDRED = {
     registerLearnExtra({ order:11, html(c){
       return Object.keys(P).map(key=>{
         const total=Object.keys(OBJ[key]).length, done=covered(key).size;
-        return `<button type="button" class="docard lang" onclick="openOneHundred('${key}')">
-          <span class="doglyph" aria-hidden="true">\u{1f4af}</span>
+        return `<button type="button" class="docard ${key==="maths"?"ohm":"ohe"}" onclick="openOneHundred('${key}')">
+          <span class="doglyph" aria-hidden="true">${window.NM_MARK?NM_MARK(key):""}</span>
           <span class="domain"><span class="doname">${P[key].title}</span>
           <span class="dosub">${done} of ${total} subtopics</span></span></button>`;
       }).join("");
@@ -14957,7 +15029,7 @@ function done(){
       /* No count. "3 of 18 played" turned a shelf of games into a list with
          fifteen things outstanding on it. */
       return `<button type="button" class="docard play" onclick="openDecks()">
-        <span class="doglyph" aria-hidden="true">\u{1f9e9}</span>
+        <span class="doglyph" aria-hidden="true">${window.NM_MARK?NM_MARK("decks"):""}</span>
         <span class="domain"><span class="doname">Puzzle decks</span>
           <span class="dosub">${TOPICS.length} decks \u00b7 a grown-up reads, everyone joins in</span></span>
         <span class="dochev" aria-hidden="true">\u203a</span></button>`;
