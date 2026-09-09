@@ -2348,6 +2348,13 @@
 .boardnote b{color:var(--nm-indigo-600)}
 .boardnote span{display:block;font-size:12px;color:var(--nm-muted);margin-top:2px}
 .boardnote.none{background:var(--nm-line);color:var(--nm-ink-2)}
+
+.stageswitch{display:flex;gap:6px;margin:10px 0 4px}
+.stageswitch button{flex:1 1 auto;border:1.5px solid var(--nm-line);background:#fff;border-radius:14px;
+ padding:9px 10px;font:inherit;font-size:13.5px;font-weight:700;color:var(--nm-ink-2);cursor:pointer;line-height:1.25}
+.stageswitch button.on{border-color:var(--nm-indigo-600);color:var(--nm-indigo-600);
+ background:var(--nm-indigo-050)}
+.stageswitch button span{display:block;font-size:11px;font-weight:500;color:var(--nm-muted);margin-top:1px}
 </style>
 </head>
 <body>
@@ -4685,11 +4692,40 @@ function defaultYearFor(child){
   const n=parseInt((child && child.age) || "", 10);
   return (!Number.isNaN(n) && YEAR_BY_AGE[n]) || "y1";
 }
+/* The stages a child may move between. Primary stays locked to the child's own
+   year: a parent flipping to Year 6 was reading a syllabus their seven-year-old
+   had not met and treating the blanks as gaps, and that is still true.
+
+   Secondary is different. At thirteen a family is choosing options and boards,
+   and a parent has a real reason to look at what is coming; at fifteen there is
+   a real reason to look back at key stage 3 for what is shaky. Neither is a
+   list of failures. So from eleven, key stage 3 and GCSE are both reachable. */
+const SECONDARY_STAGES = ["ks3","ks4"];
+function stagesOpenTo(child){
+  const own=defaultYearFor(child);
+  return SECONDARY_STAGES.indexOf(own)>=0 ? SECONDARY_STAGES.slice() : [own];
+}
 function yearShown(subject, child){
-  // Sorted by the child's age, and not overridable. A parent flipping to Year 6
-  // was reading a syllabus their seven-year-old has not met yet and treating
-  // the blanks as gaps.
-  return defaultYearFor(child);
+  const own=defaultYearFor(child);
+  const open=stagesOpenTo(child);
+  if(open.length<2) return own;
+  const chosen=learnYear[(child&&child.id)+"|"+subject.subject];
+  /* only a stage this child may see, and only one this subject actually has */
+  const has=(subject.strands||[]).some(st=>st.id===chosen);
+  return (chosen && open.indexOf(chosen)>=0 && has) ? chosen : own;
+}
+/* The switch, shown only where there is something to switch between. */
+function stageSwitchHTML(subject, child){
+  const open=stagesOpenTo(child);
+  if(open.length<2) return "";
+  const avail=open.filter(id=>(subject.strands||[]).some(st=>st.id===id));
+  if(avail.length<2) return "";
+  const now=yearShown(subject, child), own=defaultYearFor(child);
+  const label={ks3:"Key stage 3", ks4:"GCSE"};
+  return `<div class="stageswitch">${avail.map(id=>
+    `<button type="button" class="${id===now?"on":""}"
+      onclick="setLearnYear('${child.id}','${subject.subject}','${id}')">${label[id]||id}${
+      id===own?'<span>where they are now</span>':""}</button>`).join("")}</div>`;
 }
 function setLearnYear(childId, subjectId, yid){
   learnYear[childId+"|"+subjectId]=yid;
@@ -6482,6 +6518,7 @@ function ladderHTML(child, subject, strand, canSecure){
         <span class="countpill">${p.secure} of ${p.total}</span></div>
       <p class="small" style="margin:4px 0 0">${escapeHtml(strand.blurb)}</p>
       ${notYetNote}
+      ${stageSwitchHTML(subject, child)}
       ${strand.id==="ks4" ? boardNote(child, subject.subject) : ""}
       ${isStage(strand) ? domainSummary(child, subject, strand) : ""}
       <div class="goalbar"><span style="width:${p.pct}%"></span></div>
@@ -19850,6 +19887,13 @@ header.hascover .coverfade{background:linear-gradient(180deg,rgba(0,0,0,0) 62%,r
 .boardnote b{color:var(--nm-indigo-600)}
 .boardnote span{display:block;font-size:12px;color:var(--nm-muted);margin-top:2px}
 .boardnote.none{background:var(--nm-line);color:var(--nm-ink-2)}
+
+.stageswitch{display:flex;gap:6px;margin:10px 0 4px}
+.stageswitch button{flex:1 1 auto;border:1.5px solid var(--nm-line);background:#fff;border-radius:14px;
+ padding:9px 10px;font:inherit;font-size:13.5px;font-weight:700;color:var(--nm-ink-2);cursor:pointer;line-height:1.25}
+.stageswitch button.on{border-color:var(--nm-indigo-600);color:var(--nm-indigo-600);
+ background:var(--nm-indigo-050)}
+.stageswitch button span{display:block;font-size:11px;font-weight:500;color:var(--nm-muted);margin-top:1px}
 </style>
 <script>
 (function(){
@@ -20402,6 +20446,13 @@ body.nm-editing #editModeNote{display:none}
 .boardnote b{color:var(--nm-indigo-600)}
 .boardnote span{display:block;font-size:12px;color:var(--nm-muted);margin-top:2px}
 .boardnote.none{background:var(--nm-line);color:var(--nm-ink-2)}
+
+.stageswitch{display:flex;gap:6px;margin:10px 0 4px}
+.stageswitch button{flex:1 1 auto;border:1.5px solid var(--nm-line);background:#fff;border-radius:14px;
+ padding:9px 10px;font:inherit;font-size:13.5px;font-weight:700;color:var(--nm-ink-2);cursor:pointer;line-height:1.25}
+.stageswitch button.on{border-color:var(--nm-indigo-600);color:var(--nm-indigo-600);
+ background:var(--nm-indigo-050)}
+.stageswitch button span{display:block;font-size:11px;font-weight:500;color:var(--nm-muted);margin-top:1px}
 </style>
 <script>
 (function(){
@@ -20811,6 +20862,13 @@ body.nm-composing #panelTop{display:none!important}
 .boardnote b{color:var(--nm-indigo-600)}
 .boardnote span{display:block;font-size:12px;color:var(--nm-muted);margin-top:2px}
 .boardnote.none{background:var(--nm-line);color:var(--nm-ink-2)}
+
+.stageswitch{display:flex;gap:6px;margin:10px 0 4px}
+.stageswitch button{flex:1 1 auto;border:1.5px solid var(--nm-line);background:#fff;border-radius:14px;
+ padding:9px 10px;font:inherit;font-size:13.5px;font-weight:700;color:var(--nm-ink-2);cursor:pointer;line-height:1.25}
+.stageswitch button.on{border-color:var(--nm-indigo-600);color:var(--nm-indigo-600);
+ background:var(--nm-indigo-050)}
+.stageswitch button span{display:block;font-size:11px;font-weight:500;color:var(--nm-muted);margin-top:1px}
 </style>
 <script>
 (function(){
