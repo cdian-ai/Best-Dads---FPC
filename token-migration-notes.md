@@ -22,9 +22,45 @@ took its colours from the shelf gradients and named values that barely appear
 in the app. It was worse than having no tokens, because it looked like a system
 while describing nothing.
 
-## Not done, and why
+## Stage B — folding the near-duplicates (done)
 
-### 390 colours remain, 682 uses
+**414 distinct colours → 345. 147 more literals replaced, 69 colours folded.**
+
+You asked for 336. It is 345, and the nine-colour difference is the point.
+
+**Two guards ran, and both caught something.**
+
+**A pair guard**: two near-identical colours used together — a base and its
+hover, a card and its border — must not be folded into one, or a deliberate
+distinction disappears. Nothing in this app tripped it, but I tested the guard
+against a synthetic stylesheet first to be sure it was actually working rather
+than silently passing everything.
+
+**A hue guard**, which caught six real ones. Sum-of-channel distance is
+hue-blind: `#fff0f0` is a pale pink and `#fffaef` is a pale cream, eleven apart
+by that measure and different colours to a person. A pale pink background is
+almost certainly an error state. Folding it would have turned a warning into a
+cream box — silently, and only noticed the next time something went wrong.
+
+Refused, and left alone:
+
+    #fff0f0  41° from  #fffaef   pink, not cream
+    #fbfbff 120° from  #ffffff
+    #f3ecff  29° from  #eef0ff   violet, not indigo
+    #fffdf7  45° from  #ffffff
+    #f5efff  30° from  #eef0ff
+    #fffefa  48° from  #ffffff
+
+**And one mistake worth recording.** My first attempt at this wrote
+`var(eef0ff)` into the stylesheet — a hex value where a custom-property NAME
+belongs. That is invalid CSS, and it would have blanked 170 colours across the
+app. It passed every check I had written, because I was checking that tokens
+resolved and not that the references were even well-formed. I found it by
+rendering the swatches and seeing six black rectangles. **Render the thing.**
+
+## Still not done, and why
+
+### 345 colours remain
 
 Of those, **78 sit within a hair of a token** — differences of two or three in
 one channel, invisible side by side:
