@@ -2372,6 +2372,14 @@
 .onbmodtick{flex:0 0 26px;height:26px;border-radius:999px;display:flex;align-items:center;
  justify-content:center;border:2px solid var(--nm-line);color:var(--nm-white);font-weight:700;font-size:15px}
 .onbmod.on .onbmodtick{background:var(--nm-indigo-600);border-color:var(--nm-indigo-600)}
+
+.onbgroup{margin-bottom:18px}
+.onbgh{margin:0 0 8px;font-size:13px;font-weight:800;letter-spacing:.06em;
+ text-transform:uppercase;color:var(--nm-muted)}
+.onbgh span{display:block;font-size:13px;font-weight:400;letter-spacing:0;
+ text-transform:none;color:var(--nm-muted);margin-top:2px}
+.modgh{margin:16px 0 4px;font-size:13px;font-weight:800;letter-spacing:.06em;
+ text-transform:uppercase;color:var(--nm-muted)}
 </style>
 </head>
 <body>
@@ -8533,9 +8541,32 @@ function championWeekDates(){
    nothing else until they ask. The prayer board was already arranged this way \u2014
    it appears only where a family has set up prayer categories \u2014 so this extends
    something that was already right rather than inventing a new idea. */
+/* Two modules made the setup screen dishonest: it asked what a family would
+   like in the app and then offered two things out of fourteen. Worse, it left
+   the faith content looking like the only optional part of an otherwise neutral
+   app — which is the framing this was meant to avoid.
+
+   Seven now, in two groups, nothing preselected. Points, rewards, chores and
+   the school tracker stay always on, because those are the app. */
+const MODULE_GROUPS = [
+  { id:"faith",   name:"Faith",   note:"Nothing here appears unless you ask for it." },
+  { id:"courses", name:"Courses", note:"Whole apps that open inside this one, with their own progress." },
+];
 const MODULES = {
-  quran: { name:"Qur'an", note:"Qaida, Nazra and Hifz, tracked like any other subject." },
-  duas:  { name:"Duas",   note:"A dua for the time of day, and a collection to look through." },
+  prayers:  { group:"faith", name:"Prayer board",
+    note:"A child says they prayed, a grown-up confirms. Recorded, never scored." },
+  quran:    { group:"faith", name:"Qur\u2019an",
+    note:"Qaida, Nazra and Hifz, tracked like any other subject." },
+  duas:     { group:"faith", name:"Duas",
+    note:"A dua for the time of day, and a collection to look through." },
+  fulfulde: { group:"courses", name:"Janngu Fulfulde",
+    note:"Learning to read Pular \u2014 fifty-five stops with sound." },
+  ohmaths:  { group:"courses", name:"One Hundred: Maths",
+    note:"Year 6 SATs maths, built from the last three years of papers." },
+  ohenglish:{ group:"courses", name:"One Hundred: English",
+    note:"Year 6 SATs grammar, punctuation and spelling." },
+  decks:    { group:"courses", name:"Puzzle decks",
+    note:"Twenty decks a grown-up reads aloud while everyone joins in." },
 };
 function moduleOn(key){
   const s=(typeof app!=="undefined" && app.settings && app.settings.modules) || null;
@@ -8547,13 +8578,17 @@ function moduleOn(key){
   return alreadyUsing(key);
 }
 function alreadyUsing(key){
+  /* A family that has never been asked keeps whatever they already have. Only
+     some things leave a trace to detect; the rest default ON for an existing
+     family, because taking a feature away from someone who never chose to lose
+     it is worse than showing them one they can switch off. */
   try{
-    if(key==="quran"){
-      const f=currentFamily(); if(!f) return false;
-      return (f.children||[]).some(c=>Object.keys((c&&c.progress)||{})
-        .some(k=>k.indexOf("quran.")===0));
-    }
-    if(key==="duas") return false;   /* nothing to lose — duas store nothing */
+    const f=(typeof currentFamily==="function") ? currentFamily() : null;
+    const kids=(f&&f.children)||[];
+    if(key==="quran") return kids.some(c=>Object.keys((c&&c.progress)||{})
+      .some(k=>k.indexOf("quran.")===0));
+    if(key==="prayers") return Object.keys(prayerKeys()).length > 0;
+    return true;   /* duas and the four courses */
   }catch(e){}
   return false;
 }
@@ -8569,12 +8604,14 @@ async function setModule(key, on){
 function modulesPanelHTML(){
   return `<section class="card">
     <h2>What this family uses</h2>
-    <p class="small">Turn on only what you want. Nothing here is on until you switch it on,
-      and switching something off hides it without deleting anything you have marked.</p>
-    ${Object.keys(MODULES).map(k=>`<label class="modrow">
-      <span class="modx"><b>${MODULES[k].name}</b><small>${MODULES[k].note}</small></span>
-      <input type="checkbox" ${moduleOn(k)?"checked":""}
-        onchange="setModule('${k}', this.checked)"></label>`).join("")}
+    <p class="small">Switching something off hides it and keeps whatever you have marked.</p>
+    ${MODULE_GROUPS.map(g=>{
+      const keys=Object.keys(MODULES).filter(k=>MODULES[k].group===g.id);
+      return `<p class="modgh">${g.name}</p>` + keys.map(k=>`<label class="modrow">
+        <span class="modx"><b>${MODULES[k].name}</b><small>${MODULES[k].note}</small></span>
+        <input type="checkbox" ${moduleOn(k)?"checked":""}
+          onchange="setModule('${k}', this.checked)"></label>`).join("");
+    }).join("")}
   </section>`;
 }
 /* A family may still have a points value set against a prayer action from
@@ -8584,7 +8621,14 @@ function prayerPointsNote(){
   return `<p class="small" style="margin:6px 0 0">Prayers are recorded, not scored.
     Confirming one fills the board and keeps the streak — it does not add points.</p>`;
 }
-function prayerBoardEnabled(){ return Object.keys(prayerKeys()).length > 0; }
+function prayerBoardEnabled(){
+  /* This used to appear the moment a family happened to create a category
+     tagged as a prayer — a clever accident rather than a decision, and it meant
+     the board could turn up for someone who had chosen nothing. It is a module
+     now. The category check stays as the second condition, because switching it
+     on with no prayer categories set up would only show an empty board. */
+  return moduleOn("prayers") && Object.keys(prayerKeys()).length > 0;
+}
 
 /* ---------- "I prayed" ----------
    A prayer only appeared on this board when a parent awarded points for it,
@@ -11441,12 +11485,18 @@ async function onbAddChild(){
 let onbModulePick = {};
 function onbRenderModules(){
   const box=document.getElementById("onbModules"); if(!box) return;
-  box.innerHTML = Object.keys(MODULES).map(k=>`
-    <button type="button" class="onbmod ${onbModulePick[k]?"on":""}"
-      onclick="onbToggleModule('${k}')" aria-pressed="${!!onbModulePick[k]}">
-      <span class="onbmodx"><b>${MODULES[k].name}</b><small>${MODULES[k].note}</small></span>
-      <span class="onbmodtick">${onbModulePick[k]?"\\u2713":""}</span>
-    </button>`).join("");
+  const tick="\u2713";
+  box.innerHTML = MODULE_GROUPS.map(g=>{
+    const keys=Object.keys(MODULES).filter(k=>MODULES[k].group===g.id);
+    if(!keys.length) return "";
+    return `<div class="onbgroup"><p class="onbgh">${g.name}<span>${g.note}</span></p>` +
+      keys.map(k=>`
+      <button type="button" class="onbmod ${onbModulePick[k]?"on":""}"
+        onclick="onbToggleModule('${k}')" aria-pressed="${!!onbModulePick[k]}">
+        <span class="onbmodx"><b>${MODULES[k].name}</b><small>${MODULES[k].note}</small></span>
+        <span class="onbmodtick">${onbModulePick[k]?tick:""}</span>
+      </button>`).join("") + `</div>`;
+  }).join("");
 }
 function onbToggleModule(k){ onbModulePick[k]=!onbModulePick[k]; onbRenderModules(); }
 async function onbSaveModules(){
@@ -20294,6 +20344,14 @@ header.hascover .coverfade{background:linear-gradient(180deg,rgba(0,0,0,0) 62%,r
 .onbmodtick{flex:0 0 26px;height:26px;border-radius:999px;display:flex;align-items:center;
  justify-content:center;border:2px solid var(--nm-line);color:var(--nm-white);font-weight:700;font-size:15px}
 .onbmod.on .onbmodtick{background:var(--nm-indigo-600);border-color:var(--nm-indigo-600)}
+
+.onbgroup{margin-bottom:18px}
+.onbgh{margin:0 0 8px;font-size:13px;font-weight:800;letter-spacing:.06em;
+ text-transform:uppercase;color:var(--nm-muted)}
+.onbgh span{display:block;font-size:13px;font-weight:400;letter-spacing:0;
+ text-transform:none;color:var(--nm-muted);margin-top:2px}
+.modgh{margin:16px 0 4px;font-size:13px;font-weight:800;letter-spacing:.06em;
+ text-transform:uppercase;color:var(--nm-muted)}
 </style>
 <script>
 (function(){
@@ -20871,6 +20929,14 @@ body.nm-editing #editModeNote{display:none}
 .onbmodtick{flex:0 0 26px;height:26px;border-radius:999px;display:flex;align-items:center;
  justify-content:center;border:2px solid var(--nm-line);color:var(--nm-white);font-weight:700;font-size:15px}
 .onbmod.on .onbmodtick{background:var(--nm-indigo-600);border-color:var(--nm-indigo-600)}
+
+.onbgroup{margin-bottom:18px}
+.onbgh{margin:0 0 8px;font-size:13px;font-weight:800;letter-spacing:.06em;
+ text-transform:uppercase;color:var(--nm-muted)}
+.onbgh span{display:block;font-size:13px;font-weight:400;letter-spacing:0;
+ text-transform:none;color:var(--nm-muted);margin-top:2px}
+.modgh{margin:16px 0 4px;font-size:13px;font-weight:800;letter-spacing:.06em;
+ text-transform:uppercase;color:var(--nm-muted)}
 </style>
 <script>
 (function(){
@@ -21305,6 +21371,14 @@ body.nm-composing #panelTop{display:none!important}
 .onbmodtick{flex:0 0 26px;height:26px;border-radius:999px;display:flex;align-items:center;
  justify-content:center;border:2px solid var(--nm-line);color:var(--nm-white);font-weight:700;font-size:15px}
 .onbmod.on .onbmodtick{background:var(--nm-indigo-600);border-color:var(--nm-indigo-600)}
+
+.onbgroup{margin-bottom:18px}
+.onbgh{margin:0 0 8px;font-size:13px;font-weight:800;letter-spacing:.06em;
+ text-transform:uppercase;color:var(--nm-muted)}
+.onbgh span{display:block;font-size:13px;font-weight:400;letter-spacing:0;
+ text-transform:none;color:var(--nm-muted);margin-top:2px}
+.modgh{margin:16px 0 4px;font-size:13px;font-weight:800;letter-spacing:.06em;
+ text-transform:uppercase;color:var(--nm-muted)}
 </style>
 <script>
 (function(){
