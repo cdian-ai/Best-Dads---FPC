@@ -2646,7 +2646,7 @@
     <button class="menutile t-spend"  onclick="kidMenuGo('kidSpendScreen')"><span>🎁</span>Spend my points</button>
     <button class="menutile t-learn"  onclick="kidMenuGo('kidLearnScreen')"><span>📖</span>Learn</button>
     <button class="menutile t-points" onclick="kidMenuGo('kidPointsScreen')"><span>⭐</span>My points</button>
-    <button class="menutile t-deen" id="btnKidDeen" onclick="closeKidMenu();showDeenPanel()"><span>🤲</span>Duas &amp; bedtime</button>
+    <button class="menutile t-deen"   onclick="closeKidMenu();showDeenPanel()"><span>🤲</span>Duas &amp; bedtime</button>
     <button class="menutile t-play"   onclick="closeKidMenu();showPlayPanel()"><span>🧩</span>Do together</button>
   </div>
 
@@ -8568,58 +8568,13 @@ const MODULES = {
   decks:    { group:"courses", name:"Puzzle decks",
     note:"Twenty decks a grown-up reads aloud while everyone joins in." },
 };
-
-/* ================= one gate for the faith content =================
-   The modules screen was gating three features while 257 mentions of the faith
-   content ran through a dozen other systems untouched: the starter categories
-   handed every new family "Pray Fajr on time, 5 points", the dashboard showed a
-   hadith on rotation, the bedtime stories were all prophetic, and Learn
-   Together carried wudu, salah, Ramadan and what to do when somebody dies.
-
-   A setting that does not hold is worse than no setting, because a family
-   believes it. Everything faith-related now asks faithOn() \u2014 one function, so
-   there is one place to be wrong rather than twelve. */
-function faithOn(){
-  return moduleOn("quran") || moduleOn("duas") || moduleOn("prayers");
-}
-/* The starter lists are mixed: nine of the ten categories are about manners,
-   tidying and honesty, and one is about salah. Rather than keep two copies of
-   each list, the faith entries are marked and filtered at the moment a family
-   is created. */
-function withoutFaith(list, isFaith){
-  return (list||[]).filter(x=>!isFaith(x));
-}
-const FAITH_CATEGORY_NAMES = ["Salah & Duas", "Learning & Qur'an"];
-function startersFor(picked){
-  /* picked is what the family chose on the setup screen, before app.settings
-     exists \u2014 so this cannot use faithOn(). */
-  const want = !!(picked && (picked.quran || picked.duas || picked.prayers));
-  if(want) return { categories:DEFAULT_CATEGORIES, rewards:DEFAULT_REWARDS, games:STARTER_GAMES };
-  const faithy = /masjid|mosque|umrah|eid|islamic|dua|qur|salah|maghrib|surah|prophet|deen/i;
-  return {
-    categories: DEFAULT_CATEGORIES.filter(c=>FAITH_CATEGORY_NAMES.indexOf(c.name)<0)
-      .map(c=>Object.assign({}, c, {
-        desc: String(c.desc||"").replace(/, and with Allah in mind/,"")
-                                .replace(/ with Allah in mind/,""),
-        actions:(c.actions||[]).filter(a=>!faithy.test(String(a[0])))
-      })),
-    rewards: DEFAULT_REWARDS.filter(r=>!faithy.test(r.name+" "+(r.desc||""))),
-    games:   STARTER_GAMES.filter(g=>!faithy.test(g.name+" "+(g.desc||""))),
-  };
-}
 function moduleOn(key){
   const s=(typeof app!=="undefined" && app.settings && app.settings.modules) || null;
   if(s && typeof s[key]==="boolean") return s[key];
-  /* Once a family has answered the setup screen, anything not in their answer
-     is off. Without this a family who ticked only a course still had the faith
-     content switched on, because an unlisted key fell through to "are they
-     already using it" and duas answered yes for everyone. A partial answer is
-     still an answer. */
-  const asked=(typeof app!=="undefined" && app.settings && app.settings.modulesChosenTs);
-  if(asked) return false;
-  /* A family that has never been asked keeps whatever they already have.
-     Defaulting to off would have taken the Qur'an away from every family
-     already using it, including the one that built this. */
+  /* Defaulting to off would have taken the Qur'an away from every family
+     already using it, including the one that built this. A family that has
+     never chosen keeps whatever they are already doing; a family that has
+     chosen gets exactly what they chose, including off. */
   return alreadyUsing(key);
 }
 function alreadyUsing(key){
@@ -10544,20 +10499,7 @@ let duaFilter="all";
 function setDuaFilter(id){ duaFilter=id; renderDeenPanel(); }
 function setDeenTab(t){
   storyOpen = null; deenTab=t; renderDeenPanel(); }
-
-/* Both Duas & bedtime tiles live in the markup, so they are hidden rather than
-   not rendered. Called wherever a menu opens. */
-function syncFaithTiles(){
-  const on=(typeof faithOn==="function") && faithOn();
-  ["btnDeen","btnKidDeen"].forEach(id=>{
-    const el=document.getElementById(id);
-    if(el) el.classList.toggle("hidden", !on);
-  });
-}
 function showDeenPanel(){
-  /* The comment above this used to read "open to everyone". It was, and that
-     was the largest hole in the setting. */
-  if(!faithOn()){ alert("Duas and bedtime are switched off for this family."); return; }
   const me=sessionMember();
   if(me && isChildRole(me)){ showScreen("deenPanel"); renderDeenPanel(); return; }
   openPanel("deenPanel"); renderDeenPanel();
@@ -10625,7 +10567,6 @@ function themeOfDua(d){
            tag:(g&&g.label)?String(g.label).replace(/^[^\w]+/,"").trim():"Dua" };
 }
 function reminderCardHTML(){
-  if(!faithOn()) return "";
   const r=pickOfDay(REMINDERS);
   return `<section class="rcard tap ${r.theme||"t1"} pinned" onclick="showDeenPanel()">
       <span class="rpin">Today</span>
@@ -10664,9 +10605,6 @@ function duaForNow(){
 /* Each entry knows how to draw itself and where it goes when tapped, so the
    deck never has to ask what kind of card it is holding. */
 function thoughtCards(){
-  /* Without this a family that chose nothing still met a hadith and a dua on
-     the home screen, on rotation, every day. */
-  const faith = faithOn();
   const out = [];
   const r = pickOfDay(REMINDERS);
   if(r) out.push({ open:"deen", html: remCardHTML(r, true) });
@@ -10684,7 +10622,7 @@ function thoughtCards(){
       </section>` });
   }
 
-  const d = faith ? duaForNow() : null;
+  const d = duaForNow();
   if(d) out.push({ open:"deen", html: duaCardHTML(d, true) });
 
   return out;
@@ -10763,7 +10701,6 @@ function startThoughtDeck(){
    of a hadith - Bukhari & Muslim" under a sentence a seven-year-old is trying
    to read is how the card ended up being deleted from this screen. */
 function kidReminderHTML(){
-  if(!faithOn()) return "";
   const r=pickOfDay(REMINDERS);
   if(!r) return "";
   return `<button type="button" class="kidremind ${r.theme||"t1"}" onclick="showDeenPanel()">
@@ -11562,24 +11499,6 @@ function onbRenderModules(){
   }).join("");
 }
 function onbToggleModule(k){ onbModulePick[k]=!onbModulePick[k]; onbRenderModules(); }
-/* Removes the faith starters from a family that chose none. It runs after the
-   family exists, because the family is created before this screen is shown —
-   the alternative was asking before there was an account to save it to. */
-async function trimFaithStarters(){
-  const faithy=/masjid|mosque|umrah|eid|islamic|dua|qur|salah|maghrib|surah|prophet|deen|bismillah|alhamdulillah|salaam/i;
-  const FAITH_CATS=["Salah & Duas","Learning & Qur\u2019an","Learning & Qur'an"];
-  try{
-    app.categories=(app.categories||[])
-      .filter(c=>FAITH_CATS.indexOf(c.name)<0)
-      .map(c=>Object.assign({},c,{
-        desc:String(c.desc||"").replace(/,? ?and with Allah in mind/i,"")
-                               .replace(/ with Allah in mind/i,""),
-        actions:(c.actions||[]).filter(a=>!faithy.test(String(a[0])))
-      }));
-    app.rewards=(app.rewards||[]).filter(r=>!faithy.test((r.name||"")+" "+(r.desc||"")));
-    app.games  =(app.games  ||[]).filter(g=>!faithy.test((g.name||"")+" "+(g.desc||"")));
-  }catch(e){ console.error("Could not trim the starters:", e); }
-}
 async function onbSaveModules(){
   /* Whatever they chose is written, including choosing nothing. Writing it
      explicitly matters: after this, moduleOn reads a real answer rather than
@@ -11589,8 +11508,6 @@ async function onbSaveModules(){
   Object.keys(MODULES).forEach(k=>{ chosen[k] = !!onbModulePick[k]; });
   app.settings.modules = chosen;
   app.settings.modulesChosenTs = Date.now();
-  const anyFaith = !!(chosen.quran || chosen.duas || chosen.prayers);
-  if(!anyFaith) await trimFaithStarters();
   try{ await saveApp(); }
   catch(e){ console.error("Could not save that:", e); }
   onbGo(3);
@@ -15838,7 +15755,6 @@ function done(){
   }
 
   function menu(){
-  try{ syncFaithTiles(); }catch(e){}
   try{
     const slot=document.getElementById("modulesSlot");
     if(slot && typeof modulesPanelHTML==="function" && typeof isParentRole==="function"
@@ -19156,10 +19072,7 @@ window.GROWNUP_DECKS = [
   const TG_SECTIONS=[
     {key:"deen",  icon:"mosque", tone:"#e3f6ef", title:"Prayer and deen",
      sub:"Wudu, salah, fasting, and what to do when somebody dies.",
-     /* wudu, the shape of a rakah, ghusl, Ramadan, Eid, and what to do when
-        somebody dies. A family that chose none of the faith modules should not
-        meet a janazah course in a list of household skills. */
-     pick:()=>faithOn() ? LEARN_TOGETHER.filter(r=>r.section==="deen") : []},
+     pick:()=>LEARN_TOGETHER.filter(r=>r.section==="deen")},
     {key:"home",  icon:"laundry", tone:"#eef0f7", title:"Looking after yourself",
      sub:"Washing, packing, making a bed, giving something away.",
      pick:()=>LEARN_TOGETHER.filter(r=>r.section==="home")},
