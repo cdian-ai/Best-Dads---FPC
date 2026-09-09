@@ -2329,6 +2329,19 @@
     .kidhi{font-size:21px}
     .kidhero{padding:18px}
   }
+
+.notyet{margin:6px 0 10px;font-size:13px;color:var(--nm-muted);line-height:1.5}
+.domsum{margin:4px 0 14px}
+.domhead{margin:0 0 10px;font-size:15px;color:var(--nm-ink-2)}
+.domhead b{color:var(--nm-indigo-600)}
+.domrow{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.domname{flex:0 0 40%;font-size:13.5px;font-weight:600;color:var(--nm-ink)}
+.dombar{position:relative;flex:1 1 auto;height:10px;border-radius:999px;background:var(--nm-line);overflow:hidden}
+.dombar i{position:absolute;left:0;top:0;bottom:0;background:var(--nm-indigo-600);opacity:.45;border-radius:999px}
+.dombar b{position:absolute;left:0;top:0;bottom:0;background:var(--nm-indigo-600);border-radius:999px}
+.domnum{flex:0 0 auto;font-size:13px;font-weight:700;color:var(--nm-ink)}
+.domnum span{font-weight:400;color:var(--nm-muted)}
+.domfoot{margin:10px 0 0;font-size:12px;color:var(--nm-muted)}
 </style>
 </head>
 <body>
@@ -4576,7 +4589,15 @@ function setLearnYear(childId, subjectId, yid){
 function strandsShown(subject, child){
   if(!subject.byYear) return subject.strands;
   const yid=yearShown(subject, child);
-  return subject.strands.filter(st=>st.id===yid);
+  const exact=subject.strands.filter(st=>st.id===yid);
+  if(exact.length) return exact;
+  /* Extending the age map to key stages 3 and 4 before every subject had those
+     stages left an eleven-year-old looking at nothing for English and Science,
+     and a fourteen-year-old at nothing at all. A subject that does not reach a
+     child's stage yet shows the last stage it does reach, and says so, rather
+     than showing an empty screen that reads as "you have done none of this". */
+  const last=subject.strands[subject.strands.length-1];
+  return last ? [Object.assign({},last,{notYet:yid})] : [];
 }
 function objectiveId(subject, strand, i){ return subject.subject+"."+strand.id+"."+(i+1); }
 /* ---------- Two lines, not one ----------
@@ -6194,8 +6215,49 @@ async function assignTutorChildren(tutorId){
   }catch(e){ console.error(e); alert("That couldn't be saved."); }
 }
 
+
+/* ================= the secondary view =================
+   At primary a parent marks what their child covered, so a list of twenty
+   objectives is the right shape. At key stage 3 a child works away from their
+   parent, the stage runs to sixty-six statements, and a flat list of sixty-six
+   boxes with four ticked reads as failure rather than as progress.
+
+   So a stage is shown by domain first: how much of Number, of Algebra, of
+   Geometry. The full list is still there underneath for whoever wants it \u2014 the
+   child marking their own work, or a tutor \u2014 but the parent's first read is a
+   shape rather than a tally. */
+function isStage(strand){ return strand && /^ks\d$/.test(strand.id); }
+function domainSummary(child, subject, strand){
+  const by={};
+  strand.objectives.forEach((o,i)=>{
+    const cat=o[1]||"Other";
+    const st=objectiveState(child, strand, objectiveId(subject, strand, i));
+    if(!by[cat]) by[cat]={n:0,done:0,secure:0};
+    by[cat].n++;
+    if(st.status==="secure"){ by[cat].done++; by[cat].secure++; }
+    else if(st.status==="covered") by[cat].done++;
+  });
+  const rows=Object.keys(by).map(cat=>{
+    const d=by[cat], pc=Math.round(d.done/d.n*100);
+    return `<div class="domrow">
+      <span class="domname">${cat}</span>
+      <span class="dombar"><i style="width:${pc}%"></i>${
+        d.secure?`<b style="width:${Math.round(d.secure/d.n*100)}%"></b>`:""}</span>
+      <span class="domnum">${d.done}<span>/${d.n}</span></span></div>`;
+  }).join("");
+  const tot=strand.objectives.length;
+  const done=Object.values(by).reduce((a,d)=>a+d.done,0);
+  return `<div class="domsum">
+    <p class="domhead">${strand.name} \u00b7 <b>${done} of ${tot}</b> so far</p>
+    ${rows}
+    <p class="domfoot">Marked by ${child.name||"your child"} or their tutor.</p>
+  </div>`;
+}
 /* ---------- The child's own view of their programme ---------- */
 function ladderHTML(child, subject, strand, canSecure){
+  const notYetNote = strand.notYet
+    ? `<p class="notyet">${strand.name} is the furthest this subject goes so far.
+       ${strand.notYet==="ks3"?"Key stage 3":"Key stage 4"} is still being added.</p>` : "";
   /* A child on their own Learn tab reads the child line; a parent or tutor
      reads the official one. Same row, same mark, different words. */
   const me0=(typeof sessionMember==="function") ? sessionMember() : null;
@@ -6247,6 +6309,8 @@ function ladderHTML(child, subject, strand, canSecure){
       <div class="goalhead"><h2>${escapeHtml(strand.name)}</h2>
         <span class="countpill">${p.secure} of ${p.total}</span></div>
       <p class="small" style="margin:4px 0 0">${escapeHtml(strand.blurb)}</p>
+      ${notYetNote}
+      ${isStage(strand) ? domainSummary(child, subject, strand) : ""}
       <div class="goalbar"><span style="width:${p.pct}%"></span></div>
       ${p.review?`<p class="small" style="margin:0 0 8px">\u{1f501} ${p.review} due for revision</p>`:""}
       <details><summary>${p.complete?"All done \u2014 see the list":"See the whole list"}</summary>
@@ -19594,6 +19658,19 @@ header.hascover .coverfade{background:linear-gradient(180deg,rgba(0,0,0,0) 62%,r
 
 /* Prayers, for a parent who has not opened a child. */
 .nmprayhead{margin:0 0 14px}
+
+.notyet{margin:6px 0 10px;font-size:13px;color:var(--nm-muted);line-height:1.5}
+.domsum{margin:4px 0 14px}
+.domhead{margin:0 0 10px;font-size:15px;color:var(--nm-ink-2)}
+.domhead b{color:var(--nm-indigo-600)}
+.domrow{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.domname{flex:0 0 40%;font-size:13.5px;font-weight:600;color:var(--nm-ink)}
+.dombar{position:relative;flex:1 1 auto;height:10px;border-radius:999px;background:var(--nm-line);overflow:hidden}
+.dombar i{position:absolute;left:0;top:0;bottom:0;background:var(--nm-indigo-600);opacity:.45;border-radius:999px}
+.dombar b{position:absolute;left:0;top:0;bottom:0;background:var(--nm-indigo-600);border-radius:999px}
+.domnum{flex:0 0 auto;font-size:13px;font-weight:700;color:var(--nm-ink)}
+.domnum span{font-weight:400;color:var(--nm-muted)}
+.domfoot{margin:10px 0 0;font-size:12px;color:var(--nm-muted)}
 </style>
 <script>
 (function(){
@@ -20127,6 +20204,19 @@ body.editing{padding-top:0!important}
 #nmEditBar button{flex:none;width:auto;min-height:40px;padding:9px 15px;border-radius:99px;
   background:var(--nm-white);color:var(--nm-indigo-900);border:0;font:700 13px/1 Inter,system-ui,sans-serif;cursor:pointer}
 body.nm-editing #editModeNote{display:none}
+
+.notyet{margin:6px 0 10px;font-size:13px;color:var(--nm-muted);line-height:1.5}
+.domsum{margin:4px 0 14px}
+.domhead{margin:0 0 10px;font-size:15px;color:var(--nm-ink-2)}
+.domhead b{color:var(--nm-indigo-600)}
+.domrow{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.domname{flex:0 0 40%;font-size:13.5px;font-weight:600;color:var(--nm-ink)}
+.dombar{position:relative;flex:1 1 auto;height:10px;border-radius:999px;background:var(--nm-line);overflow:hidden}
+.dombar i{position:absolute;left:0;top:0;bottom:0;background:var(--nm-indigo-600);opacity:.45;border-radius:999px}
+.dombar b{position:absolute;left:0;top:0;bottom:0;background:var(--nm-indigo-600);border-radius:999px}
+.domnum{flex:0 0 auto;font-size:13px;font-weight:700;color:var(--nm-ink)}
+.domnum span{font-weight:400;color:var(--nm-muted)}
+.domfoot{margin:10px 0 0;font-size:12px;color:var(--nm-muted)}
 </style>
 <script>
 (function(){
@@ -20517,6 +20607,19 @@ body.nm-composing #panelTop{display:none!important}
 .nmc-send[disabled]{opacity:.4;cursor:default}
 .nmqswitch{width:100%;margin-top:14px;background:none;border:0;padding:10px;
   font:700 13px/1 Inter,system-ui,sans-serif;color:var(--accent);cursor:pointer;min-height:44px}
+
+.notyet{margin:6px 0 10px;font-size:13px;color:var(--nm-muted);line-height:1.5}
+.domsum{margin:4px 0 14px}
+.domhead{margin:0 0 10px;font-size:15px;color:var(--nm-ink-2)}
+.domhead b{color:var(--nm-indigo-600)}
+.domrow{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.domname{flex:0 0 40%;font-size:13.5px;font-weight:600;color:var(--nm-ink)}
+.dombar{position:relative;flex:1 1 auto;height:10px;border-radius:999px;background:var(--nm-line);overflow:hidden}
+.dombar i{position:absolute;left:0;top:0;bottom:0;background:var(--nm-indigo-600);opacity:.45;border-radius:999px}
+.dombar b{position:absolute;left:0;top:0;bottom:0;background:var(--nm-indigo-600);border-radius:999px}
+.domnum{flex:0 0 auto;font-size:13px;font-weight:700;color:var(--nm-ink)}
+.domnum span{font-weight:400;color:var(--nm-muted)}
+.domfoot{margin:10px 0 0;font-size:12px;color:var(--nm-muted)}
 </style>
 <script>
 (function(){
