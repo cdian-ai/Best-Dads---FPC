@@ -14423,31 +14423,11 @@ window.ONE_HUNDRED = {
   const P = window.ONE_HUNDRED;
   if(!P) return;
 
-  const SUBJECTS = {};
-  Object.keys(P).forEach(key=>{
-    const pack=P[key];
-    const subj = {
-      /* The tracker list still renders its subject marks as text, so this is a
-         distinct glyph per course rather than the same one twice. Converting
-         that list to drawn marks is the next stage, not this one. */
-      subject: pack.subject, icon: key==="maths"?"\u2797":"\u270e", name: pack.title,
-      strands: pack.sections.map(sec=>({
-        id: sec.id.replace(/\./g,'-'),
-        name: sec.title,
-        blurb: sec.blurb||"",
-        milestone: "Finished "+sec.title,
-        objectives: sec.items.map(it=>[it.f+(it.e?"  \u00b7  "+it.e:"")])
-      }))
-    };
-    SUBJECTS[key]=subj;
-    try{
-      if(typeof CURRICULUM!=="undefined"){
-        const at=CURRICULUM.findIndex(x=>x.subject===pack.subject);
-        if(at>=0) CURRICULUM.splice(at,1);
-      }
-    }catch(e){}
-  });
-  window.ONE_HUNDRED_SUBJECTS = SUBJECTS;
+  /* v2: this used to build a curriculum subject per course and splice any
+     existing one out, but it never added them to CURRICULUM, so the definitions
+     were never displayed — dead code that looked like a feature. The shelf row
+     already shows each course's progress, and "Where I'm up to" is the school
+     curriculum, which is a different thing. Removed rather than finished. */
 
   /* subtopic id in a course  ->  objective id in Notice Me */
   const OBJ={};
