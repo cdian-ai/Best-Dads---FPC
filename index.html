@@ -2315,6 +2315,82 @@
     .kidhero{padding:18px}
   }
 </style>
+
+<!-- ================= under construction =================
+     A gate, not a lock. The page source is public on GitHub, so anyone
+     determined can read past this; what it does is stop the app being usable
+     by people who wander in, which is what was actually asked for.
+
+     The real enforcement is two settings in the Firebase console, and this
+     file cannot do either of them:
+       1. Authentication > Sign-in method > Email/Password > disable "Allow
+          users to sign up". Without that, anyone can still make an account.
+       2. Authentication > Settings > Authorized domains: remove anything that
+          is not cdian-ai.github.io and localhost.
+     Your Firestore rules already stop a stranger reading this family's data;
+     these two stop them using the app at all.
+
+     To let someone in, add their email to ALLOWED below and push. Case does
+     not matter; whitespace is trimmed. ================= -->
+<style>
+#ucGate{position:fixed;inset:0;z-index:99999;background:#EEF0FA;display:none;
+  align-items:center;justify-content:center;padding:28px;
+  font:16px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif;color:#243044}
+#ucGate.on{display:flex}
+#ucBox{max-width:380px;text-align:center}
+#ucBox .m{font-size:52px;line-height:1;margin-bottom:14px}
+#ucBox h1{margin:0 0 8px;font-size:22px;font-weight:800;color:#2b2e73}
+#ucBox p{margin:0 0 6px;color:#5a6478;font-size:15px}
+#ucBox small{display:block;margin-top:22px;color:#98a0b4;font-size:12px}
+#ucBox button{margin-top:20px;border:0;border-radius:14px;padding:11px 18px;font:inherit;
+  font-size:14px;font-weight:700;background:#e7e9fb;color:#2b2e73;cursor:pointer}
+</style>
+<div id="ucGate"><div id="ucBox">
+  <div class="m">&#128679;</div>
+  <h1>Notice Me is being built</h1>
+  <p>It is not open yet. Please check back another time.</p>
+  <small>If this is your family and you are seeing this, sign in with the account
+   that was added to the list.</small>
+  <button type="button" onclick="ucSignIn()">Sign in</button>
+</div></div>
+<script>
+(function(){
+  /* Everyone allowed through. Add an email, push, done. */
+  var ALLOWED = [
+    "ousmanebarrie8@gmail.com"
+  ].map(function(e){ return e.trim().toLowerCase(); });
+
+  function show(){
+    var g=document.getElementById('ucGate');
+    if(g) g.className='on';
+    document.documentElement.style.overflow='hidden';
+  }
+  function hide(){
+    var g=document.getElementById('ucGate');
+    if(g) g.className='';
+    document.documentElement.style.overflow='';
+  }
+  window.__ucAllowed=function(email){
+    return !!email && ALLOWED.indexOf(String(email).trim().toLowerCase())>=0;
+  };
+  window.ucSignIn=function(){
+    /* Let the app's own sign-in screen through so the family can get in. */
+    hide(); window.__ucSigningIn=true;
+    setTimeout(function(){ if(!window.__ucOk) show(); }, 90000);
+  };
+  /* Closed until the app says otherwise. Shown immediately so nothing of the
+     app is visible while Firebase works out who is signed in. */
+  if(document.readyState==='loading')
+    document.addEventListener('DOMContentLoaded',show);
+  else show();
+
+  window.__ucCheck=function(user){
+    var email = user && (user.email||"");
+    if(window.__ucAllowed(email)){ window.__ucOk=true; hide(); }
+    else if(!window.__ucSigningIn){ window.__ucOk=false; show(); }
+  };
+})();
+</script>
 </head>
 <body>
 <div id="pageBg" aria-hidden="true"></div>
@@ -3629,6 +3705,8 @@
 
   window.__firebaseReady = true;
   onAuthStateChanged(auth, (user) => {
+    try{ if(window.__ucCheck) window.__ucCheck(user); }catch(e){}
+
     if (typeof window.onAuthChanged === "function") window.onAuthChanged(user);
   });
 </script>
