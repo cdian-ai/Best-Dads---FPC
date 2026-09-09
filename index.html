@@ -9000,6 +9000,7 @@ function toggleKidMenu(){
   const sheet=document.getElementById("kidMenuSheet");
   if(!sheet) return;
   const open = sheet.classList.toggle("hidden") === false;
+  if(open){ try{ syncFaithTiles(); }catch(e){} }
   const who=document.getElementById("kidMenuWho");
   const m=sessionMember();
   if(who) who.textContent = m ? ("Signed in as " + m.name) : "";
@@ -9545,6 +9546,17 @@ function toggleMenu(){
   const sheet=document.getElementById("menuSheet");
   if(!sheet) return;
   const open=sheet.classList.toggle("hidden") === false;
+  /* This was attached to menu(), which despite the name builds a card deck.
+     The parent menu opens here. */
+  if(open){
+    try{ syncFaithTiles(); }catch(e){}
+    try{
+      const slot=document.getElementById("modulesSlot");
+      if(slot && typeof modulesPanelHTML==="function" && typeof isParentRole==="function"
+         && isParentRole(sessionMember()||{})) slot.innerHTML=modulesPanelHTML();
+      else if(slot) slot.innerHTML="";
+    }catch(e){}
+  }
   setMenuScrim(open);
   render();
 }
@@ -15841,13 +15853,6 @@ function done(){
   }
 
   function menu(){
-  try{ syncFaithTiles(); }catch(e){}
-  try{
-    const slot=document.getElementById("modulesSlot");
-    if(slot && typeof modulesPanelHTML==="function" && typeof isParentRole==="function"
-       && isParentRole(sessionMember()||{})) slot.innerHTML=modulesPanelHTML();
-    else if(slot) slot.innerHTML="";
-  }catch(e){}
 
     DECK=[];
     const tip=suggest();
