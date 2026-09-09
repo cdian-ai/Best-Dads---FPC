@@ -2662,7 +2662,6 @@
   <div class="menupills">
     <button id="soundBtn" onclick="setSoundOn(!soundOn())">🔊 Sound on</button>
   </div>
-  <div id="modulesSlot"></div>
   <div class="menupills menuout">
     <button onclick="signOutDevice()">🔒 Sign out</button>
   </div>
@@ -2807,7 +2806,11 @@
   <!-- On its own, at the very bottom, with air above it. Sitting in a row with
        "How this works" it was one mis-tap from ending the session, and it is
        the only button on this screen that undoes something. -->
-  <div class="menupills menuout">
+  <!-- The modules panel belongs here, in the parent's menu. It was anchored to
+         the first sign-out block in the file, which is the CHILD's menu - so it
+         rendered into a menu where isParentRole is false and came out empty. -->
+    <div id="modulesSlot"></div>
+    <div class="menupills menuout">
     <button id="btnSignOut" onclick="signOutDevice()">🔒 Sign out</button>
   </div>
 </div>
