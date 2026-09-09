@@ -3886,6 +3886,78 @@ const CURRICULUM = [
           ["Describe positions in all four quadrants","Geometry"],
           ["Interpret and construct pie charts and line graphs, and calculate the mean","Statistics"]
         ]}
+    ,
+      {"id":"ks3","name":"Key stage 3","year":7,
+       "blurb":"The maths of Years 7, 8 and 9. The national curriculum does not split key stage 3 by year, so this is the whole stage.",
+       "milestone":"Finished key stage 3 maths",
+       "objectives":[
+        ["Understand and use place value for decimals, measures and integers of any size","Number"],
+        ["Order positive and negative integers, decimals and fractions; use =, \u2260, <, >, \u2264, \u2265","Number"],
+        ["Use primes, factors, multiples, HCF, LCM and prime factorisation","Number"],
+        ["Use the four operations with integers, decimals, fractions and mixed numbers, positive and negative","Number"],
+        ["Use the priority of operations, including brackets, powers, roots and reciprocals","Number"],
+        ["Recognise and use relationships between operations, including inverses","Number"],
+        ["Use integer powers and real roots; recognise powers of 2, 3, 4 and 5","Number"],
+        ["Interpret and compare numbers in standard form","Number"],
+        ["Work interchangeably with terminating decimals and their fractions","Number"],
+        ["Define percentage as parts per hundred; work with percentages over 100%","Number"],
+        ["Interpret fractions and percentages as operators","Number"],
+        ["Use standard units of mass, length, time and money, including decimals","Number"],
+        ["Round numbers and measures to a given number of decimal places or significant figures","Number"],
+        ["Use rounding to estimate answers and express possible error with inequalities","Number"],
+        ["Use a calculator and other technology accurately, and interpret the result","Number"],
+        ["Appreciate the infinite nature of the integers, rationals and reals","Number"],
+        ["Use and interpret algebraic notation: ab, 3y, a\u00b2, a\u00b3, a\u00b2b, fractions and brackets","Algebra"],
+        ["Substitute numerical values into formulae and expressions, including scientific formulae","Algebra"],
+        ["Use the vocabulary of expressions, equations, inequalities, terms and factors","Algebra"],
+        ["Collect like terms and multiply a single term over a bracket","Algebra"],
+        ["Take out common factors and expand products of two or more binomials","Algebra"],
+        ["Use standard formulae and rearrange them to change the subject","Algebra"],
+        ["Model situations by translating them into expressions, formulae or graphs","Algebra"],
+        ["Solve linear equations in one variable, including those needing rearrangement","Algebra"],
+        ["Work with coordinates in all four quadrants","Algebra"],
+        ["Recognise, sketch and produce graphs of linear and quadratic functions","Algebra"],
+        ["Interpret mathematical relationships both algebraically and graphically","Algebra"],
+        ["Reduce a linear equation to y = mx + c; find and interpret gradient and intercept","Algebra"],
+        ["Use graphs to estimate values and find approximate solutions of simultaneous equations","Algebra"],
+        ["Find approximate solutions from graphs, including exponential and reciprocal graphs","Algebra"],
+        ["Generate terms of a sequence from a term-to-term or position-to-term rule","Algebra"],
+        ["Recognise arithmetic sequences and find the nth term","Algebra"],
+        ["Recognise geometric sequences and appreciate other sequences","Algebra"],
+        ["Change freely between related standard units of time, length, area, volume and mass","Ratio and proportion"],
+        ["Use scale factors, scale diagrams and maps","Ratio and proportion"],
+        ["Express one quantity as a fraction of another, above and below 1","Ratio and proportion"],
+        ["Use ratio notation and reduce a ratio to its simplest form","Ratio and proportion"],
+        ["Divide a quantity into two parts in a given part:part or part:whole ratio","Ratio and proportion"],
+        ["Understand a multiplicative relationship as either a ratio or a fraction","Ratio and proportion"],
+        ["Relate the language of ratio to fraction arithmetic and to linear functions","Ratio and proportion"],
+        ["Solve percentage change problems: increase, decrease, original value and simple interest","Ratio and proportion"],
+        ["Solve problems involving direct and inverse proportion, graphically and algebraically","Ratio and proportion"],
+        ["Use compound units such as speed, unit pricing and density","Ratio and proportion"],
+        ["Derive and apply formulae for perimeter and area of triangles, parallelograms and trapezia","Geometry and measures"],
+        ["Derive and apply formulae for the volume of cuboids and other prisms, including cylinders","Geometry and measures"],
+        ["Calculate perimeters of 2-D shapes including circles, and areas of circles and composite shapes","Geometry and measures"],
+        ["Draw and measure line segments and angles, including interpreting scale drawings","Geometry and measures"],
+        ["Use ruler and compass constructions: perpendicular bisector, perpendicular from a point, angle bisector","Geometry and measures"],
+        ["Describe, sketch and draw points, lines, parallel and perpendicular lines, right angles and polygons","Geometry and measures"],
+        ["Use standard conventions for labelling triangle ABC and the criteria for congruence","Geometry and measures"],
+        ["Derive and illustrate properties of triangles, quadrilaterals and circles","Geometry and measures"],
+        ["Identify and describe the results of translations, rotations and reflections","Geometry and measures"],
+        ["Construct congruent triangles, and similar shapes by enlargement, with and without grids","Geometry and measures"],
+        ["Apply the properties of angles at a point, on a straight line, and vertically opposite","Geometry and measures"],
+        ["Use the relationship between parallel lines and alternate and corresponding angles","Geometry and measures"],
+        ["Derive the angle sum of a triangle and use it for any polygon and for regular polygons","Geometry and measures"],
+        ["Apply angle facts, congruence and similarity to derive results, including Pythagoras' Theorem","Geometry and measures"],
+        ["Use Pythagoras' Theorem and trigonometric ratios to solve right-angled triangle problems","Geometry and measures"],
+        ["Use faces, surfaces, edges and vertices of prisms, cylinders, pyramids, cones and spheres","Geometry and measures"],
+        ["Record and analyse the frequency of outcomes of simple probability experiments","Probability"],
+        ["Understand that the probabilities of all possible outcomes sum to 1","Probability"],
+        ["Enumerate sets and unions or intersections using tables, grids and Venn diagrams","Probability"],
+        ["Generate sample spaces for single and combined events and calculate theoretical probabilities","Probability"],
+        ["Describe and compare distributions using graphs and measures of centre and spread","Statistics"],
+        ["Construct and interpret frequency tables, bar charts, pie charts and pictograms","Statistics"],
+        ["Describe relationships between two variables and illustrate them with scatter graphs","Statistics"]
+       ]}
     ]},
   { subject:"english", icon:"\u{270f}\u{fe0f}", name:"English", byYear:true, framework:"en-2014",
     strands:[
@@ -4477,7 +4549,13 @@ function allStrands(){
    own year rather than 190 objectives at once. The year comes from the age a
    parent already recorded; where that is missing, or a child is working outside
    it, the year can be changed by hand. */
-const YEAR_BY_AGE = {5:"y1",6:"y2",7:"y3",8:"y4",9:"y5",10:"y6",11:"y6"};
+/* Key stage 3 is one programme of study for Years 7 to 9, and key stage 4 is
+   one for 10 and 11 — neither is split by year in the national curriculum, and
+   schools sequence them differently. Splitting them into y7/y8/y9 would mean
+   inventing an order the DfE does not publish, and then showing a child blanks
+   for things their school teaches next year. So secondary is tracked by stage. */
+const YEAR_BY_AGE = {5:"y1",6:"y2",7:"y3",8:"y4",9:"y5",10:"y6",
+  11:"ks3",12:"ks3",13:"ks3",14:"ks4",15:"ks4",16:"ks4"};
 let learnYear = {};
 function defaultYearFor(child){
   const n=parseInt((child && child.age) || "", 10);
