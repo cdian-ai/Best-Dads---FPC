@@ -2361,6 +2361,17 @@
 .modx b{display:block;font-size:15px}
 .modx small{display:block;font-size:13px;color:var(--nm-muted);line-height:1.45;margin-top:2px}
 .modrow input{width:22px;height:22px;flex:0 0 auto}
+
+.onbpick{display:grid;gap:10px;margin-top:16px}
+.onbmod{display:flex;align-items:center;gap:12px;width:100%;text-align:left;font:inherit;
+ border:2px solid var(--nm-line);background:var(--nm-white);border-radius:18px;padding:14px 16px;cursor:pointer}
+.onbmod.on{border-color:var(--nm-indigo-600);background:var(--nm-indigo-050)}
+.onbmodx{flex:1 1 auto}
+.onbmodx b{display:block;font-size:15px;color:var(--nm-ink)}
+.onbmodx small{display:block;font-size:13px;color:var(--nm-muted);line-height:1.45;margin-top:2px}
+.onbmodtick{flex:0 0 26px;height:26px;border-radius:999px;display:flex;align-items:center;
+ justify-content:center;border:2px solid var(--nm-line);color:var(--nm-white);font-weight:700;font-size:15px}
+.onbmod.on .onbmodtick{background:var(--nm-indigo-600);border-color:var(--nm-indigo-600)}
 </style>
 </head>
 <body>
@@ -2485,10 +2496,22 @@
       <div class="onbpoint"><span class="em">⭐</span><div><strong>You notice, you award</strong><span>Only Mum and Dad accounts can give points. Children can see what they've earned, but never award any — to themselves or each other.</span></div></div>
       <div class="onbpoint"><span class="em">🎁</span><div><strong>They ask, you decide</strong><span>Children choose a reward or an activity and it comes to you as a request. Points are only spent when you approve it.</span></div></div>
       <div class="onbpoint"><span class="em">📈</span><div><strong>You'll see the pattern</strong><span>Each child gets a trend line that runs green while points are coming in, and fades when things go quiet. It’s the quiet weeks it’s there to show you.</span></div></div>
-      <div class="onbnav"><button class="primary" onclick="onbGo(2)">Next</button></div>
+      <div class="onbnav"><button class="primary" onclick="onbGo(3)">Next</button></div>
     </div>
 
     <div class="onbstep hidden" id="onbStep2">
+    <h1>What would you like in the app?</h1>
+    <p class="lede">Notice Me does points, chores and school progress for every family.
+      These are extra, and yours to choose. Nothing is picked for you.</p>
+    <div class="onbpick" id="onbModules"></div>
+    <p class="small" style="margin:14px 0 0">You can change any of this later,
+      in the menu. Turning something off hides it and keeps whatever you have marked.</p>
+    <div class="onbnav">
+      <button class="light" onclick="onbGo(1)">Back</button>
+      <button class="primary" onclick="onbSaveModules()">Next</button>
+    </div>
+  </div>
+  <div class="onbstep hidden" id="onbStep3">
       <h1>Add your children</h1>
       <p class="lede">Each child gets their own login, so the app knows who is who. Add them now — you can always add more later.</p>
       <div id="onbAdded"></div>
@@ -2503,30 +2526,30 @@
       <p class="small" style="margin:12px 0 0">On each child's own device, sign in with the email and password shown above. There's no code to enter and nothing to approve.</p>
       <div class="onbnav">
         <button class="light" onclick="onbGo(1)">Back</button>
-        <button class="primary" onclick="onbGo(3)" id="onbStep2Next">Next</button>
+        <button class="primary" onclick="onbGo(4)" id="onbStep3Next">Next</button>
       </div>
     </div>
 
-    <div class="onbstep hidden" id="onbStep3">
+    <div class="onbstep hidden" id="onbStep4">
       <h1>Set up their rewards</h1>
       <p class="lede">There's a starter list ready to go. Two things worth knowing about how it's priced.</p>
       <div class="onbpoint"><span class="em">🍫</span><div><strong>Time together is cheap on purpose</strong><span>Twenty minutes one-to-one costs 25 points; a packet of crisps costs 250. That’s the whole idea — the good stuff should be the easy stuff.</span></div></div>
       <div class="onbpoint"><span class="em">🎲</span><div><strong>Some rewards are limited, not dear</strong><span>A trip to the park is once a week. That way it stays affordable without costing you every Saturday.</span></div></div>
       <div class="onbpoint"><span class="em">💛</span><div><strong>Points aren't the point</strong><span>The app will nudge you now and then with ideas for connecting with your children — that's what makes the rest of it work.</span></div></div>
       <div class="onbnav">
-        <button class="light" onclick="onbGo(2)">Back</button>
-        <button class="primary" onclick="onbGo(4)">Next</button>
+        <button class="light" onclick="onbGo(3)">Back</button>
+        <button class="primary" onclick="onbGo(5)">Next</button>
       </div>
     </div>
 
-    <div class="onbstep hidden" id="onbStep4">
+    <div class="onbstep hidden" id="onbStep5">
       <h1>Just the first week</h1>
       <p class="lede">You don’t have to use all of it. Do these three and the rest makes sense on its own.</p>
       <div class="onbpoint"><span class="em">1️⃣</span><div><strong>Award something today</strong><span>Anything, however small. The first point is the one that makes it real for them.</span></div></div>
       <div class="onbpoint"><span class="em">2️⃣</span><div><strong>Say what it was for, out loud</strong><span>“That was kind of you — three points.” The words do more work than the number.</span></div></div>
       <div class="onbpoint"><span class="em">3️⃣</span><div><strong>Let a request come in, and answer it</strong><span>Yes or no both work. They learn how the loop runs either way.</span></div></div>
       <div class="onbnav">
-        <button class="light" onclick="onbGo(3)">Back</button>
+        <button class="light" onclick="onbGo(4)">Back</button>
         <button class="primary" onclick="finishOnboarding()">Start using the app</button>
       </div>
     </div>
@@ -11342,12 +11365,13 @@ let onbStep = 1;
 let onbAddedMembers = [];
 function onbGo(step){
   onbStep = step;
-  [1,2,3,4].forEach(i => {
+  if(step===2){ try{ onbRenderModules(); }catch(e){} }
+  [1,2,3,4,5].forEach(i => {
     const el = document.getElementById("onbStep"+i);
     if(el) el.classList.toggle("hidden", i !== step);
   });
   document.getElementById("onbDots").innerHTML =
-    [1,2,3,4].map(i => `<span class="onbdot ${i===step?"on":""}"></span>`).join("");
+    [1,2,3,4,5].map(i => `<span class="onbdot ${i===step?"on":""}"></span>`).join("");
   const me = sessionMember();
   const nameEl = document.getElementById("onbName");
   if(nameEl && me) nameEl.textContent = me.name;
@@ -11361,7 +11385,7 @@ function renderOnbAdded(){
       <span>\u2705</span>
       <div class="who"><strong>${escapeHtml(m.name)}</strong><br><code>${escapeHtml(m.email)}</code></div>
     </div>`).join("");
-  const next = document.getElementById("onbStep2Next");
+  const next = document.getElementById("onbStep3Next");
   if(next) next.textContent = onbAddedMembers.length ? "Next" : "Skip for now";
 }
 async function onbAddChild(){
@@ -11397,6 +11421,46 @@ async function onbAddChild(){
     errEl.textContent = authErrorMessage(e);
   }
   btn.disabled = false; btn.textContent = "Add";
+}
+
+/* ---------- What a family wants in the app ----------
+   Asked once, at setup, with nothing preselected.
+
+   Defaulting the faith modules off quietly made "not Muslim" the normal state,
+   which is an odd thing for an app built by and for a Muslim family, and it
+   meant the people it was built around had to go looking for it. Defaulting
+   them on would have been the same mistake pointing the other way. Asking
+   removes the question of whose experience is the ordinary one.
+
+   It also does a second job. A family with the Qur'an and duas switched on is
+   Muslim with near-certainty, and under UK GDPR data from which religious
+   belief can be INFERRED is special category data \u2014 inference counts, it is
+   not only about declared fields. A toggle buried in settings is not consent.
+   A screen that names what is being turned on, before anything is stored, is
+   the moment that consent can honestly be said to have happened. */
+let onbModulePick = {};
+function onbRenderModules(){
+  const box=document.getElementById("onbModules"); if(!box) return;
+  box.innerHTML = Object.keys(MODULES).map(k=>`
+    <button type="button" class="onbmod ${onbModulePick[k]?"on":""}"
+      onclick="onbToggleModule('${k}')" aria-pressed="${!!onbModulePick[k]}">
+      <span class="onbmodx"><b>${MODULES[k].name}</b><small>${MODULES[k].note}</small></span>
+      <span class="onbmodtick">${onbModulePick[k]?"\\u2713":""}</span>
+    </button>`).join("");
+}
+function onbToggleModule(k){ onbModulePick[k]=!onbModulePick[k]; onbRenderModules(); }
+async function onbSaveModules(){
+  /* Whatever they chose is written, including choosing nothing. Writing it
+     explicitly matters: after this, moduleOn reads a real answer rather than
+     guessing from what a family happens to have marked. */
+  app.settings = app.settings || {};
+  const chosen = {};
+  Object.keys(MODULES).forEach(k=>{ chosen[k] = !!onbModulePick[k]; });
+  app.settings.modules = chosen;
+  app.settings.modulesChosenTs = Date.now();
+  try{ await saveApp(); }
+  catch(e){ console.error("Could not save that:", e); }
+  onbGo(3);
 }
 function startOnboarding(){
   onbStep = 1; onbAddedMembers = [];
@@ -20219,6 +20283,17 @@ header.hascover .coverfade{background:linear-gradient(180deg,rgba(0,0,0,0) 62%,r
 .modx b{display:block;font-size:15px}
 .modx small{display:block;font-size:13px;color:var(--nm-muted);line-height:1.45;margin-top:2px}
 .modrow input{width:22px;height:22px;flex:0 0 auto}
+
+.onbpick{display:grid;gap:10px;margin-top:16px}
+.onbmod{display:flex;align-items:center;gap:12px;width:100%;text-align:left;font:inherit;
+ border:2px solid var(--nm-line);background:var(--nm-white);border-radius:18px;padding:14px 16px;cursor:pointer}
+.onbmod.on{border-color:var(--nm-indigo-600);background:var(--nm-indigo-050)}
+.onbmodx{flex:1 1 auto}
+.onbmodx b{display:block;font-size:15px;color:var(--nm-ink)}
+.onbmodx small{display:block;font-size:13px;color:var(--nm-muted);line-height:1.45;margin-top:2px}
+.onbmodtick{flex:0 0 26px;height:26px;border-radius:999px;display:flex;align-items:center;
+ justify-content:center;border:2px solid var(--nm-line);color:var(--nm-white);font-weight:700;font-size:15px}
+.onbmod.on .onbmodtick{background:var(--nm-indigo-600);border-color:var(--nm-indigo-600)}
 </style>
 <script>
 (function(){
@@ -20785,6 +20860,17 @@ body.nm-editing #editModeNote{display:none}
 .modx b{display:block;font-size:15px}
 .modx small{display:block;font-size:13px;color:var(--nm-muted);line-height:1.45;margin-top:2px}
 .modrow input{width:22px;height:22px;flex:0 0 auto}
+
+.onbpick{display:grid;gap:10px;margin-top:16px}
+.onbmod{display:flex;align-items:center;gap:12px;width:100%;text-align:left;font:inherit;
+ border:2px solid var(--nm-line);background:var(--nm-white);border-radius:18px;padding:14px 16px;cursor:pointer}
+.onbmod.on{border-color:var(--nm-indigo-600);background:var(--nm-indigo-050)}
+.onbmodx{flex:1 1 auto}
+.onbmodx b{display:block;font-size:15px;color:var(--nm-ink)}
+.onbmodx small{display:block;font-size:13px;color:var(--nm-muted);line-height:1.45;margin-top:2px}
+.onbmodtick{flex:0 0 26px;height:26px;border-radius:999px;display:flex;align-items:center;
+ justify-content:center;border:2px solid var(--nm-line);color:var(--nm-white);font-weight:700;font-size:15px}
+.onbmod.on .onbmodtick{background:var(--nm-indigo-600);border-color:var(--nm-indigo-600)}
 </style>
 <script>
 (function(){
@@ -21208,6 +21294,17 @@ body.nm-composing #panelTop{display:none!important}
 .modx b{display:block;font-size:15px}
 .modx small{display:block;font-size:13px;color:var(--nm-muted);line-height:1.45;margin-top:2px}
 .modrow input{width:22px;height:22px;flex:0 0 auto}
+
+.onbpick{display:grid;gap:10px;margin-top:16px}
+.onbmod{display:flex;align-items:center;gap:12px;width:100%;text-align:left;font:inherit;
+ border:2px solid var(--nm-line);background:var(--nm-white);border-radius:18px;padding:14px 16px;cursor:pointer}
+.onbmod.on{border-color:var(--nm-indigo-600);background:var(--nm-indigo-050)}
+.onbmodx{flex:1 1 auto}
+.onbmodx b{display:block;font-size:15px;color:var(--nm-ink)}
+.onbmodx small{display:block;font-size:13px;color:var(--nm-muted);line-height:1.45;margin-top:2px}
+.onbmodtick{flex:0 0 26px;height:26px;border-radius:999px;display:flex;align-items:center;
+ justify-content:center;border:2px solid var(--nm-line);color:var(--nm-white);font-weight:700;font-size:15px}
+.onbmod.on .onbmodtick{background:var(--nm-indigo-600);border-color:var(--nm-indigo-600)}
 </style>
 <script>
 (function(){
