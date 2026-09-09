@@ -8550,6 +8550,13 @@ function modulesPanelHTML(){
         onchange="setModule('${k}', this.checked)"></label>`).join("")}
   </section>`;
 }
+/* A family may still have a points value set against a prayer action from
+   before. It is ignored on purpose, and this says so rather than leaving
+   someone to discover it. */
+function prayerPointsNote(){
+  return `<p class="small" style="margin:6px 0 0">Prayers are recorded, not scored.
+    Confirming one fills the board and keeps the streak — it does not add points.</p>`;
+}
 function prayerBoardEnabled(){ return Object.keys(prayerKeys()).length > 0; }
 
 /* ---------- "I prayed" ----------
@@ -8735,6 +8742,7 @@ function prayerWallHTML(child, days, forChild){
   return `<section class="prayerwall">
       <div class="prayerhead"><h2>\u{1f54c} ${forChild?"My prayers":escapeHtml(child.name)+"\u2019s prayers"}</h2>
         <span class="prayercount">${full} full day${full===1?"":"s"} of ${days}</span></div>
+      ${prayerPointsNote()}
       <div class="pwgrid"><div class="pwrow head"><span class="pwname"></span>
         <div class="pwcells">${head}</div><span class="pwstreak">\u{1f525}</span></div>${rows}</div>
       <p class="small" style="margin:10px 0 0">A filled square is a prayer that was recorded. The number on the right is the current run.</p>
@@ -12456,9 +12464,22 @@ async function approveRequest(id){
        come from the one path they already came from - nothing here knows
        about prayers except the tag it carries. Points come from whatever the
        family scored that action at, so changing the score changes this too. */
+    /* v2: a confirmed prayer no longer carries points.
+
+       The curriculum in this app already works to the rule that keeping money
+       away from the assessment is what keeps the assessment honest. That holds
+       with more force here than for times tables: a child who prays because
+       five points are attached has been taught that prayer is a transaction,
+       and the intention behind it — the part that matters — is exactly what
+       the points quietly replace.
+
+       Everything else stays. The child still says they prayed, the adult still
+       confirms, the board still fills, the streak still counts. It is a record
+       the family keeps rather than an economy. Ledger entries already written
+       are untouched; this changes what happens from now on. */
     const act=prayerAction(r.tag) || {};
     entry=Object.assign({ childId:r.childId,
-      points:payableFor(act.cat, child, act.points||0), type:"award",
+      points:0, type:"award",
       tag:r.tag, catKey:act.catKey || ("prayer|"+r.tag),
       actionName:act.name || ("Prayed "+r.itemName),
       label:act.name || ("Prayed "+r.itemName) }, who);
