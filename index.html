@@ -1833,8 +1833,7 @@
   /* Not red. Nothing on this board is destructive - the worst that happens is
      "not yet", and a parent should be able to say it without the interface
      treating it as a rejection. */
-  .rbtns .notyet{background:#f2f3f9;color:#5a6172;border:1px solid var(--nm-line)}
-  .rbtns .notyet:active{background:var(--nm-c-e9ebf3)}
+  .rbtns .rbtns .notyet:active{background:var(--nm-c-e9ebf3)}
   /* A confirmation is not a request. Different tint, no gold outline, and the
      time it happened is the important number on it. */
   .requestrow.confirm{background:linear-gradient(150deg,var(--nm-white),var(--nm-green-050));border-color:#cbe7db}
@@ -2329,58 +2328,20 @@
     .kidhero{padding:18px}
   }
 
-.notyet{margin:6px 0 10px;font-size:13px;color:var(--nm-muted);line-height:1.5}
-.domsum{margin:4px 0 14px}
-.domhead{margin:0 0 10px;font-size:15px;color:var(--nm-ink-2)}
-.domhead b{color:var(--nm-indigo-600)}
-.domrow{display:flex;align-items:center;gap:10px;margin-bottom:8px}
-.domname{flex:0 0 40%;font-size:13px;font-weight:600;color:var(--nm-ink)}
-.dombar{position:relative;flex:1 1 auto;height:10px;border-radius:999px;background:var(--nm-line);overflow:hidden}
-.dombar i{position:absolute;left:0;top:0;bottom:0;background:var(--nm-indigo-600);opacity:.45;border-radius:999px}
-.dombar b{position:absolute;left:0;top:0;bottom:0;background:var(--nm-indigo-600);border-radius:999px}
-.domnum{flex:0 0 auto;font-size:13px;font-weight:700;color:var(--nm-ink)}
-.domnum span{font-weight:400;color:var(--nm-muted)}
-.domfoot{margin:10px 0 0;font-size:11px;color:var(--nm-muted)}
-
-.boardnote{margin:8px 0 12px;padding:10px 13px;border-radius:14px;background:var(--nm-indigo-050);
- font-size:13px;color:var(--nm-ink-2);line-height:1.5}
-.boardnote b{color:var(--nm-indigo-600)}
-.boardnote span{display:block;font-size:11px;color:var(--nm-muted);margin-top:2px}
-.boardnote.none{background:var(--nm-line);color:var(--nm-ink-2)}
-
-.stageswitch{display:flex;gap:6px;margin:10px 0 4px}
-.stageswitch button{flex:1 1 auto;border:1.5px solid var(--nm-line);background:#fff;border-radius:14px;
- padding:9px 10px;font:inherit;font-size:13px;font-weight:700;color:var(--nm-ink-2);cursor:pointer;line-height:1.25}
-.stageswitch button.on{border-color:var(--nm-indigo-600);color:var(--nm-indigo-600);
- background:var(--nm-indigo-050)}
-.stageswitch button span{display:block;font-size:11px;font-weight:500;color:var(--nm-muted);margin-top:1px}
-
-.modrow{display:flex;align-items:center;gap:12px;padding:12px 0;border-top:1px solid var(--nm-line)}
-.modrow:first-of-type{border-top:0}
-.modx{flex:1 1 auto}
-.modx b{display:block;font-size:15px}
-.modx small{display:block;font-size:13px;color:var(--nm-muted);line-height:1.45;margin-top:2px}
-.modrow input{width:22px;height:22px;flex:0 0 auto}
-
-.onbpick{display:grid;gap:10px;margin-top:16px}
-.onbmod{display:flex;align-items:center;gap:12px;width:100%;text-align:left;font:inherit;
- border:2px solid var(--nm-line);background:var(--nm-white);border-radius:18px;padding:14px 16px;cursor:pointer}
-.onbmod.on{border-color:var(--nm-indigo-600);background:var(--nm-indigo-050)}
-.onbmodx{flex:1 1 auto}
-.onbmodx b{display:block;font-size:15px;color:var(--nm-ink)}
-.onbmodx small{display:block;font-size:13px;color:var(--nm-muted);line-height:1.45;margin-top:2px}
-.onbmodtick{flex:0 0 26px;height:26px;border-radius:999px;display:flex;align-items:center;
- justify-content:center;border:2px solid var(--nm-line);color:var(--nm-white);font-weight:700;font-size:15px}
-.onbmod.on .onbmodtick{background:var(--nm-indigo-600);border-color:var(--nm-indigo-600)}
-
-.onbgroup{margin-bottom:18px}
-.onbgh{margin:0 0 8px;font-size:13px;font-weight:800;letter-spacing:.06em;
+.onbmod.on /* ---- the modules panel ----
+   .card p sets margin:0 and beats a lone class selector, so the group headings
+   had no space above them and sat flush against the paragraph. Matching the
+   same specificity fixes it; raising the number never would have.
+   Every one of these rules had been appended more than once across builds; this
+   is the single copy. */
+.card p.modgh{margin:20px 0 2px;font-size:13px;font-weight:800;letter-spacing:.06em;
  text-transform:uppercase;color:var(--nm-muted)}
-.onbgh span{display:block;font-size:13px;font-weight:400;letter-spacing:0;
- text-transform:none;color:var(--nm-muted);margin-top:2px}
-.modgh{margin:16px 0 4px;font-size:13px;font-weight:800;letter-spacing:.06em;
- text-transform:uppercase;color:var(--nm-muted)}
-</style>
+.card p.modgh:first-of-type{margin-top:12px}
+#modulesSlot .card{margin:18px 0 10px;padding:16px 18px 8px;
+ border:1px solid var(--nm-line);border-radius:20px;background:var(--nm-white)}
+#modulesSlot .card h2{margin:0 0 4px;font-size:17.5px}
+#modulesSlot .card>p.small{margin:0 0 2px}
+#modulesSlot #modulesSlot </style>
 </head>
 <body>
 <div id="pageBg" aria-hidden="true"></div>
@@ -20396,58 +20357,7 @@ header.hascover .coverfade{background:linear-gradient(180deg,rgba(0,0,0,0) 62%,r
 /* Prayers, for a parent who has not opened a child. */
 .nmprayhead{margin:0 0 14px}
 
-.notyet{margin:6px 0 10px;font-size:13px;color:var(--nm-muted);line-height:1.5}
-.domsum{margin:4px 0 14px}
-.domhead{margin:0 0 10px;font-size:15px;color:var(--nm-ink-2)}
-.domhead b{color:var(--nm-indigo-600)}
-.domrow{display:flex;align-items:center;gap:10px;margin-bottom:8px}
-.domname{flex:0 0 40%;font-size:13px;font-weight:600;color:var(--nm-ink)}
-.dombar{position:relative;flex:1 1 auto;height:10px;border-radius:999px;background:var(--nm-line);overflow:hidden}
-.dombar i{position:absolute;left:0;top:0;bottom:0;background:var(--nm-indigo-600);opacity:.45;border-radius:999px}
-.dombar b{position:absolute;left:0;top:0;bottom:0;background:var(--nm-indigo-600);border-radius:999px}
-.domnum{flex:0 0 auto;font-size:13px;font-weight:700;color:var(--nm-ink)}
-.domnum span{font-weight:400;color:var(--nm-muted)}
-.domfoot{margin:10px 0 0;font-size:11px;color:var(--nm-muted)}
-
-.boardnote{margin:8px 0 12px;padding:10px 13px;border-radius:14px;background:var(--nm-indigo-050);
- font-size:13px;color:var(--nm-ink-2);line-height:1.5}
-.boardnote b{color:var(--nm-indigo-600)}
-.boardnote span{display:block;font-size:11px;color:var(--nm-muted);margin-top:2px}
-.boardnote.none{background:var(--nm-line);color:var(--nm-ink-2)}
-
-.stageswitch{display:flex;gap:6px;margin:10px 0 4px}
-.stageswitch button{flex:1 1 auto;border:1.5px solid var(--nm-line);background:#fff;border-radius:14px;
- padding:9px 10px;font:inherit;font-size:13px;font-weight:700;color:var(--nm-ink-2);cursor:pointer;line-height:1.25}
-.stageswitch button.on{border-color:var(--nm-indigo-600);color:var(--nm-indigo-600);
- background:var(--nm-indigo-050)}
-.stageswitch button span{display:block;font-size:11px;font-weight:500;color:var(--nm-muted);margin-top:1px}
-
-.modrow{display:flex;align-items:center;gap:12px;padding:12px 0;border-top:1px solid var(--nm-line)}
-.modrow:first-of-type{border-top:0}
-.modx{flex:1 1 auto}
-.modx b{display:block;font-size:15px}
-.modx small{display:block;font-size:13px;color:var(--nm-muted);line-height:1.45;margin-top:2px}
-.modrow input{width:22px;height:22px;flex:0 0 auto}
-
-.onbpick{display:grid;gap:10px;margin-top:16px}
-.onbmod{display:flex;align-items:center;gap:12px;width:100%;text-align:left;font:inherit;
- border:2px solid var(--nm-line);background:var(--nm-white);border-radius:18px;padding:14px 16px;cursor:pointer}
-.onbmod.on{border-color:var(--nm-indigo-600);background:var(--nm-indigo-050)}
-.onbmodx{flex:1 1 auto}
-.onbmodx b{display:block;font-size:15px;color:var(--nm-ink)}
-.onbmodx small{display:block;font-size:13px;color:var(--nm-muted);line-height:1.45;margin-top:2px}
-.onbmodtick{flex:0 0 26px;height:26px;border-radius:999px;display:flex;align-items:center;
- justify-content:center;border:2px solid var(--nm-line);color:var(--nm-white);font-weight:700;font-size:15px}
-.onbmod.on .onbmodtick{background:var(--nm-indigo-600);border-color:var(--nm-indigo-600)}
-
-.onbgroup{margin-bottom:18px}
-.onbgh{margin:0 0 8px;font-size:13px;font-weight:800;letter-spacing:.06em;
- text-transform:uppercase;color:var(--nm-muted)}
-.onbgh span{display:block;font-size:13px;font-weight:400;letter-spacing:0;
- text-transform:none;color:var(--nm-muted);margin-top:2px}
-.modgh{margin:16px 0 4px;font-size:13px;font-weight:800;letter-spacing:.06em;
- text-transform:uppercase;color:var(--nm-muted)}
-</style>
+.onbmod.on </style>
 <script>
 (function(){
   "use strict";
@@ -20981,58 +20891,7 @@ body.editing{padding-top:0!important}
   background:var(--nm-white);color:var(--nm-indigo-900);border:0;font:700 13px/1 Inter,system-ui,sans-serif;cursor:pointer}
 body.nm-editing #editModeNote{display:none}
 
-.notyet{margin:6px 0 10px;font-size:13px;color:var(--nm-muted);line-height:1.5}
-.domsum{margin:4px 0 14px}
-.domhead{margin:0 0 10px;font-size:15px;color:var(--nm-ink-2)}
-.domhead b{color:var(--nm-indigo-600)}
-.domrow{display:flex;align-items:center;gap:10px;margin-bottom:8px}
-.domname{flex:0 0 40%;font-size:13px;font-weight:600;color:var(--nm-ink)}
-.dombar{position:relative;flex:1 1 auto;height:10px;border-radius:999px;background:var(--nm-line);overflow:hidden}
-.dombar i{position:absolute;left:0;top:0;bottom:0;background:var(--nm-indigo-600);opacity:.45;border-radius:999px}
-.dombar b{position:absolute;left:0;top:0;bottom:0;background:var(--nm-indigo-600);border-radius:999px}
-.domnum{flex:0 0 auto;font-size:13px;font-weight:700;color:var(--nm-ink)}
-.domnum span{font-weight:400;color:var(--nm-muted)}
-.domfoot{margin:10px 0 0;font-size:11px;color:var(--nm-muted)}
-
-.boardnote{margin:8px 0 12px;padding:10px 13px;border-radius:14px;background:var(--nm-indigo-050);
- font-size:13px;color:var(--nm-ink-2);line-height:1.5}
-.boardnote b{color:var(--nm-indigo-600)}
-.boardnote span{display:block;font-size:11px;color:var(--nm-muted);margin-top:2px}
-.boardnote.none{background:var(--nm-line);color:var(--nm-ink-2)}
-
-.stageswitch{display:flex;gap:6px;margin:10px 0 4px}
-.stageswitch button{flex:1 1 auto;border:1.5px solid var(--nm-line);background:#fff;border-radius:14px;
- padding:9px 10px;font:inherit;font-size:13px;font-weight:700;color:var(--nm-ink-2);cursor:pointer;line-height:1.25}
-.stageswitch button.on{border-color:var(--nm-indigo-600);color:var(--nm-indigo-600);
- background:var(--nm-indigo-050)}
-.stageswitch button span{display:block;font-size:11px;font-weight:500;color:var(--nm-muted);margin-top:1px}
-
-.modrow{display:flex;align-items:center;gap:12px;padding:12px 0;border-top:1px solid var(--nm-line)}
-.modrow:first-of-type{border-top:0}
-.modx{flex:1 1 auto}
-.modx b{display:block;font-size:15px}
-.modx small{display:block;font-size:13px;color:var(--nm-muted);line-height:1.45;margin-top:2px}
-.modrow input{width:22px;height:22px;flex:0 0 auto}
-
-.onbpick{display:grid;gap:10px;margin-top:16px}
-.onbmod{display:flex;align-items:center;gap:12px;width:100%;text-align:left;font:inherit;
- border:2px solid var(--nm-line);background:var(--nm-white);border-radius:18px;padding:14px 16px;cursor:pointer}
-.onbmod.on{border-color:var(--nm-indigo-600);background:var(--nm-indigo-050)}
-.onbmodx{flex:1 1 auto}
-.onbmodx b{display:block;font-size:15px;color:var(--nm-ink)}
-.onbmodx small{display:block;font-size:13px;color:var(--nm-muted);line-height:1.45;margin-top:2px}
-.onbmodtick{flex:0 0 26px;height:26px;border-radius:999px;display:flex;align-items:center;
- justify-content:center;border:2px solid var(--nm-line);color:var(--nm-white);font-weight:700;font-size:15px}
-.onbmod.on .onbmodtick{background:var(--nm-indigo-600);border-color:var(--nm-indigo-600)}
-
-.onbgroup{margin-bottom:18px}
-.onbgh{margin:0 0 8px;font-size:13px;font-weight:800;letter-spacing:.06em;
- text-transform:uppercase;color:var(--nm-muted)}
-.onbgh span{display:block;font-size:13px;font-weight:400;letter-spacing:0;
- text-transform:none;color:var(--nm-muted);margin-top:2px}
-.modgh{margin:16px 0 4px;font-size:13px;font-weight:800;letter-spacing:.06em;
- text-transform:uppercase;color:var(--nm-muted)}
-</style>
+.onbmod.on </style>
 <script>
 (function(){
   "use strict";
@@ -21463,8 +21322,6 @@ body.nm-composing #panelTop{display:none!important}
 .onbmodx{flex:1 1 auto}
 .onbmodx b{display:block;font-size:15px;color:var(--nm-ink)}
 .onbmodx small{display:block;font-size:13px;color:var(--nm-muted);line-height:1.45;margin-top:2px}
-.onbmodtick{flex:0 0 26px;height:26px;border-radius:999px;display:flex;align-items:center;
- justify-content:center;border:2px solid var(--nm-line);color:var(--nm-white);font-weight:700;font-size:15px}
 .onbmod.on .onbmodtick{background:var(--nm-indigo-600);border-color:var(--nm-indigo-600)}
 
 .onbgroup{margin-bottom:18px}
@@ -21472,8 +21329,6 @@ body.nm-composing #panelTop{display:none!important}
  text-transform:uppercase;color:var(--nm-muted)}
 .onbgh span{display:block;font-size:13px;font-weight:400;letter-spacing:0;
  text-transform:none;color:var(--nm-muted);margin-top:2px}
-.modgh{margin:16px 0 4px;font-size:13px;font-weight:800;letter-spacing:.06em;
- text-transform:uppercase;color:var(--nm-muted)}
 </style>
 <script>
 (function(){
