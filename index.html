@@ -2355,6 +2355,13 @@
 .stageswitch button.on{border-color:var(--nm-indigo-600);color:var(--nm-indigo-600);
  background:var(--nm-indigo-050)}
 .stageswitch button span{display:block;font-size:11px;font-weight:500;color:var(--nm-muted);margin-top:1px}
+
+.modrow{display:flex;align-items:center;gap:12px;padding:12px 0;border-top:1px solid var(--nm-line)}
+.modrow:first-of-type{border-top:0}
+.modx{flex:1 1 auto}
+.modx b{display:block;font-size:15px}
+.modx small{display:block;font-size:13px;color:var(--nm-muted);line-height:1.45;margin-top:2px}
+.modrow input{width:22px;height:22px;flex:0 0 auto}
 </style>
 </head>
 <body>
@@ -2625,6 +2632,7 @@
   <div class="menupills">
     <button id="soundBtn" onclick="setSoundOn(!soundOn())">🔊 Sound on</button>
   </div>
+  <div id="modulesSlot"></div>
   <div class="menupills menuout">
     <button onclick="signOutDevice()">🔒 Sign out</button>
   </div>
@@ -6890,7 +6898,7 @@ function learnScreenHTML(child){
      it and English and Science stranded below, so the ladder appeared wedged
      into the middle of a list. Open one and it takes the top of "Where I'm up
      to"; everything else falls in underneath it, in its usual order. */
-  const ordered=CURRICULUM.slice().sort((a,b)=>
+  const ordered=CURRICULUM.filter(s=>s.subject!=="quran"||moduleOn("quran")).sort((a,b)=>
     (subjectIsOpen(child.id,b.subject)?1:0) - (subjectIsOpen(child.id,a.subject)?1:0));
   const cells=ordered.map(subject=>{
     // The year is the child's year, worked out from their age, for everybody
@@ -8479,6 +8487,68 @@ function championWeekDates(){
     out.push(dateStr(d));
   }
   return out;
+}
+
+/* ================= modules a family turns on =================
+   The app should work for a family that does not want the faith content, and
+   for a Muslim family that wants some of it and not the rest.
+
+   It asks WHICH MODULES, not WHO YOU ARE, and that is not cosmetic:
+     \u2022 religion is special category data under UK GDPR. "This family is Muslim"
+       is a far heavier thing to hold than "duas: on", in an app already sitting
+       under the Age Appropriate Design Code.
+     \u2022 a flag would also be wrong. Some Muslim families do not want worship
+       tracked in an app; some families who are not Muslim want the Qur'an or
+       the Arabic for their own reasons.
+     \u2022 and a yes/no cannot hold whatever gets added next.
+
+   Off by default, so somebody signing up today sees a points-and-school app and
+   nothing else until they ask. The prayer board was already arranged this way \u2014
+   it appears only where a family has set up prayer categories \u2014 so this extends
+   something that was already right rather than inventing a new idea. */
+const MODULES = {
+  quran: { name:"Qur'an", note:"Qaida, Nazra and Hifz, tracked like any other subject." },
+  duas:  { name:"Duas",   note:"A dua for the time of day, and a collection to look through." },
+};
+function moduleOn(key){
+  const s=(typeof app!=="undefined" && app.settings && app.settings.modules) || null;
+  if(s && typeof s[key]==="boolean") return s[key];
+  /* Defaulting to off would have taken the Qur'an away from every family
+     already using it, including the one that built this. A family that has
+     never chosen keeps whatever they are already doing; a family that has
+     chosen gets exactly what they chose, including off. */
+  return alreadyUsing(key);
+}
+function alreadyUsing(key){
+  try{
+    if(key==="quran"){
+      const f=currentFamily(); if(!f) return false;
+      return (f.children||[]).some(c=>Object.keys((c&&c.progress)||{})
+        .some(k=>k.indexOf("quran.")===0));
+    }
+    if(key==="duas") return false;   /* nothing to lose — duas store nothing */
+  }catch(e){}
+  return false;
+}
+async function setModule(key, on){
+  if(typeof requireParent==="function" && !requireParent()) return;
+  app.settings = app.settings || {};
+  app.settings.modules = Object.assign({}, app.settings.modules || {});
+  app.settings.modules[key] = !!on;
+  try{ await saveApp(); }
+  catch(e){ console.error("Could not save that:", e); alert("That couldn't be saved."); return; }
+  render();
+}
+function modulesPanelHTML(){
+  return `<section class="card">
+    <h2>What this family uses</h2>
+    <p class="small">Turn on only what you want. Nothing here is on until you switch it on,
+      and switching something off hides it without deleting anything you have marked.</p>
+    ${Object.keys(MODULES).map(k=>`<label class="modrow">
+      <span class="modx"><b>${MODULES[k].name}</b><small>${MODULES[k].note}</small></span>
+      <input type="checkbox" ${moduleOn(k)?"checked":""}
+        onchange="setModule('${k}', this.checked)"></label>`).join("")}
+  </section>`;
 }
 function prayerBoardEnabled(){ return Object.keys(prayerKeys()).length > 0; }
 
@@ -15565,6 +15635,13 @@ function done(){
   }
 
   function menu(){
+  try{
+    const slot=document.getElementById("modulesSlot");
+    if(slot && typeof modulesPanelHTML==="function" && typeof isParentRole==="function"
+       && isParentRole(sessionMember()||{})) slot.innerHTML=modulesPanelHTML();
+    else if(slot) slot.innerHTML="";
+  }catch(e){}
+
     DECK=[];
     const tip=suggest();
     $("dkDots").innerHTML=""; $("dkCount").textContent="";
@@ -16930,6 +17007,7 @@ window.GROWNUP_DECKS = [
      their own Qaida uses exactly the same rows, the same states and the same
      14/42/90-day review decay as a child. Nothing new to keep in step. */
   function quranHTML(){
+    if(!moduleOn("quran")) return "";
     if(typeof CURRICULUM === "undefined" || typeof ladderHTML !== "function") return "";
     const m = me(); if(!m) return "";
     const subject = CURRICULUM.filter(s => s.subject === "quran")[0];
@@ -20128,6 +20206,13 @@ header.hascover .coverfade{background:linear-gradient(180deg,rgba(0,0,0,0) 62%,r
 .stageswitch button.on{border-color:var(--nm-indigo-600);color:var(--nm-indigo-600);
  background:var(--nm-indigo-050)}
 .stageswitch button span{display:block;font-size:11px;font-weight:500;color:var(--nm-muted);margin-top:1px}
+
+.modrow{display:flex;align-items:center;gap:12px;padding:12px 0;border-top:1px solid var(--nm-line)}
+.modrow:first-of-type{border-top:0}
+.modx{flex:1 1 auto}
+.modx b{display:block;font-size:15px}
+.modx small{display:block;font-size:13px;color:var(--nm-muted);line-height:1.45;margin-top:2px}
+.modrow input{width:22px;height:22px;flex:0 0 auto}
 </style>
 <script>
 (function(){
@@ -20687,6 +20772,13 @@ body.nm-editing #editModeNote{display:none}
 .stageswitch button.on{border-color:var(--nm-indigo-600);color:var(--nm-indigo-600);
  background:var(--nm-indigo-050)}
 .stageswitch button span{display:block;font-size:11px;font-weight:500;color:var(--nm-muted);margin-top:1px}
+
+.modrow{display:flex;align-items:center;gap:12px;padding:12px 0;border-top:1px solid var(--nm-line)}
+.modrow:first-of-type{border-top:0}
+.modx{flex:1 1 auto}
+.modx b{display:block;font-size:15px}
+.modx small{display:block;font-size:13px;color:var(--nm-muted);line-height:1.45;margin-top:2px}
+.modrow input{width:22px;height:22px;flex:0 0 auto}
 </style>
 <script>
 (function(){
@@ -21103,6 +21195,13 @@ body.nm-composing #panelTop{display:none!important}
 .stageswitch button.on{border-color:var(--nm-indigo-600);color:var(--nm-indigo-600);
  background:var(--nm-indigo-050)}
 .stageswitch button span{display:block;font-size:11px;font-weight:500;color:var(--nm-muted);margin-top:1px}
+
+.modrow{display:flex;align-items:center;gap:12px;padding:12px 0;border-top:1px solid var(--nm-line)}
+.modrow:first-of-type{border-top:0}
+.modx{flex:1 1 auto}
+.modx b{display:block;font-size:15px}
+.modx small{display:block;font-size:13px;color:var(--nm-muted);line-height:1.45;margin-top:2px}
+.modrow input{width:22px;height:22px;flex:0 0 auto}
 </style>
 <script>
 (function(){
