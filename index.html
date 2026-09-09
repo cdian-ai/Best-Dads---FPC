@@ -6672,6 +6672,45 @@ function learnExtrasHTML(child){
   if(!parts.length) return "";
   return `<p class="learneyebrow">Ready to open</p>` + parts.join("");
 }
+
+/* ================= subject marks =================
+   The shelf stopped using emoji days ago; this list did not, so the same
+   screen carried drawn marks at the top and keyboard characters underneath.
+   Same construction as NM_MARK: one weight, one corner treatment. */
+window.NM_SUBJ = function(kind, colour){
+ const c=colour||"currentColor";
+ const P={
+  quran:`<path d="M8 12 C16 8 24 8 28 12 L28 42 C24 38 16 38 8 42 Z" fill="none" stroke="${c}"
+      stroke-width="2.6" stroke-linejoin="round"/>
+    <path d="M48 12 C40 8 32 8 28 12 L28 42 C32 38 40 38 48 42 Z" fill="none" stroke="${c}"
+      stroke-width="2.6" stroke-linejoin="round"/>`,
+  maths:`<path d="M10 16 H22 M16 10 V22" stroke="${c}" stroke-width="2.8" stroke-linecap="round"/>
+    <path d="M34 10 L46 22 M46 10 L34 22" stroke="${c}" stroke-width="2.8" stroke-linecap="round"/>
+    <path d="M10 40 H22" stroke="${c}" stroke-width="2.8" stroke-linecap="round"/>
+    <circle cx="40" cy="34" r="2.2" fill="${c}"/>
+    <path d="M33 40 H47" stroke="${c}" stroke-width="2.8" stroke-linecap="round"/>
+    <circle cx="40" cy="46" r="2.2" fill="${c}"/>`,
+  english:`<text x="28" y="34" text-anchor="middle" font-size="21" font-weight="700" fill="${c}"
+      font-family="ui-sans-serif,system-ui">Aa</text>
+    <path d="M12 42 H44" stroke="${c}" stroke-width="2.6" stroke-linecap="round"/>`,
+  science:`<path d="M22 8 V22 L11 40 C9 44 12 48 16 48 H40 C44 48 47 44 45 40 L34 22 V8"
+      fill="none" stroke="${c}" stroke-width="2.6" stroke-linejoin="round"/>
+    <path d="M18 8 H38" stroke="${c}" stroke-width="2.6" stroke-linecap="round"/>
+    <circle cx="24" cy="38" r="2.4" fill="${c}"/><circle cx="33" cy="42" r="2" fill="${c}"/>`,
+  /* An open book with a dot in it was indistinguishable from the Qur'an mark
+     at 26px — the same fault the shelf had. Fulfulde gets one of its own
+     hooked letters instead, which nothing else in the app looks like. */
+  fulfulde:`<text x="28" y="36" text-anchor="middle" font-size="26" font-weight="700" fill="${c}"
+      font-family="ui-sans-serif,system-ui">\u0253</text>
+    <path d="M12 44 H44" stroke="${c}" stroke-width="2.6" stroke-linecap="round"/>`,
+  talktogether:`<path d="M8 14 H48 V38 H26 L16 48 V38 H8 Z" fill="none" stroke="${c}"
+      stroke-width="2.6" stroke-linejoin="round"/>
+    <circle cx="20" cy="26" r="2.2" fill="${c}"/><circle cx="28" cy="26" r="2.2" fill="${c}"/>
+    <circle cx="36" cy="26" r="2.2" fill="${c}"/>`,
+ };
+ return `<svg viewBox="0 0 56 56" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"
+   style="width:26px;height:26px;display:block">${P[kind]||P.maths}</svg>`;
+};
 function learnScreenHTML(child){
   if(!child) return "";
   const me=sessionMember();
@@ -6719,7 +6758,7 @@ function learnScreenHTML(child){
               stroke-dasharray="${C.toFixed(1)}"
               stroke-dashoffset="${(C*(1-pct/100)).toFixed(1)}"></circle>
           </svg>
-          <span class="tileicon">${subject.icon}</span>
+          <span class="tileicon">${window.NM_SUBJ?NM_SUBJ(subject.subject):subject.icon}</span>
         </span>
         <span class="tilename">${escapeHtml(subject.name)}</span>
         <span class="tilecount">${yearName?escapeHtml(yearName)+" \u00b7 ":""}${done}/${total}</span>
@@ -6739,9 +6778,9 @@ function learnScreenHTML(child){
   }).join("");
   return teachersCardHTML(child)
     + (forChild ? learnExtrasHTML(child) : "")
-    + `<p class="learneyebrow">Where I\u2019m up to</p>`
+    + `<p class="learneyebrow">At school</p>`
     + `<div class="subjgrid">${cells}</div>`
-    + `<p class="kidfooter">Tap a subject to see what is in it. Mark <strong>Practised</strong> when you\u2019ve worked on something \u2014 only a grown-up can mark it secure.</p>`;
+    + `<p class="kidfooter">What ${escapeHtml(child.name||"they")} is covering at school. Tap a subject to see what is in it. Mark <strong>Practised</strong> when you\u2019ve worked on something \u2014 only a grown-up can mark it secure.</p>`;
 }
 /* One re-render for whichever Learn surface is on screen: the child\u2019s tab or
    the parent\u2019s panel. Opening a subject only fills that subject in. */
