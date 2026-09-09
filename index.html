@@ -14365,9 +14365,46 @@ async function signOutDevice(){
   const scrim=document.getElementById("menuScrim"); if(scrim) scrim.classList.add("hidden");
   document.body.classList.remove("locked","overlay-open"); document.body.style.top="";
   document.body.style.overflow="";
-  try{ await window.fpc.signOut(); }catch(e){ console.error("Sign out failed:", e); }
-  // Full reload so no projected family data survives into the next person's session.
-  location.reload();
+  /* This awaited a network call with nothing on screen. The menu had already
+     closed and the scrim was down, so a slow connection left a static page for
+     as long as Firebase took — indistinguishable from a freeze, and with no
+     timeout it could wait for ever.
+
+     Now: say what is happening, wait a bounded time, and if it does not finish
+     say so rather than reloading into a session the person thinks they left.
+     Reloading on a failed sign-out is the worst outcome, because it looks like
+     it worked and they are still signed in. */
+  const say=document.createElement("div");
+  say.setAttribute("role","status");
+  say.style.cssText="position:fixed;inset:0;z-index:99999;display:flex;align-items:center;"+
+    "justify-content:center;background:var(--nm-ground,#EEF0FA);font:600 17px/1.5 system-ui,-apple-system,sans-serif;"+
+    "color:var(--nm-ink,#243044);text-align:center;padding:28px";
+  say.innerHTML='<div><div style="font-size:32px;margin-bottom:10px">\ud83d\udd12</div>Signing out\u2026</div>';
+  document.body.appendChild(say);
+
+  let ok=false;
+  try{
+    await Promise.race([
+      window.fpc.signOut().then(()=>{ ok=true; }),
+      new Promise(r=>setTimeout(r, 6000))
+    ]);
+  }catch(e){ console.error("Sign out failed:", e); }
+
+  if(ok){
+    // Full reload so no projected family data survives into the next person's session.
+    location.reload();
+    return;
+  }
+  say.innerHTML='<div style="max-width:22rem">'+
+    '<div style="font-size:32px;margin-bottom:10px">\u26a0\ufe0f</div>'+
+    '<p style="margin:0 0 6px">That did not go through.</p>'+
+    '<p style="margin:0 0 18px;font-weight:400;font-size:15px;color:#5a6478">'+
+    'You are still signed in. Check your connection and try again.</p>'+
+    '<button style="border:0;border-radius:14px;padding:12px 18px;font:inherit;font-size:15px;'+
+    'background:#3e46ad;color:#fff;cursor:pointer" onclick="signOutDevice()">Try again</button> '+
+    '<button style="border:0;border-radius:14px;padding:12px 18px;font:inherit;font-size:15px;'+
+    'background:#e6e8f0;color:#243044;cursor:pointer;margin-left:8px" '+
+    'onclick="this.closest(\'[role=status]\').remove()">Stay signed in</button></div>';
 }
 </script>
 <!-- Language packs. Data and player live outside index.html so a new module
