@@ -8646,8 +8646,17 @@ function alreadyUsing(key){
 async function setModule(key, on){
   if(typeof requireParent==="function" && !requireParent()) return;
   app.settings = app.settings || {};
-  app.settings.modules = Object.assign({}, app.settings.modules || {});
-  app.settings.modules[key] = !!on;
+  /* Every module gets written, not just the one that was tapped. Only the
+     tapped key used to be stored, which left the other six unlisted — and an
+     unlisted module falls back to "are they already using it", which answers
+     yes for nearly everything. So a parent switched three things off, and the
+     other four came back ticked as if they had chosen them. */
+  const now = {};
+  Object.keys(MODULES).forEach(k=>{ now[k] = moduleOn(k); });
+  now[key] = !!on;
+  app.settings.modules = now;
+  /* And a hand toggle is an answer, so the fallback must stop applying. */
+  app.settings.modulesChosenTs = app.settings.modulesChosenTs || Date.now();
   try{ await saveApp(); }
   catch(e){ console.error("Could not save that:", e); alert("That couldn't be saved."); return; }
   render();
@@ -10565,6 +10574,20 @@ function setDeenTab(t){
 
 /* Both Duas & bedtime tiles live in the markup, so they are hidden rather than
    not rendered. Called wherever a menu opens. */
+/* The panel used to be built once, when the menu opened. If it opened before
+   the family data arrived, app.settings was empty and every box fell to the
+   fallback — so the boxes showed a guess rather than the setting. It is rebuilt
+   on every render now, but only while the menu is actually on screen. */
+function refreshModulesPanel(){
+  const sheet=document.getElementById("menuSheet");
+  if(!sheet || sheet.classList.contains("hidden")) return;
+  const slot=document.getElementById("modulesSlot"); if(!slot) return;
+  try{
+    if(typeof modulesPanelHTML==="function" && typeof isParentRole==="function"
+       && isParentRole(sessionMember()||{})) slot.innerHTML=modulesPanelHTML();
+    else slot.innerHTML="";
+  }catch(e){}
+}
 function syncFaithTiles(){
   const on=(typeof faithOn==="function") && faithOn();
   ["btnDeen","btnKidDeen"].forEach(id=>{
@@ -12049,6 +12072,7 @@ function applyRoleChrome(){
 }
 function render(){
   if(!ready) return;
+  try{ refreshModulesPanel(); syncFaithTiles(); }catch(e){}
   ensureSelection();
   applyRoleChrome();
   showVersion();
