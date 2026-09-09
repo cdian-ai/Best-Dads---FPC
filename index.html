@@ -625,7 +625,6 @@
   .pwcells{display:flex;gap:2px;min-width:0;overflow:hidden}
   .pwcell{flex:1 1 0;min-width:0;height:14px;border-radius:3px;background:var(--nm-indigo-050);border:1px solid var(--nm-line)}
   .pwcell.on{background:var(--nm-teal-500);border-color:var(--nm-teal-500)}
-  .pwcell.exc{background:repeating-linear-gradient(45deg,var(--nm-c-e9ebf3),var(--nm-c-e9ebf3) 2px,var(--nm-paper) 2px,var(--nm-paper) 4px)}
   .pwstreak{font-size:11px;font-weight:800;color:#e08b28;text-align:right}
   .pwrow.head .pwcells{gap:3px}
   .pwd{flex:1 1 0;min-width:0;overflow:hidden;text-align:center;font-size:11px;font-weight:700;
@@ -8327,14 +8326,15 @@ function prayerKeys(){
   });
   return map;
 }
-function excusedDays(){
-  const e = app.settings && app.settings.prayerExcused;
-  return (e && typeof e === "object") ? e : {};
-}
-function isExcused(childId, ds){
-  const list = excusedDays()[childId];
-  return Array.isArray(list) && list.indexOf(ds) >= 0;
-}
+/* The excused-days record is gone. It stored no reason — only a date per child
+   on which they were excused — but a dated "excused from prayer" flag against a
+   named child is inferable on its own, most obviously for girls, and it was the
+   most sensitive thing this app held.
+
+   What it was for still matters: illness and travel should not punish a child.
+   That intent survives without the data — see prayerStreak, where a single
+   missed day no longer ends a run. Kindness by arithmetic rather than by
+   keeping a record. */
 function lastNDates(n){
   const out=[];
   for(let i=n-1;i>=0;i--){
@@ -8352,19 +8352,23 @@ function prayerGrid(child, days){
     // entries written before an action carried its tag.
     const done=PRAYERS.map(p=>rec[p.tag]===true || Object.keys(day).some(k=>keys[k]===p.tag && day[k]>0));
     return {ds, d, done, count:done.filter(Boolean).length,
-            complete:done.every(Boolean), excused:isExcused(child.id, ds)};
+            complete:done.every(Boolean)};
   });
 }
-/* An excused day neither breaks a streak nor counts towards it. */
+/* One missed day does not end a run. Illness, travel and a bad evening happen,
+   and the old answer was for a parent to mark the day excused — which meant
+   storing that a named child was excused from prayer on a given date. The same
+   kindness now comes from arithmetic and keeps nothing. Two missed days in a
+   row still end it, or the number stops meaning anything. */
 function prayerStreak(child, tagIndex){
   const grid=prayerGrid(child, 60);
-  let run=0;
+  let run=0, forgiven=false;
   for(let i=grid.length-1;i>=0;i--){
     const g=grid[i];
-    if(g.excused) continue;
-    if(tagIndex===null ? g.complete : g.done[tagIndex]) run++;
-    else if(i===grid.length-1) continue;   // today is not a miss yet
-    else break;
+    if(tagIndex===null ? g.complete : g.done[tagIndex]){ run++; forgiven=false; continue; }
+    if(i===grid.length-1) continue;        // today is not a miss yet
+    if(!forgiven){ forgiven=true; continue; }   // one missed day is allowed
+    break;                                  // two in a row ends it
   }
   return run;
 }
@@ -8696,9 +8700,7 @@ function prayerTodayHTML(child){
   const anySaid = mine && PRAYERS.some((p,i)=>!today.done[i] && pendingPrayerClaim(child.id, p.tag));
   /* The helper line only earns its space when it has something to say. Once
      the day is under way the row speaks for itself. */
-  const note = today.excused
-    ? "Excused today \u2014 and that is completely fine."
-    : today.complete
+  const note = today.complete
       ? "\u2b50 All five today \u2014 MashaAllah!"
       : anySaid
         ? "Mum or Dad have been told. Tap one again to take it back."
@@ -8734,9 +8736,9 @@ function prayerWallHTML(child, days, forChild){
     days>10 ? (g.d.getDay()===1 ? g.d.getDate() : "")
             : g.d.toLocaleDateString(undefined,{weekday:"short"}).slice(0,2)}</span>`).join("");
   const rows=PRAYERS.map((p,i)=>`<div class="pwrow"><span class="pwname">${p.label}</span>
-      <div class="pwcells">${grid.map(g=>`<span class="pwcell ${g.excused?"exc":(g.done[i]?"on":"")}" title="${
+      <div class="pwcells">${grid.map(g=>`<span class="pwcell ${g.done[i]?"on":""}" title="${
         g.d.toLocaleDateString(undefined,{weekday:"long",day:"numeric",month:"short"})} \u2014 ${
-        g.excused?"excused":(g.done[i]?"prayed":"not recorded")}"></span>`).join("")}</div>
+        g.done[i]?"prayed":"not recorded"}"></span>`).join("")}</div>
       <span class="pwstreak">${prayerStreak(child,i)||""}</span></div>`).join("");
   const full=grid.filter(g=>g.complete).length;
   return `<section class="prayerwall">
@@ -8746,25 +8748,8 @@ function prayerWallHTML(child, days, forChild){
       <div class="pwgrid"><div class="pwrow head"><span class="pwname"></span>
         <div class="pwcells">${head}</div><span class="pwstreak">\u{1f525}</span></div>${rows}</div>
       <p class="small" style="margin:10px 0 0">A filled square is a prayer that was recorded. The number on the right is the current run.</p>
-      ${forChild?"":`<button class="light" style="width:auto;margin-top:10px" onclick="toggleExcusedToday('${child.id}')">${
-        grid[grid.length-1].excused?"Undo today\u2019s excused mark":"Mark today as excused"}</button>`}
+      ""
     </section>`;
-}
-/* Illness, travel, or any other legitimate reason. No reason is recorded, and
-   an excused day neither breaks a streak nor counts as a miss. */
-async function toggleExcusedToday(childId){
-  if(!requireParent()) return;
-  const ds=dateStr(new Date());
-  app.settings = app.settings || {};
-  const all = Object.assign({}, excusedDays());
-  const list = (all[childId] || []).slice();
-  const at = list.indexOf(ds);
-  if(at >= 0) list.splice(at,1); else list.push(ds);
-  all[childId] = list;
-  app.settings.prayerExcused = all;
-  await saveApp();
-  render();
-  refreshChildStats();
 }
 
 /* ---------- One place that decides what is on screen ----------
