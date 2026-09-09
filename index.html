@@ -55,7 +55,7 @@
   --nm-r-s:12px; --nm-r-m:16px; --nm-r-l:22px; --nm-r-pill:999px;
 }
 
-  :root {
+  :root{
     --ink:#243044; --muted:var(--nm-muted-700); --paper:var(--nm-paper); --card:var(--nm-white);
     --accent:#5b63d8; --accent2:#7c83ef; --good:#2e9b68; --danger:#d85b5b;
     --shadow:0 8px 24px rgba(36,48,68,.10);
@@ -678,9 +678,9 @@
             box-shadow:0 12px 28px rgba(15,143,156,.32);margin-bottom:16px}
   .spendbtn small{display:block;font-size:13px;font-weight:600;opacity:.92;margin-top:3px}
   .spendbtn .spendbal{font-size:24px;font-weight:800;white-space:nowrap}
-  body.kidtab-home  {background:linear-gradient(180deg,var(--nm-amber-050),var(--nm-field) 320px)}
-  body.kidtab-spend {background:linear-gradient(180deg,var(--nm-amber-050),var(--nm-field) 320px)}
-  body.kidtab-learn {background:linear-gradient(180deg,var(--nm-indigo-050),var(--nm-field) 320px)}
+  body.kidtab-home{background:linear-gradient(180deg,var(--nm-amber-050),var(--nm-field) 320px)}
+  body.kidtab-spend{background:linear-gradient(180deg,var(--nm-amber-050),var(--nm-field) 320px)}
+  body.kidtab-learn{background:linear-gradient(180deg,var(--nm-indigo-050),var(--nm-field) 320px)}
   body.kidtab-points{background:linear-gradient(180deg,#ecf9f4,var(--nm-field) 320px)}
   /* One line at the top of each tab, in that tab's own colour, so a child can
      tell at a glance which screen they are on without reading. */
@@ -986,11 +986,11 @@
   .noticeslide.on{position:relative;opacity:1;visibility:visible}
   /* Colour by what they were noticed FOR, so four notices in a day are four
      different cards rather than one card with the words swapped. */
-  .noticeslide.n-deen {background:linear-gradient(150deg,#1f6b5c,#124237)}
+  .noticeslide.n-deen{background:linear-gradient(150deg,#1f6b5c,#124237)}
   .noticeslide.n-learn{background:linear-gradient(150deg,#333a7d,#1c2154)}
-  .noticeslide.n-kind {background:linear-gradient(150deg,#9c3b63,#5f1f3c)}
-  .noticeslide.n-home {background:linear-gradient(150deg,#8a5a1e,#563613)}
-  .noticeslide.n-self {background:linear-gradient(150deg,#2b6f86,#164252)}
+  .noticeslide.n-kind{background:linear-gradient(150deg,#9c3b63,#5f1f3c)}
+  .noticeslide.n-home{background:linear-gradient(150deg,#8a5a1e,#563613)}
+  .noticeslide.n-self{background:linear-gradient(150deg,#2b6f86,#164252)}
   .noticeslide.n-other{background:linear-gradient(150deg,#4b4a72,#2a2947)}
   .noticedots{display:flex;justify-content:center;gap:7px;margin:0 0 4px}
   .ndot{width:7px;height:7px;padding:0;border:0;border-radius:50%;background:#d5d8e4;
@@ -1049,8 +1049,8 @@
   .potword{font-size:15px;font-weight:800;line-height:1.15}
   .potname{font-size:11px;font-weight:800;color:var(--nm-muted);line-height:1.2;margin-top:3px}
   .pot.spend{background:linear-gradient(160deg,var(--nm-white),#dff2e9)} .pot.spend .potfig{color:var(--nm-green-700)}
-  .pot.bank {background:linear-gradient(160deg,var(--nm-white),var(--nm-amber-100))} .pot.bank  .potfig{color:#c8940f}
-  .pot.give {background:linear-gradient(160deg,var(--nm-white),#ddf0ef)} .pot.give  .potfig{color:#2f8f8a}
+  .pot.bank{background:linear-gradient(160deg,var(--nm-white),var(--nm-amber-100))} .pot.bank  .potfig{color:#c8940f}
+  .pot.give{background:linear-gradient(160deg,var(--nm-white),#ddf0ef)} .pot.give  .potfig{color:#2f8f8a}
   .pot.dim{background:var(--nm-white)} .pot.dim .potfig{color:#b6bbcc}
   .potnote{margin:10px 2px 0;font-size:11px;font-weight:600;color:var(--nm-muted);line-height:1.45}
 
@@ -1375,14 +1375,14 @@
   .menutile:active{transform:scale(.96)}
   .menutile span{font-size:24px;line-height:1}
   /* One tinted tile per room, matching the tab that opens it. */
-  .menutile.t-home  {background:linear-gradient(160deg,var(--nm-white),var(--nm-field));border-color:#d9ddf0;color:var(--nm-indigo-900)}
-  .menutile.t-spend {background:linear-gradient(160deg,var(--nm-white),#e0f2ea);border-color:#cbe7db;color:#12603f}
-  .menutile.t-learn {background:linear-gradient(160deg,var(--nm-white),var(--nm-field));border-color:#ded1f4;color:#452a7a}
+  .menutile.t-home{background:linear-gradient(160deg,var(--nm-white),var(--nm-field));border-color:#d9ddf0;color:var(--nm-indigo-900)}
+  .menutile.t-spend{background:linear-gradient(160deg,var(--nm-white),#e0f2ea);border-color:#cbe7db;color:#12603f}
+  .menutile.t-learn{background:linear-gradient(160deg,var(--nm-white),var(--nm-field));border-color:#ded1f4;color:#452a7a}
   .menutile.t-points{background:linear-gradient(160deg,var(--nm-white),var(--nm-amber-100));border-color:var(--nm-amber-200);color:var(--nm-amber-900)}
-  .menutile.t-deen  {background:linear-gradient(160deg,var(--nm-white),#ddefee);border-color:#c9e4e2;color:#12554f}
-  .menutile.t-play  {background:linear-gradient(160deg,var(--nm-white),#fdeadb);border-color:#f6d9c4;color:#8a4a15}
-  .menutile.t-today {background:linear-gradient(160deg,var(--nm-white),var(--nm-field));border-color:#dbe0f2;color:var(--nm-ink)}
-  .menutile.t-plain {background:var(--nm-white)}
+  .menutile.t-deen{background:linear-gradient(160deg,var(--nm-white),#ddefee);border-color:#c9e4e2;color:#12554f}
+  .menutile.t-play{background:linear-gradient(160deg,var(--nm-white),#fdeadb);border-color:#f6d9c4;color:#8a4a15}
+  .menutile.t-today{background:linear-gradient(160deg,var(--nm-white),var(--nm-field));border-color:#dbe0f2;color:var(--nm-ink)}
+  .menutile.t-plain{background:var(--nm-white)}
   /* Settings are not destinations, so they never become tiles. */
   /* Pushed well clear of the tiles above, with a hairline, so they stop
      reading as a third row of the grid. These end the screen; they are not
@@ -1403,13 +1403,13 @@
   .panel.r-spend::before,.panel.r-deen::before,.panel.r-play::before,
   .panel.r-plain::before{content:"";display:block;height:3px;border-radius:99px;
     margin:0 0 16px;background:var(--nm-line)}
-  .panel.r-today::before {background:linear-gradient(90deg,#4d56c9,rgba(77,86,201,0))}
+  .panel.r-today::before{background:linear-gradient(90deg,#4d56c9,rgba(77,86,201,0))}
   .panel.r-points::before{background:linear-gradient(90deg,var(--nm-c-dda520),rgba(221,165,32,0))}
-  .panel.r-learn::before {background:linear-gradient(90deg,#7457d4,rgba(116,87,212,0))}
-  .panel.r-spend::before {background:linear-gradient(90deg,var(--nm-green-700),rgba(23,127,92,0))}
-  .panel.r-deen::before  {background:linear-gradient(90deg,#2f8f8a,rgba(47,143,138,0))}
-  .panel.r-play::before  {background:linear-gradient(90deg,#d97a1c,rgba(217,122,28,0))}
-  .panel.r-plain::before {background:linear-gradient(90deg,#9aa0b4,rgba(154,160,180,0))}
+  .panel.r-learn::before{background:linear-gradient(90deg,#7457d4,rgba(116,87,212,0))}
+  .panel.r-spend::before{background:linear-gradient(90deg,var(--nm-green-700),rgba(23,127,92,0))}
+  .panel.r-deen::before{background:linear-gradient(90deg,#2f8f8a,rgba(47,143,138,0))}
+  .panel.r-play::before{background:linear-gradient(90deg,#d97a1c,rgba(217,122,28,0))}
+  .panel.r-plain::before{background:linear-gradient(90deg,#9aa0b4,rgba(154,160,180,0))}
   .panel.r-today  > h2,.panel.r-today  .panelgrid > section > h2{color:var(--nm-indigo-900)}
   .panel.r-points > h2,.panel.r-points .panelgrid > section > h2{color:var(--nm-amber-900)}
   .panel.r-learn  > h2,.panel.r-learn  .panelgrid > section > h2{color:#452a7a}
@@ -1833,7 +1833,8 @@
   /* Not red. Nothing on this board is destructive - the worst that happens is
      "not yet", and a parent should be able to say it without the interface
      treating it as a rejection. */
-  .rbtns .rbtns .notyet:active{background:var(--nm-c-e9ebf3)}
+  .rbtns .notyet{background:#f2f3f9;color:#5a6172;border:1px solid var(--nm-line)}
+  .rbtns .notyet:active{background:var(--nm-c-e9ebf3)}
   /* A confirmation is not a request. Different tint, no gold outline, and the
      time it happened is the important number on it. */
   .requestrow.confirm{background:linear-gradient(150deg,var(--nm-white),var(--nm-green-050));border-color:#cbe7db}
@@ -1901,12 +1902,12 @@
     transform:rotate(90deg);line-height:1}
   /* The cell wears the subject's colour on its face; the ladder behind it is
      plain white, so the marks are the only coloured thing down there. */
-  .subjcell.s-quran   {background:linear-gradient(160deg,var(--nm-green-050),#d6f0e6);color:var(--nm-green-900);border-color:#c7e9db}
+  .subjcell.s-quran{background:linear-gradient(160deg,var(--nm-green-050),#d6f0e6);color:var(--nm-green-900);border-color:#c7e9db}
   .subjcell.s-fulfulde{background:linear-gradient(160deg,#fff6e3,#ffeac4);color:var(--nm-amber-900);border-color:var(--nm-amber-200)}
-  .subjcell.s-maths   {background:linear-gradient(160deg,var(--nm-indigo-050),#dcdefb);color:var(--nm-indigo-900);border-color:#cdd0f5}
-  .subjcell.s-english {background:linear-gradient(160deg,#ffeef3,#ffdde7);color:#7a2242;border-color:#f8ccd9}
-  .subjcell.s-science {background:linear-gradient(160deg,#eef8e3,#ddefcb);color:#345a1f;border-color:#d0e7bc}
-  .subjcell.s-other   {background:linear-gradient(160deg,#f5efff,#e9deff);color:#452a7a;border-color:#ddd0f5}
+  .subjcell.s-maths{background:linear-gradient(160deg,var(--nm-indigo-050),#dcdefb);color:var(--nm-indigo-900);border-color:#cdd0f5}
+  .subjcell.s-english{background:linear-gradient(160deg,#ffeef3,#ffdde7);color:#7a2242;border-color:#f8ccd9}
+  .subjcell.s-science{background:linear-gradient(160deg,#eef8e3,#ddefcb);color:#345a1f;border-color:#d0e7bc}
+  .subjcell.s-other{background:linear-gradient(160deg,#f5efff,#e9deff);color:#452a7a;border-color:#ddd0f5}
   .subjopen{background:var(--nm-white);padding:4px 12px 12px;animation:openin .22s ease}
   @keyframes openin{from{opacity:0}to{opacity:1}}
   .openhead{display:flex;align-items:center;justify-content:flex-end;padding:10px 0 4px}
@@ -1978,11 +1979,11 @@
      so gold; offering to buy something is Rewards, so green. Same colours as
      the tabs, the menu tiles and the parent panels - a tutor and a parent
      talking about "the purple screen" now mean the same screen. */
-  .kidcard.r-learn {border-top-color:#7457d4}
+  .kidcard.r-learn{border-top-color:#7457d4}
   .kidcard.r-points{border-top-color:var(--nm-c-dda520)}
-  .kidcard.r-spend {border-top-color:var(--nm-green-700)}
-  .kidcard.r-today {border-top-color:#4d56c9}
-  .kidcard.r-deen  {border-top-color:#2f8f8a}
+  .kidcard.r-spend{border-top-color:var(--nm-green-700)}
+  .kidcard.r-today{border-top-color:#4d56c9}
+  .kidcard.r-deen{border-top-color:#2f8f8a}
   .kidcard.r-learn  > h2{color:#452a7a}
   .kidcard.r-points > h2{color:var(--nm-amber-900)}
   .kidcard.r-spend  > h2{color:#12603f}
@@ -1991,7 +1992,7 @@
   /* A helper's own greeting card wears their role's colour rather than the
      child's indigo, so signing in as Nani does not look like signing in as a
      seven-year-old. */
-  .kidhero.h-tutor {background:linear-gradient(155deg,#5a45a8,#33245f)}
+  .kidhero.h-tutor{background:linear-gradient(155deg,#5a45a8,#33245f)}
   .kidhero.h-family{background:linear-gradient(155deg,#1f6b5c,#124237)}
   .kidcard h2{margin:0 0 3px;font-size:20px}
   .kidcard .lede{margin:0 0 12px;color:var(--muted);font-size:13px}
@@ -2328,20 +2329,61 @@
     .kidhero{padding:18px}
   }
 
-.onbmod.on /* ---- the modules panel ----
-   .card p sets margin:0 and beats a lone class selector, so the group headings
-   had no space above them and sat flush against the paragraph. Matching the
-   same specificity fixes it; raising the number never would have.
-   Every one of these rules had been appended more than once across builds; this
-   is the single copy. */
-.card p.modgh{margin:20px 0 2px;font-size:13px;font-weight:800;letter-spacing:.06em;
+.notyet{margin:6px 0 10px;font-size:13px;color:var(--nm-muted);line-height:1.5}
+.domsum{margin:4px 0 14px}
+.domhead{margin:0 0 10px;font-size:15px;color:var(--nm-ink-2)}
+.domhead b{color:var(--nm-indigo-600)}
+.domrow{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.domname{flex:0 0 40%;font-size:13px;font-weight:600;color:var(--nm-ink)}
+.dombar{position:relative;flex:1 1 auto;height:10px;border-radius:999px;background:var(--nm-line);overflow:hidden}
+.dombar i{position:absolute;left:0;top:0;bottom:0;background:var(--nm-indigo-600);opacity:.45;border-radius:999px}
+.dombar b{position:absolute;left:0;top:0;bottom:0;background:var(--nm-indigo-600);border-radius:999px}
+.domnum{flex:0 0 auto;font-size:13px;font-weight:700;color:var(--nm-ink)}
+.domnum span{font-weight:400;color:var(--nm-muted)}
+.domfoot{margin:10px 0 0;font-size:11px;color:var(--nm-muted)}
+
+.boardnote{margin:8px 0 12px;padding:10px 13px;border-radius:14px;background:var(--nm-indigo-050);
+ font-size:13px;color:var(--nm-ink-2);line-height:1.5}
+.boardnote b{color:var(--nm-indigo-600)}
+.boardnote span{display:block;font-size:11px;color:var(--nm-muted);margin-top:2px}
+.boardnote.none{background:var(--nm-line);color:var(--nm-ink-2)}
+
+.stageswitch{display:flex;gap:6px;margin:10px 0 4px}
+.stageswitch button{flex:1 1 auto;border:1.5px solid var(--nm-line);background:#fff;border-radius:14px;
+ padding:9px 10px;font:inherit;font-size:13px;font-weight:700;color:var(--nm-ink-2);cursor:pointer;line-height:1.25}
+.stageswitch button.on{border-color:var(--nm-indigo-600);color:var(--nm-indigo-600);
+ background:var(--nm-indigo-050)}
+.stageswitch button span{display:block;font-size:11px;font-weight:500;color:var(--nm-muted);margin-top:1px}
+
+.modrow{display:flex;align-items:center;gap:12px;padding:12px 0;border-top:1px solid var(--nm-line)}
+.modrow:first-of-type{border-top:0}
+.modx{flex:1 1 auto}
+.modx b{display:block;font-size:15px}
+.modx small{display:block;font-size:13px;color:var(--nm-muted);line-height:1.45;margin-top:2px}
+.modrow input{width:22px;height:22px;flex:0 0 auto}
+
+.onbpick{display:grid;gap:10px;margin-top:16px}
+.onbmod{display:flex;align-items:center;gap:12px;width:100%;text-align:left;font:inherit;
+ border:2px solid var(--nm-line);background:var(--nm-white);border-radius:18px;padding:14px 16px;cursor:pointer}
+.onbmod.on{border-color:var(--nm-indigo-600);background:var(--nm-indigo-050)}
+.onbmodx{flex:1 1 auto}
+.onbmodx b{display:block;font-size:15px;color:var(--nm-ink)}
+.onbmodx small{display:block;font-size:13px;color:var(--nm-muted);line-height:1.45;margin-top:2px}
+.onbmodtick{flex:0 0 26px;height:26px;border-radius:999px;display:flex;align-items:center;
+ justify-content:center;border:2px solid var(--nm-line);color:var(--nm-white);font-weight:700;font-size:15px}
+.onbmod.on .onbmodtick{background:var(--nm-indigo-600);border-color:var(--nm-indigo-600)}
+
+.onbgroup{margin-bottom:18px}
+.onbgh{margin:0 0 8px;font-size:13px;font-weight:800;letter-spacing:.06em;
  text-transform:uppercase;color:var(--nm-muted)}
+.onbgh span{display:block;font-size:13px;font-weight:400;letter-spacing:0;
+ text-transform:none;color:var(--nm-muted);margin-top:2px}
+.card p.modgh{margin:20px 0 2px;font-size:13px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--nm-muted)}
 .card p.modgh:first-of-type{margin-top:12px}
-#modulesSlot .card{margin:18px 0 10px;padding:16px 18px 8px;
- border:1px solid var(--nm-line);border-radius:20px;background:var(--nm-white)}
+#modulesSlot .card{margin:18px 0 10px;padding:16px 18px 8px;border:1px solid var(--nm-line);border-radius:20px;background:var(--nm-white)}
 #modulesSlot .card h2{margin:0 0 4px;font-size:17.5px}
-#modulesSlot .card>p.small{margin:0 0 2px}
-#modulesSlot #modulesSlot </style>
+#modulesSlot .modrow{padding:14px 0}
+</style>
 </head>
 <body>
 <div id="pageBg" aria-hidden="true"></div>
@@ -20357,7 +20399,58 @@ header.hascover .coverfade{background:linear-gradient(180deg,rgba(0,0,0,0) 62%,r
 /* Prayers, for a parent who has not opened a child. */
 .nmprayhead{margin:0 0 14px}
 
-.onbmod.on </style>
+.notyet{margin:6px 0 10px;font-size:13px;color:var(--nm-muted);line-height:1.5}
+.domsum{margin:4px 0 14px}
+.domhead{margin:0 0 10px;font-size:15px;color:var(--nm-ink-2)}
+.domhead b{color:var(--nm-indigo-600)}
+.domrow{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.domname{flex:0 0 40%;font-size:13px;font-weight:600;color:var(--nm-ink)}
+.dombar{position:relative;flex:1 1 auto;height:10px;border-radius:999px;background:var(--nm-line);overflow:hidden}
+.dombar i{position:absolute;left:0;top:0;bottom:0;background:var(--nm-indigo-600);opacity:.45;border-radius:999px}
+.dombar b{position:absolute;left:0;top:0;bottom:0;background:var(--nm-indigo-600);border-radius:999px}
+.domnum{flex:0 0 auto;font-size:13px;font-weight:700;color:var(--nm-ink)}
+.domnum span{font-weight:400;color:var(--nm-muted)}
+.domfoot{margin:10px 0 0;font-size:11px;color:var(--nm-muted)}
+
+.boardnote{margin:8px 0 12px;padding:10px 13px;border-radius:14px;background:var(--nm-indigo-050);
+ font-size:13px;color:var(--nm-ink-2);line-height:1.5}
+.boardnote b{color:var(--nm-indigo-600)}
+.boardnote span{display:block;font-size:11px;color:var(--nm-muted);margin-top:2px}
+.boardnote.none{background:var(--nm-line);color:var(--nm-ink-2)}
+
+.stageswitch{display:flex;gap:6px;margin:10px 0 4px}
+.stageswitch button{flex:1 1 auto;border:1.5px solid var(--nm-line);background:#fff;border-radius:14px;
+ padding:9px 10px;font:inherit;font-size:13px;font-weight:700;color:var(--nm-ink-2);cursor:pointer;line-height:1.25}
+.stageswitch button.on{border-color:var(--nm-indigo-600);color:var(--nm-indigo-600);
+ background:var(--nm-indigo-050)}
+.stageswitch button span{display:block;font-size:11px;font-weight:500;color:var(--nm-muted);margin-top:1px}
+
+.modrow{display:flex;align-items:center;gap:12px;padding:12px 0;border-top:1px solid var(--nm-line)}
+.modrow:first-of-type{border-top:0}
+.modx{flex:1 1 auto}
+.modx b{display:block;font-size:15px}
+.modx small{display:block;font-size:13px;color:var(--nm-muted);line-height:1.45;margin-top:2px}
+.modrow input{width:22px;height:22px;flex:0 0 auto}
+
+.onbpick{display:grid;gap:10px;margin-top:16px}
+.onbmod{display:flex;align-items:center;gap:12px;width:100%;text-align:left;font:inherit;
+ border:2px solid var(--nm-line);background:var(--nm-white);border-radius:18px;padding:14px 16px;cursor:pointer}
+.onbmod.on{border-color:var(--nm-indigo-600);background:var(--nm-indigo-050)}
+.onbmodx{flex:1 1 auto}
+.onbmodx b{display:block;font-size:15px;color:var(--nm-ink)}
+.onbmodx small{display:block;font-size:13px;color:var(--nm-muted);line-height:1.45;margin-top:2px}
+.onbmodtick{flex:0 0 26px;height:26px;border-radius:999px;display:flex;align-items:center;
+ justify-content:center;border:2px solid var(--nm-line);color:var(--nm-white);font-weight:700;font-size:15px}
+.onbmod.on .onbmodtick{background:var(--nm-indigo-600);border-color:var(--nm-indigo-600)}
+
+.onbgroup{margin-bottom:18px}
+.onbgh{margin:0 0 8px;font-size:13px;font-weight:800;letter-spacing:.06em;
+ text-transform:uppercase;color:var(--nm-muted)}
+.onbgh span{display:block;font-size:13px;font-weight:400;letter-spacing:0;
+ text-transform:none;color:var(--nm-muted);margin-top:2px}
+.modgh{margin:16px 0 4px;font-size:13px;font-weight:800;letter-spacing:.06em;
+ text-transform:uppercase;color:var(--nm-muted)}
+</style>
 <script>
 (function(){
   "use strict";
@@ -20891,7 +20984,58 @@ body.editing{padding-top:0!important}
   background:var(--nm-white);color:var(--nm-indigo-900);border:0;font:700 13px/1 Inter,system-ui,sans-serif;cursor:pointer}
 body.nm-editing #editModeNote{display:none}
 
-.onbmod.on </style>
+.notyet{margin:6px 0 10px;font-size:13px;color:var(--nm-muted);line-height:1.5}
+.domsum{margin:4px 0 14px}
+.domhead{margin:0 0 10px;font-size:15px;color:var(--nm-ink-2)}
+.domhead b{color:var(--nm-indigo-600)}
+.domrow{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.domname{flex:0 0 40%;font-size:13px;font-weight:600;color:var(--nm-ink)}
+.dombar{position:relative;flex:1 1 auto;height:10px;border-radius:999px;background:var(--nm-line);overflow:hidden}
+.dombar i{position:absolute;left:0;top:0;bottom:0;background:var(--nm-indigo-600);opacity:.45;border-radius:999px}
+.dombar b{position:absolute;left:0;top:0;bottom:0;background:var(--nm-indigo-600);border-radius:999px}
+.domnum{flex:0 0 auto;font-size:13px;font-weight:700;color:var(--nm-ink)}
+.domnum span{font-weight:400;color:var(--nm-muted)}
+.domfoot{margin:10px 0 0;font-size:11px;color:var(--nm-muted)}
+
+.boardnote{margin:8px 0 12px;padding:10px 13px;border-radius:14px;background:var(--nm-indigo-050);
+ font-size:13px;color:var(--nm-ink-2);line-height:1.5}
+.boardnote b{color:var(--nm-indigo-600)}
+.boardnote span{display:block;font-size:11px;color:var(--nm-muted);margin-top:2px}
+.boardnote.none{background:var(--nm-line);color:var(--nm-ink-2)}
+
+.stageswitch{display:flex;gap:6px;margin:10px 0 4px}
+.stageswitch button{flex:1 1 auto;border:1.5px solid var(--nm-line);background:#fff;border-radius:14px;
+ padding:9px 10px;font:inherit;font-size:13px;font-weight:700;color:var(--nm-ink-2);cursor:pointer;line-height:1.25}
+.stageswitch button.on{border-color:var(--nm-indigo-600);color:var(--nm-indigo-600);
+ background:var(--nm-indigo-050)}
+.stageswitch button span{display:block;font-size:11px;font-weight:500;color:var(--nm-muted);margin-top:1px}
+
+.modrow{display:flex;align-items:center;gap:12px;padding:12px 0;border-top:1px solid var(--nm-line)}
+.modrow:first-of-type{border-top:0}
+.modx{flex:1 1 auto}
+.modx b{display:block;font-size:15px}
+.modx small{display:block;font-size:13px;color:var(--nm-muted);line-height:1.45;margin-top:2px}
+.modrow input{width:22px;height:22px;flex:0 0 auto}
+
+.onbpick{display:grid;gap:10px;margin-top:16px}
+.onbmod{display:flex;align-items:center;gap:12px;width:100%;text-align:left;font:inherit;
+ border:2px solid var(--nm-line);background:var(--nm-white);border-radius:18px;padding:14px 16px;cursor:pointer}
+.onbmod.on{border-color:var(--nm-indigo-600);background:var(--nm-indigo-050)}
+.onbmodx{flex:1 1 auto}
+.onbmodx b{display:block;font-size:15px;color:var(--nm-ink)}
+.onbmodx small{display:block;font-size:13px;color:var(--nm-muted);line-height:1.45;margin-top:2px}
+.onbmodtick{flex:0 0 26px;height:26px;border-radius:999px;display:flex;align-items:center;
+ justify-content:center;border:2px solid var(--nm-line);color:var(--nm-white);font-weight:700;font-size:15px}
+.onbmod.on .onbmodtick{background:var(--nm-indigo-600);border-color:var(--nm-indigo-600)}
+
+.onbgroup{margin-bottom:18px}
+.onbgh{margin:0 0 8px;font-size:13px;font-weight:800;letter-spacing:.06em;
+ text-transform:uppercase;color:var(--nm-muted)}
+.onbgh span{display:block;font-size:13px;font-weight:400;letter-spacing:0;
+ text-transform:none;color:var(--nm-muted);margin-top:2px}
+.modgh{margin:16px 0 4px;font-size:13px;font-weight:800;letter-spacing:.06em;
+ text-transform:uppercase;color:var(--nm-muted)}
+</style>
 <script>
 (function(){
   "use strict";
@@ -21322,6 +21466,8 @@ body.nm-composing #panelTop{display:none!important}
 .onbmodx{flex:1 1 auto}
 .onbmodx b{display:block;font-size:15px;color:var(--nm-ink)}
 .onbmodx small{display:block;font-size:13px;color:var(--nm-muted);line-height:1.45;margin-top:2px}
+.onbmodtick{flex:0 0 26px;height:26px;border-radius:999px;display:flex;align-items:center;
+ justify-content:center;border:2px solid var(--nm-line);color:var(--nm-white);font-weight:700;font-size:15px}
 .onbmod.on .onbmodtick{background:var(--nm-indigo-600);border-color:var(--nm-indigo-600)}
 
 .onbgroup{margin-bottom:18px}
@@ -21329,6 +21475,8 @@ body.nm-composing #panelTop{display:none!important}
  text-transform:uppercase;color:var(--nm-muted)}
 .onbgh span{display:block;font-size:13px;font-weight:400;letter-spacing:0;
  text-transform:none;color:var(--nm-muted);margin-top:2px}
+.modgh{margin:16px 0 4px;font-size:13px;font-weight:800;letter-spacing:.06em;
+ text-transform:uppercase;color:var(--nm-muted)}
 </style>
 <script>
 (function(){
