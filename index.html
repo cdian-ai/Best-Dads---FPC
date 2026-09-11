@@ -1596,10 +1596,10 @@
      now, still tappable to change. The band carries the greeting instead, and
      shifts with the hour so the screen is not the same picture at Fajr and at
      bedtime. */
-  .skyband{position:relative;height:126px;border-radius:22px;overflow:hidden;margin:0 0 14px;
+  .skyband{position:relative;height:152px;border-radius:22px;overflow:hidden;margin:0 0 14px;
     display:flex;align-items:flex-end}
   .skyband svg.skyart{position:absolute;inset:0;width:100%;height:100%;display:block}
-  .skytext{position:relative;padding:0 0 15px 17px;flex:1;min-width:0}
+  .skytext{position:relative;padding:0 86px 15px 17px;flex:1;min-width:0}
   .skygreet{display:block;font-size:12.5px;font-weight:600;color:rgba(255,255,255,.92);
     letter-spacing:.01em;text-shadow:0 1px 2px rgba(20,30,60,.28)}
   .skyline{display:block;font-size:16.5px;font-weight:700;color:#fff;line-height:1.25;
@@ -5791,7 +5791,7 @@ const TIP_CATS = [
   {key:"deen", label:"Deen"}
 ];
 
-const APP_VERSION = "v211";
+const APP_VERSION = "v212";
 const today = new Date().toISOString().slice(0,10);
 let app = {families:[],currentFamily:null,currentChild:null};
 let categories = [];
@@ -6050,20 +6050,27 @@ function renderFamilyCover(){
   /* One place decides whether a cover is on screen, so one class can carry it
      to the CSS above. Every early return below goes through markNoCover. */
   const markNoCover=(on)=>document.body.classList.toggle("nocover", !on);
+  /* v212: and whether this is the parent's board, which is the one screen whose
+     own banner reaches the top of the page. Everywhere else the fixed Menu pill
+     and champion ring need the page pushed down to clear them. */
+  const markBoard=(on)=>document.body.classList.toggle("board", on);
   if(typeof viewChildId!=="undefined" && viewChildId){
-    cover.classList.add("hidden"); empty.classList.add("hidden"); markNoCover(false); return;
+    cover.classList.add("hidden"); empty.classList.add("hidden");
+    markNoCover(false); markBoard(false); return;
   }
   /* And a child's app is about them, not about the group. Theirs opens on
      their own face and their own points. */
   const meNow=(typeof sessionMember==="function") ? sessionMember() : null;
   if(meNow && typeof isChildRole==="function" && isChildRole(meNow)){
-    cover.classList.add("hidden"); empty.classList.add("hidden"); markNoCover(false);
+    cover.classList.add("hidden"); empty.classList.add("hidden");
+    markNoCover(false); markBoard(false);
     const hdr0=document.querySelector("header");
     if(hdr0) hdr0.classList.remove("hascover");
     return;
   }
   const f=currentFamily();
-  if(!f){ cover.classList.add("hidden"); empty.classList.add("hidden"); markNoCover(false); return; }
+  if(!f){ cover.classList.add("hidden"); empty.classList.add("hidden");
+    markNoCover(false); markBoard(false); return; }
   const hdr=document.querySelector("header");
   /* v210: on a parent's own dashboard the photograph is a thumbnail inside the
      sky band, so the full-bleed cover stays down - it was a quarter of the
@@ -6072,7 +6079,7 @@ function renderFamilyCover(){
   if(onBoard){
     cover.classList.add("hidden"); empty.classList.add("hidden");
     if(hdr) hdr.classList.remove("hascover");
-    markNoCover(false);
+    markNoCover(false); markBoard(true);
     return;
   }
   if(hdr) hdr.classList.toggle("hascover", !!f.photo);
@@ -6081,14 +6088,14 @@ function renderFamilyCover(){
     document.getElementById("coverName").textContent = f.name || "";
     cover.classList.remove("hidden");
     empty.classList.add("hidden");
-    markNoCover(true);
+    markNoCover(true); markBoard(false);
     // Only a parent may change it; anyone may look at it.
     if(edit) edit.classList.toggle("hidden", !isParentSession());
   }else{
     cover.classList.add("hidden");
     // Don't nag a child about a photo they cannot add.
     empty.classList.toggle("hidden", !isParentSession());
-    markNoCover(false);
+    markNoCover(false); markBoard(false);
   }
 }
 function triggerCoverUpload(){
@@ -12620,8 +12627,8 @@ function renderParentAdminView(parent){
       <defs><linearGradient id="skyg" x1="0" y1="0" x2="0" y2="1">
         <stop offset="0" stop-color="${sky.a}"/><stop offset="1" stop-color="${sky.b}"/></linearGradient></defs>
       <rect width="390" height="126" fill="url(#skyg)"/>
-      <circle cx="316" cy="30" r="19" fill="${sky.sun}" opacity=".85"/>
-      <circle cx="316" cy="30" r="30" fill="${sky.sun}" opacity=".22"/>
+      <!-- No sun: the champion's ring sits in that corner, and two round gold
+           things in one sky was one too many. -->
       <ellipse cx="74" cy="34" rx="34" ry="11" fill="${sky.cloud}"/>
       <ellipse cx="100" cy="30" rx="22" ry="10" fill="${sky.cloud}"/>
       <ellipse cx="212" cy="20" rx="26" ry="8" fill="${sky.cloud}" opacity=".7"/>
@@ -12651,9 +12658,6 @@ function renderParentAdminView(parent){
           <span class="skygreet">${greet}${f && f.name ? ", "+escapeHtml(f.name)+" family" : ""}</span>
           <span class="skyline">${line}</span>
         </span>
-        ${f && f.photo
-          ? `<button class="skyphoto" onclick="triggerCoverUpload()" aria-label="Change the family photo"><img src="${f.photo}" alt=""></button>`
-          : `<button class="skyphoto" onclick="triggerCoverUpload()" aria-label="Add a family photo"><span>\ud83d\udcf7</span></button>`}
       </section>
       ${attentionHTML()}
       <div class="board">${kids.length
