@@ -2947,15 +2947,16 @@
   <div id="accountPanel" class="panel r-plain hidden">
     <button class="panelback" onclick="goHome()">← Home</button>
     <div class="panelgrid">
-      <!-- Prayer times are worked out on this device from the sun's position.
-           Two numbers, kept in the family's own settings, sent nowhere. -->
-      <section>
-        <h2>🕌 Prayer times</h2>
-        <p class="small">Set where you are once and the app can show the next prayer,
-          and hand the champion's crown over at Maghrib on a Friday. It is worked out
-          on your phone — nothing is sent anywhere, and it works with no internet.</p>
-        <div id="placeRow"></div>
-      </section>
+      <!-- v217: the prayer-times section is gone, and with it the request for a
+           location. It promised to "show the next prayer", but this app sends no
+           notifications at all - so the line it produced was only ever visible to
+           someone who had already opened the app, which is not a reminder. Its
+           other job, handing the champion's crown over at Maghrib on a Friday, is
+           done by the clock now. Praying on time still earns points and the
+           prayer board still works: neither ever needed a location.
+           The solar maths stays in the file (prayerTimesFor, PRAYERS, nextPrayer)
+           because nothing else depends on it and real reminders would want it
+           back. A saved location is left where it is rather than deleted. -->
       <section>
         <h2>👨‍👩‍👧 Family members</h2>
         <p class="small">Everyone signed in to this family, and who's currently selected.</p>
@@ -5842,7 +5843,7 @@ const TIP_CATS = [
   {key:"deen", label:"Deen"}
 ];
 
-const APP_VERSION = "v216";
+const APP_VERSION = "v217";
 const today = new Date().toISOString().slice(0,10);
 let app = {families:[],currentFamily:null,currentChild:null};
 let categories = [];
@@ -8661,19 +8662,15 @@ function nextPrayer(at){
   return (t2 && t2.fajr) ? {tag:"fajr", label:"Fajr", at:t2.fajr} : null;
 }
 /* ---------- The champion's week ----------
-   Runs Friday Maghrib to Friday Maghrib, so the title changes hands at the
+   Runs Friday evening to Friday evening, so the title changes hands at the
    start of Jumu'ah night rather than at midnight on a Sunday when everyone is
-   asleep. With no location set it falls back to 6pm, which is wrong twice a
-   year and never wrong enough to matter for a photo frame. */
+   asleep. v217: six o'clock, by the clock. It used to work Maghrib out from the
+   family's location, which is the whole reason the app asked for one - after
+   Maghrib in a London winter, before it in summer, and either way it is Friday
+   evening, which is all this title needs. */
 function lastChampionFlip(now){
   const at=now||new Date();
-  const flipOn = d => {
-    const t=prayerTimesFor(d);
-    const m=t && t.maghrib;
-    if(m) return m;
-    const f=new Date(d.getFullYear(), d.getMonth(), d.getDate(), 18, 0, 0, 0);
-    return f;
-  };
+  const flipOn = d => new Date(d.getFullYear(), d.getMonth(), d.getDate(), 18, 0, 0, 0);
   /* Walk back to the most recent Friday, then check we are past its Maghrib;
      if not, the week that counts is the one before. */
   const d=new Date(at); d.setHours(0,0,0,0);
@@ -8998,15 +8995,9 @@ function prayerTodayHTML(child){
           ? (mine ? "Tap one to tell Mum or Dad you prayed."
                   : "Mum or Dad light these with you.")
           : "";
-  /* If the family has set a location, say which one is next and when. It is
-     the difference between a record of the day and something that helps you
-     get the next one right. With no location set this is simply absent - the
-     app never guesses where you are. */
+  /* v217: the "next prayer" line went with the location. A time a child only
+     sees if they happen to open the app is not what tells anyone to pray. */
   let nextline="";
-  try{
-    const nx=(typeof nextPrayer==="function") ? nextPrayer() : null;
-    if(nx) nextline=`<p class="prayernext">Next: <strong>${escapeHtml(nx.label)}</strong> at ${fmtTime(nx.at)}</p>`;
-  }catch(e){}
   return `<section class="c-panel prayercard ${today.complete?"allfive":""}">
       <h2 class="prayerhead">\u{1f54c} My prayers today</h2>
       <div class="lamps">${lamps}</div>
