@@ -1597,9 +1597,12 @@
   .kidmeta.wait{color:#8a5a08}
   .kidmeta.quiet{color:var(--muted)}
   .kweek{display:flex;gap:3px;margin-top:6px}
-  .kweek i{width:13px;height:5px;border-radius:3px;background:#e6e8f0;display:block}
+  .kweek i{width:12px;height:4px;border-radius:2px;background:#e3e6f1;display:block}
   .kweek i.on{background:var(--accent)}
-  .kweek i.today{box-shadow:0 0 0 1.5px #fff,0 0 0 3px #cfd3ee}
+  /* v209: today was marked with a ring, which made the strip look like a
+     switch someone had left half-on. A shade darker is enough to find it. */
+  .kweek i.today{background:#c8cde2}
+  .kweek i.on.today{background:var(--accent)}
   .kidpts{text-align:right;flex:none}
   .kidpts b{display:block;font-size:19px;font-weight:800;letter-spacing:-.01em;line-height:1.1}
   .kidpts span{display:block;font-size:10.5px;font-weight:700;color:var(--muted)}
@@ -5741,7 +5744,7 @@ const TIP_CATS = [
   {key:"deen", label:"Deen"}
 ];
 
-const APP_VERSION = "v208";
+const APP_VERSION = "v209";
 const today = new Date().toISOString().slice(0,10);
 let app = {families:[],currentFamily:null,currentChild:null};
 let categories = [];
@@ -12523,7 +12526,12 @@ function renderParentAdminView(parent){
         <span class="kweek">${strip}</span>
         <span class="kidmeta${cls}">${meta}</span>
       </span>
-      <span class="kidpts"><b>${weeklyTotalFor(c,weekDates)}</b><span>this week</span></span>
+      ${(()=>{ const wk=weeklyTotalFor(c,weekDates);
+        /* v209: four rows reading "0 this week" is a scoreboard of nothing.
+           The number earns its place when there is one; when there isn't, the
+           meta line has already said so in words. */
+        return wk ? `<span class="kidpts"><b>${wk}</b><span>this week</span></span>` : "";
+      })()}
     </button>`;
   };
   const daysOn=weekDates.filter(ds=>kids.some(c=>{
@@ -13436,26 +13444,15 @@ function attentionHTML(){
      from the same data. Neither knew about the other, so a parent saw the
      same sentence twice, word for word. The board below now names which
      child is waiting, which is the thing this card never said. */
-  const me=sessionMember();
-  const picked=me ? pickNudge(me) : null;
-  if(picked){
-    const [em, head, body]=picked.nudge.text(picked.ctx);
-    if(picked.fresh) recordNudgeShown(me, picked.nudge.id);
-    return `<div class="coach"><span class="cem">${em}</span>
-        <span class="cbodytext"><strong>${escapeHtml(head)}</strong>${escapeHtml(body)}</span>
-        <button class="cx" title="Not now" onclick="dismissNudge('${picked.nudge.id}')">\u2715</button></div>`;
-  }
-  const days=fortnightDays();
-  const on=days.filter(d=>d.any).length;
-  if(on < 7){
-    const mood=moodFor(null, true);
-    return `<section class="attncard" onclick="showOverviewPanel()">
-        <span class="attnstar">${starBuddySVG(mood)}</span>
-        <span><strong>${on} of the last 14 days</strong>
-          <span>${on>=3 ? "Worth asking what got in the way on the others."
-                        : "One small thing today is worth more than a big catch-up."}</span></span>
-      </section>`;
-  }
+  /* v209: and this branch was the other half of it. It called pickNudge() and
+     built the same .coach card that renderCoachNudge() had already painted
+     into #coachNudge from the same pick - which is why the fix at v208 did
+     not take: I removed the card above and left the nudge below. Nudges have
+     one owner now, and it is renderCoachNudge(). */
+  /* v209: the fortnight card went too. On a quiet fortnight it sat above four
+     rows that each already said when that child was last noticed, so the
+     screen told a parent off five times over. The count still lives in
+     Overview, where it is read rather than served up. */
   /* Was: return reminderCardHTML(). That fallthrough is why the same hadith
      appeared twice on the dashboard from v173 - once here when nothing needed
      attention, and once in the thought strip below it. The reminder has a home
