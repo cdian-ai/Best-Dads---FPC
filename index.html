@@ -1706,7 +1706,12 @@
      first thing on the page slid under both - and the same was true on a
      child's card, where the cover has always been hidden. Nothing reserved the
      space; now something does. */
+  /* v213: on the board the band IS the header - the Menu pill and the
+     champion ring sit on it, the ring where the sun used to be - so that one
+     screen only clears the status bar. Every other screen still needs the page
+     pushed clear of both buttons. */
   body.nocover #mainApp{padding-top:calc(78px + env(safe-area-inset-top))}
+  body.nocover.board #mainApp{padding-top:calc(6px + env(safe-area-inset-top))}
   .editbar{position:fixed;left:0;right:0;top:0;z-index:160;display:flex;align-items:center;
            justify-content:space-between;gap:10px;background:var(--nm-amber-050);border-bottom:1px solid #f3d6a4;
            padding:calc(10px + env(safe-area-inset-top)) 14px 10px;font-size:13px;font-weight:700;color:#7a6320}
@@ -3165,7 +3170,6 @@
     <button class="light" style="width:auto;padding:7px 12px;font-size:13px" onclick="dismissUndo()">Dismiss</button>
   </span>
 </div>
-<div id="coachNudge"></div>
 <!-- One slot. Five cards used to stand between a parent and the directory that
      was meant to be the front door. -->
 <div id="attention"></div>
@@ -3180,6 +3184,11 @@
 <div id="behaviourWrap" class="graphcard hidden"></div>
 
 <div id="cards" class="grid"></div>
+<!-- v213: the nudge sits under the children. At the top it pushed the band off
+     the screen and was the first thing a parent read, ahead of their own
+     children. It is a sibling of #cards, not a child of it, so rebuilding the
+     grid never takes the slot away. -->
+<div id="coachNudge"></div>
 <div id="addCategoryWrap" class="hidden" style="margin-top:14px;text-align:center">
   <button class="light" onclick="addCategory()">＋ Add a new category</button>
 </div>
@@ -5791,7 +5800,7 @@ const TIP_CATS = [
   {key:"deen", label:"Deen"}
 ];
 
-const APP_VERSION = "v212";
+const APP_VERSION = "v213";
 const today = new Date().toISOString().slice(0,10);
 let app = {families:[],currentFamily:null,currentChild:null};
 let categories = [];
