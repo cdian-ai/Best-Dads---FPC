@@ -5800,7 +5800,7 @@ const TIP_CATS = [
   {key:"deen", label:"Deen"}
 ];
 
-const APP_VERSION = "v213";
+const APP_VERSION = "v214";
 const today = new Date().toISOString().slice(0,10);
 let app = {families:[],currentFamily:null,currentChild:null};
 let categories = [];
@@ -15278,8 +15278,43 @@ window.FULFULDE_M1 = {
     background:#eceefe;color:#2b2e73;cursor:pointer}
   .fffr{flex:1 1 auto;width:100%;border:0;display:block}`;
   let el=null, prevOverflow="";
+  /* ---------- who is learning ----------
+     v214: the course had no idea who had opened it, so it asked every child to
+     pick a face and then lost the photo anyway. It runs in a same-origin
+     iframe, so the two share one localStorage: the signed-in child's name and
+     face are left under a key the course reads on boot. The photo is cut to a
+     224px square first - a camera photo as a data URL is megabytes, and the
+     course keeps its whole save in the same store. */
+  function handLearner(){
+    try{
+      const me=(typeof sessionMember==="function") ? sessionMember() : null;
+      if(!me) return;
+      const put=function(photo){
+        try{
+          localStorage.setItem("nm.learner", JSON.stringify({
+            id:me.id, name:me.name||"", photo:photo||"", ts:Date.now()
+          }));
+        }catch(e){}
+      };
+      if(!me.photo){ put(""); return; }
+      const img=new Image();
+      img.onerror=function(){ put("") };
+      img.onload=function(){
+        try{
+          const N=224, cv=document.createElement("canvas");
+          cv.width=N; cv.height=N;
+          const cx=cv.getContext("2d");
+          const side=Math.min(img.width,img.height);
+          cx.drawImage(img,(img.width-side)/2,(img.height-side)/2,side,side,0,0,N,N);
+          put(cv.toDataURL("image/jpeg",.82));
+        }catch(e){ put("") }
+      };
+      img.src=me.photo;
+    }catch(e){}
+  }
   function open(){
     if(el) return;
+    handLearner();
     if(!document.getElementById('ffcss')){
       const s=document.createElement('style'); s.id='ffcss'; s.textContent=CSS; document.head.appendChild(s);
     }
