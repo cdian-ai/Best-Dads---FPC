@@ -1700,6 +1700,13 @@
            font-weight:800;font-size:15px;box-shadow:0 8px 22px rgba(24,22,60,.16);
            border:1px solid var(--nm-line);min-height:44px}
   .menufab.closing{background:#1f2733;color:var(--nm-white);border-color:#1f2733}
+  /* v211: the Menu pill and the champion ring are both position:fixed at the
+     top of the viewport. Until v210 the family cover sat underneath them and
+     the collision never showed. With the cover down on the parent board, the
+     first thing on the page slid under both - and the same was true on a
+     child's card, where the cover has always been hidden. Nothing reserved the
+     space; now something does. */
+  body.nocover #mainApp{padding-top:calc(78px + env(safe-area-inset-top))}
   .editbar{position:fixed;left:0;right:0;top:0;z-index:160;display:flex;align-items:center;
            justify-content:space-between;gap:10px;background:var(--nm-amber-050);border-bottom:1px solid #f3d6a4;
            padding:calc(10px + env(safe-area-inset-top)) 14px 10px;font-size:13px;font-weight:700;color:#7a6320}
@@ -5784,7 +5791,7 @@ const TIP_CATS = [
   {key:"deen", label:"Deen"}
 ];
 
-const APP_VERSION = "v210";
+const APP_VERSION = "v211";
 const today = new Date().toISOString().slice(0,10);
 let app = {families:[],currentFamily:null,currentChild:null};
 let categories = [];
@@ -6040,20 +6047,23 @@ function renderFamilyCover(){
   /* Opening a child is its own screen. The family portrait belongs to the
      dashboard you came from \u2014 here it is just a large picture of the wrong
      people between you and the list. */
+  /* One place decides whether a cover is on screen, so one class can carry it
+     to the CSS above. Every early return below goes through markNoCover. */
+  const markNoCover=(on)=>document.body.classList.toggle("nocover", !on);
   if(typeof viewChildId!=="undefined" && viewChildId){
-    cover.classList.add("hidden"); empty.classList.add("hidden"); return;
+    cover.classList.add("hidden"); empty.classList.add("hidden"); markNoCover(false); return;
   }
   /* And a child's app is about them, not about the group. Theirs opens on
      their own face and their own points. */
   const meNow=(typeof sessionMember==="function") ? sessionMember() : null;
   if(meNow && typeof isChildRole==="function" && isChildRole(meNow)){
-    cover.classList.add("hidden"); empty.classList.add("hidden");
+    cover.classList.add("hidden"); empty.classList.add("hidden"); markNoCover(false);
     const hdr0=document.querySelector("header");
     if(hdr0) hdr0.classList.remove("hascover");
     return;
   }
   const f=currentFamily();
-  if(!f){ cover.classList.add("hidden"); empty.classList.add("hidden"); return; }
+  if(!f){ cover.classList.add("hidden"); empty.classList.add("hidden"); markNoCover(false); return; }
   const hdr=document.querySelector("header");
   /* v210: on a parent's own dashboard the photograph is a thumbnail inside the
      sky band, so the full-bleed cover stays down - it was a quarter of the
@@ -6062,6 +6072,7 @@ function renderFamilyCover(){
   if(onBoard){
     cover.classList.add("hidden"); empty.classList.add("hidden");
     if(hdr) hdr.classList.remove("hascover");
+    markNoCover(false);
     return;
   }
   if(hdr) hdr.classList.toggle("hascover", !!f.photo);
@@ -6070,12 +6081,14 @@ function renderFamilyCover(){
     document.getElementById("coverName").textContent = f.name || "";
     cover.classList.remove("hidden");
     empty.classList.add("hidden");
+    markNoCover(true);
     // Only a parent may change it; anyone may look at it.
     if(edit) edit.classList.toggle("hidden", !isParentSession());
   }else{
     cover.classList.add("hidden");
     // Don't nag a child about a photo they cannot add.
     empty.classList.toggle("hidden", !isParentSession());
+    markNoCover(false);
   }
 }
 function triggerCoverUpload(){
