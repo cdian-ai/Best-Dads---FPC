@@ -1833,6 +1833,21 @@
        used to take from this rule inset the tip card 15px each side, so it sat
        narrower than the reminder card directly above it. */
     .accountbuttons{width:100%}
+  /* v219: the no-points channel. Deliberately not a points button: wider,
+     warm rather than indigo, and never showing a number. */
+  .tellbtn{display:block;width:100%;margin:10px 0 2px;padding:13px;border-radius:14px;
+    border:1px solid #e6c9a8;background:#fdf3e6;color:#8a5a08;font:inherit;
+    font-size:14.5px;font-weight:750;cursor:pointer}
+  .tellbtn:active{opacity:.75}
+  .tellrow{margin:10px 0 2px;display:flex;flex-wrap:wrap;gap:7px}
+  .tellhead{flex:0 0 100%;margin:2px 0 4px;font-size:12px;font-weight:700;color:var(--muted)}
+  .tellchip{border:1px solid #e6c9a8;background:#fdf7ee;color:#8a5a08;border-radius:999px;
+    padding:8px 12px;font:inherit;font-size:12.5px;font-weight:650;cursor:pointer;text-align:left}
+  .tellchip:active{opacity:.75}
+  .feednotice{color:#8a5a08;font-weight:750}
+  .momentjust{font-size:12px;font-weight:750;color:#8a5a08;background:#fdf3e6;
+    border-radius:999px;padding:3px 10px}
+  .feedpts.notejust{color:#b9a98a;font-weight:750}
   .invitetiles{display:grid;grid-template-columns:1fr 1fr;gap:10px}
   .invtile{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;
     aspect-ratio:1/1;width:100%;padding:12px 10px;text-align:center;border-radius:18px;
@@ -5862,7 +5877,7 @@ const TIP_CATS = [
   {key:"deen", label:"Deen"}
 ];
 
-const APP_VERSION = "v218";
+const APP_VERSION = "v219";
 const today = new Date().toISOString().slice(0,10);
 let app = {families:[],currentFamily:null,currentChild:null};
 let categories = [];
@@ -7201,6 +7216,12 @@ function noteBarSync(){
   const hint=document.getElementById("noteHint");
   if(act) act.classList.toggle("hidden", !on);
   if(hint) hint.classList.toggle("hidden", on);
+  /* v219: the no-points button follows the sentence, and the ready-made ones
+     stand down while there is a sentence of your own to send. */
+  const tell=document.getElementById("tellBtn");
+  const row=document.getElementById("tellRow");
+  if(tell) tell.classList.toggle("hidden", !on);
+  if(row) row.classList.toggle("hidden", on);
 }
 /* The sentence is the award. Same custom-award path the prompt version used,
    so it lands in the ledger identically \u2014 just without two prompts. */
@@ -7217,6 +7238,44 @@ async function awardNoticed(points){
     const el=document.getElementById("awardNote");
     if(el) el.value="";
     try{ if(typeof chime==="function") chime("award"); }catch(e){}
+    render();
+  }
+}
+/* ---------- Noticed, with nothing attached ----------
+   v219: some things are only worth anything because nobody asked. Warneken and
+   Tomasello gave 20-month-olds a material reward for helping and found they
+   helped less afterwards than children given praise or nothing at all; praise
+   did not do that, the reward did. So the app needed a way to say "I saw that"
+   without a number on it - and it had to look different from a points award,
+   not like a zero-point one, or a child reads it as worth nothing.
+
+   On the wire it is still type "award" with points 0, marked by its catKey.
+   A new type would have to clear the Firestore rules, and this does not.
+   NOTICE_KEY is the marker; nothing keys off the wording. */
+const NOTICE_KEY="notice|";
+const NOTICE_PROMPTS=[
+  "I saw you help without being asked",
+  "I saw you share without being asked",
+  "I saw you look after someone who was upset",
+  "I saw you include someone who was left out",
+  "I saw you give something of your own away"
+];
+function isNoticeEntry(e){
+  return !!e && e.type==="award" && String(e.catKey||"").indexOf(NOTICE_KEY)===0;
+}
+async function sendNotice(text){
+  if(!requireParent()) return;
+  const child=currentChild();
+  if(!child || !isChildRole(child)) return;
+  const what=String(text || __awardNote || "").trim();
+  if(!what) return;
+  const ok=await writeLedger({childId:child.id, points:0, label:what,
+    type:"award", catKey:NOTICE_KEY+what, actionName:what});
+  if(ok){
+    __awardNote="";
+    const el=document.getElementById("awardNote");
+    if(el) el.value="";
+    try{ if(typeof chime==="function") chime("notice"); }catch(e){}
     render();
   }
 }
@@ -12432,6 +12491,15 @@ function render(){
                ${[1,2,3,5].map(v=>`<button onclick="awardNoticed(${v})">+${v}</button>`).join("")}
              </div>
            </div>
+           <!-- v219: a different shape, not a cheaper one. Full width, its own
+                colour, no number anywhere near it. -->
+           <button class="tellbtn${__awardNote.trim()?"":" hidden"}" id="tellBtn"
+             onclick="sendNotice()">Just tell them \u2014 no points</button>
+           <div class="tellrow${__awardNote.trim()?" hidden":""}" id="tellRow">
+             <p class="tellhead">Or say you saw it, with nothing attached</p>
+             ${NOTICE_PROMPTS.map(t=>`<button class="tellchip"
+               onclick="sendNotice('${t.replace(/'/g,"\\'")}')">${escapeHtml(t)}</button>`).join("")}
+           </div>
            <p class="notehint${__awardNote.trim()?" hidden":""}" id="noteHint">Or tap a tile below
              and this sentence rides along with it.</p>
          </div>`);
@@ -12648,9 +12716,13 @@ function renderParentAdminView(parent){
     const gone=lastNoticedDays(c);
     const wk=weeklyTotalFor(c,weekDates);
     const [tint,soft]=tintFor(c.id);
+    /* A notice lands in the day's tally at zero points, so "did anything happen
+       today" cannot be a test on the number alone - saying you saw something is
+       exactly the thing this strip is meant to show. */
+    const dayLit=(day)=>!!day && Object.keys(day).some(k=>day[k]>0 || k.indexOf("notice|")===0);
     const strip=weekDates.map(ds=>{
       const day=(c.pointsByDate||{})[ds];
-      const on=!!day && Object.keys(day).some(k=>day[k]>0);
+      const on=dayLit(day);
       return `<i class="${on?"on":""}${ds===today?" today":""}"${on?` style="background:${tint}"`:""}></i>`;
     }).join("");
     const chips=[];
@@ -12703,7 +12775,7 @@ function renderParentAdminView(parent){
      invitation. */
   const noticedToday=kids.filter(c=>{
     const day=(c.pointsByDate||{})[today];
-    return !!day && Object.keys(day).some(k=>day[k]>0);
+    return !!day && Object.keys(day).some(k=>day[k]>0 || k.indexOf("notice|")===0);
   }).length;
   let line;
   if(pend.length) line = pend.length===1 ? "One thing is waiting on you" : pend.length+" things are waiting on you";
@@ -13943,8 +14015,12 @@ function noticeTone(label, catKey){
    build anywhere else in this app either. */
 function noticedToday(child){
   const start=new Date(); start.setHours(0,0,0,0);
+  /* v219: a no-points notice belongs here more than anything else does. The
+     filter was on points>0, so the one thing sent purely to be read would
+     never have reached the card a child actually reads. */
   return (child.activityLog||[])
-    .filter(e=>e.points>0 && e.type!=="refund" && e.ts>=start.getTime())
+    .filter(e=>(e.points>0 || (typeof isNoticeEntry==="function" && isNoticeEntry(e)))
+            && e.type!=="refund" && e.ts>=start.getTime())
     .slice(0,6);
 }
 function momentHTML(child){
@@ -13964,7 +14040,9 @@ function momentHTML(child){
         <p class="momentnote">${escapeHtml(e.label||"Something good.")}</p>
         <div class="momentfoot">
           <span class="momentwhen">${momentWhen(e.ts)}</span>
-          <span class="momentpts">${nums ? "+"+e.points : sizeWord(e.points)}</span>
+          ${(typeof isNoticeEntry==="function" && isNoticeEntry(e))
+            ? `<span class="momentjust">just so you know</span>`
+            : `<span class="momentpts">${nums ? "+"+e.points : sizeWord(e.points)}</span>`}
         </div>
       </article>`;
   }).join("");
@@ -14571,14 +14649,17 @@ function renderKidView(child){
     feed.innerHTML=entries.map(e=>{
       const when=new Date(e.ts).toLocaleString([], {weekday:"short", hour:"2-digit", minute:"2-digit"});
       const spent=e.points<0;
-      const emoji = spent ? "\ud83c\udf81" : e.type==="refund" ? "\u21a9\ufe0f" : "\u2b50";
+      const noted=(typeof isNoticeEntry==="function") && isNoticeEntry(e);
+      const emoji = noted ? "\ud83d\udc9b" : spent ? "\ud83c\udf81" : e.type==="refund" ? "\u21a9\ufe0f" : "\u2b50";
       const who = spent ? "You chose this \u00b7 "+when
         : e.by ? "From "+escapeHtml(e.by)+(e.byRole?" ("+escapeHtml(e.byRole)+")":"")+" \u00b7 "+when
         : when;
       return `<div class="feeditem">
         <div class="feedemoji">${emoji}</div>
         <div class="feedmain"><div class="what">${escapeHtml(e.label)}</div><div class="who">${who}</div></div>
-        <div class="feedpts ${spent?"spent":""}">${e.points>=0?"+":""}${e.points}</div>
+        ${noted
+          ? `<div class="feedpts notejust">\u2014</div>`
+          : `<div class="feedpts ${spent?"spent":""}">${e.points>=0?"+":""}${e.points}</div>`}
       </div>`;
     }).join("");
   }
