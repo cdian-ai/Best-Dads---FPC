@@ -1599,11 +1599,18 @@
   .skyband{position:relative;height:152px;border-radius:22px;overflow:hidden;margin:0 0 14px;
     display:flex;align-items:flex-end}
   .skyband svg.skyart{position:absolute;inset:0;width:100%;height:100%;display:block}
-  .skytext{position:relative;padding:0 86px 15px 17px;flex:1;min-width:0}
-  .skygreet{display:block;font-size:12.5px;font-weight:600;color:rgba(255,255,255,.92);
-    letter-spacing:.01em;text-shadow:0 1px 2px rgba(20,30,60,.28)}
-  .skyline{display:block;font-size:16.5px;font-weight:700;color:#fff;line-height:1.25;
-    margin-top:2px;text-shadow:0 1px 3px rgba(20,30,60,.32);padding-right:8px}
+  .skytext{position:relative;padding:0 84px 14px 15px;flex:1;min-width:0}
+  /* v215: white on a sky that runs from pale blue to grass was never going to
+     hold at any size. The words sit on their own plate now and take the app's
+     ink, which is what everything else on this screen is written in. */
+  .skyplate{display:inline-block;max-width:100%;background:rgba(255,255,255,.9);
+    border-radius:16px;padding:9px 14px 10px;box-shadow:0 2px 10px rgba(30,45,80,.14)}
+  .skygreet{display:block;font-size:12.5px;font-weight:700;color:#6f7796;letter-spacing:.01em}
+  .skyfam{display:block;font-size:22px;font-weight:800;color:var(--ink,#2c3350);
+    line-height:1.15;letter-spacing:-.02em;margin-top:1px;
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .skyline{display:block;font-size:15px;font-weight:700;color:var(--accent,#5b63d8);
+    line-height:1.3;margin-top:3px}
   .skyphoto{position:relative;margin:0 15px 14px 6px;width:54px;height:54px;border-radius:50%;
     border:3px solid rgba(255,255,255,.92);overflow:hidden;padding:0;background:#eef1f8;
     flex:none;cursor:pointer;box-shadow:0 3px 10px rgba(30,40,70,.2)}
@@ -1712,6 +1719,14 @@
      pushed clear of both buttons. */
   body.nocover #mainApp{padding-top:calc(78px + env(safe-area-inset-top))}
   body.nocover.board #mainApp{padding-top:calc(6px + env(safe-area-inset-top))}
+  /* v215: the page could be dragged down past the fixed Menu pill, which made
+     the band look like it was sliding under furniture. iOS bounces the document
+     by default; on the board there is nothing above the band to reveal. */
+  body.board, body.board #mainApp{overscroll-behavior-y:none}
+  /* The family name moves into the band, so the centred page title above it
+     would say it twice. */
+  body.board #nmFamilyTitle{display:none}
+  body.board header{padding-top:0}
   .editbar{position:fixed;left:0;right:0;top:0;z-index:160;display:flex;align-items:center;
            justify-content:space-between;gap:10px;background:var(--nm-amber-050);border-bottom:1px solid #f3d6a4;
            padding:calc(10px + env(safe-area-inset-top)) 14px 10px;font-size:13px;font-weight:700;color:#7a6320}
@@ -1797,6 +1812,16 @@
        used to take from this rule inset the tip card 15px each side, so it sat
        narrower than the reminder card directly above it. */
     .accountbuttons{width:100%}
+  .invitetiles{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .invtile{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;
+    aspect-ratio:1/1;width:100%;padding:12px 10px;text-align:center;border-radius:18px;
+    border:1px solid var(--nm-line,#e6e8f0);background:var(--nm-white,#fff);
+    font:inherit;color:var(--ink,#2c3350);cursor:pointer}
+  .invtile:active{transform:scale(.985)}
+  .invtile .ig{font-size:26px;line-height:1}
+  .invtile b{font-size:14px;font-weight:750;line-height:1.2}
+  .invtile small{font-size:11.5px;color:var(--muted,#8a90a6);line-height:1.25}
+  .invtile[disabled]{opacity:.6}
     .accountbuttons button{flex:1}
     /* Stack the numbers under the name rather than squeezing them alongside. */
     .overviewrow{flex-wrap:wrap}
@@ -2970,14 +2995,25 @@
         <button class="primary" id="revealAddBtn" style="margin-top:14px;width:100%" onclick="openAddMember()">＋ Add someone new</button>
         <div style="display:grid;gap:6px;margin-top:10px">
           <p class="small" style="margin:0">Invite someone to this family:</p>
-          <button class="light" id="inviteParentBtn" style="width:100%" onclick="createParentInvite('parent')">🔗 Invite another parent</button>
-          <button class="light" id="inviteFamilyBtn" style="width:100%" onclick="createParentInvite('family')">👪 Invite a grandparent, uncle or aunty</button>
+          <!-- v215: two square tiles side by side. As full-width stacked buttons
+               the longer label wrapped and the pair read as a list of settings
+               rather than a choice between two people. -->
+          <div class="invitetiles">
+            <button class="invtile" id="inviteParentBtn" onclick="createParentInvite('parent')">
+              <span class="ig">🔗</span><b>Another parent</b>
+              <small>Points, requests, the lot</small></button>
+            <button class="invtile" id="inviteFamilyBtn" onclick="createParentInvite('family')">
+              <span class="ig">👪</span><b>Grandparent, uncle or aunty</b>
+              <small>Up to 10 points a week</small></button>
+          </div>
           <p class="small" style="margin:0">A grandparent, uncle or aunty can see the children’s names and weekly points, give each child up to 10 points a week, and offer them a shared goal or a gift. They can’t take points away, change rewards, or see your own list.</p>
           <p class="small" style="margin:0">Tutors have their own tab — 📚 Tutors in the menu.</p>
         </div>
         <div id="inviteBox" class="hidden" style="margin-top:12px;background:#eef0ff;border:1px solid #c9cdf5;border-radius:16px;padding:14px;text-align:center">
           <p class="small" style="margin:0 0 6px">Read this out to them. It works once, and lasts fifteen minutes.</p>
           <p id="inviteCode" style="margin:0;font-size:30px;font-weight:800;letter-spacing:.12em;color:#3e46ad"></p>
+          <button class="light" id="copyInviteBtn" style="width:auto;margin:10px auto 0;padding:8px 16px"
+            onclick="copyInviteCode()">\u29c9 Copy code</button>
           <p class="small" id="inviteExpiry" style="margin:6px 0 0"></p>
           <p class="small" style="margin:8px 0 0">They download the app, create their own account with their own email, then enter this code.</p>
         </div>
@@ -5800,7 +5836,7 @@ const TIP_CATS = [
   {key:"deen", label:"Deen"}
 ];
 
-const APP_VERSION = "v214";
+const APP_VERSION = "v215";
 const today = new Date().toISOString().slice(0,10);
 let app = {families:[],currentFamily:null,currentChild:null};
 let categories = [];
@@ -12663,10 +12699,11 @@ function renderParentAdminView(parent){
     <div style="grid-column:1/-1">
       <section class="skyband">
         ${skyArt}
-        <span class="skytext">
-          <span class="skygreet">${greet}${f && f.name ? ", "+escapeHtml(f.name)+" family" : ""}</span>
+        <span class="skytext"><span class="skyplate">
+          <span class="skygreet">${greet}</span>
+          ${f && f.name ? `<span class="skyfam">${escapeHtml(f.name)}</span>` : ""}
           <span class="skyline">${line}</span>
-        </span>
+        </span></span>
       </section>
       ${attentionHTML()}
       <div class="board">${kids.length
@@ -14941,8 +14978,11 @@ async function createParentInvite(role){
   const box=document.getElementById("inviteBox");
   const codeEl=document.getElementById("inviteCode");
   const expEl=document.getElementById("inviteExpiry");
-  const btn=document.getElementById("inviteParentBtn");
-  if(btn){ btn.disabled=true; btn.textContent="Making a code \u2026"; }
+  /* v215: this always grabbed the parent button, so inviting a grandparent put
+     "Making a code …" on the wrong tile and then relabelled it. */
+  const btn=document.getElementById(inviteRole==="parent" ? "inviteParentBtn" : "inviteFamilyBtn");
+  const btnHTML=btn ? btn.innerHTML : "";
+  if(btn){ btn.disabled=true; btn.innerHTML='<span class="ig">\u23f3</span><b>Making a code…</b>'; }
   try{
     const code=await withTimeout(window.fpc.createInvite(familyId, makeInviteCode(), INVITE_TTL_MS, inviteRole), 20000, "Creating the code");
     codeEl.textContent = code.slice(0,4) + "-" + code.slice(4);
@@ -14953,7 +14993,31 @@ async function createParentInvite(role){
     console.error("Could not create an invite:", e);
     alert(authErrorMessage(e));
   }
-  if(btn){ btn.disabled=false; btn.textContent="\u{1F517} Invite another parent"; }
+  if(btn){ btn.disabled=false; btn.innerHTML=btnHTML; }
+}
+/* The code is read out loud, but it is also eight characters someone wants to
+   paste into a message. */
+async function copyInviteCode(){
+  const el=document.getElementById("inviteCode");
+  const btn=document.getElementById("copyInviteBtn");
+  if(!el) return;
+  const code=el.textContent.trim();
+  let ok=false;
+  try{ await navigator.clipboard.writeText(code); ok=true; }
+  catch(e){
+    try{
+      const t=document.createElement("textarea");
+      t.value=code; t.setAttribute("readonly","");
+      t.style.position="fixed"; t.style.opacity="0";
+      document.body.appendChild(t); t.select();
+      ok=document.execCommand("copy");
+      document.body.removeChild(t);
+    }catch(e2){ ok=false; }
+  }
+  if(btn){
+    btn.textContent = ok ? "\u2713 Copied" : "Press and hold the code to copy";
+    setTimeout(()=>{ btn.textContent="\u29c9 Copy code"; }, 2200);
+  }
 }
 function prefillJoinName(){
   const el=document.getElementById("joinPersonName");
