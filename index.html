@@ -1599,7 +1599,9 @@
   .skyband{position:relative;height:152px;border-radius:22px;overflow:hidden;margin:0 0 14px;
     display:flex;align-items:flex-end}
   .skyband svg.skyart{position:absolute;inset:0;width:100%;height:100%;display:block}
-  .skytext{position:relative;padding:0 84px 14px 15px;flex:1;min-width:0}
+  /* v216: the plate sits right. On the left it was directly under the Menu
+     pill, so the two stacked into one column of furniture down that edge. */
+  .skytext{position:relative;padding:0 15px 14px 84px;flex:1;min-width:0;text-align:right}
   /* v215: white on a sky that runs from pale blue to grass was never going to
      hold at any size. The words sit on their own plate now and take the app's
      ink, which is what everything else on this screen is written in. */
@@ -2995,6 +2997,17 @@
         <button class="primary" id="revealAddBtn" style="margin-top:14px;width:100%" onclick="openAddMember()">＋ Add someone new</button>
         <div style="display:grid;gap:6px;margin-top:10px">
           <p class="small" style="margin:0">Invite someone to this family:</p>
+          <!-- v216: the code lands above the two tiles. Below them it was under
+               a paragraph of explanation and off the bottom of the screen, so
+               tapping invite looked like it had done nothing. -->
+        <div id="inviteBox" class="hidden" style="margin:4px 0 2px;background:#eef0ff;border:1px solid #c9cdf5;border-radius:16px;padding:14px;text-align:center">
+          <p class="small" style="margin:0 0 6px">Read this out to them. It works once, and lasts fifteen minutes.</p>
+          <p id="inviteCode" style="margin:0;font-size:30px;font-weight:800;letter-spacing:.12em;color:#3e46ad"></p>
+          <button class="light" id="copyInviteBtn" style="width:auto;margin:10px auto 0;padding:8px 16px"
+            onclick="copyInviteCode()">\u29c9 Copy code</button>
+          <p class="small" id="inviteExpiry" style="margin:6px 0 0"></p>
+          <p class="small" style="margin:8px 0 0">They download the app, create their own account with their own email, then enter this code.</p>
+        </div>
           <!-- v215: two square tiles side by side. As full-width stacked buttons
                the longer label wrapped and the pair read as a list of settings
                rather than a choice between two people. -->
@@ -3009,14 +3022,7 @@
           <p class="small" style="margin:0">A grandparent, uncle or aunty can see the children’s names and weekly points, give each child up to 10 points a week, and offer them a shared goal or a gift. They can’t take points away, change rewards, or see your own list.</p>
           <p class="small" style="margin:0">Tutors have their own tab — 📚 Tutors in the menu.</p>
         </div>
-        <div id="inviteBox" class="hidden" style="margin-top:12px;background:#eef0ff;border:1px solid #c9cdf5;border-radius:16px;padding:14px;text-align:center">
-          <p class="small" style="margin:0 0 6px">Read this out to them. It works once, and lasts fifteen minutes.</p>
-          <p id="inviteCode" style="margin:0;font-size:30px;font-weight:800;letter-spacing:.12em;color:#3e46ad"></p>
-          <button class="light" id="copyInviteBtn" style="width:auto;margin:10px auto 0;padding:8px 16px"
-            onclick="copyInviteCode()">\u29c9 Copy code</button>
-          <p class="small" id="inviteExpiry" style="margin:6px 0 0"></p>
-          <p class="small" style="margin:8px 0 0">They download the app, create their own account with their own email, then enter this code.</p>
-        </div>
+
         <input type="file" id="avatarFileInput" accept="image/*" class="hidden" onchange="handleAvatarUpload(this.files[0])">
       </section>
       <section>
@@ -5836,7 +5842,7 @@ const TIP_CATS = [
   {key:"deen", label:"Deen"}
 ];
 
-const APP_VERSION = "v215";
+const APP_VERSION = "v216";
 const today = new Date().toISOString().slice(0,10);
 let app = {families:[],currentFamily:null,currentChild:null};
 let categories = [];
