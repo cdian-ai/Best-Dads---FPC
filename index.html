@@ -1575,6 +1575,46 @@
   .homegroup.waiting{color:#8a5a08}
   .homegroup.waiting::after{background:#eccf95}
 
+  /* v208: the family board. Home used to be a picker and two nags with no
+     child anywhere on it, so a parent could not answer the question they
+     actually opened the app with - who needs me. One row per child, and the
+     row itself is the way in: tapping it opens their card, which is where
+     points get given. That removes the picker step as well. */
+  .board{background:var(--card,#fff);border:1px solid var(--line);border-radius:16px;
+    padding:2px 14px;margin:0 0 4px}
+  .kidrow{display:flex;gap:12px;align-items:center;width:100%;text-align:left;
+    background:none;border:0;border-bottom:1px solid var(--line);padding:13px 0;
+    font:inherit;color:inherit;cursor:pointer}
+  .kidrow:last-child{border-bottom:0}
+  .kidrow:active{opacity:.72}
+  .kidrow>img,.kidrow .avatar-placeholder{width:38px;height:38px;border-radius:50%;
+    object-fit:cover;flex:none;display:grid;place-items:center;background:var(--field,#ecebf7);
+    font-size:18px}
+  .kidmid{flex:1;min-width:0}
+  .kidname{font-size:15px;font-weight:750;line-height:1.2;color:var(--ink)}
+  .kidmeta{font-size:12.5px;font-weight:600;color:var(--muted);margin-top:3px;
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .kidmeta.wait{color:#8a5a08}
+  .kidmeta.quiet{color:var(--muted)}
+  .kweek{display:flex;gap:3px;margin-top:6px}
+  .kweek i{width:13px;height:5px;border-radius:3px;background:#e6e8f0;display:block}
+  .kweek i.on{background:var(--accent)}
+  .kweek i.today{box-shadow:0 0 0 1.5px #fff,0 0 0 3px #cfd3ee}
+  .kidpts{text-align:right;flex:none}
+  .kidpts b{display:block;font-size:19px;font-weight:800;letter-spacing:-.01em;line-height:1.1}
+  .kidpts span{display:block;font-size:10.5px;font-weight:700;color:var(--muted)}
+  .weekbar{display:flex;gap:18px;align-items:center;background:var(--card,#fff);
+    border:1px solid var(--line);border-radius:16px;padding:12px 14px}
+  .weekbar div b{display:block;font-size:18px;font-weight:800;line-height:1.15}
+  .weekbar div span{font-size:11.5px;font-weight:650;color:var(--muted)}
+  .linkrow{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;
+    background:var(--card,#fff);border:1px solid var(--line);border-radius:14px;
+    padding:12px 14px;font:inherit;font-size:13.5px;font-weight:650;color:var(--ink);
+    cursor:pointer;text-align:left;margin-top:10px}
+  .linkrow:active{opacity:.72}
+  .linkrow.wait{border-color:#eccf95;background:#fdf7ea;color:#8a5a08}
+  .linkrow em{font-style:normal;font-weight:650;color:var(--muted)}
+
   /* v195: nudges. Both fire ONCE when the card comes into view and then stop -
      they re-arm only after the card has scrolled back out. Nothing on this
      screen loops. A card that waves at you forever is wallpaper by Tuesday.
@@ -5701,7 +5741,7 @@ const TIP_CATS = [
   {key:"deen", label:"Deen"}
 ];
 
-const APP_VERSION = "v207";
+const APP_VERSION = "v208";
 const today = new Date().toISOString().slice(0,10);
 let app = {families:[],currentFamily:null,currentChild:null};
 let categories = [];
@@ -12443,37 +12483,75 @@ function renderParentAdminView(parent){
      when something is, and "Today" when nothing is, so a parent knows whether
      to put the phone down before reading a word. */
   const waiting = pend.length + offers.length;
+  /* v208: one row per child. Everything a parent needs to decide who to open:
+     what they earned this week, which days were noticed, and whether anything
+     of theirs is waiting. The row opens their card - the same destination the
+     picker led to, one tap earlier. */
+  const lastNoticedDays=(c)=>{
+    const dates=Object.keys(c.pointsByDate||{}).filter(ds=>{
+      const day=c.pointsByDate[ds];
+      return day && Object.keys(day).some(k=>day[k]>0);
+    }).sort();
+    if(!dates.length) return null;
+    /* Calendar days, not elapsed hours: both ends are pinned to midday so the
+       count is the number of dates between them. Measuring from Date.now()
+       made "6 days ago" read as 5 for most of the day. */
+    const last=new Date(dates[dates.length-1]+"T12:00:00").getTime();
+    const now=new Date(today+"T12:00:00").getTime();
+    return Math.round((now-last)/86400000);
+  };
+  const kidRow=(c)=>{
+    const mine=pend.filter(r=>r.childId===c.id).length;
+    const gone=lastNoticedDays(c);
+    const strip=weekDates.map(ds=>{
+      const day=(c.pointsByDate||{})[ds];
+      const on=!!day && Object.keys(day).some(k=>day[k]>0);
+      return `<i class="${on?"on":""}${ds===today?" today":""}"></i>`;
+    }).join("");
+    /* One line, and the most pressing thing wins it. A waiting request beats a
+       quiet spell, because one is a job and the other is a nudge. */
+    let meta, cls="";
+    if(mine){ meta = mine===1 ? "1 thing waiting on you" : mine+" things waiting on you"; cls=" wait"; }
+    else if(gone===null){ meta="Nothing noticed yet"; cls=" quiet"; }
+    else if(gone>=3){ meta="Not noticed for "+gone+" days"; cls=" quiet"; }
+    else if(gone===0){ meta="Noticed today"; }
+    else { meta = gone===1 ? "Noticed yesterday" : "Noticed "+gone+" days ago"; }
+    return `<button class="kidrow" onclick="pickPerson('${c.id}')">
+      ${c.photo?`<img src="${c.photo}" alt="">`:'<span class="avatar-placeholder">\ud83d\udc64</span>'}
+      <span class="kidmid">
+        <span class="kidname">${escapeHtml(c.name)}</span>
+        <span class="kweek">${strip}</span>
+        <span class="kidmeta${cls}">${meta}</span>
+      </span>
+      <span class="kidpts"><b>${weeklyTotalFor(c,weekDates)}</b><span>this week</span></span>
+    </button>`;
+  };
+  const daysOn=weekDates.filter(ds=>kids.some(c=>{
+    const day=(c.pointsByDate||{})[ds];
+    return !!day && Object.keys(day).some(k=>day[k]>0);
+  })).length;
   cards.innerHTML = `
     <div style="grid-column:1/-1">
-      <!-- v191: the home screen had no primary action on it at all. The shelf
-           went in v173 and took the Give points tile with it, leaving two ask
-           tiles and a thought - a page you read rather than a page you use.
-           The tab bar carries the same action on every screen; this is the one
-           on the page you land on. -->
-      <button class="hometile wide" style="width:100%;margin-bottom:16px"
-              onclick="showPicker('give')">
-        <span class="hicon">\u2b50</span>
-        <span style="display:flex;flex-direction:column;gap:2px;align-items:flex-start;min-width:0">
-          <span class="hname">Give points</span>
-          <span class="hsub">${kids.length
-            ? "Pick a child, then say what you noticed"
-            : "Add a child first, under Family members"}</span>
-        </span>
-      </button>
-      <p class="homegroup${waiting ? " waiting" : ""}" style="margin-top:2px">${waiting ? "Waiting on you" : "Today"}</p>
+      <p class="homegroup${waiting ? " waiting" : ""}" style="margin-top:2px">${waiting ? "Waiting on you" : "Your family"}</p>
       ${attentionHTML()}
-      <div class="todaypair">
-        ${todayTile("bell","\ud83d\udd14","They asked you",
-            pend.length?pend.length+" waiting":"Nothing waiting","showAskingPanel('them')",
-            pend.length||0, pend.length?"askedyou":"")}
-        ${todayTile("ask","\ud83d\udccc","You asked them",
-            "What you\u2019ve put on their list","showAskingPanel('you')")}
+      <div class="board">${kids.length
+        ? kids.map(kidRow).join("")
+        : '<p class="small" style="padding:12px 0">No children yet \u2014 add one under Family members.</p>'}</div>
+      <div class="weekbar" style="margin-top:10px">
+        <div><b>${weekTotal}</b><span>points this week</span></div>
+        <div><b>${daysOn} of 7</b><span>days you noticed</span></div>
       </div>
-      <!-- Under its own heading, not under "Waiting on you" - a thought for
-           the day is not a job, and filing it beneath that heading told a
-           parent it was one more thing outstanding. The one non-task on this
-           screen, and the reason it stays: a screen made only of jobs is a
-           to-do list, and this app is not one. -->
+      ${pend.length ? `<button class="linkrow wait" onclick="showAskingPanel('them')">
+        <span>${pend.length===1?"1 thing they've asked you for":pend.length+" things they've asked you for"}</span>
+        <em>Answer</em>
+      </button>` : ""}
+      <button class="linkrow" onclick="showAskingPanel('you')">
+        <span>What you've asked them for</span>
+        <em>Open</em>
+      </button>
+      <!-- The thought keeps its own heading. The one non-task on this screen,
+           and the reason it stays: a screen made only of jobs is a to-do list,
+           and this app is not one. -->
       <p class="homegroup">Something to think about</p>
       <div class="dashthought" data-nudge="tap" data-nudge-key="thought">${thoughtDeckHTML()}</div>
     </div>`;
@@ -13353,14 +13431,11 @@ function attentionHTML(){
   if(!isParentSession() || editMode || screenNow) return "";
   /* Opening a child means one thing: you are here to award something. */
   if(viewChildId) return "";
-  const pend=pendingRequests().filter(r=>daysAgo(r.ts)>=1);
-  if(pend.length){
-    return `<section class="attncard" data-nudge="lift" data-nudge-key="waiting" onclick="showRequestsPanel()">
-        <span class="attnem">\ud83d\udd14</span>
-        <span><strong>${pend.length} ${pend.length>1?"things":"thing"} they asked for, waiting over a day</strong>
-          <span>A no is fine \u2014 it\u2019s the waiting that stops them asking again.</span></span>
-      </section>`;
-  }
+  /* v208: this branch used to build its own card for pending requests while
+     renderCoachNudge() painted the requests-waiting nudge into #coachNudge
+     from the same data. Neither knew about the other, so a parent saw the
+     same sentence twice, word for word. The board below now names which
+     child is waiting, which is the thing this card never said. */
   const me=sessionMember();
   const picked=me ? pickNudge(me) : null;
   if(picked){
