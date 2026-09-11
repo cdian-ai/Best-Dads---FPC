@@ -1665,6 +1665,25 @@
     cursor:pointer;text-align:left;margin-top:10px}
   .linkrow:active{opacity:.72}
   .linkrow.wait{border-color:#eccf95;background:#fdf7ea;color:#8a5a08}
+  /* v218: the two asking links were a pair of floating strips that read as
+     settings rows - the same object twice, pointing in opposite directions,
+     with the counts nowhere. One card, two rows, both numbers on show, because
+     the numbers are the only reason to have two entrances at all. */
+  .askcard{background:var(--card,#fff);border:1px solid var(--line);border-radius:18px;
+    padding:2px 14px;margin-top:12px}
+  .askhead{margin:11px 0 2px;font-size:12px;font-weight:750;letter-spacing:.04em;
+    text-transform:uppercase;color:var(--muted)}
+  .askrow{display:flex;align-items:center;gap:12px;width:100%;text-align:left;
+    background:none;border:0;border-top:1px solid var(--line);padding:13px 0;
+    font:inherit;color:inherit;cursor:pointer}
+  .askrow:active{opacity:.72}
+  .askmid{flex:1;min-width:0}
+  .askmid b{display:block;font-size:14.5px;font-weight:700;line-height:1.2}
+  .askmid small{display:block;font-size:12.5px;color:var(--muted);margin-top:2px}
+  .askn{flex:none;font-size:12px;font-weight:750;border-radius:999px;padding:4px 10px;
+    background:#eef0f7;color:#5a6180;white-space:nowrap}
+  .askrow.wait .askn{background:#fde8cf;color:#8a4a08}
+  .askchev{flex:none;color:#b9bfd4}
   .linkrow em{font-style:normal;font-weight:650;color:var(--muted)}
 
   /* v195: nudges. Both fire ONCE when the card comes into view and then stop -
@@ -5843,7 +5862,7 @@ const TIP_CATS = [
   {key:"deen", label:"Deen"}
 ];
 
-const APP_VERSION = "v217";
+const APP_VERSION = "v218";
 const today = new Date().toISOString().slice(0,10);
 let app = {families:[],currentFamily:null,currentChild:null};
 let categories = [];
@@ -12710,14 +12729,48 @@ function renderParentAdminView(parent){
            parent's own consistency scored back at them, and on a quiet week it
            is the first thing they read. The band says what happened; nobody
            asked for a mark out of seven. -->
-      ${pend.length ? `<button class="linkrow wait" onclick="showAskingPanel('them')">
-        <span>${pend.length===1?"1 thing they've asked you for":pend.length+" things they've asked you for"}</span>
-        <em>Answer</em>
-      </button>` : ""}
-      <button class="linkrow" onclick="showAskingPanel('you')">
-        <span>What you've asked them for</span>
-        <em>Open</em>
-      </button>
+      ${(()=>{
+        /* What a parent has put on the children's lists, counted the way the
+           asking board counts it: the open note per child, items not ticked.
+           The helper arrives with a later script, so nothing is claimed if it
+           is not there yet - a wrong number here is worse than none. */
+        let mine=null;
+        try{
+          /* allNotes() is what the asking board reads. openNoteFor is a const
+             inside that script's own closure, so it cannot be called from here
+             - the open note per child is picked the same way it picks it:
+             due today or earlier, most recent first. */
+          if(typeof allNotes==="function"){
+            const all=allNotes()||[];
+            const stamp=(typeof dateStr==="function") ? dateStr(new Date()) : today;
+            mine=kids.reduce((n,c)=>{
+              const nt=all.filter(x=>x.childId===c.id && x.due<=stamp)
+                          .sort((a,b)=>b.ts-a.ts)[0];
+              return n + ((nt&&nt.items)||[]).filter(i=>!i.done).length;
+            },0);
+          }
+        }catch(e){ mine=null; }
+        const theirs=pend.length;
+        return `<section class="askcard">
+          <p class="askhead">Asking</p>
+          <button class="askrow${theirs?" wait":""}" onclick="showAskingPanel('them')">
+            <span class="askmid"><b>They asked you</b>
+              <small>${theirs?"A no is fine \u2014 it is the waiting that stops them asking":"Nothing waiting"}</small></span>
+            <span class="askn">${theirs?theirs+" waiting":"0"}</span>
+            <svg class="askchev" width="17" height="17" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"
+              aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>
+          </button>
+          <button class="askrow" onclick="showAskingPanel('you')">
+            <span class="askmid"><b>You asked them</b>
+              <small>${mine===null?"On their lists":(mine?"Still to do":"Nothing on their lists")}</small></span>
+            ${mine===null?"":`<span class="askn">${mine}</span>`}
+            <svg class="askchev" width="17" height="17" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"
+              aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>
+          </button>
+        </section>`;
+      })()}
       <p class="homegroup">Something to think about</p>
       <div class="dashthought" data-nudge="tap" data-nudge-key="thought">${thoughtDeckHTML()}</div>
     </div>`;
