@@ -5877,7 +5877,7 @@ const TIP_CATS = [
   {key:"deen", label:"Deen"}
 ];
 
-const APP_VERSION = "v219";
+const APP_VERSION = "v220";
 const today = new Date().toISOString().slice(0,10);
 let app = {families:[],currentFamily:null,currentChild:null};
 let categories = [];
@@ -12751,11 +12751,13 @@ function renderParentAdminView(parent){
   /* The band. Four times of day, each a flat two-stop sky over the same hills,
      so the screen belongs to the hour you opened it in. */
   const hr=new Date().getHours();
-  const sky = hr<7  ? {a:"#2b3a63",b:"#6f6aa8",sun:"#ffd7a1",hill:"#2f5d49",hill2:"#27503f",cloud:"rgba(255,255,255,.22)"}
-            : hr<12 ? {a:"#8fd2f0",b:"#dff0f7",sun:"#ffe9a8",hill:"#8fce8f",hill2:"#6cb877",cloud:"rgba(255,255,255,.75)"}
-            : hr<17 ? {a:"#63bfe8",b:"#cfeaf5",sun:"#ffe28f",hill:"#7cc684",hill2:"#5fb06f",cloud:"rgba(255,255,255,.8)"}
-            : hr<20 ? {a:"#e9a06a",b:"#f7d9b5",sun:"#ffcf7a",hill:"#6a9e6f",hill2:"#548a5c",cloud:"rgba(255,255,255,.6)"}
-                    : {a:"#25305a","b":"#4a4f86",sun:"#f2e3c0",hill:"#2c5344",hill2:"#24463a",cloud:"rgba(255,255,255,.18)"};
+  /* v220: retinted for the mint theme - teal skies, sage hills - so the band
+     belongs to the palette around it rather than sitting on top of it. */
+  const sky = hr<7  ? {a:"#1d4a52",b:"#4a808a",sun:"#ffd7a1",hill:"#2c5a52",hill2:"#234a44",cloud:"rgba(255,255,255,.20)"}
+            : hr<12 ? {a:"#7fc8d2",b:"#e2f2f4",sun:"#ffe9a8",hill:"#8ac9b4",hill2:"#6bb39c",cloud:"rgba(255,255,255,.78)"}
+            : hr<17 ? {a:"#5cb8c4",b:"#d6eef1",sun:"#ffe28f",hill:"#7cc2ac",hill2:"#5fa992",cloud:"rgba(255,255,255,.8)"}
+            : hr<20 ? {a:"#d99a72",b:"#f3ddc8",sun:"#ffcf7a",hill:"#6fa892",hill2:"#57907c",cloud:"rgba(255,255,255,.6)"}
+                    : {a:"#1b3f47",b:"#3b6d76",sun:"#f2e3c0",hill:"#27514a",hill2:"#1f443e",cloud:"rgba(255,255,255,.18)"};
   const skyArt=`<svg class="skyart" viewBox="0 0 390 126" preserveAspectRatio="none" aria-hidden="true">
       <defs><linearGradient id="skyg" x1="0" y1="0" x2="0" y2="1">
         <stop offset="0" stop-color="${sky.a}"/><stop offset="1" stop-color="${sky.b}"/></linearGradient></defs>
@@ -22193,5 +22195,51 @@ body.nm-composing #panelTop{display:none!important}
 })();
 </script>
 
+<style id="mintTheme">
+/* ======================= v220: the mint theme =========================
+   One block, last in the document, and every rule that has to beat an
+   older one says so. Lift this <style> out and the app is indigo again.
+   Teal on a mint ground, an eight-point geometric watermark in place of
+   the five-point stars, rounder cards carrying a shadow instead of a
+   border, and the tab bar floated off the bottom edge as a pill. No
+   structure moves; this is paint. */
+:root{
+  --accent:#2E8F98!important; --nm-accent:#2E8F98!important;
+  --ink:#14181F!important; --kink:#14181F!important; --nm-ink:#1C2430!important;
+  --paper:#EAF3F4!important; --nm-paper:#F2F8F9!important;
+  --line:#DCE8EA!important; --nm-line:#DCE8EA!important;
+  --muted:#63757A!important; --nm-muted:#63757A!important;
+  --field:#E6F1F2!important; --nm-field:#E6F1F2!important;
+}
+#pageBg{background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='150' height='150' viewBox='0 0 150 150'%3E%3Cg fill='none' stroke='%232E8F98' stroke-opacity='.13' stroke-width='1.4'%3E%3Cg transform='translate(75 75)'%3E%3Crect x='-26' y='-26' width='52' height='52' rx='4'/%3E%3Crect x='-26' y='-26' width='52' height='52' rx='4' transform='rotate(45)'/%3E%3C/g%3E%3Cg transform='translate(0 0)'%3E%3Crect x='-26' y='-26' width='52' height='52' rx='4'/%3E%3Crect x='-26' y='-26' width='52' height='52' rx='4' transform='rotate(45)'/%3E%3C/g%3E%3Cg transform='translate(150 0)'%3E%3Crect x='-26' y='-26' width='52' height='52' rx='4'/%3E%3Crect x='-26' y='-26' width='52' height='52' rx='4' transform='rotate(45)'/%3E%3C/g%3E%3Cg transform='translate(0 150)'%3E%3Crect x='-26' y='-26' width='52' height='52' rx='4'/%3E%3Crect x='-26' y='-26' width='52' height='52' rx='4' transform='rotate(45)'/%3E%3C/g%3E%3Cg transform='translate(150 150)'%3E%3Crect x='-26' y='-26' width='52' height='52' rx='4'/%3E%3Crect x='-26' y='-26' width='52' height='52' rx='4' transform='rotate(45)'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E") 0 0/150px 150px,
+  linear-gradient(180deg,#E4F0F2 0%,#EDF5F6 42%,#F4F9FA 100%)!important}
+
+.card,.attncard,.coach,.weekbar,.askcard,.graphcard,.reward{
+  border-radius:22px!important;border-color:transparent!important;
+  box-shadow:0 3px 16px rgba(28,58,64,.09)!important}
+.kidrow{border-radius:22px!important;box-shadow:0 3px 16px rgba(28,58,64,.09)!important;
+  border-top-color:transparent!important;border-right-color:transparent!important;
+  border-bottom-color:transparent!important}
+.linkrow,.invtile{border-radius:20px!important;border-color:transparent!important;
+  box-shadow:0 3px 14px rgba(28,58,64,.08)!important}
+
+h1,h2,.kidname,.skyfam{letter-spacing:-.02em}
+.homegroup{color:#14181F!important;font-weight:800!important}
+
+button.primary,.btn.go,.menufab{
+  background:linear-gradient(180deg,#35A0A8,#268189)!important;
+  border-color:#268189!important;color:#fff!important}
+
+.tabbar{left:10px!important;right:10px!important;
+  bottom:calc(8px + env(safe-area-inset-bottom))!important;
+  border-radius:26px!important;border-top:0!important;padding:8px!important;
+  background:rgba(255,255,255,.94)!important;backdrop-filter:blur(10px);
+  box-shadow:0 6px 24px rgba(28,58,64,.16)!important}
+.tabbar button{border-radius:18px!important}
+
+.skyplate{background:rgba(255,255,255,.93)!important;
+  box-shadow:0 3px 14px rgba(28,58,64,.14)!important}
+.skyline{color:#268189!important}
+</style>
 </body>
 </html>
