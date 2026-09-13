@@ -151,6 +151,20 @@
   .coatword{text-align:center;font-size:44px;line-height:1.8;margin-top:10px}
   .coatask{text-align:center;font-size:72px;line-height:1.5;background:var(--paper);
     border-radius:20px;padding:10px;margin:12px 0 2px}
+  /* the worked examples, and the ten to read */
+  .demos{display:grid;gap:9px;margin:14px 0 6px}
+  .demo{display:flex;align-items:center;gap:14px;width:100%;background:var(--paper);
+    border:1px solid var(--line);border-radius:18px;padding:12px 14px;cursor:pointer;
+    font:inherit;color:var(--ink);text-align:left}
+  .demo .dsum{flex:0 0 82px;text-align:center;font-size:40px;line-height:1.6;direction:rtl}
+  .demo .dparts{flex:1;font-size:14px;color:var(--muted);font-weight:650}
+  .demo .dparts .ar{font-size:22px;vertical-align:-2px}
+  .demo .dparts b{color:var(--ink)}
+  .demo:active{transform:translateY(1px)}
+  .readbig{text-align:center;font-size:96px;line-height:1.6;background:var(--paper);
+    border-radius:22px;padding:18px 10px;margin:14px 0 4px}
+  .againbtn{display:block;width:100%;margin-top:9px;border:0;background:none;
+    font:inherit;font-size:13.5px;font-weight:700;color:var(--muted);cursor:pointer;padding:8px}
   .twoway{display:flex;gap:9px;width:100%;margin-top:13px}
   .tw{flex:1 1 44%;min-width:0;min-height:54px;border:0;border-radius:18px;font:inherit;
     font-size:15.5px;font-weight:750;cursor:pointer;display:grid;place-items:center}
@@ -453,6 +467,45 @@ const INTRO = {
  12:[["\u25cc\u0651","shaddah","a little w above","say it twice, joined"]]
 };
 
+/* ---------- a mark lesson, after the rethink ----------
+   Meeting thirty-six letter-and-mark pairs taught nothing new: a child who
+   knows the letter and knows the mark already holds both halves of what a
+   pair is. That was 108 presses to establish nothing, and it is where the
+   course was most boring.
+
+   What is left is not recognition, it is blending - knowing the parts and
+   reading fluently are different skills. So a mark lesson runs:
+     the marks, met one at a time   (taught)
+     which mark is this             (checked, on the mark alone)
+     three worked examples          (shown: letter, then mark)
+     ten to read                    (practised, self-marked, no gate)
+   Ten rather than thirty-six, and weighted to the letters children actually
+   stumble on. The volume that was lost is more than replaced by lessons 6, 9
+   and 11, which are real words. */
+const HARD=["\u0639","\u063A","\u062D","\u062E","\u0635","\u0636","\u0637","\u0638","\u0642"];
+const EASY=["\u0628","\u062A","\u062B","\u062C","\u062F","\u0631","\u0633","\u0643","\u0644","\u0645","\u0646"];
+const MARKSOF = {
+ 4:  [["\u064E","a","fathah"],["\u0650","i","kasrah"],["\u064F","u","dammah"]],
+ 5:  [["\u064B","an","fathatan"],["\u064D","in","kasratan"],["\u064C","un","dammatan"]],
+ 10: [["\u0652","","sukoon"]],
+ 12: [["\u0651\u064E","ba","shaddah"]]
+};
+/* Ten to read: six from the letters that trip children up, four from the rest,
+   every mark of the lesson represented. Built once when the lesson opens so
+   back and forward walk the same ten. */
+function buildRead(){
+  const marks=MARKSOF[cur.id]||[], out=[];
+  const pick=(arr)=>arr[Math.floor(Math.random()*arr.length)];
+  const make=(base)=>{
+    const m=marks[out.length % marks.length];
+    const nm=(L.find(x=>x[0]===base)||["","?"])[1].replace(/[^a-z]/g,"");
+    return [base+m[0], nm+"-"+(m[1]||"s"), nm+(m[1]?" "+m[1]:""), m[2]];
+  };
+  for(let i=0;i<6;i++) out.push(make(pick(HARD)));
+  for(let i=0;i<4;i++) out.push(make(pick(EASY)));
+  return out.sort(()=>Math.random()-.5);
+}
+
 /* ---------- the sixteen ---------- */
 const LESSONS = [
  {id:1,  t:"Isolated letters", s:"28 letters, six at a time", kind:"meet",
@@ -630,6 +683,9 @@ const clip  = it => (cur.path||"") + (it[1]||"x");
 
 function paint(){
   if(phase==="intro") return paintIntro();
+  if(phase==="check") return paintCheck();
+  if(phase==="demo")  return paintDemo();
+  if(phase==="read")  return paintRead();
   if(phase==="meet") return cur.kind==="join" ? paintCoats() : paintMeet();
   return cur.kind==="join" ? paintFindJoin() : paintFind();
 }
@@ -668,7 +724,111 @@ function paintIntro(){
 function nextIntro(){
   const rows=INTRO[cur.id]||[];
   if(ii<rows.length-1){ ii++; presses=0; mark(); return paintIntro(); }
+  /* a mark lesson goes on to be checked; anything else meets its letters */
+  if(MARKSOF[cur.id]){ phase="check"; ci=0; locked=false; mark(); return paint(); }
   phase="meet"; presses=0; mark(); paint();
+}
+
+/* ---- checked: which mark is this? The mark alone, nothing under it. ---- */
+let ci=0, ri=0, readList=[], readGot=0;
+function paintCheck(){
+  const rows=INTRO[cur.id]||[];
+  const want=rows[ci % rows.length];
+  const pool=rows.slice().sort(()=>Math.random()-.5);
+  const rounds=Math.min(4, rows.length*2);
+  view.innerHTML=`<div class="card">
+    <p class="kick">${cur.id}. ${cur.t} \u00b7 which mark?</p>
+    <h2>Which one is ${want[1]}?</h2>
+    <p class="sm">${ci+1} of ${rounds}</p>
+    <div class="grid g3 ar">${pool.map((m,k)=>`
+      <button class="tile" id="c${k}" onclick="checkAns('${m[1]}',${k})">
+        <span class="g">${m[0].replace(/\u25cc/,'<span class="markalone">\u25cc</span>')
+                             .replace(/[\u064B-\u0652]/g, ch=>`<span class="mark">${ch}</span>`)}</span>
+      </button>`).join("")}</div>
+    <p class="sm" id="res"></p>
+    <div id="afterfind"></div>
+  </div>
+  ${stepnav()}`;
+  setBar(`<button class="btn" onclick="road()">The road</button>`);
+}
+function checkAns(name, slot){
+  if(locked) return;
+  const rows=INTRO[cur.id]||[], want=rows[ci % rows.length];
+  const rounds=Math.min(4, rows.length*2);
+  const right = name===want[1];
+  document.getElementById('c'+slot).classList.add(right?'yes':'no');
+  document.getElementById('res').textContent = right ? "Yes \u2014 that is "+name+"." : "That one is "+name+".";
+  if(right){
+    locked=true;
+    const after=document.getElementById('afterfind');
+    after.innerHTML=`<div class="twoway">
+      <button class="tw again" onclick="play('marks/${want[1]}');paintMuteOnly()" aria-label="hear it again">
+        <span class="bars"><i></i><i></i><i></i></span></button>
+      <button class="tw on" onclick="nextCheck()">${ci<rounds-1?'next \u203a':'now watch \u203a'}</button></div>`;
+  }
+}
+function nextCheck(){
+  const rows=INTRO[cur.id]||[], rounds=Math.min(4, rows.length*2);
+  if(ci<rounds-1){ ci++; locked=false; mark(); return paintCheck(); }
+  phase="demo"; ii=0; mark(); paint();
+}
+
+/* ---- shown: the letter, then the mark, then the two together ---- */
+function paintDemo(){
+  const marks=MARKSOF[cur.id]||[];
+  const bases=["\u0628","\u062A","\u0646"];
+  const rows=marks.map((m,k)=>{
+    const base=bases[k%bases.length];
+    const nm=(L.find(x=>x[0]===base)||["","?"])[1].replace(/[^a-z]/g,"");
+    return [base, m[0], nm+(m[1]?" "+m[1]:""), nm+"-"+(m[1]||"s"), m[2]];
+  });
+  view.innerHTML=`<div class="card">
+    <p class="kick">${cur.id}. ${cur.t} \u00b7 watch</p>
+    <h2>The letter, then the mark</h2>
+    <p class="sm">That is all reading is. Press one to hear it.</p>
+    <div class="demos">${rows.map((r,k)=>`
+      <button class="demo" onclick="play('${cur.path||''}${r[3]}');paintMuteOnly()">
+        <span class="dsum ar">${r[0]}<span class="mark">${r[1]}</span></span>
+        <span class="dparts"><span class="ar">${r[0]}</span> + <span class="ar mark">${r[1]}</span>
+          = <b>${r[2]}</b></span>
+      </button>`).join("")}</div>
+    <span class="mute" id="mute">${lastPath?lastPath+"  (not recorded yet)":"press one \u2014 nothing recorded yet"}</span>
+    <div class="twoway">
+      <button class="tw again" onclick="play('${cur.path||''}${rows[0][3]}');paintMuteOnly()"
+        aria-label="hear it again"><span class="bars"><i></i><i></i><i></i></span></button>
+      <button class="tw on" onclick="startRead()">now read them \u203a</button>
+    </div>
+  </div>
+  ${stepnav()}`;
+  setBar(`<button class="btn" onclick="road()">The road</button>`);
+}
+
+/* ---- practised: ten to read, said aloud, marked by the child ---- */
+function startRead(){ phase="read"; ri=0; readGot=0; readList=buildRead(); mark(); paintRead(); }
+function paintRead(){
+  if(!readList.length) readList=buildRead();
+  const r=readList[ri];
+  view.innerHTML=`<div class="card">
+    <p class="kick">${cur.id}. ${cur.t} \u00b7 read it</p>
+    <p class="sm" style="text-align:center;margin:2px 0 0">${ri+1} of ${readList.length}</p>
+    <div class="readbig ar">${cell([r[0]])}</div>
+    <p class="meetsay">say it out loud, then press to hear it</p>
+    <div class="twoway">
+      <button class="tw again" onclick="play('${cur.path||''}${r[1]}');paintMuteOnly()"
+        aria-label="hear it"><span class="bars"><i></i><i></i><i></i></span></button>
+      <button class="tw on" onclick="readNext(true)">I said it right \u203a</button>
+    </div>
+    <button class="againbtn" onclick="readNext(false)">not yet \u2014 come back to it</button>
+    <span class="mute" id="mute">${lastPath?lastPath+"  (not recorded yet)":"press to hear it \u2014 nothing recorded yet"}</span>
+  </div>
+  ${stepnav()}`;
+  setBar(`<button class="btn" onclick="road()">The road</button>`);
+}
+function readNext(got){
+  if(got) readGot++;
+  else readList.push(readList[ri]);        /* missed ones come round again */
+  if(ri<readList.length-1){ ri++; mark(); return paintRead(); }
+  phase="done"; mark(); paintDone();
 }
 
 /* How a thing is drawn. The mark is coloured, the letter never is - so the eye
@@ -977,7 +1137,9 @@ function paintDone(){
   view.innerHTML=`<div class="card" style="text-align:center">
     <p class="kick">${cur.id}. ${cur.t}</p>
     <h2>Finished</h2>
-    <p class="sm">${cur.items.length} met, each one pressed three times and found again.</p>
+    <p class="sm">${MARKSOF[cur.id]
+      ? readGot+" read out loud, and every mark told apart from the others."
+      : cur.items.length+" met, each one pressed three times and found again."}</p>
     <div class="note" style="text-align:left">${cur.adult}</div>
   </div>
   ${stepnav()}`;
