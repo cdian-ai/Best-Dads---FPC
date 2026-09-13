@@ -1847,6 +1847,9 @@
   .momentjust{font-size:12px;font-weight:750;color:#8a5a08;background:#fdf3e6;
     border-radius:999px;padding:3px 10px}
   .feedpts.notejust{color:#b9a98a;font-weight:750}
+  /* v227: Alluwal's card. Its own colour, in the family the other course cards
+     already use - deep teal rather than a fifth hue nobody asked for. */
+  .docard.alw{background:linear-gradient(135deg,#2F7F86,#1F5C63)}
   .invitetiles{display:grid;grid-template-columns:1fr 1fr;gap:10px}
   .invtile{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;
     aspect-ratio:1/1;width:100%;padding:12px 10px;text-align:center;border-radius:18px;
@@ -5875,7 +5878,7 @@ const TIP_CATS = [
   {key:"deen", label:"Deen"}
 ];
 
-const APP_VERSION = "v226";
+const APP_VERSION = "v227";
 const today = new Date().toISOString().slice(0,10);
 let app = {families:[],currentFamily:null,currentChild:null};
 let categories = [];
@@ -15586,6 +15589,8 @@ window.FULFULDE_M1 = {
 window.NM_MARK = function(kind){
  const W="#fff", A="rgba(255,255,255,.62)";
  const P={
+  alluwal:`<rect x="8" y="7" width="32" height="34" rx="4" fill="none" stroke="${W}" stroke-width="3"/>
+    <path d="M15 17 H33 M15 24 H33 M15 31 H26" stroke="${A}" stroke-width="2.6" stroke-linecap="round"/>`,
   fulfulde:`<path d="M6 9 C13 6 20 6 24 9 L24 40 C20 37 13 37 6 40 Z" fill="none" stroke="${W}" stroke-width="3" stroke-linejoin="round"/>
     <path d="M42 9 C35 6 28 6 24 9 L24 40 C28 37 35 37 42 40 Z" fill="none" stroke="${W}" stroke-width="3" stroke-linejoin="round"/>
     <circle cx="24" cy="24" r="3" fill="${A}"/>`,
@@ -15881,6 +15886,94 @@ window.ONE_HUNDRED = {
   }
 })();
 
+</script>
+<!-- ===== packs/alluwal.js ===== -->
+<script>
+/* ---------- Alluwal ----------
+   The Qaida course. Like the Fulfulde road, it is a whole app of its own
+   rather than data: served from alluwal/ in this same repo, opened in an
+   iframe. Same origin, so the child's name goes across on load and progress
+   can post back the day it has some.
+
+   It counts its own lessons. Notice Me only needs to know how many of the
+   sixteen are finished, and that number lives where the course keeps it. */
+(function(){
+  const APP = "alluwal/";
+  const TOTAL = 16;
+  const KEY = "alluwal.v1";
+
+  function doneCount(){
+    try{
+      const raw=localStorage.getItem(KEY);
+      if(!raw) return 0;
+      const d=JSON.parse(raw);
+      return Array.isArray(d.done) ? d.done.length : 0;
+    }catch(e){ return 0; }
+  }
+
+  const CSS=`.alwrap{position:fixed;inset:0;z-index:9000;background:#FBF9F5;display:flex;flex-direction:column}
+  .albar{display:flex;align-items:center;gap:10px;padding:calc(8px + env(safe-area-inset-top)) 12px 8px;
+    background:#fff;border-bottom:1px solid #E6E2D9}
+  .albar button{border:0;background:#F4F1EA;border-radius:999px;padding:8px 14px;font:inherit;
+    font-size:14px;font-weight:750;color:#268189;cursor:pointer}
+  .albar b{font-size:15px}
+  .alfr{flex:1 1 auto;width:100%;border:0;display:block}`;
+
+  let el=null, prevOverflow="";
+  function open(){
+    if(el) return;
+    if(!document.getElementById('alcss')){
+      const st=document.createElement('style'); st.id='alcss'; st.textContent=CSS;
+      document.head.appendChild(st);
+    }
+    el=document.createElement('div');
+    el.className='alwrap'; el.setAttribute('role','dialog'); el.setAttribute('aria-modal','true');
+    el.innerHTML=`<div class="albar"><button type="button" id="alClose">\u2039 Back</button>
+      <b>Alluwal</b></div>
+      <iframe class="alfr" id="alFrame" src="${APP}" title="Alluwal" allow="autoplay"></iframe>`;
+    document.body.appendChild(el);
+    prevOverflow=document.body.style.overflow;
+    document.body.style.overflow='hidden'; document.body.classList.add('overlay-open');
+    document.getElementById('alClose').onclick=close;
+
+    /* the same handoff the Fulfulde course gets: who is holding the phone */
+    try{
+      const me=(typeof sessionMember==="function") ? sessionMember() : null;
+      if(me) localStorage.setItem("nm.learner", JSON.stringify({
+        id:me.id, name:me.name||"", photo:"", ts:Date.now()
+      }));
+    }catch(e){}
+
+    try{ history.pushState({al:1},''); }catch(e){}
+    window.addEventListener('popstate',onPop);
+    document.addEventListener('keydown',onKey);
+  }
+  function onKey(e){ if(e.key==='Escape') close(); }
+  function onPop(){ if(el) close(true); }
+  function close(fromPop){
+    if(!el) return;
+    window.removeEventListener('popstate',onPop);
+    document.removeEventListener('keydown',onKey);
+    el.remove(); el=null;
+    document.body.style.overflow=prevOverflow||'';
+    document.body.classList.remove('overlay-open');
+    if(!fromPop){ try{ history.back(); }catch(e){} }
+    if(typeof render==='function') render();
+  }
+  window.openAlluwal=open;
+
+  if(typeof registerLearnExtra==='function'){
+    /* order 9: above the Fulfulde road, because the Qur'an comes first in this
+       house and the shelf should say so without anyone having to explain it. */
+    registerLearnExtra({ order:9, html(c){
+      const done=doneCount();
+      return `<button type="button" class="docard alw" onclick="openAlluwal()">
+        <span class="doglyph" aria-hidden="true">${window.NM_MARK?NM_MARK("alluwal"):""}</span>
+        <span class="domain"><span class="doname">Alluwal</span>
+        <span class="dosub">${done} of ${TOTAL} lessons \u00b7 learning to read the Qur\u2019an</span></span></button>`;
+    }});
+  }
+})();
 </script>
 <!-- ===== packs/decks.js ===== -->
 <script>
