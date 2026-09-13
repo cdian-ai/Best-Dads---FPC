@@ -5875,7 +5875,7 @@ const TIP_CATS = [
   {key:"deen", label:"Deen"}
 ];
 
-const APP_VERSION = "v225";
+const APP_VERSION = "v226";
 const today = new Date().toISOString().slice(0,10);
 let app = {families:[],currentFamily:null,currentChild:null};
 let categories = [];
@@ -12249,8 +12249,17 @@ function applyRoleChrome(){
   // that used to sit here were duplicates of neither and are gone (v191).
   set("btnMenu", false);
   set("identityHead", false);
+  /* v226: the bar dresses itself only when it has something in it. It carried a
+     paper background, a border and a radius whether or not anything inside was
+     visible - and on a child's screen everything inside is hidden, so it drew an
+     empty pill between the Menu button and the page title. The old test was the
+     role; the right test is whether anything is actually showing. */
   const ab=document.getElementById("accountBar");
-  if(ab) ab.classList.toggle("bare", !kid);
+  if(ab){
+    const hasVisible = Array.from(ab.children).some(el =>
+      !el.classList.contains("hidden") && el.offsetParent !== null);
+    ab.classList.toggle("bare", !hasVisible);
+  }
   set("btnSignOut", true);   // anyone signed in can hand the device on
   const sheet=document.getElementById("menuSheet");
   const quick=document.getElementById("quickActions");
