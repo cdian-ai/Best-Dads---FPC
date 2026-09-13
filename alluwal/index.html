@@ -117,6 +117,27 @@
   .rline:active{transform:translateY(1px)}
   .ra{display:block;font-size:30px;line-height:1.9}
   .rt{display:block;font-size:12.5px;font-weight:700;color:#7A6A52;margin-top:4px}
+  /* ---- lesson 2: the letter, then the same letter inside real words ----
+     (These rules were lost when an earlier patch died halfway: the markup
+     shipped, the styling did not.) */
+  .selfrow{text-align:center;margin:8px 0 2px}
+  .selfglyph{display:inline-block;font-size:66px;line-height:1.35;color:var(--ink)}
+  .selfname{display:block;font-size:11.5px;font-weight:750;color:var(--muted);letter-spacing:.03em}
+  .inwords{display:grid;gap:9px;margin:14px 0 4px}
+  .inword{display:flex;align-items:center;gap:12px;width:100%;background:var(--paper);
+    border:1px solid var(--line);border-radius:18px;padding:12px 14px;cursor:pointer;
+    font:inherit;color:var(--ink);text-align:left}
+  .inword .iwlabel{flex:0 0 92px;font-size:11.5px;font-weight:750;color:var(--muted);
+    letter-spacing:.02em;line-height:1.25}
+  .inword .iw{flex:1;text-align:center;font-size:40px;line-height:1.7;direction:rtl}
+  .inword.got{background:var(--gobg);border-color:#BFDCCD}
+  .inword.got .iwlabel{color:var(--go)}
+  .inword:active{transform:translateY(1px)}
+  .coatbig{text-align:center;font-size:96px;line-height:1.5;background:var(--paper);
+    border-radius:20px;padding:6px 10px;margin:4px 0 10px;color:var(--mark)}
+  .coatword{text-align:center;font-size:44px;line-height:1.8;margin-top:10px}
+  .coatask{text-align:center;font-size:72px;line-height:1.5;background:var(--paper);
+    border-radius:20px;padding:10px;margin:12px 0 2px}
   .twoway{display:flex;gap:9px;width:100%;margin-top:13px}
   .tw{flex:1 1 44%;min-width:0;min-height:54px;border:0;border-radius:18px;font:inherit;
     font-size:15.5px;font-weight:750;cursor:pointer;display:grid;place-items:center}
@@ -229,6 +250,37 @@ const JOINED = [
  ["ل","لـ","ـلـ","ـل","lam"],["م","مـ","ـمـ","ـم","mim"],["ن","نـ","ـنـ","ـن","nun"],
  ["ه","هـ","ـهـ","ـه","ha"],["ي","يـ","ـيـ","ـي","ya"],["ف","فـ","ـفـ","ـف","fa"]
 ];
+
+/* A word per position, for every letter in lesson 2. Ordinary words, no
+   harakat - nothing here is read yet, it is looked at. The number is where the
+   letter sits in the word, counting from the right as the string runs.
+   Checked one by one; a qualified reader should check them again. */
+const INWORD = {
+ "ba":   [["\u0628\u064A\u062A",0,"bayt \u00b7 house"],["\u0635\u0628\u0631",1,"sabr \u00b7 patience"],["\u0643\u062A\u0628",2,"kataba \u00b7 he wrote"]],
+ "ta":   [["\u062A\u0645\u0631",0,"tamr \u00b7 dates"],["\u0643\u062A\u0628",1,"kataba \u00b7 he wrote"],["\u0628\u064A\u062A",2,"bayt \u00b7 house"]],
+ "jim":  [["\u062C\u0628\u0644",0,"jabal \u00b7 mountain"],["\u0633\u062C\u062F",1,"sajada \u00b7 he prostrated"],["\u062E\u0631\u062C",2,"kharaja \u00b7 he went out"]],
+ "sin":  [["\u0633\u062C\u062F",0,"sajada \u00b7 he prostrated"],["\u0645\u0633\u062C\u062F",1,"masjid \u00b7 mosque"],["\u062F\u0631\u0633",2,"dars \u00b7 a lesson"]],
+ "ayn":  [["\u0639\u0645\u0644",0,"amal \u00b7 work"],["\u062C\u0639\u0644",1,"jaala \u00b7 he made"],["\u0633\u0645\u0639",2,"samia \u00b7 he heard"]],
+ "kaf":  [["\u0643\u062A\u0628",0,"kataba \u00b7 he wrote"],["\u0633\u0643\u0646",1,"sakana \u00b7 he dwelt"],["\u0645\u0644\u0643",2,"malik \u00b7 king"]],
+ "lam":  [["\u0644\u0628\u0646",0,"laban \u00b7 milk"],["\u0645\u0644\u0643",1,"malik \u00b7 king"],["\u062C\u0639\u0644",2,"jaala \u00b7 he made"]],
+ "mim":  [["\u0645\u0644\u0643",0,"malik \u00b7 king"],["\u0639\u0645\u0644",1,"amal \u00b7 work"],["\u0639\u0644\u0645",2,"ilm \u00b7 knowledge"]],
+ "nun":  [["\u0646\u0648\u0631",0,"nur \u00b7 light"],["\u0645\u0646\u0639",1,"manaa \u00b7 he prevented"],["\u0644\u0628\u0646",2,"laban \u00b7 milk"]],
+ "ha":   [["\u0647\u0631\u0628",0,"haraba \u00b7 he fled"],["\u0633\u0647\u0644",1,"sahl \u00b7 easy"],["\u0648\u062C\u0647",2,"wajh \u00b7 face"]],
+ "ya":   [["\u064A\u062F",0,"yad \u00b7 hand"],["\u0628\u064A\u062A",1,"bayt \u00b7 house"],["\u0646\u0628\u064A",2,"nabi \u00b7 prophet"]],
+ "fa":   [["\u0641\u062A\u062D",0,"fataha \u00b7 he opened"],["\u0646\u0641\u0633",1,"nafs \u00b7 soul"],["\u062E\u0648\u0641",2,"khawf \u00b7 fear"]]
+};
+/* Colouring one letter inside an Arabic word breaks the joining, because the
+   browser shapes each element separately. A zero-width joiner on each cut end
+   tells it to keep the joined form - so the word still reads as a word and one
+   letter is a different colour. */
+const ZWJ="\u200d";
+function wordHTML(w, i){
+  const before=w.slice(0,i), targ=w[i], after=w.slice(i+1);
+  const b = before ? `<span>${before}${ZWJ}</span>` : "";
+  const t = `<span class="mark">${before?ZWJ:""}${targ}${after?ZWJ:""}</span>`;
+  const a = after ? `<span>${ZWJ}${after}</span>` : "";
+  return b+t+a;
+}
 
 const MUQ = [
  ["الم","alif-lam-mim"],["المص","alif-lam-mim-sad"],["الر","alif-lam-ra"],
@@ -607,23 +659,22 @@ function paintCoats(){
   const seen=gi*(cur.chunk||total)+idx;
   const got=coatsGot();
   const done=got.length>=3;
+  const words=INWORD[it[4]]||[];
   view.innerHTML=`<div class="card">
     <p class="kick">${cur.id}. ${cur.t}</p>
     <div class="steps">${gs.map((_,k)=>`<i class="${k<=gi?'on':''}"></i>`).join("")}</div>
     <p class="sm" style="text-align:center;margin:2px 0 0">${seen+1} of ${total}</p>
 
-    <p class="cue">this is <b>${it[4]}</b><span>the same letter, three ways to write it</span></p>
-
     <div class="selfrow"><span class="selfglyph ar">${it[0]}</span>
-      <span class="selfname">on its own</span></div>
+      <span class="selfname">${it[4]}</span></div>
 
-    <div class="coats">${COATS.map(([label,ix])=>`
-      <button class="coat${got.indexOf(ix)>=0?' got':''}" onclick="coatPress(${ix})">
-        <span class="cg ar">${it[ix]}</span>
-        <span class="cl">${label}</span>
+    <div class="inwords">${words.map((w,k)=>`
+      <button class="inword${got.indexOf(k+1)>=0?' got':''}" onclick="coatPress(${k+1})">
+        <span class="iwlabel">${COATS[k][0]}</span>
+        <span class="iw ar">${wordHTML(w[0],w[1])}</span>
       </button>`).join("")}</div>
 
-    <div id="after">${done?twoway():`<p class="meetsay" id="cap">press each one \u2014 ${3-got.length} left</p>`}</div>
+    <div id="after">${done?twoway():`<p class="meetsay" id="cap">press each word \u2014 ${3-got.length} left</p>`}</div>
     <span class="mute" id="mute">${lastPath?lastPath+"  (not recorded yet)":"audio wired, nothing recorded yet"}</span>
   </div>
   ${stepnav()}`;
@@ -632,16 +683,28 @@ function paintCoats(){
 let coatSeen={};
 const coatKey = () => cur.id+"-"+gi+"-"+idx;
 function coatsGot(){ return coatSeen[coatKey()]||[]; }
+
+/* Pressing a word opens the letter as it is written there: the coat alone,
+   large, with the word underneath and the letter still coloured inside it. The
+   point of the card is that the shape in the word and the shape on its own are
+   the same thing - which is hard to see while it is inside a word. */
 function coatPress(ix){
   const it=item(), k=coatKey();
   const got=(coatSeen[k]||[]).slice();
   if(got.indexOf(ix)<0) got.push(ix);
   coatSeen[k]=got;
-  presses=got.length;                       /* the gate is the same count */
+  presses=got.length;
   play(clip(it)+"-"+["","init","med","fin"][ix]);
-  paintCoats();
+  const w=(INWORD[it[4]]||[])[ix-1];
+  document.getElementById('sheetin').innerHTML=`
+    <h3>${it[4]} ${COATS[ix-1][0]}</h3>
+    <div class="coatbig ar">${it[ix]}</div>
+    <p class="sm" style="text-align:center">on its own it is <b class="ar">${it[0]}</b></p>
+    ${w?`<div class="coatword ar">${wordHTML(w[0],w[1])}</div>
+        <p class="sm" style="text-align:center">${w[2]}</p>`:""}
+    <button class="btn go" style="width:100%;margin-top:14px" onclick="closeDrawer();paintCoats()">Close</button>`;
+  document.getElementById('sheet').classList.add('on');
 }
-
 /* Asked back: one coat on its own, and which letter is it? The question the
    lesson is actually about - not which sound, which LETTER. */
 function paintFindJoin(){
