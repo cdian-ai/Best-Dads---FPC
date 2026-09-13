@@ -97,6 +97,20 @@
     border-radius:50%;background:rgba(46,143,152,.28)}
   .pdot.on{background:var(--accent)}
   .meetsay{font-size:13px;color:var(--muted);margin:14px 0 0;text-align:center;line-height:1.4}
+  /* the trio: small, quiet, always in the same place */
+  .trio{display:flex;gap:4px;flex:0 0 auto}
+  .tb{border:0;background:var(--paper);color:var(--deep);border-radius:14px;
+    width:38px;height:44px;font:inherit;font-size:19px;font-weight:750;cursor:pointer}
+  .tb:disabled{opacity:.32}
+  /* the board a child reads their row from */
+  .board{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;direction:rtl;
+    background:#EDE7DA;border:1px solid #DFD6C4;border-radius:18px;
+    padding:16px 12px;margin:14px 0 2px;cursor:pointer;
+    box-shadow:inset 0 2px 10px rgba(90,70,40,.10)}
+  .bw{font-size:38px;line-height:1.2;padding:4px 10px;border-radius:12px;color:#3A3226;
+    transition:background .18s,color .18s,transform .18s}
+  .bw.lit{background:#fff;color:var(--deep);transform:translateY(-3px);
+    box-shadow:0 3px 10px rgba(28,58,64,.18)}
   .hero{text-align:center;margin:8px 0 2px}
   .hero .g{font-size:78px;line-height:1.25}
   .hero .n{font-size:13px;font-weight:700;color:var(--muted)}
@@ -329,6 +343,17 @@ function finish(id){ if(!isDone(id)) S.done.push(id); S.at=Math.min(16,id+1); sa
 /* ---------- shell ---------- */
 const view=document.getElementById('view'), bar=document.getElementById('bar');
 function setBar(html){ bar.innerHTML=html; }
+/* Back, start over, forward - the same trio the Fulfulde course carries, for
+   the same reason: a learner who wants to hear a card again should be able to
+   step to it rather than restart the lesson. */
+function trio(){
+  const canBack=tpos>0, canFwd=tpos<trail.length-1;
+  return `<div class="trio">
+    <button class="tb" ${canBack?'':'disabled'} onclick="goBack()" aria-label="back">\u2039</button>
+    <button class="tb" onclick="openLesson(cur.id)" aria-label="start this lesson again">\u21ba</button>
+    <button class="tb" ${canFwd?'':'disabled'} onclick="goFwd()" aria-label="forward">\u203a</button>
+  </div>`;
+}
 
 function road(){
   S.view="road";
@@ -365,10 +390,34 @@ const nextOpen = () => (LESSONS.find(l=>!isDone(l.id)) || LESSONS[15]).id;
 const SPOTS=[[50,26],[20,44],[78,44],[34,68],[66,70],[50,50],[16,22],[82,24]];
 const PRESSES=3;
 let cur=null, gi=0, idx=0, phase="meet", presses=0, ask=null, asked=[], wrong=0;
+/* Where the learner has been. A cursor rather than a stack, so back and
+   forward both work and stepping back does not throw the rest away: a child
+   who wants to hear a letter again should not have to finish the lesson to
+   reach it. */
+let trail=[], tpos=-1;
+const snap = () => ({gi,idx,phase,presses,ask,asked:asked.slice()});
+function mark(){
+  trail=trail.slice(0,tpos+1);
+  trail.push(snap());
+  tpos=trail.length-1;
+}
+function restore(st){
+  gi=st.gi; idx=st.idx; phase=st.phase; presses=st.presses;
+  ask=st.ask; asked=st.asked.slice();
+  /* A card with history in front of it was finished once already - three
+     presses were done. Asking for them again to get back to where you were is
+     a punishment for looking back, so the way on stays open and the presses
+     are there to be used, not repeated. */
+  if(phase==="meet" && tpos<trail.length-1) presses=PRESSES;
+  paint();
+}
+function goBack(){ if(tpos>0){ tpos--; restore(trail[tpos]); } }
+function goFwd(){ if(tpos<trail.length-1){ tpos++; restore(trail[tpos]); } }
 
 function openLesson(id){
   cur=LESSONS.find(l=>l.id===id);
   gi=0; idx=0; phase="meet"; presses=0; ask=null; asked=[]; wrong=0;
+  trail=[]; tpos=-1; mark();
   paint();
 }
 function groups(){
@@ -418,7 +467,7 @@ function paintMeet(){
     <span class="mute" id="mute">${lastPath?lastPath+"  (not recorded yet)":"audio wired, nothing recorded yet"}</span>
     ${cur.kind==="hold"?holdBlock():""}
   </div>`;
-  setBar(`<button class="btn" onclick="road()">The road</button>
+  setBar(trio()+`<button class="btn" onclick="road()">The road</button>
     <button class="btn go" id="go" ${done?'':'disabled'} onclick="nextItem()">
       ${done?(idx<group().length-1?'Next':'Now find them'):`${presses} of 3`}</button>`);
   if(cur.kind==="hold") wireHold();
@@ -462,22 +511,21 @@ function pressed(){
   }
 }
 function nextItem(){
-  if(idx<group().length-1){ idx++; presses=0; return paintMeet(); }
-  phase="find"; asked=[]; wrong=0; nextAsk();
+  if(idx<group().length-1){ idx++; presses=0; mark(); return paintMeet(); }
+  phase="find"; asked=[]; wrong=0; mark(); nextAsk();
 }
 
 /* ---- find: each one asked back, from three ---- */
 function nextAsk(){
   const g=group();
   const left=g.filter(x=>asked.indexOf(x[1])<0);
-  if(!left.length){
-    if(gi<groups().length-1){ gi++; idx=0; presses=0; phase="meet"; return paintMeet(); }
-    return paintDone();
-  }
+  if(!left.length) return paintRow();       /* the group is finished: say it back */
   ask=left[Math.floor(Math.random()*left.length)];
   paintFind();
 }
+let locked=false;
 function paintFind(){
+  locked=false;
   const g=group();
   const others=g.filter(x=>x[1]!==ask[1]).sort(()=>Math.random()-.5).slice(0,2);
   const pool=[ask].concat(others).sort(()=>Math.random()-.5);
@@ -493,7 +541,7 @@ function paintFind(){
       </button>`).join("")}</div>
     <p class="sm" id="res"></p>
   </div>`;
-  setBar(`<button class="btn" onclick="road()">The road</button>
+  setBar(trio()+`<button class="btn" onclick="road()">The road</button>
           <button class="btn go" disabled id="on">Next</button>`);
   play(clip(ask));                    /* it asks as soon as it arrives */
 }
@@ -502,14 +550,16 @@ function paintMuteOnly(){
   if(el) el.textContent=lastPath+"  (not recorded yet)";
 }
 function answer(k,slot){
+  if(locked) return;                 /* a right answer ends the round */
   const right = k===ask[1];
   document.getElementById('o'+slot).classList.add(right?'yes':'no');
   const res=document.getElementById('res');
   if(right){
+    locked=true;
     asked.push(ask[1]);
     res.textContent="Yes.";
     const on=document.getElementById('on');
-    on.disabled=false; on.onclick=nextAsk;
+    on.disabled=false; on.onclick=()=>{ mark(); nextAsk(); };
   }else{
     /* wrong answers send it back to the sound rather than to another guess */
     wrong++;
@@ -518,6 +568,48 @@ function answer(k,slot){
     paintMuteOnly();
   }
 }
+/* ---- the row ----
+   The end of a group is the moment worth having: everything just met, in a
+   line on the board, saying itself one after another. It is what a child does
+   at the alluwal - reads the row back to the teacher - and it is the only
+   reward in here that is also the practice. */
+let rowTimer=null;
+function paintRow(){
+  const g=group(), last = gi>=groups().length-1;
+  view.innerHTML=`<div class="card">
+    <p class="kick">${cur.id}. ${cur.t}</p>
+    <h2>Read your row</h2>
+    <p class="sm">Six met, six found. Press the board to hear them all.</p>
+    <div class="board" id="board">${g.map((it,k)=>`
+      <span class="bw ar" id="bw${k}">${cell(it)}</span>`).join("")}</div>
+    <p class="meetsay" id="rowcap">press the board</p>
+    <span class="mute" id="mute">${lastPath?lastPath:"audio wired, nothing recorded yet"}</span>
+  </div>`;
+  setBar(`<button class="btn" onclick="road()">The road</button>
+    <button class="btn go" onclick="${last?`finish(${cur.id})`:'nextGroup()'}">
+      ${last?'Finish':'Next six'}</button>`);
+  const b=document.getElementById('board');
+  if(b) b.onclick=()=>sayRow(g);
+}
+function sayRow(g){
+  clearTimeout(rowTimer);
+  let k=0;
+  const step=()=>{
+    g.forEach((_,j)=>{
+      const el=document.getElementById('bw'+j);
+      if(el) el.classList.toggle('lit', j===k);
+    });
+    if(k<g.length){ play(clip(g[k])); k++; rowTimer=setTimeout(step,900); }
+    else{
+      g.forEach((_,j)=>document.getElementById('bw'+j)?.classList.remove('lit'));
+      const cap=document.getElementById('rowcap');
+      if(cap) cap.textContent="that is your row";
+    }
+  };
+  step();
+}
+function nextGroup(){ gi++; idx=0; presses=0; phase="meet"; mark(); paintMeet(); }
+
 function paintDone(){
   view.innerHTML=`<div class="card" style="text-align:center">
     <p class="kick">${cur.id}. ${cur.t}</p>
