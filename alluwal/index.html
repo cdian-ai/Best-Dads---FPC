@@ -161,6 +161,16 @@
   .demo .dparts .ar{font-size:22px;vertical-align:-2px}
   .demo .dparts b{color:var(--ink)}
   .demo:active{transform:translateY(1px)}
+  /* short against long, side by side */
+  .pairrow{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin:14px 0 4px;direction:rtl}
+  .pairtile{background:var(--paper);border:1px solid var(--line);border-radius:18px;
+    padding:16px 8px 12px;cursor:pointer;font:inherit;color:var(--ink)}
+  .pairtile .pg{display:block;font-size:52px;line-height:1.5}
+  .pairtile .pl{display:block;margin-top:6px;font-size:11.5px;font-weight:750;
+    color:var(--muted);direction:ltr}
+  .pairtile.long{background:#F3EFE4;border-color:#E3D9C2}
+  .pairtile.long .pl{color:#8A6A2E}
+  .pairtile:active{transform:translateY(1px)}
   .readbig{text-align:center;font-size:96px;line-height:1.6;background:var(--paper);
     border-radius:22px;padding:18px 10px;margin:14px 0 4px}
   .againbtn{display:block;width:100%;margin-top:9px;border:0;background:none;
@@ -395,9 +405,6 @@ const W16 = [["ضَآلًّا","dallan"],["دَآبَّةٍ","dabbatin"],["ال�
 
    Every line here needs checking by a qualified reader before release. */
 const READS = {
- 3:  {head:"You can read the opening of al-Baqarah",
-      lines:[["\u0627\u0644\u0645","alif  lam  mim"]],
-      note:"Said letter by letter, by name \u2014 which is what you just learned."},
  4:  {head:"You can read these",
       lines:[["\u062E\u064E\u0644\u064E\u0642\u064E","khalaqa \u2014 he created"],
              ["\u062C\u064E\u0639\u064E\u0644\u064E","jaala \u2014 he made"],
@@ -456,6 +463,15 @@ const READS = {
    pointed at. Each mark is met first, on one letter they already know, the way
    a letter is met: it says itself and is pressed three times. Same for the
    marks that come later - the same gap was in all of them. */
+/* The small alif is the one mark that changes nothing about the sound and
+   everything about its length, so it is taught as a pair: the same letter with
+   it and without it, one count against two. A child who only ever sees hadha
+   never learns what the mark did - they learn a spelling. */
+const STRETCH = [
+ ["\u0630\u064E","\u0630\u064E\u0670","dha","dhaa"],
+ ["\u0647\u064E","\u0647\u064E\u0670","ha","haa"],
+ ["\u0631\u064E","\u0631\u064E\u0670","ra","raa"]
+];
 const INTRO = {
  4: [["\u25cc\u064E","fathah","a line above","it says a"],
      ["\u25cc\u0650","kasrah","a line below","it says i"],
@@ -463,6 +479,7 @@ const INTRO = {
  5: [["\u25cc\u064B","fathatan","two lines above","an n at the end \u2014 an"],
      ["\u25cc\u064D","kasratan","two lines below","in"],
      ["\u25cc\u064C","dammatan","two in front","un"]],
+ 7: [["\u25cc\u0670","small alif","a little alif above","it does not say anything \u2014 it stretches the sound before it"]],
  10:[["\u25cc\u0652","sukoon","a small circle above","no vowel at all \u2014 the letter on its own"]],
  12:[["\u25cc\u0651","shaddah","a little w above","say it twice, joined"]]
 };
@@ -514,9 +531,14 @@ const LESSONS = [
  {id:2,  t:"Joined letters", s:"the same letter, changed shape", kind:"join",
   items:JOINED, path:"joined/", chunk:4,
   adult:"This is the hardest early step. The child has to see that the shape changed but the letter did not. Cover the name and ask which letter it is."},
- {id:3,  t:"Muqatta'at", s:"named, not decoded", kind:"meet",
-  items:MUQ.map(([g,n])=>[g,n,n.replace(/-/g," ")]), path:"muqatta/", chunk:5,
-  adult:"These are said, not worked out. Nobody asks what they mean. Say them together and move on."},
+ /* Lesson 3 was the muqatta'at - fourteen letter-strings met and pressed. It
+    is out. It asked a child to learn fourteen things with no meaning attached
+    and no explanation of what they are, which is not a lesson, it is a list.
+    The Qaida keeps them because they are memorised in a teacher's presence for
+    barakah; a screen with no teacher cannot supply that, and without it they
+    are opaque. If they come back it should be as one card after the letters,
+    shown rather than drilled: these open some surahs, they are read by name,
+    nobody is asked what they mean. */
  {id:4,  t:"Harakah", s:"fathah, kasrah, dammah", kind:"marks",
   items:harakahSet(), path:"harakah/", chunk:6,
   adult:"The mark is coloured, the letter is not. Ask which mark is on it before asking what it says."},
@@ -596,8 +618,9 @@ function stepnav(){
   </div>`;
 }
 
+let inLesson=false;          /* plain and explicit: S.view was never set here */
 function road(){
-  S.view="road";
+  inLesson=false;
   view.innerHTML=`<div class="card">
     <p class="kick">Sixteen lessons</p>
     <h2>The board, from the first letter</h2>
@@ -606,7 +629,7 @@ function road(){
     <div class="road">${LESSONS.map(l=>`
       <button class="stop ${isDone(l.id)?'done':''} ${l.id===nextOpen()?'now':''}"
         onclick="openLesson(${l.id})">
-        <span class="n">${l.id}</span>
+        <span class="n">${LESSONS.indexOf(l)+1}</span>
         <b>${l.t}<small>${l.s}</small></b>
         ${isDone(l.id)?'<span class="tick">\u2713</span>':'<span class="sm">\u203a</span>'}
       </button>`).join("")}</div>
@@ -646,14 +669,15 @@ let cur=null, gi=0, idx=0, phase="meet", presses=0, ask=null, asked=[], wrong=0;
    who wants to hear a letter again should not have to finish the lesson to
    reach it. */
 let trail=[], tpos=-1;
-const snap = () => ({gi,idx,ii,phase,presses,ask,asked:asked.slice()});
+const snap = () => ({gi,idx,ii,si,ci,ri,phase,presses,ask,asked:asked.slice()});
 function mark(){
   trail=trail.slice(0,tpos+1);
   trail.push(snap());
   tpos=trail.length-1;
 }
 function restore(st){
-  gi=st.gi; idx=st.idx; ii=st.ii||0; phase=st.phase; presses=st.presses;
+  gi=st.gi; idx=st.idx; ii=st.ii||0; si=st.si||0; ci=st.ci||0; ri=st.ri||0;
+  phase=st.phase; presses=st.presses;
   ask=st.ask; asked=st.asked.slice();
   /* A card with history in front of it was finished once already - three
      presses were done. Asking for them again to get back to where you were is
@@ -666,6 +690,11 @@ function goBack(){ if(tpos>0){ tpos--; restore(trail[tpos]); } }
 function goFwd(){ if(tpos<trail.length-1){ tpos++; restore(trail[tpos]); } }
 
 function openLesson(id){
+  /* One history entry per lesson. Without it the phone's back gesture ran
+     straight past the course and out into Notice Me - the app behind the
+     iframe, not the thing the child was in. Back belongs to the road. */
+  try{ history.pushState({al:id},''); }catch(e){}
+  inLesson=true;
   cur=LESSONS.find(l=>l.id===id);
   gi=0; idx=0; ii=0; presses=0; ask=null; asked=[]; wrong=0;
   phase = INTRO[id] ? "intro" : "meet";
@@ -684,6 +713,7 @@ const clip  = it => (cur.path||"") + (it[1]||"x");
 function paint(){
   if(phase==="intro") return paintIntro();
   if(phase==="check") return paintCheck();
+  if(phase==="stretch") return paintStretch();
   if(phase==="demo")  return paintDemo();
   if(phase==="read")  return paintRead();
   if(phase==="meet") return cur.kind==="join" ? paintCoats() : paintMeet();
@@ -701,7 +731,7 @@ function paintIntro(){
     .replace(/[\u064B-\u0652\u0670]/g, ch=>`<span class="mark">${ch}</span>`)
     .replace(/\u25cc/g, '<span class="markalone">\u25cc</span>');
   view.innerHTML=`<div class="card">
-    <p class="kick">${cur.id}. ${cur.t} \u00b7 the mark</p>
+    <p class="kick">${LESSONS.indexOf(cur)+1}. ${cur.t} \u00b7 the mark</p>
     <p class="sm" style="text-align:center;margin:2px 0 0">${ii+1} of ${rows.length}</p>
     <p class="cue">grown-up: this one is <b>${m[1]}</b><span>${m[2]}</span></p>
     <div class="jfield" id="field">
@@ -724,9 +754,42 @@ function paintIntro(){
 function nextIntro(){
   const rows=INTRO[cur.id]||[];
   if(ii<rows.length-1){ ii++; presses=0; mark(); return paintIntro(); }
+  if(cur.id===7){ phase="stretch"; si=0; mark(); return paint(); }
   /* a mark lesson goes on to be checked; anything else meets its letters */
   if(MARKSOF[cur.id]){ phase="check"; ci=0; locked=false; mark(); return paint(); }
   phase="meet"; presses=0; mark(); paint();
+}
+
+/* ---- short against long, heard one after the other ---- */
+let si=0;
+function paintStretch(){
+  const r=STRETCH[si];
+  view.innerHTML=`<div class="card">
+    <p class="kick">${LESSONS.indexOf(cur)+1}. ${cur.t} \u00b7 one count, two counts</p>
+    <h2>Hear the difference</h2>
+    <p class="sm">${si+1} of ${STRETCH.length} \u2014 the same letter, with the little alif and without.</p>
+    <div class="pairrow">
+      <button class="pairtile" onclick="play('small/${r[2]}');paintMuteOnly()">
+        <span class="pg ar">${cell([r[0]])}</span>
+        <span class="pl">${r[2]} \u00b7 one count</span></button>
+      <button class="pairtile long" onclick="play('small/${r[3]}');paintMuteOnly()">
+        <span class="pg ar">${cell([r[1]])}</span>
+        <span class="pl">${r[3]} \u00b7 two counts</span></button>
+    </div>
+    <p class="meetsay">the mark says nothing of its own \u2014 it holds the sound before it</p>
+    <span class="mute" id="mute">${lastPath?lastPath+"  (not recorded yet)":"press either one \u2014 nothing recorded yet"}</span>
+    <div class="twoway">
+      <button class="tw again" onclick="play('small/${r[3]}');paintMuteOnly()"
+        aria-label="hear the long one"><span class="bars"><i></i><i></i><i></i></span></button>
+      <button class="tw on" onclick="nextStretch()">${si<STRETCH.length-1?'next \u203a':'now the words \u203a'}</button>
+    </div>
+  </div>
+  ${stepnav()}`;
+  setBar(`<button class="btn" onclick="road()">The road</button>`);
+}
+function nextStretch(){
+  if(si<STRETCH.length-1){ si++; mark(); return paintStretch(); }
+  phase="meet"; presses=0; idx=0; gi=0; mark(); paint();
 }
 
 /* ---- checked: which mark is this? The mark alone, nothing under it. ---- */
@@ -736,10 +799,16 @@ function paintCheck(){
   const want=rows[ci % rows.length];
   const pool=rows.slice().sort(()=>Math.random()-.5);
   const rounds=Math.min(4, rows.length*2);
+  /* Heard, not read. Asking "which one is fathatan" tests whether a child
+     remembers a name; the name is the least useful thing they learned. The
+     sound is played and they point at the mark that makes it - which is what
+     they will actually do on a page. The name arrives with the answer. */
   view.innerHTML=`<div class="card">
-    <p class="kick">${cur.id}. ${cur.t} \u00b7 which mark?</p>
-    <h2>Which one is ${want[1]}?</h2>
+    <p class="kick">${LESSONS.indexOf(cur)+1}. ${cur.t} \u00b7 which mark?</p>
+    <h2>Which mark makes this sound?</h2>
     <p class="sm">${ci+1} of ${rounds}</p>
+    <button class="play" onclick="play('marks/${want[1]}');paintMuteOnly()">\u25b6 Hear it</button>
+    <span class="mute" id="mute">press to play \u2014 nothing recorded yet</span>
     <div class="grid g3 ar">${pool.map((m,k)=>`
       <button class="tile" id="c${k}" onclick="checkAns('${m[1]}',${k})">
         <span class="g">${m[0].replace(/\u25cc/,'<span class="markalone">\u25cc</span>')
@@ -750,6 +819,7 @@ function paintCheck(){
   </div>
   ${stepnav()}`;
   setBar(`<button class="btn" onclick="road()">The road</button>`);
+  play('marks/'+want[1]);        /* it asks the moment it arrives */
 }
 function checkAns(name, slot){
   if(locked) return;
@@ -757,7 +827,10 @@ function checkAns(name, slot){
   const rounds=Math.min(4, rows.length*2);
   const right = name===want[1];
   document.getElementById('c'+slot).classList.add(right?'yes':'no');
-  document.getElementById('res').textContent = right ? "Yes \u2014 that is "+name+"." : "That one is "+name+".";
+  document.getElementById('res').textContent = right
+    ? "Yes \u2014 that one is called "+name+"."
+    : "That one is "+name+" \u2014 listen again.";
+  if(!right){ play('marks/'+want[1]); paintMuteOnly(); }
   if(right){
     locked=true;
     const after=document.getElementById('afterfind');
@@ -783,7 +856,7 @@ function paintDemo(){
     return [base, m[0], nm+(m[1]?" "+m[1]:""), nm+"-"+(m[1]||"s"), m[2]];
   });
   view.innerHTML=`<div class="card">
-    <p class="kick">${cur.id}. ${cur.t} \u00b7 watch</p>
+    <p class="kick">${LESSONS.indexOf(cur)+1}. ${cur.t} \u00b7 watch</p>
     <h2>The letter, then the mark</h2>
     <p class="sm">That is all reading is. Press one to hear it.</p>
     <div class="demos">${rows.map((r,k)=>`
@@ -809,7 +882,7 @@ function paintRead(){
   if(!readList.length) readList=buildRead();
   const r=readList[ri];
   view.innerHTML=`<div class="card">
-    <p class="kick">${cur.id}. ${cur.t} \u00b7 read it</p>
+    <p class="kick">${LESSONS.indexOf(cur)+1}. ${cur.t} \u00b7 read it</p>
     <p class="sm" style="text-align:center;margin:2px 0 0">${ri+1} of ${readList.length}</p>
     <div class="readbig ar">${cell([r[0]])}</div>
     <p class="meetsay">say it out loud, then press to hear it</p>
@@ -852,7 +925,7 @@ function paintMeet(){
   const at=spotFor();
   const done=presses>=PRESSES;
   view.innerHTML=`<div class="card">
-    <p class="kick">${cur.id}. ${cur.t}</p>
+    <p class="kick">${LESSONS.indexOf(cur)+1}. ${cur.t}</p>
     <div class="steps">${gs.map((_,k)=>`<i class="${k<=gi?'on':''}"></i>`).join("")}</div>
     <p class="sm" style="text-align:center;margin:2px 0 0">${seen+1} of ${total}</p>
 
@@ -895,7 +968,7 @@ function paintCoats(){
   const words=INWORD[it[4]]||[];
   const w=shown?words[shown-1]:null;
   view.innerHTML=`<div class="card">
-    <p class="kick">${cur.id}. ${cur.t}</p>
+    <p class="kick">${LESSONS.indexOf(cur)+1}. ${cur.t}</p>
     <div class="steps">${gs.map((_,k)=>`<i class="${k<=gi?'on':''}"></i>`).join("")}</div>
     <p class="sm" style="text-align:center;margin:2px 0 0">${seen+1} of ${total}</p>
 
@@ -948,7 +1021,7 @@ function paintFindJoin(){
   const pool=[ask].concat(g.filter(x=>x[4]!==ask[4]).sort(()=>Math.random()-.5).slice(0,2))
                   .sort(()=>Math.random()-.5);
   view.innerHTML=`<div class="card">
-    <p class="kick">${cur.id}. ${cur.t} \u00b7 find it</p>
+    <p class="kick">${LESSONS.indexOf(cur)+1}. ${cur.t} \u00b7 find it</p>
     <h2>Which letter is this?</h2>
     <p class="sm">${asked.length} of ${g.length} found</p>
     <div class="coatask ar">${ask[ix]}</div>
@@ -1044,7 +1117,7 @@ function paintFind(){
   const others=g.filter(x=>x[1]!==ask[1]).sort(()=>Math.random()-.5).slice(0,2);
   const pool=[ask].concat(others).sort(()=>Math.random()-.5);
   view.innerHTML=`<div class="card">
-    <p class="kick">${cur.id}. ${cur.t} \u00b7 find it</p>
+    <p class="kick">${LESSONS.indexOf(cur)+1}. ${cur.t} \u00b7 find it</p>
     <h2>Which one did you hear?</h2>
     <p class="sm">${asked.length} of ${g.length} found</p>
     <button class="play" onclick="play('${clip(ask)}');paintMuteOnly()">\u25b6 Hear it</button>
@@ -1099,7 +1172,7 @@ let rowTimer=null;
 function paintRow(){
   const g=group(), last = gi>=groups().length-1;
   view.innerHTML=`<div class="card">
-    <p class="kick">${cur.id}. ${cur.t}</p>
+    <p class="kick">${LESSONS.indexOf(cur)+1}. ${cur.t}</p>
     <h2>Read your row</h2>
     <p class="sm">Six met, six found. Press the board to hear them all.</p>
     <div class="board" id="board">${g.map((it,k)=>`
@@ -1135,7 +1208,7 @@ function nextGroup(){ gi++; idx=0; presses=0; phase="meet"; mark(); paint(); }
 function paintDone(){
   const r=READS[cur.id];
   view.innerHTML=`<div class="card" style="text-align:center">
-    <p class="kick">${cur.id}. ${cur.t}</p>
+    <p class="kick">${LESSONS.indexOf(cur)+1}. ${cur.t}</p>
     <h2>Finished</h2>
     <p class="sm">${MARKSOF[cur.id]
       ? readGot+" read out loud, and every mark told apart from the others."
@@ -1154,7 +1227,7 @@ function paintDone(){
 function paintRead(){
   const r=READS[cur.id];
   view.innerHTML=`<div class="card">
-    <p class="kick">${cur.id}. ${cur.t}</p>
+    <p class="kick">${LESSONS.indexOf(cur)+1}. ${cur.t}</p>
     <h2>${r.head}</h2>
     <div class="reads">${r.lines.map((ln,k)=>`
       <button class="rline" onclick="play('read/${cur.id}-${k+1}');document.getElementById('mute').textContent=lastPath+'  (not recorded yet)'">
@@ -1217,6 +1290,13 @@ function resetAll(){
   if(!confirm("Start the whole board again?")) return;
   S={done:[],at:1}; save(); road();
 }
+
+/* The way back out of a lesson: to the road, not out of the course. Another
+   entry is pushed so the next back press has somewhere of ours to land; the
+   one after that leaves, which is what a person pressing back twice means. */
+window.addEventListener('popstate', function(){
+  if(inLesson){ road(); try{ history.pushState({al:0},''); }catch(e){} }
+});
 
 road();
 </script>
