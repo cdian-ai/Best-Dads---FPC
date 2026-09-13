@@ -377,7 +377,7 @@ const LESSONS = [
   items:L.map(([g,n])=>[g,key(n),n]), path:"letters/", chunk:6,
   adult:"Say the letter's name, have them say it back, then point to it. Do not move on until they can name all six without you."},
  {id:2,  t:"Joined letters", s:"the same letter, changed shape", kind:"join",
-  items:JOINED, path:"joined/",
+  items:JOINED, path:"joined/", chunk:4,
   adult:"This is the hardest early step. The child has to see that the shape changed but the letter did not. Cover the name and ask which letter it is."},
  {id:3,  t:"Muqatta'at", s:"named, not decoded", kind:"meet",
   items:MUQ.map(([g,n])=>[g,n,n.replace(/-/g," ")]), path:"muqatta/", chunk:5,
@@ -536,7 +536,10 @@ const group = () => groups()[gi];
 const item  = () => group()[idx];
 const clip  = it => (cur.path||"") + (it[1]||"x");
 
-function paint(){ phase==="meet" ? paintMeet() : paintFind(); }
+function paint(){
+  if(phase==="meet") return cur.kind==="join" ? paintCoats() : paintMeet();
+  return cur.kind==="join" ? paintFindJoin() : paintFind();
+}
 
 /* How a thing is drawn. The mark is coloured, the letter never is - so the eye
    goes to what the lesson is about. Restored with the new engine: it belonged
@@ -578,6 +581,82 @@ function paintMeet(){
   setBar(`<button class="btn" onclick="road()">The road</button>`);
   if(cur.kind==="hold") wireHold();
 }
+/* ---- joined letters ----
+   The chase was wrong here. It put the three coats in one tile and sent the
+   lump round the box, so a child was catching a thing that was three things,
+   and the one idea the lesson exists for - this is the SAME letter, wearing a
+   different coat depending on where it stands - never got said.
+
+   So: the letter itself at the top, still. Its three coats in a row underneath,
+   in word order - at the start, in the middle, at the end. Each is pressed
+   once; the press plays it and dresses it. Three presses, same as everywhere
+   else, but each one now means something different instead of being the same
+   press three times. */
+const COATS=[["at the start",1],["in the middle",2],["at the end",3]];
+function paintCoats(){
+  const it=item(), gs=groups(), total=cur.items.length;
+  const seen=gi*(cur.chunk||total)+idx;
+  const got=coatsGot();
+  const done=got.length>=3;
+  view.innerHTML=`<div class="card">
+    <p class="kick">${cur.id}. ${cur.t}</p>
+    <div class="steps">${gs.map((_,k)=>`<i class="${k<=gi?'on':''}"></i>`).join("")}</div>
+    <p class="sm" style="text-align:center;margin:2px 0 0">${seen+1} of ${total}</p>
+
+    <p class="cue">this is <b>${it[4]}</b><span>the same letter, three ways to write it</span></p>
+
+    <div class="selfrow"><span class="selfglyph ar">${it[0]}</span>
+      <span class="selfname">on its own</span></div>
+
+    <div class="coats">${COATS.map(([label,ix])=>`
+      <button class="coat${got.indexOf(ix)>=0?' got':''}" onclick="coatPress(${ix})">
+        <span class="cg ar">${it[ix]}</span>
+        <span class="cl">${label}</span>
+      </button>`).join("")}</div>
+
+    <div id="after">${done?twoway():`<p class="meetsay" id="cap">press each one \u2014 ${3-got.length} left</p>`}</div>
+    <span class="mute" id="mute">${lastPath?lastPath+"  (not recorded yet)":"audio wired, nothing recorded yet"}</span>
+  </div>
+  ${stepnav()}`;
+  setBar(`<button class="btn" onclick="road()">The road</button>`);
+}
+let coatSeen={};
+const coatKey = () => cur.id+"-"+gi+"-"+idx;
+function coatsGot(){ return coatSeen[coatKey()]||[]; }
+function coatPress(ix){
+  const it=item(), k=coatKey();
+  const got=(coatSeen[k]||[]).slice();
+  if(got.indexOf(ix)<0) got.push(ix);
+  coatSeen[k]=got;
+  presses=got.length;                       /* the gate is the same count */
+  play(clip(it)+"-"+["","init","med","fin"][ix]);
+  paintCoats();
+}
+
+/* Asked back: one coat on its own, and which letter is it? The question the
+   lesson is actually about - not which sound, which LETTER. */
+function paintFindJoin(){
+  const g=group();
+  const ix=1+Math.floor(Math.random()*3);
+  const pool=[ask].concat(g.filter(x=>x[4]!==ask[4]).sort(()=>Math.random()-.5).slice(0,2))
+                  .sort(()=>Math.random()-.5);
+  view.innerHTML=`<div class="card">
+    <p class="kick">${cur.id}. ${cur.t} \u00b7 find it</p>
+    <h2>Which letter is this?</h2>
+    <p class="sm">${asked.length} of ${g.length} found</p>
+    <div class="coatask ar">${ask[ix]}</div>
+    <p class="meetsay">${COATS[ix-1][0]}</p>
+    <div class="grid g3 ar">${pool.map((it,k)=>`
+      <button class="tile" id="o${k}" onclick="answer('${it[4]}',${k})">
+        <span class="g">${it[0]}</span><span class="n">${it[4]}</span>
+      </button>`).join("")}</div>
+    <p class="sm" id="res"></p>
+  </div>
+  ${stepnav()}`;
+  setBar(`<button class="btn" onclick="road()">The road</button>
+          <button class="btn go" disabled id="on">Next</button>`);
+}
+
 /* Hear it again, or go on. The pair the Fulfulde course shows once a letter
    has been pressed its three times: the way on is never the only thing there,
    because the commonest thing a child wants next is to hear it once more. */
@@ -630,17 +709,18 @@ function pressed(){
   }
 }
 function nextItem(){
-  if(idx<group().length-1){ idx++; presses=0; mark(); return paintMeet(); }
+  if(idx<group().length-1){ idx++; presses=0; mark(); return paint(); }
   phase="find"; asked=[]; wrong=0; mark(); nextAsk();
 }
 
 /* ---- find: each one asked back, from three ---- */
 function nextAsk(){
   const g=group();
-  const left=g.filter(x=>asked.indexOf(x[1])<0);
+  const idKey = x => cur.kind==="join" ? x[4] : x[1];
+  const left=g.filter(x=>asked.indexOf(idKey(x))<0);
   if(!left.length) return paintRow();       /* the group is finished: say it back */
   ask=left[Math.floor(Math.random()*left.length)];
-  paintFind();
+  paint();
 }
 let locked=false;
 function paintFind(){
@@ -671,12 +751,13 @@ function paintMuteOnly(){
 }
 function answer(k,slot){
   if(locked) return;                 /* a right answer ends the round */
-  const right = k===ask[1];
+  const mine = cur.kind==="join" ? ask[4] : ask[1];   /* joined items are keyed on the letter's name */
+  const right = k===mine;
   document.getElementById('o'+slot).classList.add(right?'yes':'no');
   const res=document.getElementById('res');
   if(right){
     locked=true;
-    asked.push(ask[1]);
+    asked.push(cur.kind==="join" ? ask[4] : ask[1]);
     res.textContent="Yes.";
     const on=document.getElementById('on');
     on.disabled=false; on.onclick=()=>{ mark(); nextAsk(); };
@@ -728,7 +809,7 @@ function sayRow(g){
   };
   step();
 }
-function nextGroup(){ gi++; idx=0; presses=0; phase="meet"; mark(); paintMeet(); }
+function nextGroup(){ gi++; idx=0; presses=0; phase="meet"; mark(); paint(); }
 
 function paintDone(){
   const r=READS[cur.id];
