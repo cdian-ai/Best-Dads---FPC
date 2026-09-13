@@ -430,7 +430,15 @@ let S={done:[], at:1};
 try{ const raw=localStorage.getItem(KEY); if(raw) S=Object.assign(S, JSON.parse(raw)); }catch(e){}
 function save(){ try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){} }
 const isDone = id => S.done.indexOf(id)>=0;
-const isOpen = id => id===1 || isDone(id-1);
+/* Every stop is open. The Qaida's own rule - do not move on until the child
+   reads the board - is a rule for the person teaching, not a lock on a screen,
+   and it was costing more than it bought: a child who already knows the
+   letters had to sit through them to reach the marks, and nobody testing the
+   course could reach lesson 12 without walking eleven lessons first.
+   The order is still the order: the road runs in sequence, the carry-on button
+   still points at the next unfinished stop, and the drawer still tells the
+   grown-up not to move on early. */
+const isOpen = () => true;
 function finish(id){ if(!isDone(id)) S.done.push(id); S.at=Math.min(16,id+1); save(); road(); }
 
 /* ---------- shell ---------- */
@@ -458,13 +466,14 @@ function road(){
   view.innerHTML=`<div class="card">
     <p class="kick">Sixteen lessons</p>
     <h2>The board, from the first letter</h2>
-    <p class="sm">${S.done.length} of 16 finished. Nothing opens until the one before it is done.</p>
+    <p class="sm">${S.done.length} of 16 finished. Start anywhere \u2014 the order is a suggestion,
+      and the highlighted one is where you left off.</p>
     <div class="road">${LESSONS.map(l=>`
-      <button class="stop ${isDone(l.id)?'done':''} ${(!isDone(l.id)&&isOpen(l.id))?'now':''}"
-        ${isOpen(l.id)?'':'disabled'} onclick="openLesson(${l.id})">
+      <button class="stop ${isDone(l.id)?'done':''} ${l.id===nextOpen()?'now':''}"
+        onclick="openLesson(${l.id})">
         <span class="n">${l.id}</span>
         <b>${l.t}<small>${l.s}</small></b>
-        ${isDone(l.id)?'<span class="tick">\u2713</span>':(isOpen(l.id)?'<span class="sm">\u203a</span>':'<span class="sm">\u25cb</span>')}
+        ${isDone(l.id)?'<span class="tick">\u2713</span>':'<span class="sm">\u203a</span>'}
       </button>`).join("")}</div>
   </div>`;
   setBar(`<button class="btn" onclick="resetAll()">Start again</button>
@@ -879,8 +888,9 @@ function openDrawer(){
     <div class="note"><b>Why we never correct the sound.</b> The app cannot hear. You are the ear.
       If it sounds wrong, play the reciter again and say it together.</div>
     <div class="note"><b>The rule of the Qaida:</b> do not move on until the child reads the board
-      themselves. The app holds a stage open until every item has been heard \u2014 that is the same rule,
-      kept for you.</div>
+      themselves. Every lesson can be opened from the road, so that rule is yours to keep, not the
+      app\u2019s to enforce \u2014 but inside a lesson nothing is skippable: each letter is heard its three
+      times and found again before the way on appears.</div>
     <div class="note" style="border-color:var(--gold)"><b>Credit.</b> Alluwal teaches
       al-Qa\u2019idah al-Nuraniyyah of Shaykh Nur Muhammad Haqqani, in the edition prepared by
       M. Muhammad Faruq al-Ra\u2019i. We teach the method; we do not claim it.</div>
