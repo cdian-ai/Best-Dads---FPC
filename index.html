@@ -2802,7 +2802,7 @@
   <div class="menugrid">
     <button class="menutile t-home"   onclick="kidMenuGo(null)"><span>🏠</span>Home</button>
     <button class="menutile t-spend"  onclick="kidMenuGo('kidSpendScreen')"><span>🎁</span>Spend my points</button>
-    <button class="menutile t-learn"  onclick="kidMenuGo('kidLearnScreen')"><span>📖</span>Learn</button>
+    <button class="menutile t-learn"  onclick="kidMenuGo('kidLearnScreen')"><span>📖</span>Duɗal</button>
     <button class="menutile t-points" onclick="kidMenuGo('kidPointsScreen')"><span>⭐</span>My points</button>
     <button class="menutile t-deen" id="btnKidDeen" onclick="closeKidMenu();showDeenPanel()"><span>🤲</span>Duas &amp; bedtime</button>
     <button class="menutile t-play"   onclick="closeKidMenu();showPlayPanel()"><span>🧩</span>Do together</button>
@@ -3386,7 +3386,7 @@
   <div id="kidLearnScreen" class="hidden">
     <header class="kidtitle w-learn">
       <span class="kidtitleicon">📖</span>
-      <span><span class="kidtitlename">What I’m learning</span>
+      <span><span class="kidtitlename">Duɗal</span>
         <span class="kidtitlesub">Qur’an, Fulfulde and school</span></span>
     </header>
     <div id="kidLearnBody"></div>
@@ -3500,7 +3500,7 @@
   <nav id="kidTabBar" class="tabbar hidden">
     <button id="kidTabHome" onclick="showScreen(null)"><span class="tabemoji">🏠</span>Home</button>
     <button id="kidTabSpend" onclick="openSpend('tab')"><span class="tabemoji">🎁</span>Rewards</button>
-    <button id="kidTabLearn" onclick="showScreen('kidLearnScreen')"><span class="tabemoji">📖</span>Learn</button>
+    <button id="kidTabLearn" onclick="showScreen('kidLearnScreen')"><span class="tabemoji">📖</span>Duɗal</button>
     <button id="kidTabPoints" onclick="showScreen('kidPointsScreen')"><span class="tabemoji">⭐</span>My points</button>
   </nav>
 </div>
@@ -5718,7 +5718,7 @@ const TIP_THEME = {
   behaviour:{theme:"t5", glyph:"🧭", label:"Behaviour"},
   calm:{theme:"t3", glyph:"🌙", label:"Calm moments"},
   talk:{theme:"t4", glyph:"💬", label:"Talking"},
-  learn:{theme:"t6", glyph:"📚", label:"Duɗal"},
+  learn:{theme:"t6", glyph:"📚", label:"Learning at home"},
   deen:{theme:"t7", glyph:"🕌", label:"Deen"},
 };
 const PARENTING_TIPS = [
@@ -5872,11 +5872,11 @@ const TIP_CATS = [
   {key:"talk", label:"Talking"},
   {key:"behaviour", label:"Behaviour"},
   {key:"calm", label:"Calm moments"},
-  {key:"learn", label:"Duɗal"},
+  {key:"learn", label:"Learning at home"},
   {key:"deen", label:"Deen"}
 ];
 
-const APP_VERSION = "v222";
+const APP_VERSION = "v223";
 const today = new Date().toISOString().slice(0,10);
 let app = {families:[],currentFamily:null,currentChild:null};
 let categories = [];
