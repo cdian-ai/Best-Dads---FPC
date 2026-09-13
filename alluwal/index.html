@@ -123,16 +123,23 @@
   .selfrow{text-align:center;margin:8px 0 2px}
   .selfglyph{display:inline-block;font-size:66px;line-height:1.35;color:var(--ink)}
   .selfname{display:block;font-size:11.5px;font-weight:750;color:var(--muted);letter-spacing:.03em}
-  .inwords{display:grid;gap:9px;margin:14px 0 4px}
-  .inword{display:flex;align-items:center;gap:12px;width:100%;background:var(--paper);
-    border:1px solid var(--line);border-radius:18px;padding:12px 14px;cursor:pointer;
-    font:inherit;color:var(--ink);text-align:left}
-  .inword .iwlabel{flex:0 0 92px;font-size:11.5px;font-weight:750;color:var(--muted);
-    letter-spacing:.02em;line-height:1.25}
-  .inword .iw{flex:1;text-align:center;font-size:40px;line-height:1.7;direction:rtl}
-  .inword.got{background:var(--gobg);border-color:#BFDCCD}
-  .inword.got .iwlabel{color:var(--go)}
-  .inword:active{transform:translateY(1px)}
+  /* the chart row: three forms, each its own button, in word order */
+  .formrow{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin:14px 0 10px;direction:rtl}
+  .formtile{background:var(--paper);border:1px solid var(--line);border-radius:18px;
+    padding:14px 6px 10px;cursor:pointer;font:inherit;color:var(--ink)}
+  .formtile .fg{display:block;font-size:46px;line-height:1.45}
+  .formtile .fl{display:block;margin-top:6px;font-size:11px;font-weight:750;
+    color:var(--muted);direction:ltr;letter-spacing:.02em}
+  .formtile.got{background:var(--gobg);border-color:#BFDCCD}
+  .formtile.got .fl{color:var(--go)}
+  .formtile.live{outline:2px solid var(--accent);outline-offset:1px}
+  .formtile:active{transform:translateY(1px)}
+  /* the word it lives in, on the board's own colour */
+  .proof{min-height:74px;display:grid;place-items:center;gap:2px;border-radius:16px;
+    background:#F2EFE8;padding:10px;transition:background .2s}
+  .proof.on{background:#EDE7DA;box-shadow:inset 0 2px 10px rgba(90,70,40,.10)}
+  .proof .pw{font-size:40px;line-height:1.7;direction:rtl;color:#3A3226}
+  .proof .pt{font-size:12px;font-weight:700;color:#7A6A52}
   .coatbig{text-align:center;font-size:96px;line-height:1.5;background:var(--paper);
     border-radius:20px;padding:6px 10px;margin:4px 0 10px;color:var(--mark)}
   .coatword{text-align:center;font-size:44px;line-height:1.8;margin-top:10px}
@@ -659,52 +666,55 @@ function paintCoats(){
   const seen=gi*(cur.chunk||total)+idx;
   const got=coatsGot();
   const done=got.length>=3;
+  const shown=coatShown[coatKey()]||0;
   const words=INWORD[it[4]]||[];
+  const w=shown?words[shown-1]:null;
   view.innerHTML=`<div class="card">
     <p class="kick">${cur.id}. ${cur.t}</p>
     <div class="steps">${gs.map((_,k)=>`<i class="${k<=gi?'on':''}"></i>`).join("")}</div>
     <p class="sm" style="text-align:center;margin:2px 0 0">${seen+1} of ${total}</p>
 
     <div class="selfrow"><span class="selfglyph ar">${it[0]}</span>
-      <span class="selfname">${it[4]}</span></div>
+      <span class="selfname">${it[4]} \u00b7 on its own</span></div>
 
-    <div class="inwords">${words.map((w,k)=>`
-      <button class="inword${got.indexOf(k+1)>=0?' got':''}" onclick="coatPress(${k+1})">
-        <span class="iwlabel">${COATS[k][0]}</span>
-        <span class="iw ar">${wordHTML(w[0],w[1])}</span>
+    <!-- the chart's own row: the three coats, each its own button -->
+    <div class="formrow">${COATS.map(([label,ix])=>`
+      <button class="formtile${got.indexOf(ix)>=0?' got':''}${shown===ix?' live':''}"
+        onclick="coatPress(${ix})">
+        <span class="fg ar">${it[ix]}</span>
+        <span class="fl">${label}</span>
       </button>`).join("")}</div>
 
-    <div id="after">${done?twoway():`<p class="meetsay" id="cap">press each word \u2014 ${3-got.length} left</p>`}</div>
+    <!-- and what it looks like in a real word, once you have pressed one -->
+    <div class="proof${w?' on':''}" id="proof">
+      ${w?`<span class="pw ar">${wordHTML(w[0],w[1])}</span>
+           <span class="pt">${w[2]}</span>`
+         :`<span class="pt">press a form to see it in a word</span>`}
+    </div>
+
+    <div id="after">${done?twoway():`<p class="meetsay" id="cap">press each form \u2014 ${3-got.length} left</p>`}</div>
     <span class="mute" id="mute">${lastPath?lastPath+"  (not recorded yet)":"audio wired, nothing recorded yet"}</span>
   </div>
   ${stepnav()}`;
   setBar(`<button class="btn" onclick="road()">The road</button>`);
 }
-let coatSeen={};
+let coatSeen={}, coatShown={};
 const coatKey = () => cur.id+"-"+gi+"-"+idx;
 function coatsGot(){ return coatSeen[coatKey()]||[]; }
 
-/* Pressing a word opens the letter as it is written there: the coat alone,
-   large, with the word underneath and the letter still coloured inside it. The
-   point of the card is that the shape in the word and the shape on its own are
-   the same thing - which is hard to see while it is inside a word. */
+/* A press plays the form, marks it done, and shows the word it lives in. No
+   modal: the word belongs on the same screen as the form, or a child cannot
+   hold the two together, which is the whole point of the lesson. */
 function coatPress(ix){
   const it=item(), k=coatKey();
   const got=(coatSeen[k]||[]).slice();
   if(got.indexOf(ix)<0) got.push(ix);
-  coatSeen[k]=got;
+  coatSeen[k]=got; coatShown[k]=ix;
   presses=got.length;
   play(clip(it)+"-"+["","init","med","fin"][ix]);
-  const w=(INWORD[it[4]]||[])[ix-1];
-  document.getElementById('sheetin').innerHTML=`
-    <h3>${it[4]} ${COATS[ix-1][0]}</h3>
-    <div class="coatbig ar">${it[ix]}</div>
-    <p class="sm" style="text-align:center">on its own it is <b class="ar">${it[0]}</b></p>
-    ${w?`<div class="coatword ar">${wordHTML(w[0],w[1])}</div>
-        <p class="sm" style="text-align:center">${w[2]}</p>`:""}
-    <button class="btn go" style="width:100%;margin-top:14px" onclick="closeDrawer();paintCoats()">Close</button>`;
-  document.getElementById('sheet').classList.add('on');
+  paintCoats();
 }
+
 /* Asked back: one coat on its own, and which letter is it? The question the
    lesson is actually about - not which sound, which LETTER. */
 function paintFindJoin(){
