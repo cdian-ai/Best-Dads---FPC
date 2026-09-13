@@ -5877,7 +5877,7 @@ const TIP_CATS = [
   {key:"deen", label:"Deen"}
 ];
 
-const APP_VERSION = "v220";
+const APP_VERSION = "v221";
 const today = new Date().toISOString().slice(0,10);
 let app = {families:[],currentFamily:null,currentChild:null};
 let categories = [];
@@ -22206,13 +22206,19 @@ body.nm-composing #panelTop{display:none!important}
 :root{
   --accent:#2E8F98!important; --nm-accent:#2E8F98!important;
   --ink:#14181F!important; --kink:#14181F!important; --nm-ink:#1C2430!important;
-  --paper:#EAF3F4!important; --nm-paper:#F2F8F9!important;
-  --line:#DCE8EA!important; --nm-line:#DCE8EA!important;
+  --paper:#F4F1EA!important; --nm-paper:#FAF8F4!important;
+  --line:#E6E2D9!important; --nm-line:#E6E2D9!important;
   --muted:#63757A!important; --nm-muted:#63757A!important;
-  --field:#E6F1F2!important; --nm-field:#E6F1F2!important;
+  --field:#EFEDE6!important; --nm-field:#EFEDE6!important;
 }
-#pageBg{background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='150' height='150' viewBox='0 0 150 150'%3E%3Cg fill='none' stroke='%232E8F98' stroke-opacity='.13' stroke-width='1.4'%3E%3Cg transform='translate(75 75)'%3E%3Crect x='-26' y='-26' width='52' height='52' rx='4'/%3E%3Crect x='-26' y='-26' width='52' height='52' rx='4' transform='rotate(45)'/%3E%3C/g%3E%3Cg transform='translate(0 0)'%3E%3Crect x='-26' y='-26' width='52' height='52' rx='4'/%3E%3Crect x='-26' y='-26' width='52' height='52' rx='4' transform='rotate(45)'/%3E%3C/g%3E%3Cg transform='translate(150 0)'%3E%3Crect x='-26' y='-26' width='52' height='52' rx='4'/%3E%3Crect x='-26' y='-26' width='52' height='52' rx='4' transform='rotate(45)'/%3E%3C/g%3E%3Cg transform='translate(0 150)'%3E%3Crect x='-26' y='-26' width='52' height='52' rx='4'/%3E%3Crect x='-26' y='-26' width='52' height='52' rx='4' transform='rotate(45)'/%3E%3C/g%3E%3Cg transform='translate(150 150)'%3E%3Crect x='-26' y='-26' width='52' height='52' rx='4'/%3E%3Crect x='-26' y='-26' width='52' height='52' rx='4' transform='rotate(45)'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E") 0 0/150px 150px,
-  linear-gradient(180deg,#E4F0F2 0%,#EDF5F6 42%,#F4F9FA 100%)!important}
+/* v221: plain paper. The mint ground with the eight-point watermark was a copy
+   of another app, and the screen did not need it: an illustrated sky, six
+   coloured cards and a row of photographs is already three voices, and a
+   patterned ground is a fourth. One warm off-white, one soft wash at the top
+   where the band sits, nothing else. */
+#pageBg{background:
+  radial-gradient(120% 60% at 50% -10%, rgba(46,143,152,.16) 0%, rgba(46,143,152,0) 60%),
+  linear-gradient(180deg,#FBF9F5 0%,#FCFBF8 40%,#FDFDFB 100%)!important}
 
 .card,.attncard,.coach,.weekbar,.askcard,.graphcard,.reward{
   border-radius:22px!important;border-color:transparent!important;
