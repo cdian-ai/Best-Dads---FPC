@@ -5878,7 +5878,7 @@ const TIP_CATS = [
   {key:"deen", label:"Deen"}
 ];
 
-const APP_VERSION = "v227";
+const APP_VERSION = "v228";
 const today = new Date().toISOString().slice(0,10);
 let app = {families:[],currentFamily:null,currentChild:null};
 let categories = [];
@@ -15936,12 +15936,21 @@ window.ONE_HUNDRED = {
     document.body.style.overflow='hidden'; document.body.classList.add('overlay-open');
     document.getElementById('alClose').onclick=close;
 
-    /* the same handoff the Fulfulde course gets: who is holding the phone */
+    /* The same handoff the Fulfulde course gets. Carefully: that key already
+       holds a 224px face, and writing photo:"" here would wipe it for Janngu
+       as well - so an existing photo for the same child is kept. */
     try{
       const me=(typeof sessionMember==="function") ? sessionMember() : null;
-      if(me) localStorage.setItem("nm.learner", JSON.stringify({
-        id:me.id, name:me.name||"", photo:"", ts:Date.now()
-      }));
+      if(me){
+        let photo="";
+        try{
+          const prev=JSON.parse(localStorage.getItem("nm.learner")||"null");
+          if(prev && prev.id===me.id && prev.photo) photo=prev.photo;
+        }catch(e){}
+        localStorage.setItem("nm.learner", JSON.stringify({
+          id:me.id, name:me.name||"", photo:photo, ts:Date.now()
+        }));
+      }
     }catch(e){}
 
     try{ history.pushState({al:1},''); }catch(e){}
