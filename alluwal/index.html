@@ -616,7 +616,10 @@ function cell(it){
   const g=it[0];
   if(cur.kind==="marks"||cur.kind==="words")
     return g.replace(/[\u064B-\u0652\u0670]/g, m=>`<span class="mark">${m}</span>`);
-  if(cur.kind==="join") return it[1]+"  "+it[2]+"  "+it[3];
+  /* On the board at the end of a group, a joined letter shows as itself. The
+     three forms belong on the stage that teaches them, not crowded three-to-a-
+     slot on a row meant to be read. */
+  if(cur.kind==="join") return it[0];
   return g;
 }
 
@@ -802,11 +805,11 @@ function nextAsk(){
   const left=g.filter(x=>asked.indexOf(idKey(x))<0);
   if(!left.length) return paintRow();       /* the group is finished: say it back */
   ask=left[Math.floor(Math.random()*left.length)];
+  locked=false;          /* the round is the thing that locks, not the screen */
   paint();
 }
 let locked=false;
 function paintFind(){
-  locked=false;
   const g=group();
   const others=g.filter(x=>x[1]!==ask[1]).sort(()=>Math.random()-.5).slice(0,2);
   const pool=[ask].concat(others).sort(()=>Math.random()-.5);
