@@ -88,6 +88,12 @@
   .jletter.nudge{animation:swell 1.5s ease-in-out 1.4s infinite}
   @keyframes swell{0%,100%{transform:translate(-50%,-50%) scale(1)}
     50%{transform:translate(-50%,-50%) scale(1.07)}}
+  /* the mark alone sits on a dotted circle - the standard way to show a
+     combining mark with nothing under it. The circle is a placeholder, so it
+     is pale and the mark itself carries the colour. */
+  .jletter .mark{color:var(--mark)}
+  .jletter.settled .mark{color:var(--go)}
+  .markalone{color:#C8C2B4}
   .jletter.settled{background:var(--gobg);color:var(--go);
     box-shadow:0 0 0 4px var(--go),0 4px 10px rgba(28,58,64,.16);animation:none}
   @media (prefers-reduced-motion:reduce){
@@ -437,14 +443,14 @@ const READS = {
    a letter is met: it says itself and is pressed three times. Same for the
    marks that come later - the same gap was in all of them. */
 const INTRO = {
- 4: [["\u0628\u064E","fathah","a line above","it says a \u2014 ba"],
-     ["\u0628\u0650","kasrah","a line below","it says i \u2014 bi"],
-     ["\u0628\u064F","dammah","a little waw above","it says u \u2014 bu"]],
- 5: [["\u0628\u064B","fathatan","two lines above","an n at the end \u2014 ban"],
-     ["\u0628\u064D","kasratan","two lines below","bin"],
-     ["\u0628\u064C","dammatan","two in front","bun"]],
- 10:[["\u0628\u0652","sukoon","a small circle above","no vowel at all \u2014 the letter on its own"]],
- 12:[["\u0628\u0651\u064E","shaddah","a little w above","say it twice, joined"]]
+ 4: [["\u25cc\u064E","fathah","a line above","it says a"],
+     ["\u25cc\u0650","kasrah","a line below","it says i"],
+     ["\u25cc\u064F","dammah","a little waw above","it says u"]],
+ 5: [["\u25cc\u064B","fathatan","two lines above","an n at the end \u2014 an"],
+     ["\u25cc\u064D","kasratan","two lines below","in"],
+     ["\u25cc\u064C","dammatan","two in front","un"]],
+ 10:[["\u25cc\u0652","sukoon","a small circle above","no vowel at all \u2014 the letter on its own"]],
+ 12:[["\u25cc\u0651","shaddah","a little w above","say it twice, joined"]]
 };
 
 /* ---------- the sixteen ---------- */
@@ -635,7 +641,9 @@ function paintIntro(){
   const rows=INTRO[cur.id]||[], m=rows[ii];
   const at=SPOTS[(cur.id*5 + ii*3 + presses*3) % SPOTS.length];
   const done=presses>=PRESSES;
-  const glyph=m[0].replace(/[\u064B-\u0652\u0670]/g, ch=>`<span class="mark">${ch}</span>`);
+  const glyph=m[0]
+    .replace(/[\u064B-\u0652\u0670]/g, ch=>`<span class="mark">${ch}</span>`)
+    .replace(/\u25cc/g, '<span class="markalone">\u25cc</span>');
   view.innerHTML=`<div class="card">
     <p class="kick">${cur.id}. ${cur.t} \u00b7 the mark</p>
     <p class="sm" style="text-align:center;margin:2px 0 0">${ii+1} of ${rows.length}</p>
