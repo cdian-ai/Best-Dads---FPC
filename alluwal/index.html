@@ -66,20 +66,37 @@
   .tile.no{background:var(--stopbg);border-color:#E6C3B8}
   .mark{color:var(--mark)}
 
-  /* the meeting card: one thing, large, pressed */
-  .cue{text-align:center;font-size:14px;color:var(--muted);margin:14px 0 6px}
-  .cue b{color:var(--ink);font-size:16px}
-  .bigtile{display:block;width:100%;background:var(--paper);border:1px solid var(--line);
-    border-radius:22px;padding:26px 10px;cursor:pointer;font:inherit;color:var(--ink)}
-  .bigtile .g{display:block;font-size:86px;line-height:1.2}
-  .bigtile:active{transform:scale(.985)}
-  .bigtile.jump{animation:jump .42s ease}
-  @keyframes jump{0%{transform:translateY(0)}30%{transform:translateY(-14px)}
-    55%{transform:translateY(0)}72%{transform:translateY(-6px)}100%{transform:translateY(0)}}
-  @media (prefers-reduced-motion:reduce){ .bigtile.jump{animation:none} }
-  .dots{display:flex;gap:9px;justify-content:center;margin:14px 0 6px}
-  .dots i{width:13px;height:13px;border-radius:50%;background:#E7E2D7;display:block}
-  .dots i.on{background:var(--accent)}
+  /* ---- the chase field ----
+     Lifted from Janngu exactly: same eight spots, same field height, same
+     spring on left/top, same swell-and-settle. Only the palette differs. The
+     letter moves between presses and never travels during one, so a child is
+     always pressing a thing that is standing still. */
+  .cue{text-align:center;font-size:12px;color:#93A0A4;margin:10px 0 10px;letter-spacing:.02em}
+  .cue b{color:var(--ink);font-size:15px}
+  .cue span{display:block;font-size:11px;font-weight:650;letter-spacing:.04em;color:#A2ADB1;margin-top:3px}
+  .jfield{position:relative;width:100%;height:min(330px,44vh);min-height:230px;margin-top:10px;
+    background:var(--paper);border-radius:22px;overflow:hidden}
+  .jletter{position:absolute;transform:translate(-50%,-50%);
+    min-width:96px;min-height:96px;padding:0 14px;border:none;border-radius:26px;
+    background:#fff;color:var(--ink);font-size:52px;font-weight:600;
+    cursor:pointer;box-shadow:0 4px 10px rgba(28,58,64,.16);
+    transition:left .28s cubic-bezier(.3,1.5,.5,1),top .28s cubic-bezier(.3,1.5,.5,1)}
+  .jletter:active{box-shadow:0 2px 5px rgba(28,58,64,.2)}
+  /* a swell, not a wobble: the letter never tilts and never changes shape.
+     It waits a moment first - a child who presses straight away never sees it,
+     and it is a hint rather than a demand for attention. */
+  .jletter.nudge{animation:swell 1.5s ease-in-out 1.4s infinite}
+  @keyframes swell{0%,100%{transform:translate(-50%,-50%) scale(1)}
+    50%{transform:translate(-50%,-50%) scale(1.07)}}
+  .jletter.settled{background:var(--gobg);color:var(--go);
+    box-shadow:0 0 0 4px var(--go),0 4px 10px rgba(28,58,64,.16);animation:none}
+  @media (prefers-reduced-motion:reduce){
+    .jletter{transition:none} .jletter.nudge{animation:none}
+  }
+  .pdot{position:absolute;top:12px;transform:translateX(-50%);width:12px;height:12px;
+    border-radius:50%;background:rgba(46,143,152,.28)}
+  .pdot.on{background:var(--accent)}
+  .meetsay{font-size:13px;color:var(--muted);margin:14px 0 0;text-align:center;line-height:1.4}
   .hero{text-align:center;margin:8px 0 2px}
   .hero .g{font-size:78px;line-height:1.25}
   .hero .n{font-size:13px;font-weight:700;color:var(--muted)}
@@ -342,6 +359,11 @@ const nextOpen = () => (LESSONS.find(l=>!isDone(l.id)) || LESSONS[15]).id;
 
    A group is met one item at a time, then asked back: each item found from
    three, in a different order. Nothing is asked that has not been pressed. */
+/* Janngu's eight spots, in Janngu's order. The letter lands on one of these
+   per press, picked from the lesson, the item and the press count so the path
+   is different for every letter but never random mid-press. */
+const SPOTS=[[50,26],[20,44],[78,44],[34,68],[66,70],[50,50],[16,22],[82,24]];
+const PRESSES=3;
 let cur=null, gi=0, idx=0, phase="meet", presses=0, ask=null, asked=[], wrong=0;
 
 function openLesson(id){
@@ -375,50 +397,68 @@ function cell(it){
 function paintMeet(){
   const it=item(), gs=groups(), total=cur.items.length;
   const seen=gi*(cur.chunk||total)+idx;
+  const at=spotFor();
+  const done=presses>=PRESSES;
   view.innerHTML=`<div class="card">
     <p class="kick">${cur.id}. ${cur.t}</p>
     <div class="steps">${gs.map((_,k)=>`<i class="${k<=gi?'on':''}"></i>`).join("")}</div>
     <p class="sm" style="text-align:center;margin:2px 0 0">${seen+1} of ${total}</p>
 
-    <p class="cue">grown-up: it says <b>${it[2]||it[1]}</b></p>
+    <p class="cue">grown-up: it says <b>${it[2]||it[1]}</b>
+      <span>innde: ${it[1]}</span></p>
 
-    <button class="bigtile ar" id="tile" onclick="pressed()">
-      <span class="g">${cell(it)}</span>
-    </button>
+    <div class="jfield" id="field">
+      <button class="jletter ar${presses===0?' nudge':''}${done?' settled':''}"
+        id="tile" style="left:${at[0]}%;top:${at[1]}%" onclick="pressed()">${cell(it)}</button>
+      ${[0,1,2].map((_,k)=>`<i class="pdot${k<presses?' on':''}"
+        style="left:${50+(k-1)*9}%"></i>`).join("")}
+    </div>
 
-    <div class="dots" id="dots">${[0,1,2].map(k=>`<i class="${k<presses?'on':''}"></i>`).join("")}</div>
-    <p class="sm" id="cap" style="text-align:center">${presses<3?"press the letter":"good \u2014 that is three"}</p>
+    <p class="meetsay" id="cap">${done?"good \u2014 that is three":(presses===0?"press the letter":`${PRESSES-presses} more`)}</p>
     <span class="mute" id="mute">${lastPath?lastPath+"  (not recorded yet)":"audio wired, nothing recorded yet"}</span>
     ${cur.kind==="hold"?holdBlock():""}
   </div>`;
   setBar(`<button class="btn" onclick="road()">The road</button>
-    <button class="btn go" id="go" ${presses<3?'disabled':''} onclick="nextItem()">
-      ${presses<3?`${presses} of 3`:(idx<group().length-1?'Next':'Now find them')}</button>`);
+    <button class="btn go" id="go" ${done?'':'disabled'} onclick="nextItem()">
+      ${done?(idx<group().length-1?'Next':'Now find them'):`${presses} of 3`}</button>`);
   if(cur.kind==="hold") wireHold();
 }
+/* Where it lands: lesson, item and press together, so the route round the box
+   differs per letter and a child cannot learn the path instead of the sound. */
+function spotFor(){
+  return SPOTS[(cur.id*5 + idx*3 + presses*3) % SPOTS.length];
+}
 function pressed(){
-  /* Patched in place, never re-rendered. The first version added the jump class
-     and then called paintMeet(), which replaced the very element the animation
-     was running on - so the letter never moved. Only the four things that
-     actually change are touched. */
+  /* Patched in place, never re-rendered: the first version added the animation
+     class and then rebuilt the card, replacing the element the animation was
+     running on. Here the letter also has to keep its identity so left/top can
+     transition - a new element would teleport. */
   const it=item();
-  presses=Math.min(3,presses+1);
+  presses=Math.min(PRESSES,presses+1);
   play(clip(it));
 
   const t=document.getElementById('tile');
-  if(t){ t.classList.remove('jump'); void t.offsetWidth; t.classList.add('jump'); }
+  if(t){
+    const at=spotFor();
+    t.classList.remove('nudge');          /* the hint has done its job */
+    t.style.left=at[0]+'%';
+    t.style.top =at[1]+'%';
+    if(presses>=PRESSES) t.classList.add('settled');
+  }
 
-  const dots=document.getElementById('dots');
-  if(dots) dots.innerHTML=[0,1,2].map(k=>`<i class="${k<presses?'on':''}"></i>`).join("");
+  const field=document.getElementById('field');
+  if(field) field.querySelectorAll('.pdot').forEach((d,k)=>
+    d.classList.toggle('on', k<presses));
 
   const cap=document.getElementById('cap');
-  if(cap) cap.textContent = presses<3 ? "press the letter" : "good \u2014 that is three";
+  if(cap) cap.textContent = presses>=PRESSES ? "good \u2014 that is three"
+                          : `${PRESSES-presses} more`;
 
   const go=document.getElementById('go');
   if(go){
-    go.disabled = presses<3;
-    go.textContent = presses<3 ? presses+" of 3"
-                               : (idx<group().length-1 ? "Next" : "Now find them");
+    go.disabled = presses<PRESSES;
+    go.textContent = presses<PRESSES ? presses+" of 3"
+                   : (idx<group().length-1 ? "Next" : "Now find them");
   }
 }
 function nextItem(){
