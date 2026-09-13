@@ -430,6 +430,23 @@ const READS = {
       note:"Surah al-Ikhlas, all of it. This is what the board was for."}
 };
 
+/* ---------- meeting a mark ----------
+   Lesson 4 drilled thirty-six letter-and-mark pairs without ever saying what
+   the three marks are, so a child was asked to hear a difference nobody had
+   pointed at. Each mark is met first, on one letter they already know, the way
+   a letter is met: it says itself and is pressed three times. Same for the
+   marks that come later - the same gap was in all of them. */
+const INTRO = {
+ 4: [["\u0628\u064E","fathah","a line above","it says a \u2014 ba"],
+     ["\u0628\u0650","kasrah","a line below","it says i \u2014 bi"],
+     ["\u0628\u064F","dammah","a little waw above","it says u \u2014 bu"]],
+ 5: [["\u0628\u064B","fathatan","two lines above","an n at the end \u2014 ban"],
+     ["\u0628\u064D","kasratan","two lines below","bin"],
+     ["\u0628\u064C","dammatan","two in front","bun"]],
+ 10:[["\u0628\u0652","sukoon","a small circle above","no vowel at all \u2014 the letter on its own"]],
+ 12:[["\u0628\u0651\u064E","shaddah","a little w above","say it twice, joined"]]
+};
+
 /* ---------- the sixteen ---------- */
 const LESSONS = [
  {id:1,  t:"Isolated letters", s:"28 letters, six at a time", kind:"meet",
@@ -570,14 +587,14 @@ let cur=null, gi=0, idx=0, phase="meet", presses=0, ask=null, asked=[], wrong=0;
    who wants to hear a letter again should not have to finish the lesson to
    reach it. */
 let trail=[], tpos=-1;
-const snap = () => ({gi,idx,phase,presses,ask,asked:asked.slice()});
+const snap = () => ({gi,idx,ii,phase,presses,ask,asked:asked.slice()});
 function mark(){
   trail=trail.slice(0,tpos+1);
   trail.push(snap());
   tpos=trail.length-1;
 }
 function restore(st){
-  gi=st.gi; idx=st.idx; phase=st.phase; presses=st.presses;
+  gi=st.gi; idx=st.idx; ii=st.ii||0; phase=st.phase; presses=st.presses;
   ask=st.ask; asked=st.asked.slice();
   /* A card with history in front of it was finished once already - three
      presses were done. Asking for them again to get back to where you were is
@@ -591,7 +608,8 @@ function goFwd(){ if(tpos<trail.length-1){ tpos++; restore(trail[tpos]); } }
 
 function openLesson(id){
   cur=LESSONS.find(l=>l.id===id);
-  gi=0; idx=0; phase="meet"; presses=0; ask=null; asked=[]; wrong=0;
+  gi=0; idx=0; ii=0; presses=0; ask=null; asked=[]; wrong=0;
+  phase = INTRO[id] ? "intro" : "meet";
   trail=[]; tpos=-1; mark();
   paint();
 }
@@ -605,8 +623,44 @@ const item  = () => group()[idx];
 const clip  = it => (cur.path||"") + (it[1]||"x");
 
 function paint(){
+  if(phase==="intro") return paintIntro();
   if(phase==="meet") return cur.kind==="join" ? paintCoats() : paintMeet();
   return cur.kind==="join" ? paintFindJoin() : paintFind();
+}
+
+/* The mark itself, before any drilling of it: one letter the child already
+   knows, the mark on it, and what it does said in words a six-year-old has. */
+let ii=0;
+function paintIntro(){
+  const rows=INTRO[cur.id]||[], m=rows[ii];
+  const at=SPOTS[(cur.id*5 + ii*3 + presses*3) % SPOTS.length];
+  const done=presses>=PRESSES;
+  const glyph=m[0].replace(/[\u064B-\u0652\u0670]/g, ch=>`<span class="mark">${ch}</span>`);
+  view.innerHTML=`<div class="card">
+    <p class="kick">${cur.id}. ${cur.t} \u00b7 the mark</p>
+    <p class="sm" style="text-align:center;margin:2px 0 0">${ii+1} of ${rows.length}</p>
+    <p class="cue">grown-up: this one is <b>${m[1]}</b><span>${m[2]}</span></p>
+    <div class="jfield" id="field">
+      <button class="jletter ar${presses===0?' nudge':''}${done?' settled':''}"
+        id="tile" style="left:${at[0]}%;top:${at[1]}%" onclick="pressed()">${glyph}</button>
+      ${[0,1,2].map((_,k)=>`<i class="pdot${k<presses?' on':''}"
+        style="left:${50+(k-1)*9}%"></i>`).join("")}
+    </div>
+    <p class="meetsay">${m[3]}</p>
+    <div id="after">${done?`<div class="twoway">
+      <button class="tw again" onclick="pressAgain()" aria-label="hear it again">
+        <span class="bars"><i></i><i></i><i></i></span></button>
+      <button class="tw on" onclick="nextIntro()">${ii<rows.length-1?'next \u203a':'now the letters \u203a'}</button>
+      </div>`:`<p class="meetsay" id="cap">${presses===0?"press it":`${PRESSES-presses} more`}</p>`}</div>
+    <span class="mute" id="mute">${lastPath?lastPath+"  (not recorded yet)":"audio wired, nothing recorded yet"}</span>
+  </div>
+  ${stepnav()}`;
+  setBar(`<button class="btn" onclick="road()">The road</button>`);
+}
+function nextIntro(){
+  const rows=INTRO[cur.id]||[];
+  if(ii<rows.length-1){ ii++; presses=0; mark(); return paintIntro(); }
+  phase="meet"; presses=0; mark(); paint();
 }
 
 /* How a thing is drawn. The mark is coloured, the letter never is - so the eye
@@ -736,10 +790,10 @@ function paintFindJoin(){
         <span class="g">${it[0]}</span><span class="n">${it[4]}</span>
       </button>`).join("")}</div>
     <p class="sm" id="res"></p>
+    <div id="afterfind"></div>
   </div>
   ${stepnav()}`;
-  setBar(`<button class="btn" onclick="road()">The road</button>
-          <button class="btn go" disabled id="on">Next</button>`);
+  setBar(`<button class="btn" onclick="road()">The road</button>`);
 }
 
 /* Hear it again, or go on. The pair the Fulfulde course shows once a letter
@@ -765,14 +819,20 @@ function pressAgain(){
 function spotFor(){
   return SPOTS[(cur.id*5 + idx*3 + presses*3) % SPOTS.length];
 }
+/* What is on screen to be pressed: a mark during the teaching stage, a letter
+   the rest of the time. */
+const shown = () => {
+  if(phase==="intro"){ const m=(INTRO[cur.id]||[])[ii]; return [m[0], m[1], m[1]]; }
+  return item();
+};
 function pressed(){
   /* Patched in place, never re-rendered: the first version added the animation
      class and then rebuilt the card, replacing the element the animation was
      running on. Here the letter also has to keep its identity so left/top can
      transition - a new element would teleport. */
-  const it=item();
+  const it=shown();
   presses=Math.min(PRESSES,presses+1);
-  play(clip(it));
+  play(phase==="intro" ? "marks/"+it[1] : clip(it));
 
   const t=document.getElementById('tile');
   if(t){
@@ -789,8 +849,10 @@ function pressed(){
 
   const after=document.getElementById('after');
   if(after){
-    if(presses>=PRESSES) after.innerHTML=twoway();   /* the pair replaces the count */
-    else after.innerHTML=`<p class="meetsay" id="cap">${PRESSES-presses} more</p>`;
+    if(presses>=PRESSES){
+      if(phase==="intro") return paintIntro();       /* its pair says something else */
+      after.innerHTML=twoway();                      /* the pair replaces the count */
+    }else after.innerHTML=`<p class="meetsay" id="cap">${PRESSES-presses} more</p>`;
   }
 }
 function nextItem(){
@@ -824,10 +886,10 @@ function paintFind(){
         <span class="g">${cell(it)}</span><span class="n">${it[2]||it[1]}</span>
       </button>`).join("")}</div>
     <p class="sm" id="res"></p>
+    <div id="afterfind"></div>
   </div>`;
   view.insertAdjacentHTML('beforeend', stepnav());
-  setBar(`<button class="btn" onclick="road()">The road</button>
-          <button class="btn go" disabled id="on">Next</button>`);
+  setBar(`<button class="btn" onclick="road()">The road</button>`);
   play(clip(ask));                    /* it asks as soon as it arrives */
 }
 function paintMuteOnly(){
@@ -844,8 +906,14 @@ function answer(k,slot){
     locked=true;
     asked.push(cur.kind==="join" ? ask[4] : ask[1]);
     res.textContent="Yes.";
-    const on=document.getElementById('on');
-    on.disabled=false; on.onclick=()=>{ mark(); nextAsk(); };
+    /* The way on belongs in the card, where the answer was given - the same
+       pair the meeting screen ends with, so the forward button is always in
+       the same place and always next to a way to hear it once more. */
+    const after=document.getElementById('afterfind');
+    if(after) after.innerHTML=`<div class="twoway">
+      <button class="tw again" onclick="play('${clip(ask)}');paintMuteOnly()" aria-label="hear it again">
+        <span class="bars"><i></i><i></i><i></i></span></button>
+      <button class="tw on" onclick="mark();nextAsk()">next \u203a</button></div>`;
   }else{
     /* wrong answers send it back to the sound rather than to another guess */
     wrong++;
