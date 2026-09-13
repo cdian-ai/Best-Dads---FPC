@@ -1,0 +1,468 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Alluwal</title>
+<style>
+  :root{
+    --ink:#14181F; --accent:#2E8F98; --deep:#268189; --muted:#63757A;
+    --line:#E6E2D9; --paper:#F4F1EA; --white:#fff;
+    --mark:#C8562F; --gold:#D9A22E; --go:#1F6D4A; --gobg:#E4F2EA;
+    --stop:#8E3320; --stopbg:#FBEAE5;
+  }
+  *{box-sizing:border-box}
+  html,body{overscroll-behavior-y:none}
+  body{margin:0;color:var(--ink);
+    font:400 16px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif;
+    background:
+      radial-gradient(120% 60% at 50% -12%, rgba(46,143,152,.16) 0%, rgba(46,143,152,0) 58%),
+      linear-gradient(180deg,#FBF9F5 0%,#FCFBF8 40%,#FDFDFB 100%);
+    background-attachment:fixed;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:430px;margin:0 auto;padding:calc(10px + env(safe-area-inset-top)) 14px 120px}
+
+  .top{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+  .brand{flex:1;font-size:19px;font-weight:800;letter-spacing:-.02em}
+  .brand small{display:block;font-size:11.5px;font-weight:650;color:var(--muted);letter-spacing:0}
+  .ghost{border:0;background:#fff;border-radius:999px;padding:8px 13px;font:inherit;
+    font-size:13px;font-weight:750;color:var(--deep);cursor:pointer;
+    box-shadow:0 2px 8px rgba(28,58,64,.1)}
+
+  .card{background:var(--white);border-radius:22px;padding:18px 16px;
+    box-shadow:0 3px 16px rgba(28,58,64,.1)}
+  .kick{margin:0 0 5px;font-size:11.5px;font-weight:750;letter-spacing:.07em;
+    text-transform:uppercase;color:var(--accent)}
+  h2{margin:0 0 8px;font-size:20px;letter-spacing:-.02em;line-height:1.22}
+  p{margin:0 0 10px}
+  .sm{font-size:13.5px;color:var(--muted)}
+
+  /* road */
+  .road{display:grid;gap:8px}
+  .stop{display:flex;align-items:center;gap:11px;background:var(--white);border:0;width:100%;
+    text-align:left;border-radius:16px;padding:11px 13px;font:inherit;cursor:pointer;
+    box-shadow:0 2px 10px rgba(28,58,64,.07)}
+  .stop:disabled{opacity:.55;cursor:default;box-shadow:none;background:#FAF8F4}
+  .stop .n{width:27px;height:27px;border-radius:50%;background:var(--paper);color:var(--deep);
+    display:grid;place-items:center;font-size:12.5px;font-weight:800;flex:none}
+  .stop.done .n{background:var(--gobg);color:var(--go)}
+  .stop.now{outline:2px solid var(--accent)}
+  .stop b{flex:1;font-size:14.5px;font-weight:700;line-height:1.25}
+  .stop small{display:block;font-size:11.5px;font-weight:600;color:var(--muted)}
+  .tick{color:var(--go);font-weight:800}
+
+  /* arabic */
+  .ar{font-family:"Geeza Pro","Noto Naskh Arabic","Al Bayan","Traditional Arabic",serif;
+    direction:rtl;line-height:1.75}
+  .grid{display:grid;gap:9px;margin:12px 0 4px;direction:rtl}
+  .g3{grid-template-columns:repeat(3,1fr)}
+  .g2{grid-template-columns:repeat(2,1fr)}
+  .tile{background:var(--paper);border:1px solid var(--line);border-radius:16px;
+    padding:13px 6px 9px;text-align:center;cursor:pointer;font:inherit;color:var(--ink)}
+  .tile .g{display:block;font-size:36px;line-height:1.25}
+  .tile .n{display:block;margin-top:6px;font-size:11px;font-weight:700;color:var(--muted);direction:ltr}
+  .tile.said{background:var(--gobg);border-color:#BFDCCD}
+  .tile.said .n{color:var(--go)}
+  .tile.yes{background:var(--gobg);border-color:#8FC5AA;outline:2px solid var(--go)}
+  .tile.no{background:var(--stopbg);border-color:#E6C3B8}
+  .mark{color:var(--mark)}
+
+  .hero{text-align:center;margin:8px 0 2px}
+  .hero .g{font-size:78px;line-height:1.25}
+  .hero .n{font-size:13px;font-weight:700;color:var(--muted)}
+
+  .play{display:inline-flex;align-items:center;gap:8px;border:0;border-radius:999px;
+    background:linear-gradient(180deg,#35A0A8,#268189);color:#fff;font:inherit;
+    font-size:15px;font-weight:750;padding:11px 20px;cursor:pointer}
+  .play:active{opacity:.82}
+  .mute{display:block;margin-top:7px;font:11.5px/1.4 ui-monospace,Menlo,monospace;color:#9AA7AB}
+
+  .steps{display:flex;gap:5px;margin:2px 0 10px}
+  .steps i{flex:1;height:4px;border-radius:2px;background:#E7E2D7}
+  .steps i.on{background:var(--accent)}
+
+  .note{border-left:3px solid var(--accent);background:var(--paper);border-radius:0 12px 12px 0;
+    padding:11px 13px;font-size:13.5px;line-height:1.5;margin-top:12px;color:#41525B}
+  .note b{color:var(--ink)}
+
+  .hold{width:100%;height:14px;border-radius:8px;background:#E7E2D7;overflow:hidden;margin:10px 0 2px}
+  .hold i{display:block;height:100%;width:0;background:linear-gradient(90deg,#35A0A8,#D9A22E)}
+
+  .bar{position:fixed;left:10px;right:10px;bottom:calc(10px + env(safe-area-inset-bottom));
+    max-width:430px;margin:0 auto;display:flex;gap:9px;background:rgba(255,255,255,.96);
+    backdrop-filter:blur(10px);border-radius:26px;padding:9px;
+    box-shadow:0 6px 24px rgba(28,58,64,.18)}
+  .btn{flex:1;border:0;border-radius:18px;background:var(--paper);color:var(--ink);
+    font:inherit;font-size:14.5px;font-weight:750;padding:12px;cursor:pointer}
+  .btn.go{background:linear-gradient(180deg,#35A0A8,#268189);color:#fff}
+  .btn:disabled{opacity:.4}
+
+  .sheet{position:fixed;inset:0;background:rgba(20,30,34,.45);display:none;z-index:40}
+  .sheet.on{display:block}
+  .sheetin{position:absolute;left:0;right:0;bottom:0;background:#fff;border-radius:24px 24px 0 0;
+    padding:18px 16px calc(20px + env(safe-area-inset-bottom));max-height:84vh;overflow:auto}
+  .sheetin h3{margin:0 0 10px;font-size:17px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <span class="brand">Alluwal<small>the board, from the first letter</small></span>
+    <button class="ghost" onclick="openDrawer()">Grown-ups</button>
+  </div>
+  <div id="view"></div>
+</div>
+
+<div class="bar" id="bar"></div>
+
+<div class="sheet" id="sheet" onclick="if(event.target.id==='sheet')closeDrawer()">
+  <div class="sheetin" id="sheetin"></div>
+</div>
+
+<script>
+/* ===================================================================
+   Alluwal — al-Qa'idah al-Nuraniyyah, sixteen lessons.
+   Method: Shaykh Nur Muhammad Haqqani, edition of M. M. Faruq al-Ra'i.
+   We teach the method; we do not claim it.
+
+   Audio is wired and silent. Every clip has a path; nothing has been
+   recorded, so play() fails quietly and the path is shown instead. When
+   the recordings land, drop them in and nothing here changes.
+   =================================================================== */
+
+const AUDIO = { base:"audio/", ext:".mp3", on:true };
+let lastPath="";
+function play(path){
+  lastPath = AUDIO.base + path + AUDIO.ext;
+  const el=document.getElementById('mute');
+  if(el) el.textContent = lastPath + "  (not recorded yet)";
+  if(!AUDIO.on) return;
+  try{
+    const a=new Audio(lastPath);
+    a.play().catch(()=>{});          /* silence is the expected state for now */
+  }catch(e){}
+}
+
+/* ---------- the alphabet ---------- */
+const L = [
+ ["ا","alif"],["ب","ba"],["ت","ta"],["ث","tha"],["ج","jim"],["ح","ha"],
+ ["خ","kha"],["د","dal"],["ذ","dhal"],["ر","ra"],["ز","zay"],["س","sin"],
+ ["ش","shin"],["ص","sad"],["ض","dad"],["ط","ta (tah)"],["ظ","dha (dhah)"],["ع","ayn"],
+ ["غ","ghayn"],["ف","fa"],["ق","qaf"],["ك","kaf"],["ل","lam"],["م","mim"],
+ ["ن","nun"],["ه","ha (hah)"],["و","waw"],["ي","ya"]
+];
+const key = n => n.replace(/[^a-z]/g,"");          /* file-safe name */
+
+/* joined shapes, shown as the book shows them */
+const JOINED = [
+ ["ب","بـ","ـبـ","ـب","ba"],["ت","تـ","ـتـ","ـت","ta"],["ج","جـ","ـجـ","ـج","jim"],
+ ["س","سـ","ـسـ","ـس","sin"],["ع","عـ","ـعـ","ـع","ayn"],["ك","كـ","ـكـ","ـك","kaf"],
+ ["ل","لـ","ـلـ","ـل","lam"],["م","مـ","ـمـ","ـم","mim"],["ن","نـ","ـنـ","ـن","nun"],
+ ["ه","هـ","ـهـ","ـه","ha"],["ي","يـ","ـيـ","ـي","ya"],["ف","فـ","ـفـ","ـف","fa"]
+];
+
+const MUQ = [
+ ["الم","alif-lam-mim"],["المص","alif-lam-mim-sad"],["الر","alif-lam-ra"],
+ ["المر","alif-lam-mim-ra"],["كهيعص","kaf-ha-ya-ayn-sad"],["طه","ta-ha"],
+ ["طسم","ta-sin-mim"],["طس","ta-sin"],["يس","ya-sin"],["ص","sad"],
+ ["حم","ha-mim"],["حم عسق","ha-mim-ayn-sin-qaf"],["ق","qaf"],["ن","nun"]
+];
+
+/* the marks. Built from the letters rather than typed, so a slip is
+   impossible and the set can be widened without retyping anything. */
+const FATHA="\u064E", KASRA="\u0650", DAMMA="\u064F",
+      FATHTAN="\u064B", KASRTAN="\u064D", DAMMTAN="\u064C",
+      SUKUN="\u0652", SHADDA="\u0651",
+      SMALL_ALIF="\u0670";
+
+const CORE = ["ب","ت","ث","ج","د","ر","س","ط","ك","ل","م","ن"];   /* early practice set */
+const mk = (base, mark) => base + mark;
+
+function harakahSet(){
+  const out=[];
+  CORE.forEach(b=>{
+    const n=L.find(x=>x[0]===b)[1];
+    out.push([mk(b,FATHA), key(n)+"-a", "fathah"]);
+    out.push([mk(b,KASRA), key(n)+"-i", "kasrah"]);
+    out.push([mk(b,DAMMA), key(n)+"-u", "dammah"]);
+  });
+  return out;
+}
+function tanweenSet(){
+  const out=[];
+  CORE.forEach(b=>{
+    const n=key(L.find(x=>x[0]===b)[1]);
+    out.push([mk(b,FATHTAN), n+"-an", "two above"]);
+    out.push([mk(b,KASRTAN), n+"-in", "two below"]);
+    out.push([mk(b,DAMMTAN), n+"-un", "two in front"]);
+  });
+  return out;
+}
+function sukoonSet(){
+  return CORE.map(b=>{
+    const n=key(L.find(x=>x[0]===b)[1]);
+    return ["\u0623"+mk(b,SUKUN), "ab-"+n, "still"];
+  });
+}
+function shaddaSet(){
+  return CORE.map(b=>{
+    const n=key(L.find(x=>x[0]===b)[1]);
+    return ["\u0623"+b+SHADDA+FATHA, "shadda-"+n, "doubled"];
+  });
+}
+const MADD = [
+ ["بَا","ba-madd","alif"],["بِي","bi-madd","ya"],["بُو","bu-madd","waw"],
+ ["تَا","ta-madd","alif"],["تِي","ti-madd","ya"],["تُو","tu-madd","waw"],
+ ["نَا","na-madd","alif"],["نِي","ni-madd","ya"],["نُو","nu-madd","waw"]
+];
+const LEEN = [["بَوْ","baw","waw leen"],["بَيْ","bay","ya leen"],
+              ["خَوْ","khaw","waw leen"],["خَيْ","khay","ya leen"]];
+const SMALL = [["هَـٰذَا","hadha","small alif"],["ذَ\u0670لِكَ","dhalika","small alif"],
+               ["اللّٰه","allah","small alif"],["رَحْمَـٰن","rahman","small alif"]];
+
+/* Practice words. These are the Qaida's own drill words, kept short and
+   common. A qualified reader checks every one before release — the app
+   claims no authority over the text. */
+const W6  = [["أَمَرَ","amara"],["أَذِنَ","adhina"],["أَخَذَ","akhadha"],
+             ["جَعَلَ","jaala"],["خَلَقَ","khalaqa"],["نَصَرَ","nasara"]];
+const W9  = [["قَالَ","qala"],["كَانَ","kana"],["نُوحٌ","nuhun"],
+             ["فِيهِ","fihi"],["عَلَى","ala"],["شَيْءٌ","shayun"]];
+const W11 = [["أَنْتَ","anta"],["كُنْتُ","kuntu"],["بَعْدُ","badu"],
+             ["أَهْلِ","ahli"],["سَعْيٌ","sayun"],["أَمْرٍ","amrin"]];
+const W13 = [["رَبِّ","rabbi"],["حَقَّتْ","haqqat"],["تَبَّتْ","tabbat"],
+             ["مَدَّ","madda"],["قُوَّةٍ","quwwatin"],["ذَرَّةٍ","dharratin"]];
+const W16 = [["ضَآلًّا","dallan"],["دَآبَّةٍ","dabbatin"],["الضَّآلِّينَ","addallina"],
+             ["جَآءَتْ","jaat"],["الطَّآمَّةُ","attammatu"],["حَآجَّكَ","hajjaka"]];
+
+/* ---------- the sixteen ---------- */
+const LESSONS = [
+ {id:1,  t:"Isolated letters", s:"28 letters, six at a time", kind:"meet",
+  items:L.map(([g,n])=>[g,key(n),n]), path:"letters/", chunk:6,
+  adult:"Say the letter's name, have them say it back, then point to it. Do not move on until they can name all six without you."},
+ {id:2,  t:"Joined letters", s:"the same letter, changed shape", kind:"join",
+  items:JOINED, path:"joined/",
+  adult:"This is the hardest early step. The child has to see that the shape changed but the letter did not. Cover the name and ask which letter it is."},
+ {id:3,  t:"Muqatta'at", s:"named, not decoded", kind:"meet",
+  items:MUQ.map(([g,n])=>[g,n,n.replace(/-/g," ")]), path:"muqatta/", chunk:5,
+  adult:"These are said, not worked out. Nobody asks what they mean. Say them together and move on."},
+ {id:4,  t:"Harakah", s:"fathah, kasrah, dammah", kind:"marks",
+  items:harakahSet(), path:"harakah/", chunk:6,
+  adult:"The mark is coloured, the letter is not. Ask which mark is on it before asking what it says."},
+ {id:5,  t:"Tanween", s:"the doubled mark", kind:"marks",
+  items:tanweenSet(), path:"tanween/", chunk:6,
+  adult:"Two marks, and an n at the end. Say the harakah first, then the tanween, so they hear the difference."},
+ {id:6,  t:"Practice", s:"harakah and tanween on real words", kind:"words",
+  items:W6, path:"words/",
+  adult:"The first words from the Book itself. Slow down here — this is the moment a child realises they are reading."},
+ {id:7,  t:"Small alif, ya and waw", s:"the same sound, written small", kind:"marks",
+  items:SMALL, path:"small/",
+  adult:"Show the full spelling beside it. The sound is one they already know; only the writing is new."},
+ {id:8,  t:"Madd and leen", s:"length", kind:"hold",
+  items:MADD, path:"madd/", leen:LEEN,
+  adult:"Two counts, the same length every time. Count with your hand so they can see it, not just hear it."},
+ {id:9,  t:"Practice", s:"tanween, madd and leen", kind:"words",
+  items:W9, path:"words/",
+  adult:"Mixed. If a word breaks, go back to the stage it came from rather than repeating the word."},
+ {id:10, t:"Sukoon", s:"no vowel at all", kind:"marks",
+  items:sukoonSet(), path:"sukoon/", chunk:6,
+  adult:"The still letter is where the makhraj shows. Listen for the letter's own sound, with nothing after it."},
+ {id:11, t:"Practice", s:"sukoon, and the first stopping signs", kind:"words",
+  items:W11, path:"words/",
+  adult:"Waqf signs appear here as marks to notice. Do not teach the rules yet — only that they mean a place to stop."},
+ {id:12, t:"Shaddah", s:"say it twice, joined", kind:"marks",
+  items:shaddaSet(), path:"shadda/", chunk:6,
+  adult:"Two letters in one: the first still, the second moving. Press on it — do not rush past."},
+ {id:13, t:"Practice", s:"shaddah on words", kind:"words",
+  items:W13, path:"words/",
+  adult:"If the doubling disappears when they read fast, slow the whole word down rather than drilling the shaddah alone."},
+ {id:14, t:"Shaddah with sukoon", s:"two known things, one word", kind:"words",
+  items:[["أَنَّ","anna"],["إِنَّ","inna"],["ثُمَّ","thumma"],["رُبَّمَا","rubbama"]], path:"words/",
+  adult:"Nothing new is taught here. Say so — a child who thinks this is new work will treat it as harder than it is."},
+ {id:15, t:"Two shaddahs or more", s:"same again, harder", kind:"words",
+  items:[["حُبًّا جَمًّا","hubban-jamman"],["مُحَمَّدٌ","muhammadun"],["الصَّآفَّاتِ","assaffati"],["يُزَكِّي","yuzakki"]],
+  path:"words/",
+  adult:"Long words. Break them at the shaddah, then join them back up."},
+ {id:16, t:"Shaddah after madd", s:"the last combination", kind:"words",
+  items:W16, path:"words/",
+  adult:"The last stage of the Qaida. When this reads cleanly, the child can start on Juz Amma."}
+];
+
+/* ---------- progress ---------- */
+const KEY="alluwal.v1";
+let S={done:[], at:1};
+try{ const raw=localStorage.getItem(KEY); if(raw) S=Object.assign(S, JSON.parse(raw)); }catch(e){}
+function save(){ try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){} }
+const isDone = id => S.done.indexOf(id)>=0;
+const isOpen = id => id===1 || isDone(id-1);
+function finish(id){ if(!isDone(id)) S.done.push(id); S.at=Math.min(16,id+1); save(); road(); }
+
+/* ---------- shell ---------- */
+const view=document.getElementById('view'), bar=document.getElementById('bar');
+function setBar(html){ bar.innerHTML=html; }
+
+function road(){
+  S.view="road";
+  view.innerHTML=`<div class="card">
+    <p class="kick">Sixteen lessons</p>
+    <h2>The board, from the first letter</h2>
+    <p class="sm">${S.done.length} of 16 finished. Nothing opens until the one before it is done.</p>
+    <div class="road">${LESSONS.map(l=>`
+      <button class="stop ${isDone(l.id)?'done':''} ${(!isDone(l.id)&&isOpen(l.id))?'now':''}"
+        ${isOpen(l.id)?'':'disabled'} onclick="openLesson(${l.id})">
+        <span class="n">${l.id}</span>
+        <b>${l.t}<small>${l.s}</small></b>
+        ${isDone(l.id)?'<span class="tick">\u2713</span>':(isOpen(l.id)?'<span class="sm">\u203a</span>':'<span class="sm">\u25cb</span>')}
+      </button>`).join("")}</div>
+  </div>`;
+  setBar(`<button class="btn" onclick="resetAll()">Start again</button>
+          <button class="btn go" onclick="openLesson(${nextOpen()})">Carry on</button>`);
+}
+const nextOpen = () => (LESSONS.find(l=>!isDone(l.id)) || LESSONS[15]).id;
+
+/* ---------- a lesson ---------- */
+let cur=null, stage=0, sub=0, chosen=null;
+
+function openLesson(id){
+  cur=LESSONS.find(l=>l.id===id); stage=0; sub=0; chosen=null;
+  paint();
+}
+function chunks(){
+  const n=cur.chunk||cur.items.length;
+  const out=[]; for(let i=0;i<cur.items.length;i+=n) out.push(cur.items.slice(i,i+n));
+  return out;
+}
+function paint(){
+  const groups=chunks();
+  const hearing = stage < groups.length;
+  if(hearing) return paintHear(groups[stage]);
+  return paintFind(groups[groups.length-1]);
+}
+
+/* stage one: hear it */
+function paintHear(items){
+  const groups=chunks();
+  const done=items.filter(x=>x.heard).length;
+  view.innerHTML=`<div class="card">
+    <p class="kick">${cur.id}. ${cur.t} \u00b7 hear it</p>
+    <h2>${stageTitle()}</h2>
+    <div class="steps">${groups.map((_,k)=>`<i class="${k<=stage?'on':''}"></i>`).join("")}<i></i></div>
+    <div class="grid ${items[0][0].length>2?'g2':'g3'} ar">${items.map((it,k)=>`
+      <button class="tile ${it.heard?'said':''}" onclick="hear(${k})">
+        <span class="g">${cell(it)}</span>
+        <span class="n">${it[2]||it[1]}</span>
+      </button>`).join("")}</div>
+    <span class="mute" id="mute">${lastPath?lastPath+"  (not recorded yet)":"audio wired, nothing recorded yet"}</span>
+    ${cur.kind==="hold"?holdBlock():""}
+    <div class="note"><b>Say it back.</b> Nothing is recorded and nothing is judged \u2014 the grown-up beside them is the ear.</div>
+  </div>`;
+  setBar(`<button class="btn" onclick="road()">The road</button>
+    <button class="btn go" ${done<items.length?'disabled':''} onclick="nextStage()">
+      ${done<items.length?`${done} of ${items.length}`:'Next'}</button>`);
+  if(cur.kind==="hold") wireHold();
+}
+function cell(it){
+  const g=it[0];
+  if(cur.kind==="marks"||cur.kind==="words"){
+    /* colour the mark, never the letter */
+    return g.replace(/[\u064B-\u0652\u0670]/g, m=>`<span class="mark">${m}</span>`);
+  }
+  if(cur.kind==="join") return it[1]+" "+it[2]+" "+it[3];
+  return g;
+}
+function stageTitle(){
+  if(cur.kind==="join") return "The same letter, three shapes";
+  if(cur.kind==="hold") return "Hold it for two counts";
+  if(cur.kind==="words") return "Read these";
+  const groups=chunks();
+  return groups.length>1 ? `Group ${stage+1} of ${groups.length}` : cur.t;
+}
+function hear(k){
+  const items=chunks()[stage];
+  items[k].heard=true;
+  play((cur.path||"")+(items[k][1]||"x"));
+  paintHear(items);
+}
+
+/* stage two: find it */
+function paintFind(items){
+  const pool=items.slice(0,3);
+  if(!chosen) chosen=pool[Math.floor(Math.random()*pool.length)];
+  view.innerHTML=`<div class="card">
+    <p class="kick">${cur.id}. ${cur.t} \u00b7 find it</p>
+    <h2>Which one did you hear?</h2>
+    <div class="steps">${chunks().map(()=>'<i class="on"></i>').join("")}<i class="on"></i></div>
+    <button class="play" onclick="play('${(cur.path||"")+chosen[1]}');document.getElementById('mute').textContent=lastPath+'  (not recorded yet)'">\u25b6 Hear it</button>
+    <span class="mute" id="mute">press to play \u2014 nothing recorded yet</span>
+    <div class="grid ${pool[0][0].length>2?'g2':'g3'} ar">${pool.map((it,k)=>`
+      <button class="tile" id="o${k}" onclick="answer(${k})">
+        <span class="g">${cell(it)}</span><span class="n">${it[2]||it[1]}</span>
+      </button>`).join("")}</div>
+    <p class="sm" id="res"></p>
+    <div class="note"><b>One of three, every time.</b> A child never meets a question they have not been taught to answer.</div>
+  </div>`;
+  setBar(`<button class="btn" onclick="road()">The road</button>
+          <button class="btn go" id="done" disabled onclick="finish(${cur.id})">Finish</button>`);
+}
+function answer(k){
+  const pool=chunks()[chunks().length-1].slice(0,3);
+  const right = pool[k][1]===chosen[1];
+  document.getElementById('o'+k).classList.add(right?'yes':'no');
+  document.getElementById('res').textContent = right
+    ? "Yes \u2014 that is "+(pool[k][2]||pool[k][1])+"."
+    : "Not that one. Hear it again.";
+  if(right) document.getElementById('done').disabled=false;
+}
+function nextStage(){ stage++; chosen=null; paint(); }
+
+/* madd, the one thing a screen teaches better than a page */
+function holdBlock(){
+  return `<div class="hold"><i id="hbar"></i></div>
+    <p class="sm" id="hmsg">Press and hold. Two counts fills the bar.</p>
+    <button class="play" id="hbtn">Hold to stretch</button>`;
+}
+function wireHold(){
+  const btn=document.getElementById('hbtn'), bar2=document.getElementById('hbar'),
+        msg=document.getElementById('hmsg');
+  if(!btn) return;
+  let t0=0, raf=null;
+  const tick=()=>{
+    const pct=Math.min(100,(Date.now()-t0)/2000*100);
+    bar2.style.width=pct+'%';
+    msg.textContent = pct<100 ? "Holding\u2026" : "Two counts. That is a madd.";
+    if(pct<100) raf=requestAnimationFrame(tick);
+  };
+  const start=e=>{e.preventDefault();t0=Date.now();tick();};
+  const stop=()=>{cancelAnimationFrame(raf);
+    if(parseFloat(bar2.style.width)<100) msg.textContent="Let go too soon \u2014 try again.";};
+  btn.addEventListener('mousedown',start); btn.addEventListener('touchstart',start,{passive:false});
+  window.addEventListener('mouseup',stop); window.addEventListener('touchend',stop);
+}
+
+/* ---------- the grown-ups' drawer ---------- */
+function openDrawer(){
+  const l=cur||LESSONS[0];
+  document.getElementById('sheetin').innerHTML=`
+    <h3>${l.id}. ${l.t}</h3>
+    <p class="sm">What to do</p>
+    <div class="note">${l.adult}</div>
+    <div class="note"><b>Why we never correct the sound.</b> The app cannot hear. You are the ear.
+      If it sounds wrong, play the reciter again and say it together.</div>
+    <div class="note"><b>The rule of the Qaida:</b> do not move on until the child reads the board
+      themselves. The app holds a stage open until every item has been heard \u2014 that is the same rule,
+      kept for you.</div>
+    <div class="note" style="border-color:var(--gold)"><b>Credit.</b> Alluwal teaches
+      al-Qa\u2019idah al-Nuraniyyah of Shaykh Nur Muhammad Haqqani, in the edition prepared by
+      M. Muhammad Faruq al-Ra\u2019i. We teach the method; we do not claim it.</div>
+    <button class="btn go" style="width:100%;margin-top:12px" onclick="closeDrawer()">Close</button>`;
+  document.getElementById('sheet').classList.add('on');
+}
+function closeDrawer(){ document.getElementById('sheet').classList.remove('on'); }
+
+function resetAll(){
+  if(!confirm("Start the whole board again?")) return;
+  S={done:[],at:1}; save(); road();
+}
+
+road();
+</script>
+</body>
+</html>
