@@ -386,23 +386,40 @@ function paintMeet(){
       <span class="g">${cell(it)}</span>
     </button>
 
-    <div class="dots">${[0,1,2].map(k=>`<i class="${k<presses?'on':''}"></i>`).join("")}</div>
-    <p class="sm" style="text-align:center">${presses<3?"press the letter":"good \u2014 that is three"}</p>
+    <div class="dots" id="dots">${[0,1,2].map(k=>`<i class="${k<presses?'on':''}"></i>`).join("")}</div>
+    <p class="sm" id="cap" style="text-align:center">${presses<3?"press the letter":"good \u2014 that is three"}</p>
     <span class="mute" id="mute">${lastPath?lastPath+"  (not recorded yet)":"audio wired, nothing recorded yet"}</span>
     ${cur.kind==="hold"?holdBlock():""}
   </div>`;
   setBar(`<button class="btn" onclick="road()">The road</button>
-    <button class="btn go" ${presses<3?'disabled':''} onclick="nextItem()">
+    <button class="btn go" id="go" ${presses<3?'disabled':''} onclick="nextItem()">
       ${presses<3?`${presses} of 3`:(idx<group().length-1?'Next':'Now find them')}</button>`);
   if(cur.kind==="hold") wireHold();
 }
 function pressed(){
+  /* Patched in place, never re-rendered. The first version added the jump class
+     and then called paintMeet(), which replaced the very element the animation
+     was running on - so the letter never moved. Only the four things that
+     actually change are touched. */
   const it=item();
   presses=Math.min(3,presses+1);
   play(clip(it));
+
   const t=document.getElementById('tile');
   if(t){ t.classList.remove('jump'); void t.offsetWidth; t.classList.add('jump'); }
-  paintMeet();
+
+  const dots=document.getElementById('dots');
+  if(dots) dots.innerHTML=[0,1,2].map(k=>`<i class="${k<presses?'on':''}"></i>`).join("");
+
+  const cap=document.getElementById('cap');
+  if(cap) cap.textContent = presses<3 ? "press the letter" : "good \u2014 that is three";
+
+  const go=document.getElementById('go');
+  if(go){
+    go.disabled = presses<3;
+    go.textContent = presses<3 ? presses+" of 3"
+                               : (idx<group().length-1 ? "Next" : "Now find them");
+  }
 }
 function nextItem(){
   if(idx<group().length-1){ idx++; presses=0; return paintMeet(); }
