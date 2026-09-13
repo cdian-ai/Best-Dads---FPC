@@ -66,6 +66,20 @@
   .tile.no{background:var(--stopbg);border-color:#E6C3B8}
   .mark{color:var(--mark)}
 
+  /* the meeting card: one thing, large, pressed */
+  .cue{text-align:center;font-size:14px;color:var(--muted);margin:14px 0 6px}
+  .cue b{color:var(--ink);font-size:16px}
+  .bigtile{display:block;width:100%;background:var(--paper);border:1px solid var(--line);
+    border-radius:22px;padding:26px 10px;cursor:pointer;font:inherit;color:var(--ink)}
+  .bigtile .g{display:block;font-size:86px;line-height:1.2}
+  .bigtile:active{transform:scale(.985)}
+  .bigtile.jump{animation:jump .42s ease}
+  @keyframes jump{0%{transform:translateY(0)}30%{transform:translateY(-14px)}
+    55%{transform:translateY(0)}72%{transform:translateY(-6px)}100%{transform:translateY(0)}}
+  @media (prefers-reduced-motion:reduce){ .bigtile.jump{animation:none} }
+  .dots{display:flex;gap:9px;justify-content:center;margin:14px 0 6px}
+  .dots i{width:13px;height:13px;border-radius:50%;background:#E7E2D7;display:block}
+  .dots i.on{background:var(--accent)}
   .hero{text-align:center;margin:8px 0 2px}
   .hero .g{font-size:78px;line-height:1.25}
   .hero .n{font-size:13px;font-weight:700;color:var(--muted)}
@@ -318,100 +332,145 @@ function road(){
 }
 const nextOpen = () => (LESSONS.find(l=>!isDone(l.id)) || LESSONS[15]).id;
 
-/* ---------- a lesson ---------- */
-let cur=null, stage=0, sub=0, chosen=null;
+/* ---------- a lesson ----------
+   v2: the letter is met the way Janngu meets a letter, because that is the
+   only shape that makes a child listen before moving on. One letter at a
+   time: it says itself, and it has to be pressed three times before the way
+   on appears. Three presses is not decoration - it is the drill. A grid of
+   six pressable tiles let a child tap six times in two seconds and learn
+   nothing, which is what this replaces.
+
+   A group is met one item at a time, then asked back: each item found from
+   three, in a different order. Nothing is asked that has not been pressed. */
+let cur=null, gi=0, idx=0, phase="meet", presses=0, ask=null, asked=[], wrong=0;
 
 function openLesson(id){
-  cur=LESSONS.find(l=>l.id===id); stage=0; sub=0; chosen=null;
+  cur=LESSONS.find(l=>l.id===id);
+  gi=0; idx=0; phase="meet"; presses=0; ask=null; asked=[]; wrong=0;
   paint();
 }
-function chunks(){
+function groups(){
   const n=cur.chunk||cur.items.length;
   const out=[]; for(let i=0;i<cur.items.length;i+=n) out.push(cur.items.slice(i,i+n));
   return out;
 }
-function paint(){
-  const groups=chunks();
-  const hearing = stage < groups.length;
-  if(hearing) return paintHear(groups[stage]);
-  return paintFind(groups[groups.length-1]);
-}
+const group = () => groups()[gi];
+const item  = () => group()[idx];
+const clip  = it => (cur.path||"") + (it[1]||"x");
 
-/* stage one: hear it */
-function paintHear(items){
-  const groups=chunks();
-  const done=items.filter(x=>x.heard).length;
-  view.innerHTML=`<div class="card">
-    <p class="kick">${cur.id}. ${cur.t} \u00b7 hear it</p>
-    <h2>${stageTitle()}</h2>
-    <div class="steps">${groups.map((_,k)=>`<i class="${k<=stage?'on':''}"></i>`).join("")}<i></i></div>
-    <div class="grid ${items[0][0].length>2?'g2':'g3'} ar">${items.map((it,k)=>`
-      <button class="tile ${it.heard?'said':''}" onclick="hear(${k})">
-        <span class="g">${cell(it)}</span>
-        <span class="n">${it[2]||it[1]}</span>
-      </button>`).join("")}</div>
-    <span class="mute" id="mute">${lastPath?lastPath+"  (not recorded yet)":"audio wired, nothing recorded yet"}</span>
-    ${cur.kind==="hold"?holdBlock():""}
-    <div class="note"><b>Say it back.</b> Nothing is recorded and nothing is judged \u2014 the grown-up beside them is the ear.</div>
-  </div>`;
-  setBar(`<button class="btn" onclick="road()">The road</button>
-    <button class="btn go" ${done<items.length?'disabled':''} onclick="nextStage()">
-      ${done<items.length?`${done} of ${items.length}`:'Next'}</button>`);
-  if(cur.kind==="hold") wireHold();
-}
+function paint(){ phase==="meet" ? paintMeet() : paintFind(); }
+
+/* How a thing is drawn. The mark is coloured, the letter never is - so the eye
+   goes to what the lesson is about. Restored with the new engine: it belonged
+   to the old one and the rewrite still calls it. */
 function cell(it){
   const g=it[0];
-  if(cur.kind==="marks"||cur.kind==="words"){
-    /* colour the mark, never the letter */
+  if(cur.kind==="marks"||cur.kind==="words")
     return g.replace(/[\u064B-\u0652\u0670]/g, m=>`<span class="mark">${m}</span>`);
-  }
-  if(cur.kind==="join") return it[1]+" "+it[2]+" "+it[3];
+  if(cur.kind==="join") return it[1]+"  "+it[2]+"  "+it[3];
   return g;
 }
-function stageTitle(){
-  if(cur.kind==="join") return "The same letter, three shapes";
-  if(cur.kind==="hold") return "Hold it for two counts";
-  if(cur.kind==="words") return "Read these";
-  const groups=chunks();
-  return groups.length>1 ? `Group ${stage+1} of ${groups.length}` : cur.t;
+
+/* ---- meet: one thing, pressed three times ---- */
+function paintMeet(){
+  const it=item(), gs=groups(), total=cur.items.length;
+  const seen=gi*(cur.chunk||total)+idx;
+  view.innerHTML=`<div class="card">
+    <p class="kick">${cur.id}. ${cur.t}</p>
+    <div class="steps">${gs.map((_,k)=>`<i class="${k<=gi?'on':''}"></i>`).join("")}</div>
+    <p class="sm" style="text-align:center;margin:2px 0 0">${seen+1} of ${total}</p>
+
+    <p class="cue">grown-up: it says <b>${it[2]||it[1]}</b></p>
+
+    <button class="bigtile ar" id="tile" onclick="pressed()">
+      <span class="g">${cell(it)}</span>
+    </button>
+
+    <div class="dots">${[0,1,2].map(k=>`<i class="${k<presses?'on':''}"></i>`).join("")}</div>
+    <p class="sm" style="text-align:center">${presses<3?"press the letter":"good \u2014 that is three"}</p>
+    <span class="mute" id="mute">${lastPath?lastPath+"  (not recorded yet)":"audio wired, nothing recorded yet"}</span>
+    ${cur.kind==="hold"?holdBlock():""}
+  </div>`;
+  setBar(`<button class="btn" onclick="road()">The road</button>
+    <button class="btn go" ${presses<3?'disabled':''} onclick="nextItem()">
+      ${presses<3?`${presses} of 3`:(idx<group().length-1?'Next':'Now find them')}</button>`);
+  if(cur.kind==="hold") wireHold();
 }
-function hear(k){
-  const items=chunks()[stage];
-  items[k].heard=true;
-  play((cur.path||"")+(items[k][1]||"x"));
-  paintHear(items);
+function pressed(){
+  const it=item();
+  presses=Math.min(3,presses+1);
+  play(clip(it));
+  const t=document.getElementById('tile');
+  if(t){ t.classList.remove('jump'); void t.offsetWidth; t.classList.add('jump'); }
+  paintMeet();
+}
+function nextItem(){
+  if(idx<group().length-1){ idx++; presses=0; return paintMeet(); }
+  phase="find"; asked=[]; wrong=0; nextAsk();
 }
 
-/* stage two: find it */
-function paintFind(items){
-  const pool=items.slice(0,3);
-  if(!chosen) chosen=pool[Math.floor(Math.random()*pool.length)];
+/* ---- find: each one asked back, from three ---- */
+function nextAsk(){
+  const g=group();
+  const left=g.filter(x=>asked.indexOf(x[1])<0);
+  if(!left.length){
+    if(gi<groups().length-1){ gi++; idx=0; presses=0; phase="meet"; return paintMeet(); }
+    return paintDone();
+  }
+  ask=left[Math.floor(Math.random()*left.length)];
+  paintFind();
+}
+function paintFind(){
+  const g=group();
+  const others=g.filter(x=>x[1]!==ask[1]).sort(()=>Math.random()-.5).slice(0,2);
+  const pool=[ask].concat(others).sort(()=>Math.random()-.5);
   view.innerHTML=`<div class="card">
     <p class="kick">${cur.id}. ${cur.t} \u00b7 find it</p>
     <h2>Which one did you hear?</h2>
-    <div class="steps">${chunks().map(()=>'<i class="on"></i>').join("")}<i class="on"></i></div>
-    <button class="play" onclick="play('${(cur.path||"")+chosen[1]}');document.getElementById('mute').textContent=lastPath+'  (not recorded yet)'">\u25b6 Hear it</button>
+    <p class="sm">${asked.length} of ${g.length} found</p>
+    <button class="play" onclick="play('${clip(ask)}');paintMuteOnly()">\u25b6 Hear it</button>
     <span class="mute" id="mute">press to play \u2014 nothing recorded yet</span>
     <div class="grid ${pool[0][0].length>2?'g2':'g3'} ar">${pool.map((it,k)=>`
-      <button class="tile" id="o${k}" onclick="answer(${k})">
+      <button class="tile" id="o${k}" onclick="answer('${it[1]}',${k})">
         <span class="g">${cell(it)}</span><span class="n">${it[2]||it[1]}</span>
       </button>`).join("")}</div>
     <p class="sm" id="res"></p>
-    <div class="note"><b>One of three, every time.</b> A child never meets a question they have not been taught to answer.</div>
   </div>`;
   setBar(`<button class="btn" onclick="road()">The road</button>
-          <button class="btn go" id="done" disabled onclick="finish(${cur.id})">Finish</button>`);
+          <button class="btn go" disabled id="on">Next</button>`);
+  play(clip(ask));                    /* it asks as soon as it arrives */
 }
-function answer(k){
-  const pool=chunks()[chunks().length-1].slice(0,3);
-  const right = pool[k][1]===chosen[1];
-  document.getElementById('o'+k).classList.add(right?'yes':'no');
-  document.getElementById('res').textContent = right
-    ? "Yes \u2014 that is "+(pool[k][2]||pool[k][1])+"."
-    : "Not that one. Hear it again.";
-  if(right) document.getElementById('done').disabled=false;
+function paintMuteOnly(){
+  const el=document.getElementById('mute');
+  if(el) el.textContent=lastPath+"  (not recorded yet)";
 }
-function nextStage(){ stage++; chosen=null; paint(); }
+function answer(k,slot){
+  const right = k===ask[1];
+  document.getElementById('o'+slot).classList.add(right?'yes':'no');
+  const res=document.getElementById('res');
+  if(right){
+    asked.push(ask[1]);
+    res.textContent="Yes.";
+    const on=document.getElementById('on');
+    on.disabled=false; on.onclick=nextAsk;
+  }else{
+    /* wrong answers send it back to the sound rather than to another guess */
+    wrong++;
+    res.textContent="Not that one \u2014 listen again.";
+    play(clip(ask));
+    paintMuteOnly();
+  }
+}
+function paintDone(){
+  view.innerHTML=`<div class="card" style="text-align:center">
+    <p class="kick">${cur.id}. ${cur.t}</p>
+    <h2>Finished</h2>
+    <p class="sm">${cur.items.length} met, each one pressed three times and found again.</p>
+    <div class="note" style="text-align:left">${cur.adult}</div>
+  </div>`;
+  setBar(`<button class="btn" onclick="road()">The road</button>
+          <button class="btn go" onclick="finish(${cur.id})">Done</button>`);
+}
 
 /* madd, the one thing a screen teaches better than a page */
 function holdBlock(){
