@@ -3494,11 +3494,11 @@
        Asking is ONE room with two sides, which is why the two near-identical
        labels are gone. -->
   <nav id="parentTabBar" class="tabbar ptabbar hidden">
-    <button id="pTabHome" onclick="goHome()"><span class="tabemoji">🏠</span>Home</button>
-    <button id="pTabAsk" onclick="showAskingPanel()"><span class="tabemoji">💬</span>Asking<span class="tbadge hidden" id="pTabAskBadge"></span></button>
-    <button id="pTabNotice" class="tabaction" onclick="showPicker('give')"><span class="tabemoji">⭐</span>Give points</button>
-    <button id="pTabProgress" onclick="showOverviewPanel()"><span class="tabemoji">📊</span>How they're doing</button>
-    <button id="pTabMore" onclick="toggleMenu()"><span class="tabemoji">☰</span>More</button>
+    <button id="pTabHome" onclick="goHome()"><span class="tabemoji tabmark"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 11l8-7 8 7"/><path d="M6 10v9h12v-9"/><path d="M10 19v-5h4v5"/></svg></span>Home</button>
+    <button id="pTabAsk" onclick="showAskingPanel()"><span class="tabemoji tabmark"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="M3 8l9 6 9-6"/></svg></span>Asking<span class="tbadge hidden" id="pTabAskBadge"></span></button>
+    <button id="pTabNotice" class="tabaction" onclick="showPicker('give')"><span class="tabemoji tabmark"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="4"/><path d="M12 8v8M8 12h8"/></svg></span>Give points</button>
+    <button id="pTabProgress" onclick="showOverviewPanel()"><span class="tabemoji tabmark"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M3 10h18M9 10v10"/></svg></span>How they're doing</button>
+    <button id="pTabMore" onclick="toggleMenu()"><span class="tabemoji tabmark"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></span>More</button>
   </nav>
 
   <nav id="kidTabBar" class="tabbar hidden">
@@ -5880,7 +5880,7 @@ const TIP_CATS = [
   {key:"deen", label:"Deen"}
 ];
 
-const APP_VERSION = "v229";
+const APP_VERSION = "v230";
 const today = new Date().toISOString().slice(0,10);
 let app = {families:[],currentFamily:null,currentChild:null};
 let categories = [];
@@ -22525,6 +22525,124 @@ body.haskidbar{padding-bottom:74px}
 @media (prefers-reduced-motion:reduce){
   #kidHomeScreen,#kidSpendScreen,#kidLearnScreen,#kidPointsScreen,#kidBankScreen,#kidGiveScreen{animation:none}
   #kidView .lamp.justlit .lampglow{animation:none}}
+</style>
+
+<style id="nmGrownup">
+/* ==================== v230: the Notice Me design, grown-up register ====================
+   Cool paper, ink, moss. Scoped to sessions without the child's tab bar
+   (body:not(.haskidbar)), so a child never sees a grown-up colour. Same rule
+   as the child block: tokens from the handoff, nothing invented, paint only.
+   Also here: the child's spend tiles turned from squares into rows (design §8),
+   and the one ambient animation the app had on the category tiles turned off —
+   the handoff allows exactly one ambient motion, the carry-on glow. */
+:root{
+  --g-paper:#F7F9FA; --g-ink:#1B2430; --g-muted:#8494A4; --g-moss:#4E8C6A; --g-moss-light:#BBD3C5;
+  --g-moss-tint:#DDE6E1; --g-undo:#B0563A; --g-flat:#C9BFB0; --g-warn:#B07B2E;
+}
+body:not(.haskidbar){
+  --accent:var(--g-moss)!important; --nm-accent:var(--g-moss)!important; --accent2:var(--g-moss)!important;
+  --ink:var(--g-ink)!important; --nm-ink:var(--g-ink)!important; --kink:var(--g-ink)!important;
+  --paper:var(--g-paper)!important; --nm-paper:var(--g-paper)!important;
+  --field:var(--g-paper)!important; --nm-field:var(--g-paper)!important;
+  --line:rgba(27,36,48,.1)!important; --nm-line:rgba(27,36,48,.1)!important;
+  --muted:rgba(27,36,48,.55)!important; --nm-muted:rgba(27,36,48,.55)!important;
+  --good:var(--g-moss)!important; --danger:var(--g-undo)!important;
+  --shadow:none!important;
+  font-family:var(--f-body);color:var(--g-ink)}
+body:not(.haskidbar) #pageBg{background:var(--g-paper)!important}
+body:not(.haskidbar) .panel{background:var(--g-paper)!important}
+body:not(.haskidbar) h1,body:not(.haskidbar) h2,body:not(.haskidbar) h3,body:not(.haskidbar) .skyfam{
+  font-family:var(--f-display);font-weight:600;letter-spacing:-.01em;color:var(--g-ink)}
+body:not(.haskidbar) h1{font-size:23px;line-height:1.2}
+body:not(.haskidbar) h2{font-size:21px;line-height:1.2}
+body:not(.haskidbar) .skyfam{font-size:23px}
+body:not(.haskidbar) .skyline{font:400 12px/1.4 var(--f-body);color:rgba(27,36,48,.5)!important}
+body:not(.haskidbar) .skyplate{background:none!important;box-shadow:none!important;padding:0}
+body:not(.haskidbar) .homegroup,body:not(.haskidbar) .reachcap{
+  font:600 10.5px/1.2 var(--f-body)!important;letter-spacing:.09em;text-transform:uppercase;
+  color:rgba(27,36,48,.55)!important;margin:16px 2px 8px}
+body:not(.haskidbar) .homegroup::after,body:not(.haskidbar) .reachcap::after{display:none}
+
+/* cards: white, a hairline, 16px corners; no coloured top bar, no shadow */
+body:not(.haskidbar) .card,body:not(.haskidbar) .attncard,body:not(.haskidbar) .coach,body:not(.haskidbar) .weekbar,
+body:not(.haskidbar) .askcard,body:not(.haskidbar) .graphcard,body:not(.haskidbar) .reward,body:not(.haskidbar) .kidrow,
+body:not(.haskidbar) .linkrow,body:not(.haskidbar) .invtile,body:not(.haskidbar) .pickrow,body:not(.haskidbar) .c-panel,
+body:not(.haskidbar) .prayerwall,body:not(.haskidbar) .gatecard{
+  background:#fff!important;border:1px solid rgba(27,36,48,.1)!important;border-top-width:1px!important;
+  border-radius:16px!important;box-shadow:none!important}
+body:not(.haskidbar) .coach{background:var(--g-ink)!important;color:#fff;border-color:transparent!important;
+  font:400 14.5px/1.5 var(--f-body)}
+body:not(.haskidbar) .coach *{color:#fff}
+body:not(.haskidbar) .small{font:400 12px/1.5 var(--f-body);color:rgba(27,36,48,.55)}
+body:not(.haskidbar) .lede{font:400 13.5px/1.55 var(--f-body);color:rgba(27,36,48,.72)}
+
+/* controls */
+body:not(.haskidbar) button{font-family:var(--f-body);font-weight:600;border-radius:16px}
+body:not(.haskidbar) button.primary,body:not(.haskidbar) .btn.go,body:not(.haskidbar) .menufab,
+body:not(.haskidbar) .noticetabs button.on,body:not(.haskidbar) .givebtn{
+  background:var(--g-moss)!important;border-color:var(--g-moss)!important;color:#fff!important;
+  background-image:none!important;min-height:54px;font-size:15.5px}
+body:not(.haskidbar) button.light,body:not(.haskidbar) .light,body:not(.haskidbar) .notyet,body:not(.haskidbar) .rbtns .notyet{
+  background:#fff!important;border:1.5px solid rgba(27,36,48,.16)!important;color:var(--g-ink)!important;min-height:46px}
+body:not(.haskidbar) .noticetabs button{background:rgba(27,36,48,.06);color:rgba(27,36,48,.7)}
+body:not(.haskidbar) input,body:not(.haskidbar) select,body:not(.haskidbar) textarea{
+  border:1px solid rgba(27,36,48,.16);border-radius:12px;font-family:var(--f-body);color:var(--g-ink)}
+body:not(.haskidbar) .panelback{background:rgba(27,36,48,.07)!important;color:var(--g-ink)!important;
+  border-radius:11px;font:600 12.5px/1 var(--f-body);min-height:40px}
+body:not(.haskidbar) .prayercount,body:not(.haskidbar) .countpill,body:not(.haskidbar) .tpts{
+  background:rgba(27,36,48,.06);color:var(--g-ink);font-family:var(--f-mono);font-weight:600}
+body:not(.haskidbar) .tpts.earned{background:var(--g-moss-tint);color:var(--g-moss)}
+body:not(.haskidbar) .hbadge,body:not(.haskidbar) .tbadge{background:var(--g-moss)!important;color:#fff!important}
+
+/* the note comes first and is the largest field on the screen (design §10) */
+body:not(.haskidbar) .notebox{background:#fff;border:1.5px solid var(--g-moss);border-radius:15px;padding:14px 15px}
+body:not(.haskidbar) .notebox input{font:400 15px/1.5 var(--f-body);min-height:44px}
+body:not(.haskidbar) .notepts button,body:not(.haskidbar) .tellchip,body:not(.haskidbar) .quickchips button{
+  background:rgba(27,36,48,.06)!important;border:0!important;color:rgba(27,36,48,.7)!important;
+  border-radius:12px!important;min-height:38px;font:500 13px/1 var(--f-body)}
+body:not(.haskidbar) .tellbtn{background:#fff;border:1.5px solid rgba(27,36,48,.16);color:var(--g-ink);border-radius:16px}
+body:not(.haskidbar) .cattile{aspect-ratio:auto;border-radius:16px;border:1px solid rgba(27,36,48,.1);
+  box-shadow:none!important;animation:none!important;transform:none!important}
+body:not(.haskidbar) .cattilebtn{flex-direction:row;justify-content:flex-start;gap:12px;padding:12px 14px;text-align:left}
+body:not(.haskidbar) .ticon{width:40px;height:40px;border-radius:12px;font-size:20px}
+body:not(.haskidbar) .tname{flex:1;font:600 14.5px/1.3 var(--f-body)}
+body:not(.haskidbar) .cattiles{grid-template-columns:1fr;gap:9px}
+
+/* undo is always there and always the same colour */
+body:not(.haskidbar) .undo,body:not(.haskidbar) button.undo,body:not(.haskidbar) .undobar button{
+  color:var(--g-undo)!important;background:none!important;border:0!important}
+
+/* the grown-up tab bar: drawn marks, moss when active */
+#parentTabBar.tabbar{left:0!important;right:0!important;bottom:0!important;border-radius:0!important;
+  border-top:1px solid rgba(27,36,48,.1)!important;background:#fff!important;backdrop-filter:none;
+  box-shadow:none!important;padding:7px 0 calc(6px + env(safe-area-inset-bottom))!important;gap:0}
+#parentTabBar.tabbar button{border-radius:0!important;background:none!important;min-height:50px;gap:3px;
+  font:600 9.5px/1.15 var(--f-body);color:rgba(27,36,48,.45)!important;padding:4px 2px}
+#parentTabBar .tabmark{display:flex;align-items:center;justify-content:center;width:22px;height:22px;
+  font-size:0;opacity:.5;transition:opacity .2s ease}
+#parentTabBar .tabmark svg{display:block}
+#parentTabBar.tabbar button.on,#parentTabBar .tabaction{color:var(--g-moss)!important}
+#parentTabBar.tabbar button.on .tabmark,#parentTabBar .tabaction .tabmark{opacity:1}
+#parentTabBar .tabaction .tabmark{background:var(--g-moss);color:#fff;border-radius:7px;width:26px;height:26px}
+#parentTabBar .tabaction .tabmark svg{width:16px;height:16px}
+
+/* ---- the child's spend list: rows, dearest at the bottom, out of reach dimmed not hidden ---- */
+#kidView .cattiles{grid-template-columns:1fr;gap:10px}
+#kidView .cattile{aspect-ratio:auto;border-radius:19px;background:#fff;border:1px solid rgba(43,58,74,.1);
+  box-shadow:none!important;animation:none!important;transform:none!important}
+#kidView .cattile.outofreach{opacity:.72;border-style:dashed;border-color:rgba(43,58,74,.22)}
+#kidView .cattilebtn{flex-direction:row;justify-content:flex-start;flex-wrap:wrap;gap:4px 13px;
+  padding:13px 17px;text-align:left;min-height:72px}
+#kidView .ticon{width:46px;height:46px;border-radius:14px;font-size:22px;flex:none}
+#kidView .cattile.k0 .ticon{background:var(--c-warm)} #kidView .cattile.k1 .ticon{background:var(--k-english-t)}
+#kidView .cattile.k2 .ticon{background:var(--c-careful-bg)} #kidView .cattile.k3 .ticon{background:var(--k-maths-t)}
+#kidView .cattile.k4 .ticon{background:var(--c-correct-bg)} #kidView .cattile.k5 .ticon{background:var(--c-teal-bg)}
+#kidView .tname{flex:1;min-width:0;font:600 14.5px/1.3 var(--f-body);color:var(--c-ink)}
+#kidView .tpts{flex:none;margin-left:auto;background:none;padding:0;font:800 19px/1 var(--f-display);color:var(--c-ink)}
+#kidView .tpts::after{content:"points";display:block;font:400 10px/1.2 var(--f-body);color:rgba(43,58,74,.5);text-align:right;margin-top:2px}
+#kidView .reachbar{flex:1 0 100%;order:5;margin:8px 0 2px;height:5px;background:rgba(43,58,74,.08)}
+#kidView .reachbar i{background:var(--c-mango)}
+#kidView .tgap{flex:1 0 100%;order:6;font:400 11.5px/1.4 var(--f-body);color:var(--c-amber)}
 </style>
 </body>
 </html>
