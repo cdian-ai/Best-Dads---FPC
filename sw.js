@@ -11,9 +11,11 @@
 //
 // Firestore keeps its own offline cache, so data is not this worker's job.
 
-const CACHE = 'noticeme-shell-v1';
-const SHELL = ['./', './manifest.json', './icon-192.png', './icon-512.png',
-               './icon-maskable-512.png', './apple-touch-icon.png'];
+const CACHE = 'noticeme-shell-v2';
+const SHELL = ['./', './manifest.json', './assets/icon/pwa-192-any.png',
+               './assets/icon/pwa-512-any.png', './assets/icon/pwa-192-maskable.png',
+               './assets/icon/pwa-512-maskable.png', './assets/icon/ios-180.png',
+               './assets/icon/favicon-32.png'];
 
 self.addEventListener('install', (event) => {
   event.waitUntil(

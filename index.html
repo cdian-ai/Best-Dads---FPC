@@ -6,10 +6,10 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
 
 <title>Notice Me — the good things, and say so</title>
-<link rel="icon" href='data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52"><rect width="52" height="52" rx="12" fill="%235b63d8"/><path d="M26 8 L31.5 23 L47 25 L34.5 35 L39 50 L26 41 L13 50 L17.5 35 L5 25 L20.5 23 Z" fill="%23ffd970"/><circle cx="21.5" cy="28" r="2.4" fill="%232f2a55"/><circle cx="30.5" cy="28" r="2.4" fill="%232f2a55"/><path d="M21.5 34 q4.5 4.5 9 0" fill="none" stroke="%232f2a55" stroke-width="2.2" stroke-linecap="round"/></svg>'>
-<meta name="theme-color" content="#5b63d8">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/icon/favicon-32.png"><link rel="icon" type="image/png" sizes="16x16" href="assets/icon/favicon-16.png"><rect width="52" height="52" rx="12" fill="%235b63d8"/><path d="M26 8 L31.5 23 L47 25 L34.5 35 L39 50 L26 41 L13 50 L17.5 35 L5 25 L20.5 23 Z" fill="%23ffd970"/><circle cx="21.5" cy="28" r="2.4" fill="%232f2a55"/><circle cx="30.5" cy="28" r="2.4" fill="%232f2a55"/><path d="M21.5 34 q4.5 4.5 9 0" fill="none" stroke="%232f2a55" stroke-width="2.2" stroke-linecap="round"/></svg>'>
+<meta name="theme-color" content="#1B2430">
 <link rel="manifest" href="manifest.json">
-<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="apple-touch-icon" sizes="180x180" href="assets/icon/ios-180.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -2551,7 +2551,7 @@
   <div class="gatecard">
     <div class="lockup" role="img" aria-label="Notice Me">
   <span class="lw">Notice Me</span>
-  <svg class="qm gold" viewBox="-6 3 57 73" aria-hidden="true" focusable="false"><path d="M26 3 L32 21 L51 23 L36 35 L41 53 L26 43 C20 58 12 70 -2 76 C6 66 12 56 13 44 L16 35 L1 23 L20 21 Z" fill="#e0b13c"/><circle cx="21" cy="27" r="2.8" fill="#2f2a55"/><circle cx="31" cy="27" r="2.8" fill="#2f2a55"/><path d="M21 34 q5 5 10 0" fill="none" stroke="#2f2a55" stroke-width="2.6" stroke-linecap="round"/></svg>
+  <svg class="qm nmmark" viewBox="0 0 1024 1024" aria-hidden="true" focusable="false"><circle cx="512" cy="302.1" r="100.9" fill="#E8821E"/><rect x="417.3" y="463.4" width="189.4" height="389.1" rx="94.7" fill="currentColor"/></svg>
 </div>
     <p class="sub">Notice the good things, and keep track of the learning.</p>
     <p class="sub" style="margin-top:6px">Prayers, kindness, manners, homework and effort — you award the points, they choose what to spend them on. With a Qur&rsquo;an and school progress tracker built in, so you can see what they can actually do.</p>
@@ -5876,7 +5876,7 @@ const TIP_CATS = [
   {key:"deen", label:"Deen"}
 ];
 
-const APP_VERSION = "v232";
+const APP_VERSION = "v233";
 const today = new Date().toISOString().slice(0,10);
 let app = {families:[],currentFamily:null,currentChild:null};
 let categories = [];
@@ -22747,6 +22747,11 @@ body:not(.haskidbar) .gatecard em{font-family:var(--f-mono);font-style:normal}
 #kidView .askedptsnote{font:400 11.5px/1.4 var(--f-body);color:var(--c-mango-deep)}
 #kidView .askedptscost{flex:none;font:600 14px/1 var(--f-mono);color:rgba(43,58,74,.4)}
 #kidView .askedptsfoot{margin:10px 0 0;font:400 11.5px/1.5 var(--f-body);color:rgba(43,58,74,.55)}
+</style>
+
+<style id="nmMark">
+/* v233: the mark (icon direction 1a). Mango dot, ink stem. */
+.lockup .qm.nmmark{width:.9em;height:.9em;color:var(--g-ink,#1B2430);margin-left:.08em}
 </style>
 </body>
 </html>
