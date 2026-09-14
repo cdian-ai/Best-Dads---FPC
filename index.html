@@ -5880,7 +5880,7 @@ const TIP_CATS = [
   {key:"deen", label:"Deen"}
 ];
 
-const APP_VERSION = "v230";
+const APP_VERSION = "v231";
 const today = new Date().toISOString().slice(0,10);
 let app = {families:[],currentFamily:null,currentChild:null};
 let categories = [];
@@ -7165,6 +7165,15 @@ function learnScreenHTML(child){
         </span>
         <span class="tilename">${escapeHtml(subject.name)}</span>
         <span class="tilecount">${yearName?escapeHtml(yearName)+" \u00b7 ":""}${done}/${total}</span>
+        ${forChild ? `<span class="medals" aria-hidden="true">${shown.map(st=>{
+            /* v231: the medal strip (design \u00a72). One tile per strand: filled
+               and ticked when every objective is secure, dotted while anything in
+               it has been practised, empty until then. Finishing the sixth strand
+               has to look different from finishing the first. */
+            const p=strandProgress(child, subject, st);
+            const m=(p.total && p.complete) ? "done" : (p.secure||p.covered) ? "open" : "locked";
+            return `<i class="medal ${m}">${m==="done"?"\u2713":m==="open"?"\u00b7":""}</i>`;
+          }).join("")}</span>` : ""}
         <span class="tilechev" aria-hidden="true">\u203a</span>
       </button>`;
     const body=open
@@ -22643,6 +22652,36 @@ body:not(.haskidbar) .undo,body:not(.haskidbar) button.undo,body:not(.haskidbar)
 #kidView .reachbar{flex:1 0 100%;order:5;margin:8px 0 2px;height:5px;background:rgba(43,58,74,.08)}
 #kidView .reachbar i{background:var(--c-mango)}
 #kidView .tgap{flex:1 0 100%;order:6;font:400 11.5px/1.4 var(--f-body);color:var(--c-amber)}
+</style>
+
+<style id="nmShelf">
+/* ==================== v231: the Duɗal shelf ====================
+   Design §2: one row per subject, its own accent down the left edge, and a
+   medal strip so what has been finished accumulates on the shelf. */
+#kidView .subjgrid{display:grid;grid-template-columns:1fr;gap:13px}
+#kidView .subjcell{border-radius:20px;border-left:5px solid rgba(43,58,74,.2);overflow:hidden}
+#kidView #subjcell-quran{border-left-color:var(--k-quran)} #kidView #subjcell-maths{border-left-color:var(--k-maths)}
+#kidView #subjcell-english{border-left-color:var(--k-english)} #kidView #subjcell-science{border-left-color:var(--k-science)}
+#kidView .subjcell:not(.open) .subjtile{display:grid;grid-template-columns:44px 1fr;grid-template-rows:auto auto auto;
+  column-gap:13px;row-gap:3px;align-items:center;text-align:left;padding:16px 18px;min-height:0}
+#kidView .subjcell:not(.open) .tilering{grid-row:1/3;width:44px;height:44px;border-radius:13px;display:grid;place-items:center}
+#kidView .subjcell:not(.open) .tilering svg{display:none}
+#kidView .subjcell:not(.open) .tileicon{position:static;font-size:22px}
+#kidView #subjcell-quran .tilering{background:var(--k-quran-t);color:var(--k-quran)}
+#kidView #subjcell-maths .tilering{background:var(--k-maths-t);color:var(--k-maths)}
+#kidView #subjcell-english .tilering{background:var(--k-english-t);color:var(--k-english)}
+#kidView #subjcell-science .tilering{background:var(--k-science-t);color:var(--k-science)}
+#kidView .subjcell:not(.open) .tilename{font:800 19px/1.15 var(--f-display);letter-spacing:-.01em;white-space:normal;color:var(--c-ink)}
+#kidView .subjcell:not(.open) .tilecount{font:400 12px/1.4 var(--f-body);opacity:1;color:rgba(43,58,74,.55)}
+#kidView .medals{grid-column:1/-1;display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:5px;margin-top:9px}
+#kidView .medal{height:30px;border-radius:10px;display:grid;place-items:center;font-style:normal;
+  font:600 14px/1 var(--f-body);background:rgba(43,58,74,.05);border:1.5px dashed rgba(43,58,74,.16);color:rgba(43,58,74,.4)}
+#kidView .medal.done{background:rgba(43,58,74,.06);border:1.5px solid rgba(43,58,74,.3);color:var(--c-ink)}
+#kidView #subjcell-quran .medal.done{background:var(--k-quran-t);border-color:var(--k-quran);color:var(--k-quran)}
+#kidView #subjcell-maths .medal.done{background:var(--k-maths-t);border-color:var(--k-maths);color:var(--k-maths)}
+#kidView #subjcell-english .medal.done{background:var(--k-english-t);border-color:var(--k-english);color:var(--k-english)}
+#kidView #subjcell-science .medal.done{background:var(--k-science-t);border-color:var(--k-science);color:var(--k-science)}
+#kidView .learneyebrow{font:600 10.5px/1.2 var(--f-body);letter-spacing:.09em;text-transform:uppercase;color:rgba(43,58,74,.55);margin:16px 2px 8px}
 </style>
 </body>
 </html>
