@@ -2912,69 +2912,62 @@
   <div class="menutop">
     <p class="menuhi" id="menuWho"></p>
   </div>
-  <p class="menugroup">Today</p>
-  <div class="menugrid">
-    <!-- Every panel has a Home button at its head, but the menu opens over the
-         top of one and had no way back except closing it again and finding
-         that button underneath.
-
-         v199 put it above the groups as a pill, which was wrong twice:
-         .menupills carries a top border, so it drew a stray rule under the
-         greeting, and it was the only thing in the sheet that was not a tile.
-         As a tile it also fills the grid - five tiles in three columns left a
-         gap on the second row, and six do not. First in the row because it is
-         a way out rather than a place to go. -->
-    <button class="menutile t-today" id="btnHomeMenu" onclick="goHome()"><span>🏠</span>Home</button>
-    <button class="menutile t-today" id="btnQuickMenu" onclick="showQuickPanel()"><span>🔥</span>All at once</button>
-    <button class="menutile t-today" id="btnRequests" onclick="showRequestsPanel()"><span>🔔</span>They’re asking…</button>
-    <button class="menutile t-today" id="btnTasks" onclick="showNotesPanel()"><span>📌</span>I’m asking…</button>
-    <button class="menutile t-today" id="btnReviewMenu" onclick="showReviewPanel()"><span>🗣️</span>Review together</button>
-    <button class="menutile t-learn" id="btnProgress" onclick="showProgressPanel()"><span>📖</span>Learn</button>
+  <!-- v232: the More sheet from the round-2 handoff. Four labelled groups, each
+       a white card of rows; the grouping is the argument — awarding and pricing
+       are different kinds of decision and should not sit in one flat list. The
+       ids and handlers are the ones the rest of the file already knows; only
+       the order and the paint changed. The <span>·</span>Label shape is kept
+       because two of these buttons are rewritten by observers into exactly
+       that shape; the letter tile comes from data-k. -->
+  <div class="menugrid menuhome">
+    <button class="menutile" id="btnHomeMenu" data-k="H" data-note="Back to the family" onclick="goHome()"><span>·</span>Home</button>
   </div>
-  <p class="menugroup">Just for the grown-ups</p>
+  <p class="menugroup">The family</p>
   <div class="menugrid">
-    <button class="menutile t-spend" id="btnGrownups" onclick="showGrownupsPanel()"><span>🤝</span>Your reward list</button>
-    <button class="menutile t-spend" id="btnPledges" onclick="showPledgesPanel()"><span>🤞</span>Pledges</button>
+    <button class="menutile" id="btnFamily" data-k="F" data-note="Everyone signed in, and who is selected" onclick="showAccountPanel()"><span>·</span>Family members</button>
+    <button class="menutile" id="btnTree" data-k="T" data-note="Who is who" onclick="showTreePanel()"><span>·</span>Family tree</button>
+    <button class="menutile" id="btnTutors" data-k="U" data-note="5 points once a day, assigned children only" onclick="showTutorPanel()"><span>·</span>Tutors</button>
+  </div>
+  <p class="menugroup">Awarding and asking</p>
+  <div class="menugrid">
+    <button class="menutile" id="btnQuickMenu" data-k="A" data-note="The whole family in one pass" onclick="showQuickPanel()"><span>·</span>All at once</button>
+    <button class="menutile" id="btnRequests" data-k="Q" data-note="Rewards and offers waiting on you" onclick="showRequestsPanel()"><span>·</span>They’re asking…</button>
+    <button class="menutile" id="btnTasks" data-k="I" data-note="One note per child, up to six things" onclick="showNotesPanel()"><span>·</span>I’m asking…</button>
+    <button class="menutile" id="btnReviewMenu" data-k="R" data-note="The talking part of the week" onclick="showReviewPanel()"><span>·</span>Review together</button>
+    <button class="menutile" id="btnActivity" data-k="L" data-note="Everything awarded, spent and undone" onclick="showActivityPanel()"><span>·</span>Activity log</button>
   </div>
   <p class="menugroup">How they’re doing</p>
   <div class="menugrid">
-    <button class="menutile t-points" id="btnOverview" onclick="showOverviewPanel()"><span>📊</span>Overview</button>
-    <button class="menutile t-plain" id="btnActivity" onclick="showActivityPanel()"><span>📋</span>History</button>
+    <button class="menutile" id="btnOverview" data-k="O" data-note="Everyone at a glance" onclick="showOverviewPanel()"><span>·</span>Overview</button>
+    <button class="menutile" id="btnProgress" data-k="D" data-note="What each child has practised and secured" onclick="showProgressPanel()"><span>·</span>Duɗal</button>
+  </div>
+  <p class="menugroup">What things cost</p>
+  <div class="menugrid">
+    <button class="menutile" id="btnRewardsMenu" data-k="W" data-note="Prices, sections and caps" onclick="showRewardsPanel()"><span>·</span>Rewards &amp; activities</button>
+    <button class="menutile" id="btnRules" data-k="N" data-note="Children can read these" onclick="showRulesPanel()"><span>·</span>House rules</button>
+    <button class="menutile" id="btnGrownups" data-k="J" data-note="Your reward list" onclick="showGrownupsPanel()"><span>·</span>Just the two of you</button>
+    <button class="menutile" id="btnPledges" data-k="P" data-note="Already promised this week" onclick="showPledgesPanel()"><span>·</span>Pledges</button>
   </div>
   <p class="menugroup">Together</p>
   <div class="menugrid">
-    <button class="menutile t-deen" id="btnDeen" onclick="showDeenPanel()"><span>🤲</span>Duas &amp; bedtime</button>
-    <button class="menutile t-play" id="btnPlay" onclick="showPlayPanel()"><span>🧩</span>Do together</button>
-    <button class="menutile t-play" id="btnTips" onclick="showTipsPanel()"><span>💛</span>Being with them</button>
-    <button class="menutile t-plain" id="btnRules" onclick="showRulesPanel()"><span>📜</span>House rules</button>
+    <button class="menutile" id="btnDeen" data-k="B" data-note="Nothing here is scored" onclick="showDeenPanel()"><span>·</span>Duas &amp; bedtime</button>
+    <button class="menutile" id="btnPlay" data-k="G" data-note="Nothing here costs points" onclick="showPlayPanel()"><span>·</span>Do together</button>
+    <button class="menutile" id="btnTips" data-k="E" data-note="Ideas for time together" onclick="showTipsPanel()"><span>·</span>Being with them</button>
   </div>
-  <p class="menugroup">People</p>
+  <p class="menugroup">This app</p>
   <div class="menugrid">
-    <button class="menutile t-plain" id="btnFamily" onclick="showAccountPanel()"><span>👨‍👩‍👧</span>Family members</button>
-    <button class="menutile t-plain" id="btnTree" onclick="showTreePanel()"><span>🌳</span>Family tree</button>
-    <button class="menutile t-plain" id="btnTutors" onclick="showTutorPanel()"><span>📚</span>Tutors</button>
-  </div>
-  <p class="menugroup">Set up</p>
-  <div class="menugrid">
-    <button class="menutile t-plain" id="btnRewardsMenu" onclick="showRewardsPanel()"><span>🎁</span>Rewards &amp; activities</button>
-    <button class="menutile t-plain" id="editModeBtn" onclick="toggleEditMode()"><span>✏️</span>Edit mode</button>
-    <button class="menutile t-plain" id="btnRefreshLists" onclick="applyRecommendedLists()"><span>✨</span>Update lists</button>
+    <button class="menutile" id="editModeBtn" data-k="C" data-note="What counts, and for how much" onclick="toggleEditMode()"><span>·</span>Edit categories</button>
+    <button class="menutile" id="btnRefreshLists" data-k="S" data-note="Bring in the recommended set" onclick="applyRecommendedLists()"><span>·</span>Update lists</button>
   </div>
   <p class="menugroup">Help</p>
   <div class="menupills">
-    <button id="btnHowItWorks" onclick="openHowItWorks()">❓ How this works</button>
-    <button id="btnErrLog" onclick="showErrorLog()">🩺 What went wrong</button>
-    <button id="btnResetDay" onclick="resetDay()">↻ Reset today</button>
+    <button id="btnHowItWorks" onclick="openHowItWorks()">How this works</button>
+    <button id="btnErrLog" onclick="showErrorLog()">What went wrong</button>
+    <button id="btnResetDay" onclick="resetDay()">Reset today</button>
   </div>
-  <!-- On its own, at the very bottom, with air above it. Sitting in a row with
-       "How this works" it was one mis-tap from ending the session, and it is
-       the only button on this screen that undoes something. -->
-  <!-- The modules panel belongs here, in the parent's menu. It was anchored to
-         the first sign-out block in the file, which is the CHILD's menu - so it
-         rendered into a menu where isParentRole is false and came out empty. -->
     <div id="modulesSlot"></div>
     <div class="menupills menuout">
-    <button id="btnSignOut" onclick="signOutDevice()">🔒 Sign out</button>
+    <button id="btnSignOut" onclick="signOutDevice()">Sign out</button>
   </div>
 </div>
     <!-- Switching person is navigation, so it lives with the other navigation.
@@ -3447,6 +3440,9 @@
     <p class="reachcap ptscap">🫙 Where my points are</p>
     <div class="pots" id="kidPots"></div>
     <p class="potnote" id="kidPotNote">Tap a pot to see what is in it and what it is for.</p>
+    <!-- v232 (design E4): a pending request shown on the balance screen with its
+         cost in brackets, because it has not left the pot. -->
+    <div id="kidPointsAsked"></div>
 
     <p class="reachcap ptscap">🌱 One more idea</p>
     <section class="c-panel idea hidden" id="kidBoostCard">
@@ -5880,7 +5876,7 @@ const TIP_CATS = [
   {key:"deen", label:"Deen"}
 ];
 
-const APP_VERSION = "v231";
+const APP_VERSION = "v232";
 const today = new Date().toISOString().slice(0,10);
 let app = {families:[],currentFamily:null,currentChild:null};
 let categories = [];
@@ -14773,6 +14769,19 @@ function renderKidView(child){
     : "";
   const reqSpend=document.getElementById("kidSpendRequests");
   if(reqSpend) reqSpend.innerHTML = mineHtml;
+  const reqPts=document.getElementById("kidPointsAsked");
+  if(reqPts) reqPts.innerHTML = waiting.length
+    ? `<p class="reachcap ptscap">\ud83e\uddfe What you\u2019ve asked for</p>
+       <section class="c-panel askedpts">${waiting.map(r=>
+         `<div class="askedptsrow">
+            <span class="askedptsicon">${escapeHtml((r.itemEmoji||"\ud83c\udf81"))}</span>
+            <span class="askedptsmain"><span class="askedptsname">${escapeHtml(r.itemName)}</span>
+              <span class="askedptsnote">Asked \u00b7 still yours until they say yes</span></span>
+            <span class="askedptscost">${r.points ? "("+r.points+")" : ""}</span>
+          </div>`).join("")}
+        <p class="askedptsfoot">The cost sits in brackets because it hasn\u2019t left the pot. It only
+          moves out of To spend when a parent says yes.</p></section>`
+    : "";
 
   renderKidBoost();
   checkForCelebrations();
@@ -22682,6 +22691,62 @@ body:not(.haskidbar) .undo,body:not(.haskidbar) button.undo,body:not(.haskidbar)
 #kidView #subjcell-english .medal.done{background:var(--k-english-t);border-color:var(--k-english);color:var(--k-english)}
 #kidView #subjcell-science .medal.done{background:var(--k-science-t);border-color:var(--k-science);color:var(--k-science)}
 #kidView .learneyebrow{font:600 10.5px/1.2 var(--f-body);letter-spacing:.09em;text-transform:uppercase;color:rgba(43,58,74,.55);margin:16px 2px 8px}
+</style>
+
+<style id="nmRound2">
+/* ==================== v232: round 2, first cut ====================
+   The More sheet as four groups of rows, the sign-in card, and the
+   "what you've asked for" block on My points. Tokens from the two READMEs;
+   nothing new. */
+.menupanel{background:var(--g-paper)!important}
+.menuhi{font:600 21px/1.2 var(--f-display);letter-spacing:-.01em;color:var(--g-ink)}
+.menupanel .menugroup{font:600 10.5px/1.2 var(--f-body);letter-spacing:.09em;text-transform:uppercase;
+  color:rgba(27,36,48,.55);margin:18px 2px 8px}
+.menupanel .menugrid{display:flex;flex-direction:column;gap:0;background:#fff;border:1px solid rgba(27,36,48,.1);
+  border-radius:16px;overflow:hidden}
+.menupanel .menugrid.menuhome{margin-top:6px}
+.menupanel .menutile{flex-direction:row;align-items:center;justify-content:flex-start;gap:13px;width:100%;
+  min-height:58px;padding:11px 15px;border:0!important;border-radius:0!important;background:none!important;
+  box-shadow:none!important;color:var(--g-ink)!important;font:600 14px/1.25 var(--f-body);text-align:left;
+  animation:none!important;transform:none!important;position:relative}
+.menupanel .menutile+.menutile{border-top:1px solid rgba(27,36,48,.08)!important}
+.menupanel .menutile::before{content:attr(data-k);flex:none;width:32px;height:32px;border-radius:10px;
+  background:rgba(27,36,48,.06);color:rgba(27,36,48,.7);display:grid;place-items:center;
+  font:600 12.5px/1 var(--f-mono)}
+.menupanel .menutile::after{content:attr(data-note);display:block;position:absolute;left:60px;right:16px;
+  bottom:9px;font:400 11.5px/1.3 var(--f-body);color:rgba(27,36,48,.5);white-space:nowrap;overflow:hidden;
+  text-overflow:ellipsis}
+.menupanel .menutile{padding-bottom:26px}
+.menupanel .menutile>span:first-child{display:none}
+.menupanel .menutile .badge{margin-left:auto;background:var(--g-moss);color:#fff;border-radius:99px;
+  padding:3px 8px;font:600 11px/1 var(--f-mono)}
+.menupanel .menupills{display:flex;flex-wrap:wrap;gap:8px;border:0;padding:0;margin:0 0 6px}
+.menupanel .menupills button{background:#fff;border:1px solid rgba(27,36,48,.16);color:var(--g-ink);
+  border-radius:12px;min-height:38px;padding:0 14px;font:500 13px/1 var(--f-body)}
+.menupanel .menuout{margin-top:22px}
+.menupanel .menuout button{width:100%;min-height:46px;border-radius:16px;border:1.5px solid rgba(27,36,48,.16)}
+
+/* A1 — sign in */
+body:not(.haskidbar) .gatecard{border-radius:22px!important;padding:22px 20px}
+body:not(.haskidbar) .gatecard .lw{font-family:var(--f-display);font-weight:600;letter-spacing:-.01em}
+body:not(.haskidbar) .gatecard input{min-height:52px;border-radius:15px;padding:0 15px;font:400 15px/1 var(--f-body);
+  border:1px solid rgba(27,36,48,.18)}
+body:not(.haskidbar) .gatecard input:focus{outline:0;border:1.5px solid var(--g-moss)}
+body:not(.haskidbar) .gatecard .sub{font:400 13.5px/1.55 var(--f-body);color:rgba(27,36,48,.72)}
+body:not(.haskidbar) .gatecard a{color:var(--g-moss);font-weight:600}
+body:not(.haskidbar) #askParentPanel{background:#fff!important;border:1.5px solid var(--g-moss)!important;border-radius:16px!important}
+body:not(.haskidbar) .choosecard{background:#fff;border:1.5px solid rgba(27,36,48,.16);border-radius:18px;text-align:left}
+body:not(.haskidbar) .gatecard em{font-family:var(--f-mono);font-style:normal}
+
+/* My points — what you've asked for */
+#kidView .askedpts{padding:6px 15px 12px}
+#kidView .askedptsrow{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid rgba(43,58,74,.08)}
+#kidView .askedptsicon{flex:none;width:32px;height:32px;border-radius:10px;background:var(--c-warm);display:grid;place-items:center;font-size:16px}
+#kidView .askedptsmain{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+#kidView .askedptsname{font:600 13.5px/1.3 var(--f-body);color:var(--c-ink)}
+#kidView .askedptsnote{font:400 11.5px/1.4 var(--f-body);color:var(--c-mango-deep)}
+#kidView .askedptscost{flex:none;font:600 14px/1 var(--f-mono);color:rgba(43,58,74,.4)}
+#kidView .askedptsfoot{margin:10px 0 0;font:400 11.5px/1.5 var(--f-body);color:rgba(43,58,74,.55)}
 </style>
 </body>
 </html>
