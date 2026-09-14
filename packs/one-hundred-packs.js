@@ -10,7 +10,7 @@
 window.ONE_HUNDRED = {
   "maths": {
     "title": "One Hundred: Maths", "subtitle": "Year 6 SATs maths",
-    "app": "https://cdian-ai.github.io/ks2-maths/", "subject": "oh-maths",
+    "app": "https://cdian-ai.github.io/one-hundred-maths/", "subject": "oh-maths",
     "sections": [
      { "id": "oh.maths.c1", "title": "Number sense", "blurb": "place value, rounding, negatives", "items": [
        { "id": "c1.0", "f": "What a digit is worth", "e": "", "g": "\ud83d\udd22" },
@@ -73,7 +73,7 @@ window.ONE_HUNDRED = {
   },
   "english": {
     "title": "One Hundred: English", "subtitle": "Year 6 SATs English",
-    "app": "https://cdian-ai.github.io/ks2-english/", "subject": "oh-english",
+    "app": "https://cdian-ai.github.io/one-hundred-english/", "subject": "oh-english",
     "sections": [
      { "id": "oh.english.t0", "title": "Spelling", "blurb": "20 of the 70 marks \u2014 the biggest single part", "items": [
        { "id": "t0.0", "f": "Adding endings to longer words", "e": "rewarded, developed, examiner", "g": "\ud83d\udd21" },
