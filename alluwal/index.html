@@ -276,7 +276,14 @@ const L = [
  ["خ","kha"],["د","dal"],["ذ","dhal"],["ر","ra"],["ز","zay"],["س","sin"],
  ["ش","shin"],["ص","sad"],["ض","dad"],["ط","ta (tah)"],["ظ","dha (dhah)"],["ع","ayn"],
  ["غ","ghayn"],["ف","fa"],["ق","qaf"],["ك","kaf"],["ل","lam"],["م","mim"],
- ["ن","nun"],["ه","ha (hah)"],["و","waw"],["ي","ya"]
+ ["ن","nun"],["ه","ha (hah)"],["و","waw"],["ي","ya"],
+ /* Hamza, after the alphabet rather than inside it. The twenty-eight above
+    are the alphabet proper; hamza is the twenty-ninth thing a child has to
+    recognise, and it was nowhere in the course - yet it turns up in lesson 4
+    inside ahadun and inna, sitting on a seat, with nothing said about it.
+    Met here as itself. Its seats - on alif, on waw, on ya - are a lesson of
+    their own, still to build, waiting on the reciter’s own list. */
+ ["ء","hamza"]
 ];
 const key = n => n.replace(/[^a-z]/g,"");          /* file-safe name */
 
