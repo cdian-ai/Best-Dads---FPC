@@ -17,13 +17,25 @@ jobs:
         run: |
           python - <<'PY'
           from pathlib import Path
+          import re
           p = Path('index.html')
           s = p.read_text(encoding='utf-8')
-          old = '    familyId = await window.fpc.familyIdFor(uid);'
-          new = '''    // Do not let Firestore hang forever on GitHub Pages.\n    familyId = await Promise.race([\n      window.fpc.familyIdFor(uid),\n      new Promise((_, reject) => setTimeout(() => {\n        const e = new Error(navigator.onLine\n          ? "Firebase did not respond within 12 seconds. Check the Firebase project/network setup."\n          : "The device is offline.");\n        e.code = navigator.onLine ? "firebase/network-timeout" : "offline";\n        reject(e);\n      }, 12000))\n    ]);'''
-          if old not in s:
-              raise SystemExit('Target line not found; refusing to modify index.html')
-          p.write_text(s.replace(old, new, 1), encoding='utf-8')
+          pattern = r'(?m)^(\s*)familyId\s*=\s*await\s+window\.fpc\.familyIdFor\(uid\);'
+          replacement = r'''\1// Prevent an unresponsive Firestore request from leaving the app stuck on Connecting.
+          \1familyId = await Promise.race([
+          \1  window.fpc.familyIdFor(uid),
+          \1  new Promise((_, reject) => setTimeout(() => {
+          \1    const e = new Error(navigator.onLine
+          \1      ? "Firebase did not respond within 12 seconds. Check the Firebase project/network setup."
+          \1      : "The device is offline.");
+          \1    e.code = navigator.onLine ? "firebase/network-timeout" : "offline";
+          \1    reject(e);
+          \1  }, 12000))
+          \1]);'''
+          s2, n = re.subn(pattern, replacement, s, count=1)
+          if n != 1:
+              raise SystemExit(f'Could not find familyIdFor startup line (matches={n}); refusing to modify index.html')
+          p.write_text(s2, encoding='utf-8')
           PY
       - name: Commit patch
         run: |
