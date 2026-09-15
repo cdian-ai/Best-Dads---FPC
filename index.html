@@ -6802,7 +6802,19 @@ async function loadApp(){
   showGate("bootGate");
   setSyncStatus("☁️ Connecting…");
   try{
-    familyId = await window.fpc.familyIdFor(uid);
+    // Do not let a Firestore request hang forever when the GitHub Pages build
+    // has loaded but Firebase cannot complete its network request. Without this
+    // timeout the footer stays on “Connecting…” indefinitely.
+    familyId = await Promise.race([
+      window.fpc.familyIdFor(uid),
+      new Promise((_, reject) => setTimeout(() => {
+        const e = new Error(navigator.onLine
+          ? "Firebase did not respond within 12 seconds. Check the Firebase project/network setup."
+          : "The device is offline.");
+        e.code = navigator.onLine ? "firebase/network-timeout" : "offline";
+        reject(e);
+      }, 12000))
+    ]);
   }catch(e){
     // permission-denied here almost always means the security rules haven't
     // been deployed yet, so the account can't even read its own family pointer.
@@ -6813,7 +6825,9 @@ async function loadApp(){
            can run neither is a note to the developer that escaped into the
            interface. */
         ? "We can't open your family yet. If the app has only just been set up, the setup isn't finished."
-        : "We couldn't get online. Check your connection and try again.",
+        : (e && e.code === "firebase/network-timeout"
+        ? "The app loaded, but Firebase did not respond. The GitHub Pages file is running; the database connection needs checking."
+        : "We couldn't get online. Check your connection and try again."),
       e);
     return;
   }
