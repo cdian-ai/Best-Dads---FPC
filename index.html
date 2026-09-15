@@ -3128,8 +3128,9 @@
     <div id="quickBody" style="margin-top:14px;padding-bottom:76px"></div>
     <!-- Pinned to the bottom: by the time you reach the fourth child, a note box
          at the top of the page is three screens away. -->
-    <div class="notebar">
+    <div class="notebar quickbar">
       <input id="quickNote" placeholder="What did you notice? (optional — they’ll read this)" oninput="renderQuickPanel()">
+      <div class="quicktotal"><span>Given so far this pass</span><strong id="quickTotal">0</strong></div>
     </div>
   </div>
 
@@ -5858,7 +5859,7 @@ const TIP_CATS = [
   {key:"deen", label:"Deen"}
 ];
 
-const APP_VERSION = "v237";
+const APP_VERSION = "v238";
 const today = new Date().toISOString().slice(0,10);
 let app = {families:[],currentFamily:null,currentChild:null};
 let categories = [];
@@ -7374,35 +7375,77 @@ function syncNoteBar(){
   const bar=document.querySelector(".notebar");
   if(bar) bar.classList.toggle("hidden", screenNow!=="quickPanel");
 }
+/* v238 (design D1): each child gets category chips and the five amounts.
+   Tapping an amount books the entry at once; it appears beneath with Undo.
+   The note is pinned at the bottom with the running total, because by the
+   fourth child a box at the top is three screens away (the earlier decision
+   stands; the design's footer bar and its note field are one bar here). */
+const __quickPass = [];            /* {childId, entryId, points, cat, note} this visit */
+const __quickCat  = {};            /* childId -> category index */
 function renderQuickPanel(){
   const body=document.getElementById("quickBody");
   if(!body) return;
   const f=currentFamily();
   const kids=f ? f.children.filter(isChildRole) : [];
   if(!kids.length){ body.innerHTML='<p class="small">Add a child first, under Family members.</p>'; return; }
-  const actions=topActionsForFamily(8);
+  const cats=activeCats()||[];
   const noteEl=document.getElementById("quickNote");
   const hasNote=!!(noteEl && noteEl.value.trim());
+  const amounts=[1,2,3,5,10];
   body.innerHTML = kids.map(c=>{
-    const s=stateForChild(c);
+    const ci = (__quickCat[c.id]!=null && cats[__quickCat[c.id]]) ? __quickCat[c.id] : 0;
+    const mine=__quickPass.filter(p=>p.childId===c.id);
+    const sum=mine.reduce((a,p)=>a+p.points,0);
     return `<section class="quickcard">
       <div class="quickhead">
-        ${c.photo?`<img src="${c.photo}" alt="">`:'<span class="avatar-placeholder">\ud83d\udc64</span>'}
+        ${c.photo?`<img src="${c.photo}" alt="">`:`<span class="avatar-placeholder qinitial">${escapeHtml((c.name||"?").slice(0,1))}</span>`}
         <div><strong>${escapeHtml(c.name)}</strong>
           <div class="small">${todayTotalFor(c)} today</div></div>
+        <span class="quickpass">${sum ? sum+" this pass" : "nothing yet"}</span>
       </div>
-      <div class="quickacts">${actions.map(a=>{
-        const done = a.opts.once && valueFor(s, a.cat, a.name) > 0;
-        return `<button class="quickact ${done?"ticked":""}" ${done?"disabled":""}
-          onclick="popThen(this);quickAward('${c.id}',${a.ci},'${String(a.name).replace(/&/g,"&amp;").replace(/'/g,"\\'").replace(/"/g,"&quot;")}',${a.points})">
-          <span class="qname">${escapeHtml(a.name)}</span>
-          <span class="qpts">${done?"\u2713":"+"+a.points}</span></button>`;
-      }).join("")}</div>
+      <div class="quickchips">${cats.map((cat,i)=>`<button class="quickchip ${i===ci?"on":""}"
+          onclick="__quickCat['${c.id}']=${i};renderQuickPanel()">${escapeHtml(cat.name)}</button>`).join("")}</div>
+      <div class="quickamts">${amounts.map(n=>`<button class="quickamt"
+          onclick="popThen(this);quickAwardAmount('${c.id}',${ci},${n})">${n}</button>`).join("")}</div>
+      ${mine.length ? `<div class="quickdone">${mine.map(p=>`<div class="quickdonerow">
+          <span class="quickpill">+${p.points}</span>
+          <span class="quickdonemain"><span>${escapeHtml(p.cat)}</span>${p.note?`<em>\u201c${escapeHtml(p.note)}\u201d</em>`:""}</span>
+          <button class="undo" onclick="quickUndo('${p.entryId}')">Undo</button>
+        </div>`).join("")}</div>` : ""}
     </section>`;
   }).join("")
   + `<p class="small" style="margin:14px 0 0">${hasNote
       ? "\u270d\ufe0f Your note goes on the next one you tap."
       : "Tip: award quietly when you notice something, and talk it through later under Review together. Awarding in front of them turns every point into a negotiation."}</p>`;
+  const tot=document.getElementById("quickTotal");
+  if(tot){ const all=__quickPass.reduce((a,p)=>a+p.points,0); tot.textContent = all ? all : "0"; }
+}
+async function quickAwardAmount(childId, ci, points){
+  if(!requireParent()) return;
+  const child=memberById(childId);
+  const cat=activeCats()[ci];
+  if(!child || !cat) return;
+  if(child.id===sessionMemberId){ alert("You can't award points to yourself."); return; }
+  const note=takeAwardNote();
+  const entryId=newId("aw");   /* local handle only; the ledger assigns its own */
+  const label = note ? cat.name+" \u2014 "+note : cat.name;
+  const ok=await writeLedger({childId:child.id, points:payableFor(cat, child, points),
+    label, type:"award", catKey:catKeyFor(cat,cat.name), actionName:cat.name});
+  if(ok){ __quickPass.push({childId:child.id, entryId, points, cat:cat.name, note, label}); renderQuickPanel(); }
+}
+async function quickUndo(entryId){
+  const i=__quickPass.findIndex(p=>p.entryId===entryId);
+  if(i<0) return;
+  const p=__quickPass[i];
+  const child=memberById(p.childId);
+  /* The ledger names its own entries, so match the one we just wrote by what
+     it says, newest first, skipping any already undone from this pass. */
+  const used=new Set(__quickPass.filter(q=>q.undoneId).map(q=>q.undoneId));
+  const real=child && (child.activityLog||[]).slice().sort((a,b)=>(b.ts||0)-(a.ts||0))
+    .find(e=>e.type==="award" && e.label===p.label && !used.has(e.id));
+  if(!real){ alert("That one hasn\u2019t come back from the ledger yet \u2014 try again in a moment, or undo it from the Activity log."); return; }
+  await undoActivityEntry(p.childId, real.id);
+  __quickPass.splice(i,1); renderQuickPanel();
 }
 async function quickAward(childId, ci, actionName, points){
   if(!requireParent()) return;
@@ -20552,10 +20595,12 @@ window.GROWNUP_DECKS = [
         </div>
       </div>
       <div class="ntbody">
-        ${nt && nt.items.length
-          ? nt.items.map(it=>itemRow(nt, it, true, true)).join("")
-          : `<p class="ntempty">Nothing on it yet. Whatever you add, ${esc(child.name)} sees
-              next time they open the app.</p>`}
+        ${nt && nt.items.length ? nt.items.map(it=>itemRow(nt, it, true, true)).join("") : ""}
+        ${/* v238 (design D3): the note is six numbered slots, empty ones dashed. */
+          Array.from({length: Math.max(0, MAX_ITEMS - ((nt && nt.items) ? nt.items.length : 0))}, ()=>
+            `<button class="ntslot" onclick="var e=document.getElementById('ntFree'); if(e){e.focus(); e.scrollIntoView({behavior:'smooth',block:'center'});}">Empty \u2014 tap to add something</button>`).join("")}
+        ${!(nt && nt.items.length) ? `<p class="ntempty">Nothing on it yet. Whatever you add, ${esc(child.name)} sees
+              next time they open the app.</p>` : ""}
         <p class="ntlive ${nt && nt.items.length ? "on" : ""}">${
           nt && nt.items.length
             ? "\u2713 On "+esc(child.name)+"\u2019s screen now \u2014 they\u2019ll see it next time they open the app."
@@ -22735,6 +22780,49 @@ body:not(.haskidbar) .gatecard em{font-family:var(--f-mono);font-style:normal}
 .lockup .nmlockup{display:block;width:min(200px,64%);height:auto;margin:0 auto 6px}
 /* v233: the mark (icon direction 1a). Mango dot, ink stem. */
 .lockup .qm.nmmark{width:.9em;height:.9em;color:var(--g-ink,#1B2430);margin-left:.08em}
+</style>
+
+<style id="nmRound2b">
+/* v238: D1 All at once, D3 I'm asking… */
+body:not(.haskidbar) .quickcard{border-radius:16px;border:1px solid rgba(27,36,48,.1);box-shadow:none;padding:14px 15px}
+body:not(.haskidbar) .quickhead{align-items:center}
+body:not(.haskidbar) .quickhead .qinitial{width:38px;height:38px;border-radius:12px;background:var(--g-moss-tint);color:var(--g-moss);
+  display:grid;place-items:center;font:600 15px/1 var(--f-display)}
+body:not(.haskidbar) .quickpass{margin-left:auto;font:500 12px/1 var(--f-mono);color:rgba(27,36,48,.5)}
+body:not(.haskidbar) .quickchips{display:flex;flex-wrap:wrap;gap:6px;margin:4px 0 10px}
+body:not(.haskidbar) .quickchip{background:rgba(27,36,48,.06)!important;border:1.5px solid transparent!important;color:rgba(27,36,48,.7)!important;
+  border-radius:12px!important;min-height:36px;padding:0 12px;font:500 13px/1 var(--f-body)}
+body:not(.haskidbar) .quickchip.on{background:#fff!important;border-color:var(--g-moss)!important;color:var(--g-moss)!important}
+body:not(.haskidbar) .quickamts{display:grid;grid-template-columns:repeat(5,1fr);gap:7px}
+body:not(.haskidbar) .quickamt{min-height:48px;border-radius:14px!important;background:#fff!important;border:1.5px solid rgba(27,36,48,.16)!important;
+  color:var(--g-ink)!important;font:600 17px/1 var(--f-display)}
+body:not(.haskidbar) .quickdone{margin-top:12px;border-top:1px solid rgba(27,36,48,.08);padding-top:6px}
+body:not(.haskidbar) .quickdonerow{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid rgba(27,36,48,.06)}
+body:not(.haskidbar) .quickpill{flex:none;background:var(--g-moss-tint);color:var(--g-moss);border-radius:99px;padding:4px 9px;font:600 12px/1 var(--f-mono)}
+body:not(.haskidbar) .quickdonemain{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px;font:500 13px/1.3 var(--f-body)}
+body:not(.haskidbar) .quickdonemain em{font:400 12px/1.4 var(--f-body);color:rgba(27,36,48,.55);font-style:normal}
+body:not(.haskidbar) .quickdonerow .undo{flex:none;min-height:32px;padding:0 6px;font:600 13px/1 var(--f-body)}
+body:not(.haskidbar) .notebar.quickbar{background:var(--g-ink)!important;border-top:0;padding:10px 14px calc(10px + env(safe-area-inset-bottom));
+  display:flex;flex-direction:column;gap:8px;box-shadow:none}
+body:not(.haskidbar) .quickbar input{background:#fff;border:1.5px solid var(--g-moss);border-radius:14px;min-height:46px;width:100%}
+body:not(.haskidbar) .quicktotal{display:flex;align-items:baseline;justify-content:space-between;color:#fff}
+body:not(.haskidbar) .quicktotal span{font:600 10.5px/1 var(--f-body);letter-spacing:.09em;text-transform:uppercase;color:rgba(255,255,255,.6)}
+body:not(.haskidbar) .quicktotal strong{font:800 22px/1 var(--f-display);color:var(--c-gold)}
+#quickBody{padding-bottom:132px!important}
+
+body:not(.haskidbar) .ntcard{border:1px solid rgba(27,36,48,.1)!important;border-radius:16px!important;box-shadow:none!important}
+body:not(.haskidbar) .ntbody{counter-reset:slot}
+body:not(.haskidbar) .ntrow,body:not(.haskidbar) .ntslot{counter-increment:slot;position:relative;padding-left:34px!important}
+body:not(.haskidbar) .ntrow::before,body:not(.haskidbar) .ntslot::before{content:counter(slot);position:absolute;left:0;top:12px;width:24px;height:24px;
+  border-radius:8px;background:rgba(27,36,48,.06);display:grid;place-items:center;font:600 11.5px/1 var(--f-mono);color:rgba(27,36,48,.6)}
+body:not(.haskidbar) .ntrow{background:#fff;border:1px solid rgba(27,36,48,.1)!important;border-radius:14px;margin:8px 0;padding:12px 12px 12px 34px!important}
+body:not(.haskidbar) .nttext{font:400 14px/1.4 var(--f-body);color:var(--g-ink)}
+body:not(.haskidbar) .ntpts{display:inline-block;margin-top:4px;background:var(--g-moss-tint);color:var(--g-moss);border-radius:99px;padding:3px 8px;font:600 11px/1 var(--f-mono)}
+body:not(.haskidbar) .ntfree{display:inline-block;margin-top:4px;color:rgba(27,36,48,.45);font:500 11.5px/1 var(--f-body)}
+body:not(.haskidbar) .ntslot{display:block;width:100%;text-align:left;margin:8px 0;min-height:48px;background:none!important;
+  border:1.5px dashed rgba(27,36,48,.18)!important;border-radius:14px!important;color:rgba(27,36,48,.35)!important;font:400 13.5px/1 var(--f-body)}
+body:not(.haskidbar) .ntslot::before{top:11px}
+body:not(.haskidbar) .ntslot:has(+ .ntempty){margin-bottom:8px}
 </style>
 </body>
 </html>
