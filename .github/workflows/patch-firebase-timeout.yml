@@ -1,0 +1,35 @@
+name: Patch Firebase startup timeout
+
+on:
+  push:
+    paths:
+      - '.github/workflows/patch-firebase-timeout.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Patch index.html
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p = Path('index.html')
+          s = p.read_text(encoding='utf-8')
+          old = '    familyId = await window.fpc.familyIdFor(uid);'
+          new = '''    // Do not let Firestore hang forever on GitHub Pages.\n    familyId = await Promise.race([\n      window.fpc.familyIdFor(uid),\n      new Promise((_, reject) => setTimeout(() => {\n        const e = new Error(navigator.onLine\n          ? "Firebase did not respond within 12 seconds. Check the Firebase project/network setup."\n          : "The device is offline.");\n        e.code = navigator.onLine ? "firebase/network-timeout" : "offline";\n        reject(e);\n      }, 12000))\n    ]);'''
+          if old not in s:
+              raise SystemExit('Target line not found; refusing to modify index.html')
+          p.write_text(s.replace(old, new, 1), encoding='utf-8')
+          PY
+      - name: Commit patch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git diff --cached --quiet && exit 0
+          git commit -m "Fix Firebase startup connection timeout"
+          git push
