@@ -2925,9 +2925,9 @@
   </div>
   <p class="menugroup">What things cost</p>
   <div class="menugrid">
-    <button class="menutile" id="btnRewardsMenu" data-k="W" data-note="Prices, sections and caps" onclick="showRewardsPanel()"><span>·</span>Rewards &amp; activities</button>
+    <button class="menutile" id="btnRewardsMenu" data-k="W" data-note="The list, the prices and the caps" onclick="showRewardsPanel()"><span>·</span>Rewards &amp; activities</button>
     <button class="menutile" id="btnRules" data-k="N" data-note="Children can read these" onclick="showRulesPanel()"><span>·</span>House rules</button>
-    <button class="menutile" id="btnGrownups" data-k="J" data-note="Your reward list" onclick="showGrownupsPanel()"><span>·</span>Just the two of you</button>
+    <button class="menutile" id="btnGrownups" data-k="J" data-note="Your reward list and this week’s pledges" onclick="showGrownupsPanel()"><span>·</span>Just the two of you</button>
     <button class="menutile" id="btnPledges" data-k="P" data-note="Already promised this week" onclick="showPledgesPanel()"><span>·</span>Pledges</button>
   </div>
   <p class="menugroup">Together</p>
@@ -3167,15 +3167,19 @@
 
   <div id="rewardsPanel" class="panel r-plain hidden">
     <button class="panelback" onclick="goHome()">← Home</button>
-    <div id="parentGoal"></div>
-    <div id="goalIdeas"></div>
+    <h2>Rewards &amp; activities</h2>
+    <p class="small">What they can ask for, what it costs, and how often. Time together is cheap on purpose; sweets are dear on purpose.</p>
+    <div id="rewardsD5" style="margin-top:14px"></div>
+    <!-- The bank target stays reachable from here until Settings (B5) takes it. -->
+    <button class="rwbank" onclick="setVaultTarget()">Family bank target <strong id="rwBankTarget">5000</strong></button>
+    <div id="parentGoal" class="hidden"></div>
+    <div id="goalIdeas" class="hidden"></div>
     <div id="rewardsPanelBody"></div>
   </div>
 
-  <div id="grownupsPanel" class="panel r-spend hidden">
+  <div id="grownupsPanel" class="panel r-plain hidden">
     <button class="panelback" onclick="panelBack()">← Home</button>
-    <h2>🤝 Your reward list</h2>
-    <p class="small">What the two of you can claim, and what your partner has put on the list.</p>
+    <h2>Just the two of you</h2>
     <div id="grownupsExtra"></div>
     <div id="grownupsPanelBody"></div>
   </div>
@@ -5874,7 +5878,7 @@ const TIP_CATS = [
   {key:"deen", label:"Deen"}
 ];
 
-const APP_VERSION = "v241";
+const APP_VERSION = "v242";
 const today = new Date().toISOString().slice(0,10);
 let app = {families:[],currentFamily:null,currentChild:null};
 let categories = [];
@@ -16848,63 +16852,43 @@ function done(){
   };
 
   /* ---------- view ---------- */
+  /* v242 (design D7): one card per pledge — who promised, the pledge at
+     15px, and "This week · already promised". Yours carry a Remove; theirs
+     a Claim while there is one left. The offer form sits beneath. */
   function html(){
     const p=partner();
+    const m=me();
     const ours=mine(), theirs=forMe();
     const chips=SUGGESTIONS.map((s,i)=>
-      `<button class="chip" onclick="pledgeQuickAdd(${i})">${esc(s[0])}</button>`).join("");
-
-    const theirsHTML = !theirs.length
-      ? `<p class="small">${p?esc(p.name)+" hasn\u2019t offered anything yet this week.":"Add your partner to the family to use this."}</p>`
-      : theirs.map(o=>`
-        <div class="pledgerow${o.left?"":" spent"}">
-          <div style="flex:1;min-width:0">
-            <strong>${esc(o.title)}</strong>
-            <span class="small" style="display:block">${o.left
-              ? o.left+" of "+o.count+" left this week"
-              : "all "+o.count+" used \u2014 back on Monday"}</span>
-          </div>
-          ${o.left?`<button class="confirm" style="width:auto" onclick="pledgeClaim('${o.id}')">Claim</button>`
-                  :`<span class="small">\u2713</span>`}
-        </div>`).join("");
-
-    const oursHTML = !ours.length
-      ? `<p class="small">Nothing offered yet. Tap an idea below \u2014 you can change it any time.</p>`
-      : ours.map(o=>`
-        <div class="pledgerow">
-          <div style="flex:1;min-width:0">
-            <strong>${esc(o.title)}</strong>
-            <span class="small" style="display:block">${o.used} of ${o.count} claimed</span>
-          </div>
-          <button class="light" style="width:auto" onclick="pledgeWithdraw('${o.id}')">Remove</button>
-        </div>`).join("");
-
+      `<button onclick="pledgeQuickAdd(${i})">${esc(s[0])}</button>`).join("");
+    const initial = n => esc(String(n||"?").slice(0,1).toUpperCase());
+    const card = (o, who, action, ini) => `
+      <div class="plcard${o.left?"":" spent"}">
+        <div class="plhead"><span class="pltile">${initial(ini||who)}</span><span>${esc(who)} promised</span></div>
+        <p class="pltext">${esc(o.title)}</p>
+        <div class="plfoot"><span>This week \u00b7 ${o.left
+            ? (o.count>1 ? o.left+" of "+o.count+" left" : "already promised")
+            : "used \u2014 back on Monday"}</span>${action}</div>
+      </div>`;
+    const theirsHTML = theirs.map(o=>card(o, p?p.name:"", o.left
+        ? `<button class="prpill can" onclick="pledgeClaim('${o.id}')">Claim</button>`
+        : `<span class="prpill asked">\u2713</span>`)).join("");
+    const oursHTML = ours.map(o=>card(o, "You",
+        `<button class="prpill" onclick="pledgeWithdraw('${o.id}')">Remove</button>`, m?m.name:"")).join("");
+    const empty = !theirs.length && !ours.length
+      ? `<p class="small">${p?"Nothing promised yet this week.":"Add your partner to the family to use this."}</p>` : "";
     return `
-      <section class="reward" id="pledgeSection" style="background:#eefaf4;border-color:#bfe6d6">
-        <div class="eyebrow cool">${MONTH()}</div>
-        <h2>\u{1f91d} What we're offering each other
-          <span class="small" style="font-weight:400">\u2014 parents only</span></h2>
-        <p>Things you're happy to give this week. Your partner takes one when they
-           need it \u2014 no asking, no points, nothing owed. It starts fresh every Monday.</p>
-
-        <p class="small" style="margin:16px 0 6px"><strong>${p?esc(p.name)+" is offering you":"Offered to you"}</strong></p>
-        <div style="display:grid;gap:7px">${theirsHTML}</div>
-
-        <p class="small" style="margin:18px 0 6px"><strong>You're offering</strong></p>
-        <div style="display:grid;gap:7px">${oursHTML}</div>
-
-        <div style="margin-top:14px">
-          <p class="small" style="margin:0 0 4px">\u{1f4a1} Tap to offer:</p>
-          <div class="quickchips">${chips}</div>
-          <div class="editrow" style="margin-top:10px">
-            <input id="pledgeName" placeholder="Or write your own \u2014 e.g. A lie-in on Saturday">
-            <input id="pledgeCount" class="ptsinput" type="number" min="1" max="9" placeholder="how many">
-          </div>
-          <button class="primary" style="width:100%;margin-top:8px" onclick="pledgeAddFromForm()">Add to my list</button>
+      <div id="pledgeSection">
+        <div class="pllist">${theirsHTML}${oursHTML}${empty}</div>
+        <p class="rwfoot" style="margin-top:14px">Tap to promise something this week:</p>
+        <div class="rwchips ideas">${chips}</div>
+        <div class="rweditrow" style="margin-top:8px">
+          <input id="pledgeName" placeholder="Or write your own \u2014 e.g. A lie-in on Saturday">
+          <input id="pledgeCount" type="number" min="1" max="9" inputmode="numeric" placeholder="how many">
         </div>
-        <p class="small" style="margin-top:12px;opacity:.75">There is no decline button, on purpose.
-           If something stops being possible, take it off your list \u2014 don\u2019t turn it down.</p>
-      </section>`;
+        <button class="light" style="width:100%;margin-top:8px" onclick="pledgeAddFromForm()">Add to my list</button>
+        <p class="rwfoot">There is no decline button, on purpose. If something stops being possible, take it off your list \u2014 don\u2019t turn it down.</p>
+      </div>`;
   }
 
   const CSS=`
@@ -23082,6 +23066,524 @@ body:not(.haskidbar) .canlist li.cannot i{background:rgba(27,36,48,.06);color:rg
 body:not(.haskidbar) .canlist li.cannot{color:rgba(27,36,48,.6)}
 </style>
 
+<!-- ===== addons/design-d5-d7.js ===== -->
+<script>
+/* v242 (design D5, D6, D7): Rewards & activities as sections with editable
+   caps and order; House rules written by the family; Just the two of you as
+   one quiet screen. Nothing here changes what a reward, a pledge or a request
+   IS — only where it is edited and how it reads. */
+(function(){
+  const esc = s => (typeof escapeHtml==="function") ? escapeHtml(s) : String(s);
+  const S = () => { app.settings = app.settings || {}; return app.settings; };
+
+  /* ---------- D5: sections, caps and order ---------- */
+
+  /* Caps and section order used to be constants. A family that thinks ice
+     cream should be twice a week, not once, should not have to ask a
+     developer. The defaults still stand until a parent changes one. */
+  function capFor(id){
+    const over = S().rewardGroupCaps || {};
+    if(Object.prototype.hasOwnProperty.call(over, id)) return over[id];     // null means "no cap"
+    const g = REWARD_GROUPS.find(x=>x.id===id);
+    return g ? g.cap : null;
+  }
+  function capLabel(cap){
+    if(!cap) return "no cap";
+    const per = cap.kind==="month" ? "a month" : cap.kind==="day" ? "a day" : "a week";
+    return cap.max+" "+per;
+  }
+  const CAP_CHOICES = [
+    [null,"No cap"], [{max:1,kind:"week"},"1 a week"], [{max:2,kind:"week"},"2 a week"],
+    [{max:3,kind:"week"},"3 a week"], [{max:1,kind:"month"},"1 a month"], [{max:2,kind:"month"},"2 a month"]
+  ];
+  const sameCap = (a,b) => (!a && !b) || (a && b && a.max===b.max && a.kind===b.kind);
+
+  /* The child-side cap check, the "none left this week" line and the
+     request gate all go through groupById, so the override lives there. */
+  const innerGroupById = groupById;
+  groupById = window.groupById = function(id, parentList){
+    const g = innerGroupById(id, parentList);
+    if(!g || parentList) return g;
+    return Object.assign({}, g, {cap: capFor(id)});
+  };
+
+  /* Three pseudo-sections that are not reward groups but sit on the same
+     screen: activities, the bank list, and nothing else. */
+  const EXTRA = [
+    { id:"activities", name:"Activities", short:"activities", blurb:"Things to do together that cost points." },
+    { id:"bank",       name:"From the bank", short:"the bank", blurb:"Only reachable once the bank target is hit." }
+  ];
+  function allSectionIds(){ return REWARD_GROUPS.map(g=>g.id).concat(EXTRA.map(g=>g.id)); }
+  function sectionOrder(){
+    const saved = Array.isArray(S().rewardGroupOrder) ? S().rewardGroupOrder : [];
+    const all = allSectionIds();
+    return saved.filter(id=>all.indexOf(id)>=0).concat(all.filter(id=>saved.indexOf(id)<0));
+  }
+  function sectionMeta(id){
+    return REWARD_GROUPS.find(g=>g.id===id) || EXTRA.find(g=>g.id===id) || null;
+  }
+  function itemsOf(id){
+    if(id==="activities") return (app.gameNightActivities||[]).map(g=>Object.assign({}, g, {__isGame:true}));
+    if(id==="bank") return (app.rewards||[]).filter(r=>r.vault===true);
+    return (app.rewards||[]).filter(r=>r.vault!==true && groupOf(r,false)===id);
+  }
+  function shortName(g){ return g.short || String(g.name||"").toLowerCase(); }
+
+  /* Parents order the list by hand now. Until they do, the old
+     most-chosen-first order stands, so nothing moves under a family that
+     never touches this screen. */
+  const innerSort = sortForDisplay;
+  sortForDisplay = window.sortForDisplay = function(items){
+    if(!S().rewardsOrdered) return innerSort(items);
+    return items.slice();
+  };
+  /* Rewards were re-sorted by price on every add. Keep the family's order. */
+  const innerAddReward = addReward;
+  addReward = window.addReward = async function(){
+    const keep = (app.rewards||[]).map(r=>r.id);
+    const r = await innerAddReward.apply(this, arguments);
+    if(S().rewardsOrdered){
+      app.rewards.sort((a,b)=>{ const ia=keep.indexOf(a.id), ib=keep.indexOf(b.id);
+        return (ia<0?1e9:ia)-(ib<0?1e9:ib); });
+    }
+    return r;
+  };
+
+  let editing = null;      // {section, id} or {section, id:null} for a new row
+  let capOpen = null;      // section id whose cap chips are open
+  let moreOpen = false;    // the "add to another section" list
+
+  function limitLabel(item){
+    if(item.__isGame) return item.desc ? esc(item.desc) : "Any day";
+    if(item.vault) return "From the bank only";
+    return item.limit ? (LIMIT_LABEL[item.limit]||"") .replace(/^once/, "Once") : "Any day";
+  }
+  function tintFor(item){
+    const c = tileColour(item, false);
+    return {teal:"#DDEBEE", indigo:"#EDEAF6", green:"#E3EDE7", amber:"#F2E9DC", red:"#F5E0DA",
+            purple:"#EDEAF6", blue:"#DDEBEE", slate:"rgba(27,36,48,.05)", violet:"#EDEAF6"}[c] || "rgba(27,36,48,.05)";
+  }
+  /* Whether a section is spent for the child a parent is currently looking
+     at. On the parent side there may be no child selected, in which case the
+     pill just reads the cap. */
+  function capState(id){
+    const cap = capFor(id);
+    if(!cap) return {label:"no cap", out:false};
+    const c = (typeof currentChild==="function") && currentChild();
+    if(c && isChildRole(c)){
+      const g = groupById(id,false);
+      if(g && groupTakenRecently(c, g) >= cap.max) return {label:"none left this "+(cap.kind==="month"?"month":"week"), out:true};
+    }
+    return {label:capLabel(cap), out:false};
+  }
+
+  const PENCIL = '<svg width="14" height="14" viewBox="0 0 16 16"><path d="M10.6 2.8l2.6 2.6-7.4 7.4-3.4.8.8-3.4z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>';
+  const GRIP   = '<svg width="14" height="14" viewBox="0 0 16 16"><path d="M3 5.4h10M3 8h10M3 10.6h10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>';
+  const UP     = '<svg width="12" height="12" viewBox="0 0 16 16"><path d="M4 9.6L8 5.6l4 4" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>';
+  const DOWN   = '<svg width="12" height="12" viewBox="0 0 16 16"><path d="M4 6.4L8 10.4l4-4" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>';
+  const PLUS   = '<svg width="12" height="12" viewBox="0 0 16 16"><path d="M8 3.6v8.8M3.6 8h8.8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>';
+
+  function rowHTML(sec, item){
+    if(editing && editing.section===sec.id && editing.id===item.id) return editorHTML(sec, item);
+    const cs = capState(sec.id);
+    const dim = cs.out;
+    return `<div class="rwrow ${dim?"dim":""}" data-id="${item.id}" data-sec="${sec.id}">
+      <span class="rwtile" style="background:${tintFor(item)}">${iconFor(item, item.__isGame?"\ud83c\udfb2":"\ud83c\udf81")}</span>
+      <span class="rwmain"><strong>${esc(item.name)}</strong><em class="${dim?"out":""}">${dim?"Section cap reached \u2014 nothing until it comes round":limitLabel(item)}</em></span>
+      <span class="rwcost">${item.points}</span>
+      <span class="rwacts">
+        <button class="rwbtn" title="Edit" onclick="nmRewardEdit('${sec.id}','${item.id}')">${PENCIL}</button>
+        <button class="rwbtn grip" title="Drag to reorder" onpointerdown="nmRewardDragStart(event)">${GRIP}</button>
+      </span>
+    </div>`;
+  }
+  function editorHTML(sec, item){
+    const isNew = !item;
+    const game = sec.id==="activities";
+    const cur = item || {name:"", points:"", limit:"", icon:"", desc:"", kind:""};
+    const limitChips = game ? "" : `<div class="rwchips" data-role="limit">${[["","Any day"],["day","Once a day"],["week","Once a week"],["month","Once a month"]].map(([v,l])=>
+        `<button class="${(cur.limit||"")===v?"on":""}" data-v="${v}" onclick="nmRewardChip(this)">${l}</button>`).join("")}</div>`;
+    const sections = game || sec.id==="bank" ? "" : `<select id="rwSec">${REWARD_GROUPS.map(g=>`<option value="${g.id}" ${(isNew ? g.id===sec.id : groupOf(cur,false)===g.id)?"selected":""}>${esc(g.name)}</option>`).join("")}</select>`;
+    return `<div class="rwedit" data-sec="${sec.id}" data-id="${item?item.id:""}">
+      <div class="rweditrow"><input id="rwName" placeholder="${game?"What you'll do together":"What they can ask for"}" value="${esc(cur.name)}" maxlength="60">
+        <input id="rwPts" type="number" min="1" inputmode="numeric" placeholder="cost" value="${cur.points||""}"></div>
+      ${game?`<input id="rwDesc" placeholder="What happens, in a line (optional)" value="${esc(cur.desc||"")}" maxlength="120">`:""}
+      ${limitChips}
+      <div class="rweditrow"><input id="rwIcon" placeholder="Emoji (optional)" value="${esc(cur.icon||"")}" maxlength="4" style="max-width:120px">${sections}</div>
+      <div class="rweditbtns">
+        <button class="confirm" onclick="nmRewardSave()">${isNew?"Add":"Save"}</button>
+        ${isNew?"":`<button class="light danger" onclick="nmRewardRemove()">Remove</button>`}
+        <button class="light" onclick="nmRewardCancel()">Cancel</button>
+      </div>
+    </div>`;
+  }
+  function sectionHTML(sec, idx, count){
+    const items = itemsOf(sec.id);
+    const cs = capState(sec.id);
+    const canCap = sec.id!=="activities" && sec.id!=="bank";
+    const adding = editing && editing.section===sec.id && editing.id===null;
+    return `<section class="rwsec" data-sec="${sec.id}">
+      <div class="rwhead">
+        <span class="rwcap">${esc(sec.name)}</span><span class="rwrule"></span>
+        <button class="rwchev" ${idx===0?"disabled":""} title="Move section up" onclick="nmSectionMove('${sec.id}',-1)">${UP}</button>
+        <button class="rwchev" ${idx===count-1?"disabled":""} title="Move section down" onclick="nmSectionMove('${sec.id}',1)">${DOWN}</button>
+        ${canCap?`<button class="rwpill ${cs.out?"out":""}" onclick="nmCapToggle('${sec.id}')">${cs.label}</button>`:""}
+      </div>
+      ${capOpen===sec.id?`<div class="rwchips caps">${CAP_CHOICES.map(([c,l])=>`<button class="${sameCap(c,capFor(sec.id))?"on":""}" onclick='nmCapSet("${sec.id}",${JSON.stringify(c)})'>${l}</button>`).join("")}</div>`:""}
+      <div class="rwcard">
+        <div class="rwlist">${items.map(i=>rowHTML(sec,i)).join("")}</div>
+        ${adding?editorHTML(sec,null):`<button class="rwadd" onclick="nmRewardEdit('${sec.id}',null)"><i>${PLUS}</i>Add to ${esc(shortName(sec))}</button>`}
+      </div>
+    </section>`;
+  }
+
+  function renderD5(){
+    const host=document.getElementById("rewardsD5"); if(!host) return;
+    const order = sectionOrder();
+    const shown = order.filter(id => itemsOf(id).length || (editing && editing.section===id) || capFor(id) && S().rewardGroupCaps && S().rewardGroupCaps[id]!==undefined && false);
+    const hidden = order.filter(id => shown.indexOf(id)<0);
+    host.innerHTML = shown.map((id,i)=>sectionHTML(sectionMeta(id), i, shown.length)).join("")
+      + (hidden.length ? `<div class="rwmore ${moreOpen?"open":""}">
+          <button class="rwadd" onclick="nmMoreToggle()"><i>${PLUS}</i>Add to another section</button>
+          ${moreOpen?`<div class="rwchips">${hidden.map(id=>`<button onclick="nmRewardEdit('${id}',null)">${esc(sectionMeta(id).name)}</button>`).join("")}</div>`:""}
+        </div>` : "")
+      + `<p class="rwfoot">Order matters \u2014 whatever sits at the top of a section is what a child sees first. Drag a row, or move a whole section with the chevrons.</p>
+         <p class="rwfoot">A section cap limits the whole section, not one reward \u2014 so a week of sweets can\u2019t be bought by swapping between them.</p>`;
+    const focus=host.querySelector("#rwName"); if(focus && editing && editing.id===null) setTimeout(()=>focus.focus(),0);
+  }
+  window.renderRewardsD5 = renderD5;
+
+  /* ---------- D5 actions ---------- */
+  window.nmRewardEdit = function(sec, id){ if(!requireParent()) return; editing={section:sec, id:id}; capOpen=null; moreOpen=false; renderD5(); };
+  window.nmRewardCancel = function(){ editing=null; renderD5(); };
+  window.nmRewardChip = function(btn){
+    const wrap=btn.parentElement; wrap.querySelectorAll("button").forEach(b=>b.classList.toggle("on", b===btn));
+  };
+  window.nmRewardSave = async function(){
+    if(!requireParent() || !editing) return;
+    const wrap=document.querySelector(".rwedit"); if(!wrap) return;
+    const name=(wrap.querySelector("#rwName").value||"").trim();
+    const pts=parseInt(wrap.querySelector("#rwPts").value,10);
+    const icon=((wrap.querySelector("#rwIcon")||{}).value||"").trim();
+    if(!name){ alert("Give it a name."); return; }
+    if(Number.isNaN(pts) || pts<1){ alert("Give it a cost of at least one point."); return; }
+    const game = editing.section==="activities";
+    if(game){
+      const desc=((wrap.querySelector("#rwDesc")||{}).value||"").trim();
+      let g = editing.id ? (app.gameNightActivities||[]).find(x=>x.id===editing.id) : null;
+      if(!g){ g={id:"g"+Date.now().toString(16)+Math.random().toString(16).slice(2,5)}; app.gameNightActivities.push(g); }
+      Object.assign(g, {name, points:pts, desc, icon});
+    }else{
+      const limitBtn=wrap.querySelector('.rwchips[data-role="limit"] button.on');
+      const limit = limitBtn ? limitBtn.dataset.v : "";
+      const secSel=wrap.querySelector("#rwSec");
+      let r = editing.id ? (app.rewards||[]).find(x=>x.id===editing.id) : null;
+      if(!r){ r={id:"r"+Date.now()+Math.random().toString(16).slice(2), kind:""}; app.rewards.push(r); if(editing.section==="bank") r.vault=true; }
+      r.name=name; r.points=pts; r.icon=icon;
+      if(limit) r.limit=limit; else delete r.limit;
+      if(secSel){ r.group=secSel.value; }
+    }
+    S().rewardsEditedTs=Date.now();
+    editing=null;
+    await saveApp();
+    renderD5(); if(typeof render==="function") render();
+  };
+  window.nmRewardRemove = async function(){
+    if(!requireParent() || !editing || !editing.id) return;
+    if(!confirm("Take this off the list?")) return;
+    if(editing.section==="activities"){
+      const i=(app.gameNightActivities||[]).findIndex(x=>x.id===editing.id); if(i>=0) app.gameNightActivities.splice(i,1);
+    }else{
+      const i=(app.rewards||[]).findIndex(x=>x.id===editing.id); if(i>=0) app.rewards.splice(i,1);
+    }
+    S().rewardsEditedTs=Date.now();
+    editing=null;
+    await saveApp();
+    renderD5(); if(typeof render==="function") render();
+  };
+  window.nmCapToggle = function(id){ if(!requireParent()) return; capOpen = capOpen===id ? null : id; renderD5(); };
+  window.nmCapSet = async function(id, cap){
+    if(!requireParent()) return;
+    const caps = Object.assign({}, S().rewardGroupCaps||{}); caps[id]=cap;
+    S().rewardGroupCaps=caps; capOpen=null;
+    await saveApp();
+    renderD5(); if(typeof render==="function") render();
+  };
+  window.nmSectionMove = async function(id, dir){
+    if(!requireParent()) return;
+    const order=sectionOrder();
+    const shown = order.filter(x => itemsOf(x).length);
+    const i=shown.indexOf(id), j=i+dir;
+    if(i<0 || j<0 || j>=shown.length) return;
+    shown.splice(i,1); shown.splice(j,0,id);
+    S().rewardGroupOrder = shown.concat(order.filter(x=>shown.indexOf(x)<0));
+    S().rewardsOrdered = true;
+    await saveApp();
+    renderD5(); if(typeof render==="function") render();
+  };
+  window.nmMoreToggle = function(){ moreOpen=!moreOpen; renderD5(); };
+
+  /* Pointer drag within a section. The dragged row follows the finger; the
+     row underneath it swaps places when the finger crosses its middle. */
+  let drag=null;
+  window.nmRewardDragStart = function(ev){
+    if(!requireParent()) return;
+    const row=ev.target.closest(".rwrow"); if(!row) return;
+    ev.preventDefault();
+    drag={row, list:row.parentElement, startY:ev.clientY, y:ev.clientY};
+    row.classList.add("dragging"); row.setPointerCapture && row.setPointerCapture(ev.pointerId);
+    const move=e=>{
+      if(!drag) return;
+      drag.y=e.clientY;
+      const dy=drag.y-drag.startY;
+      drag.row.style.transform="translateY("+dy+"px)";
+      const sib=[...drag.list.children].filter(x=>x!==drag.row && x.classList.contains("rwrow"));
+      for(const s of sib){
+        const r=s.getBoundingClientRect();
+        const mid=r.top+r.height/2;
+        const rr=drag.row.getBoundingClientRect();
+        const cur=rr.top+rr.height/2;
+        if(dy<0 && s.compareDocumentPosition(drag.row)&Node.DOCUMENT_POSITION_FOLLOWING && cur<mid){
+          drag.list.insertBefore(drag.row, s); drag.startY=e.clientY; drag.row.style.transform=""; break;
+        }
+        if(dy>0 && s.compareDocumentPosition(drag.row)&Node.DOCUMENT_POSITION_PRECEDING && cur>mid){
+          drag.list.insertBefore(drag.row, s.nextSibling); drag.startY=e.clientY; drag.row.style.transform=""; break;
+        }
+      }
+    };
+    const up=async()=>{
+      document.removeEventListener("pointermove",move); document.removeEventListener("pointerup",up); document.removeEventListener("pointercancel",up);
+      if(!drag) return;
+      const {row,list}=drag; drag=null;
+      row.classList.remove("dragging"); row.style.transform="";
+      const sec=row.dataset.sec;
+      const ids=[...list.querySelectorAll(".rwrow")].map(x=>x.dataset.id);
+      await persistOrder(sec, ids);
+    };
+    document.addEventListener("pointermove",move); document.addEventListener("pointerup",up); document.addEventListener("pointercancel",up);
+  };
+  async function persistOrder(sec, ids){
+    const arr = sec==="activities" ? app.gameNightActivities : app.rewards;
+    const inSec = arr.filter(x=>ids.indexOf(x.id)>=0);
+    const before = ids.map(id=>inSec.find(x=>x.id===id)).filter(Boolean);
+    if(before.map(x=>x.id).join()===inSec.map(x=>x.id).join()) return;
+    /* Keep everything else where it was; only the rows of this section move. */
+    let k=0;
+    for(let i=0;i<arr.length;i++){ if(ids.indexOf(arr[i].id)>=0){ arr[i]=before[k++]; } }
+    S().rewardsOrdered=true; S().rewardsEditedTs=Date.now();
+    await saveApp();
+    renderD5(); if(typeof render==="function") render();
+  }
+
+  /* The screen. The old sections stay in the DOM (other code renders into
+     them) but they no longer get moved into this panel. */
+  const innerShowRewards = showRewardsPanel;
+  showRewardsPanel = window.showRewardsPanel = function(){
+    openPanel("rewardsPanel");
+    editing=null; capOpen=null; moreOpen=false;
+    ["parentGoal","goalIdeas","rewardSection","gameNightSection"].forEach(id=>{ const el=document.getElementById(id); if(el) el.classList.add("hidden"); });
+    const vt=document.getElementById("rwBankTarget");
+    if(vt) vt.textContent = (app.settings && app.settings.vaultTarget) || 5000;
+    renderD5();
+  };
+  /* Re-render after a snapshot lands, but only while the screen is open. */
+  if(typeof render==="function"){
+    const innerRender=render;
+    render = window.render = function(){
+      innerRender.apply(this, arguments);
+      try{
+        if(typeof screenNow!=="undefined" && screenNow==="rewardsPanel" && !document.querySelector(".rwedit") && !drag) renderD5();
+        if(typeof screenNow!=="undefined" && screenNow==="rulesPanel") renderRulesPanel();
+        const b=document.getElementById("btnRules"); if(b) b.dataset.note = rulesNote();
+      }catch(e){ console.error("d5/d6 render:", e); }
+    };
+  }
+
+  /* ---------- D6: House rules ---------- */
+  const RULE_IDEAS = [
+    "Prayers come before screens. Every day, no exceptions.",
+    "If you borrow it, you put it back where it lives.",
+    "Nobody eats until everybody sits down.",
+    "You can always say you don\u2019t want to \u2014 you say it with words, not with a door.",
+    "Sorry is a sentence, not a word. Say what you\u2019re sorry for."
+  ];
+  const rules = () => Array.isArray(S().houseRules) ? S().houseRules : [];
+  function rulesNote(){
+    const n=rules().length;
+    return n ? n+(n===1?" rule":" rules")+" \u00b7 children can read these" : "Children can read these";
+  }
+  function noteRules(){ const b=document.getElementById("btnRules"); if(b) b.dataset.note = rulesNote(); }
+  let ruleEditing = null;   // id, or "new"
+  let howOpen = false;
+  function ruleRow(r, i){
+    if(ruleEditing===r.id) return ruleEditor(r);
+    return `<div class="hrrow"><span class="hrn">${i+1}</span><span class="hrtext">${esc(r.text)}</span>
+      ${isParentSession()?`<button class="rwbtn" title="Edit" onclick="nmRuleEdit('${r.id}')">${PENCIL}</button>`:""}</div>`;
+  }
+  function ruleEditor(r){
+    return `<div class="rwedit hr" data-id="${r?r.id:""}">
+      <textarea id="hrText" rows="2" maxlength="160" placeholder="Written the way you\u2019d say it">${r?esc(r.text):""}</textarea>
+      <div class="rweditbtns">
+        <button class="confirm" onclick="nmRuleSave()">${r?"Save":"Add"}</button>
+        ${r?`<button class="light danger" onclick="nmRuleRemove()">Remove</button>`:""}
+        <button class="light" onclick="nmRuleCancel()">Cancel</button>
+      </div></div>`;
+  }
+  renderRulesPanel = window.renderRulesPanel = function(){
+    const body=document.getElementById("rulesBody"); if(!body) return;
+    const me=sessionMember();
+    const kid = me && isChildRole(me);
+    const tabs=document.querySelector("#rulesPanel .spendtabs"); if(tabs) tabs.classList.add("hidden");
+    const list=rules();
+    const parent=isParentSession();
+    let html = `<h2>${kid?"\ud83d\udcdc ":""}House rules</h2>
+      <p class="small">${kid?"Written by Mum and Dad. You can read these whenever you like.":"Written by the two of you. The children can read this whenever they ask."}</p>`;
+    html += `<div class="hrcard">${list.map(ruleRow).join("")}
+      ${!list.length && !parent ? '<p class="small" style="padding:14px 15px;margin:0">Nothing written down yet.</p>':""}
+      ${parent ? (ruleEditing==="new" ? ruleEditor(null) : `<button class="rwadd" onclick="nmRuleEdit('new')"><i>${PLUS}</i>Add a rule</button>`) : ""}
+    </div>`;
+    if(parent && !list.length && ruleEditing!=="new"){
+      html += `<p class="rwfoot">Some families start from these \u2014 tap one to add it, then change the words.</p>
+        <div class="rwchips ideas">${RULE_IDEAS.map((t,i)=>`<button onclick="nmRuleIdea(${i})">${esc(t)}</button>`).join("")}</div>`;
+    }
+    html += `<p class="rwfoot">${parent?"Short is better than complete. Five they remember beats twenty they don\u2019t.":"Points aren\u2019t the point. They\u2019re a way of noticing. \ud83d\udc9b"}</p>`;
+    /* The old fixed text, one tap away rather than gone. */
+    html += `<button class="hrhow ${howOpen?"open":""}" onclick="nmHowToggle()">How points work ${howOpen?"\u2191":"\u2192"}</button>
+      ${howOpen?`<div class="hrhowbody">${kid||!parent?RULES_KIDS:RULES_GROWN}</div>`:""}`;
+    body.innerHTML=html;
+    const ta=body.querySelector("#hrText"); if(ta){ setTimeout(()=>ta.focus(),0); }
+  };
+  window.nmRuleEdit = function(id){ if(!requireParent()) return; ruleEditing=id; renderRulesPanel(); };
+  window.nmRuleCancel = function(){ ruleEditing=null; renderRulesPanel(); };
+  window.nmHowToggle = function(){ howOpen=!howOpen; renderRulesPanel(); };
+  window.nmRuleSave = async function(){
+    if(!requireParent() || !ruleEditing) return;
+    const ta=document.getElementById("hrText"); const text=(ta?ta.value:"").trim();
+    if(!text){ alert("Write the rule first."); return; }
+    const list=rules().slice();
+    if(ruleEditing==="new") list.push({id:"hr"+Date.now().toString(16)+Math.random().toString(16).slice(2,5), text});
+    else { const r=list.find(x=>x.id===ruleEditing); if(r) r.text=text; }
+    S().houseRules=list; ruleEditing=null;
+    await saveApp(); renderRulesPanel(); noteRules();
+  };
+  window.nmRuleIdea = async function(i){
+    if(!requireParent()) return;
+    const list=rules().slice();
+    list.push({id:"hr"+Date.now().toString(16)+Math.random().toString(16).slice(2,5), text:RULE_IDEAS[i]});
+    S().houseRules=list; await saveApp(); renderRulesPanel(); noteRules();
+  };
+  window.nmRuleRemove = async function(){
+    if(!requireParent() || !ruleEditing || ruleEditing==="new") return;
+    S().houseRules=rules().filter(x=>x.id!==ruleEditing); ruleEditing=null;
+    await saveApp(); renderRulesPanel(); noteRules();
+  };
+
+  /* ---------- D7: Just the two of you ---------- */
+  let prEditing=null;
+  function partnerOf(me){
+    const f=currentFamily(); if(!f||!me) return null;
+    return f.children.find(c=>isParentRole(c) && c.id!==me.id) || null;
+  }
+  function byLine(r, me, partner){
+    if(r.by && me && r.by===me.id) return "You put this on the list";
+    if(r.by && partner && r.by===partner.id) return esc(partner.name)+" put this on the list";
+    const g=groupById(groupOf(r,true),true);
+    return g && g.id!=="other" ? esc(g.name) : "On the list";
+  }
+  function prRow(r, me, partner, spendable, pendingIds){
+    if(prEditing===r.id) return prEditor(r);
+    const asked = pendingIds.indexOf(r.id)>=0;
+    const can = !asked && spendable>=r.points && !!partner;
+    const pill = asked ? `<span class="prpill asked">Asked</span>`
+      : `<button class="prpill ${can?"can":""}" ${can?"":"disabled"} onclick="parentRequestReward('${r.id}')">Claim</button>`;
+    return `<div class="prrow"><span class="rwmain"><strong>${esc(r.name)}</strong><em>${byLine(r,me,partner)} \u00b7 ${r.points} pts</em></span>
+      ${pill}<button class="rwbtn" title="Edit" onclick="nmPrEdit('${r.id}')">${PENCIL}</button></div>`;
+  }
+  function prEditor(r){
+    const cur=r||{name:"",points:"",kind:""};
+    return `<div class="rwedit" data-id="${r?r.id:""}">
+      <div class="rweditrow"><input id="prName" placeholder="Something you\u2019d actually want" value="${esc(cur.name)}" maxlength="60">
+        <input id="prPts" type="number" min="1" inputmode="numeric" placeholder="cost" value="${cur.points||""}"></div>
+      <input id="prKind" placeholder="Rest, Time, Food\u2026 (optional)" value="${esc(cur.kind||"")}" maxlength="30">
+      <div class="rweditbtns"><button class="confirm" onclick="nmPrSave()">${r?"Save":"Add"}</button>
+        ${r?`<button class="light danger" onclick="nmPrRemove()">Remove</button>`:""}
+        <button class="light" onclick="nmPrCancel()">Cancel</button></div></div>`;
+  }
+  function renderD7(){
+    const body=document.getElementById("grownupsPanelBody"); if(!body) return;
+    const me=sessionMember(); if(!me) return;
+    const partner=partnerOf(me);
+    const spendable=Math.max(0,(me.balance||0)-pendingSpendFor(me.id));
+    const pendingIds=(app.requests||[]).filter(q=>q.childId===me.id && q.status==="pending").map(q=>q.itemId);
+    const list=sortForDisplay(app.parentRewards||[]);
+    let html=`<p class="rvcap" style="margin-top:8px">Your reward list</p>
+      <p class="small">What the two of you can claim, and what your partner has put on the list.${partner?"":" Add another parent under Family members and this starts working."}</p>
+      <div class="rwcard">${list.map(r=>prRow(r,me,partner,spendable,pendingIds)).join("")}
+        ${prEditing==="new"?prEditor(null):`<button class="rwadd" onclick="nmPrEdit('new')"><i>${PLUS}</i>Add to the list</button>`}
+      </div>
+      <p class="rwfoot">You have ${me.balance||0} points. ${partner?esc(partner.name)+" decides \u2014 you can\u2019t approve your own.":""}</p>`;
+    html+=`<p class="rvcap">Pledges</p>
+      <p class="small">Something you offer each other for the week. No asking needed \u2014 it is already promised.</p>
+      <div id="pledgeHostD7"></div>`;
+    body.innerHTML=html;
+    /* The pledges add-on renders into #pledgeHost; give it this one. */
+    const old=document.getElementById("pledgeHost"); if(old) old.id="pledgeHostOld";
+    document.getElementById("pledgeHostD7").id="pledgeHost";
+    if(typeof renderPledges==="function") renderPledges();
+  }
+  window.renderGrownupsD7 = renderD7;
+  window.nmPrEdit = function(id){ if(!requireParent()) return; prEditing=id; renderD7(); };
+  window.nmPrCancel = function(){ prEditing=null; renderD7(); };
+  window.nmPrSave = async function(){
+    if(!requireParent() || !prEditing) return;
+    const name=(document.getElementById("prName").value||"").trim();
+    const pts=parseInt(document.getElementById("prPts").value,10);
+    const kind=(document.getElementById("prKind").value||"").trim();
+    if(!name){ alert("Give it a name."); return; }
+    if(Number.isNaN(pts)||pts<1){ alert("Give it a cost of at least one point."); return; }
+    const me=sessionMember();
+    if(prEditing==="new"){
+      app.parentRewards.push({id:"pr"+Date.now().toString(16)+Math.random().toString(16).slice(2,5), name, points:pts, kind, by: me?me.id:null});
+    }else{
+      const r=app.parentRewards.find(x=>x.id===prEditing); if(r){ r.name=name; r.points=pts; r.kind=kind; }
+    }
+    prEditing=null; await saveApp(); renderD7();
+  };
+  window.nmPrRemove = async function(){
+    if(!requireParent() || !prEditing || prEditing==="new") return;
+    const i=app.parentRewards.findIndex(x=>x.id===prEditing); if(i>=0) app.parentRewards.splice(i,1);
+    prEditing=null; await saveApp(); renderD7();
+  };
+  const innerShowGrownups = showGrownupsPanel;
+  showGrownupsPanel = window.showGrownupsPanel = function(){
+    openPanel("grownupsPanel");
+    prEditing=null;
+    const extra=document.getElementById("grownupsExtra"); if(extra) extra.innerHTML="";
+    const sec=document.getElementById("parentRewardSection"); if(sec) sec.classList.add("hidden");
+    const bar=document.getElementById("gtBar"); if(bar) bar.style.display="none";
+    renderD7();
+  };
+  showPledgesPanel = window.showPledgesPanel = function(){ showGrownupsPanel(); };
+  /* A request answered elsewhere should change the pill here. */
+  if(typeof renderRequests==="function"){
+    const innerReq=renderRequests;
+    renderRequests = window.renderRequests = function(){
+      innerReq.apply(this, arguments);
+      try{ if(typeof screenNow!=="undefined" && screenNow==="grownupsPanel" && !prEditing) renderD7(); }catch(e){}
+    };
+  }
+  /* Pledge cards in the D7 shape, using the add-on's own data. */
+  if(typeof window.renderPledges==="function"){
+    const innerPledges=window.renderPledges;
+    window.renderPledges=function(){
+      innerPledges.apply(this, arguments);
+      const host=document.getElementById("pledgeHost"); if(!host || !host.closest("#grownupsPanel")) return;
+      host.classList.add("pledged7");
+    };
+  }
+})();
+</script>
+
 <style id="nmRound2d">
 /* v240: D2 Review together, D4 Activity log */
 body:not(.haskidbar) .rvcap{font:600 10.5px/1 var(--f-body);letter-spacing:.09em;text-transform:uppercase;color:rgba(27,36,48,.55);margin:20px 2px 10px}
@@ -23163,6 +23665,81 @@ body:not(.haskidbar) .gpamts button:disabled{opacity:.35;pointer-events:none}
 body:not(.haskidbar) .gpoffer{background:#fff;border:1px solid rgba(27,36,48,.1);border-radius:16px;padding:14px}
 body:not(.haskidbar) .gpoffer .seg{grid-template-columns:1fr 1fr}
 body:not(.haskidbar) .gpoffercta:disabled{background:rgba(27,36,48,.25)!important;border-color:transparent!important;color:#fff!important;opacity:1}
+</style>
+<style id="nmRound2f">
+/* v242: D5 Rewards & activities, D6 House rules, D7 Just the two of you */
+body:not(.haskidbar) .rwsec{margin-bottom:18px}
+body:not(.haskidbar) .rwhead{display:flex;align-items:center;gap:8px;margin-bottom:9px}
+body:not(.haskidbar) .rwhead .rwcap{font:600 11px/1 var(--f-body);letter-spacing:.08em;text-transform:uppercase;color:rgba(27,36,48,.45);flex:none}
+body:not(.haskidbar) .rwrule{flex:1;height:1px;background:rgba(27,36,48,.1)}
+body:not(.haskidbar) .rwchev{width:28px;min-height:24px;height:24px;padding:0;border-radius:6px!important;background:rgba(27,36,48,.06)!important;border:0!important;color:rgba(27,36,48,.55)!important;display:grid;place-items:center;flex:none}
+body:not(.haskidbar) .rwchev:disabled{opacity:.3}
+body:not(.haskidbar) .rwpill{width:auto;min-height:24px;height:24px;padding:0 9px;border-radius:7px!important;background:rgba(27,36,48,.06)!important;border:0!important;color:rgba(27,36,48,.55)!important;font:600 10.5px/1 var(--f-body);flex:none}
+body:not(.haskidbar) .rwpill.out{background:rgba(176,86,58,.12)!important;color:var(--g-undo)!important}
+body:not(.haskidbar) .rwcard{background:#fff;border:1px solid rgba(27,36,48,.1);border-radius:16px;overflow:hidden}
+body:not(.haskidbar) .rwrow,body:not(.haskidbar) .prrow,body:not(.haskidbar) .hrrow{display:flex;align-items:center;gap:12px;padding:13px 15px;border-top:1px solid rgba(27,36,48,.07);background:#fff}
+body:not(.haskidbar) .rwrow:first-child,body:not(.haskidbar) .prrow:first-child,body:not(.haskidbar) .hrrow:first-child{border-top:0}
+body:not(.haskidbar) .rwrow.dim{opacity:.6}
+body:not(.haskidbar) .rwrow.dragging{position:relative;z-index:3;box-shadow:0 6px 18px rgba(27,36,48,.14);border-radius:12px;opacity:.95}
+body:not(.haskidbar) .rwtile{width:36px;height:36px;border-radius:11px;display:grid;place-items:center;font-size:17px;flex:none}
+body:not(.haskidbar) .rwmain{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+body:not(.haskidbar) .rwmain strong{font:600 13.5px/1.3 var(--f-body);color:var(--g-ink)}
+body:not(.haskidbar) .rwmain em{font:400 11.5px/1.3 var(--f-body);color:rgba(27,36,48,.52);font-style:normal}
+body:not(.haskidbar) .rwmain em.out{color:var(--g-undo)}
+body:not(.haskidbar) .rwcost{font:600 15px/1 var(--f-mono);color:var(--g-ink);flex:none}
+body:not(.haskidbar) .rwacts{display:flex;gap:5px;flex:none}
+body:not(.haskidbar) .rwbtn{width:30px;min-height:30px;height:30px;padding:0;border-radius:9px!important;background:rgba(27,36,48,.06)!important;border:0!important;color:rgba(27,36,48,.55)!important;display:grid;place-items:center;flex:none}
+body:not(.haskidbar) .rwbtn.grip{cursor:grab;touch-action:none}
+body:not(.haskidbar) .rwadd{width:100%;display:flex;align-items:center;gap:9px;padding:12px 15px;border-top:1px solid rgba(27,36,48,.07);background:none!important;border-radius:0!important;border-left:0!important;border-right:0!important;border-bottom:0!important;color:var(--g-moss)!important;font:600 12.5px/1 var(--f-body);text-align:left;min-height:44px}
+body:not(.haskidbar) .rwadd i{width:20px;height:20px;border-radius:6px;background:var(--g-moss-tint);display:grid;place-items:center;font-style:normal}
+body:not(.haskidbar) .rwmore .rwadd{border:1px dashed rgba(27,36,48,.2)!important;border-radius:14px!important}
+body:not(.haskidbar) .rwmore .rwchips{margin-top:8px}
+body:not(.haskidbar) .rwchips{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 10px}
+body:not(.haskidbar) .rwchips button,.haskidbar .rwchips button{width:auto;min-height:36px;padding:0 12px;border-radius:12px!important;background:rgba(27,36,48,.06)!important;border:1.5px solid transparent!important;color:rgba(27,36,48,.7)!important;font:500 13px/1.25 var(--f-body);text-align:left}
+body:not(.haskidbar) .rwchips button.on{background:#fff!important;border-color:var(--g-moss)!important;color:var(--g-moss)!important}
+body:not(.haskidbar) .rwchips.ideas button{padding:8px 12px;white-space:normal}
+body:not(.haskidbar) .rwedit{padding:13px 15px;border-top:1px solid rgba(27,36,48,.07);background:rgba(78,140,106,.05);display:grid;gap:8px}
+body:not(.haskidbar) .rwedit .rwchips{margin:0}
+body:not(.haskidbar) .rweditrow{display:flex;gap:8px}
+body:not(.haskidbar) .rweditrow input:first-child,body:not(.haskidbar) .rweditrow select{flex:1;min-width:0}
+body:not(.haskidbar) .rwedit input,body:not(.haskidbar) .rwedit select,body:not(.haskidbar) .rwedit textarea,body:not(.haskidbar) #pledgeSection input{background:#fff;border:1.5px solid rgba(27,36,48,.18);border-radius:12px;min-height:44px;padding:8px 12px;font:400 14px/1.4 var(--f-body);color:var(--g-ink);width:100%}
+body:not(.haskidbar) .rwedit input:focus,body:not(.haskidbar) .rwedit textarea:focus{border-color:var(--g-moss);outline:none}
+body:not(.haskidbar) .rwedit input[type=number]{max-width:84px;font-family:var(--f-mono)}
+body:not(.haskidbar) .rweditbtns{display:flex;gap:8px;flex-wrap:wrap}
+body:not(.haskidbar) .rweditbtns button{width:auto;min-height:40px;padding:0 14px}
+body:not(.haskidbar) .rweditbtns .danger{border-color:var(--g-undo)!important;color:var(--g-undo)!important;background:none!important}
+body:not(.haskidbar) .rwfoot{font:400 12px/1.55 var(--f-body);color:rgba(27,36,48,.5);margin:12px 2px 0}
+body:not(.haskidbar) .rwbank{width:100%;margin-top:18px;min-height:44px;background:none!important;border:1px dashed rgba(27,36,48,.2)!important;border-radius:14px!important;color:rgba(27,36,48,.6)!important;font:500 13px/1 var(--f-body);display:flex;justify-content:space-between;align-items:center;padding:0 14px}
+body:not(.haskidbar) .rwbank strong{font:600 14px/1 var(--f-mono);color:var(--g-ink)}
+/* D6 — read by children too, so it is not scoped to the grown-up register */
+.hrcard{background:#fff;border:1px solid rgba(27,36,48,.1);border-radius:16px;overflow:hidden;margin-top:14px}
+.hrrow{display:flex;align-items:flex-start;gap:12px;padding:14px 15px;border-top:1px solid rgba(27,36,48,.07)}
+.hrrow:first-child{border-top:0}
+.hrn{width:22px;height:22px;border-radius:7px;background:rgba(27,36,48,.06);display:grid;place-items:center;font:600 11px/1 var(--f-mono);color:rgba(27,36,48,.5);flex:none;margin-top:1px}
+.hrtext{flex:1;font:400 14px/1.5 var(--f-body);color:var(--nm-ink,#1B2430)}
+.haskidbar .hrtext{font-size:15px}
+.haskidbar .hrcard{border-color:rgba(43,58,74,.12)}
+.haskidbar .rulesPanel .rwfoot,.haskidbar #rulesBody .rwfoot{font:400 12.5px/1.55 var(--f-body);color:rgba(43,58,74,.55);margin:12px 2px 0}
+#rulesBody .rwedit.hr textarea{min-height:64px;resize:vertical}
+.hrhow{width:auto;margin-top:16px;min-height:40px;background:none!important;border:0!important;padding:0!important;color:var(--g-moss)!important;font:600 13px/1 var(--f-body);text-align:left}
+.haskidbar .hrhow{color:var(--c-mango-deep)!important}
+.hrhowbody{margin-top:8px}
+.hrhowbody h2{font-size:17px}
+/* D7 */
+body:not(.haskidbar) .prpill{width:auto;min-height:26px;height:26px;padding:0 10px;border-radius:8px!important;background:rgba(27,36,48,.06)!important;border:0!important;color:rgba(27,36,48,.45)!important;font:600 11.5px/1 var(--f-body);flex:none}
+body:not(.haskidbar) .prpill.can{background:var(--g-moss-tint)!important;color:var(--g-moss)!important}
+body:not(.haskidbar) .prpill.asked{background:var(--g-moss-tint)!important;color:var(--g-moss)!important;display:grid;place-items:center}
+body:not(.haskidbar) .prpill:disabled{opacity:1}
+body:not(.haskidbar) .pllist{display:grid;gap:11px}
+body:not(.haskidbar) .plcard{background:#fff;border:1px solid rgba(27,36,48,.1);border-radius:16px;padding:15px 16px}
+body:not(.haskidbar) .plcard.spent{opacity:.6}
+body:not(.haskidbar) .plhead{display:flex;align-items:center;gap:11px;font:600 13px/1 var(--f-body);color:rgba(27,36,48,.65)}
+body:not(.haskidbar) .pltile{width:32px;height:32px;border-radius:10px;background:var(--g-moss-tint);display:grid;place-items:center;font:600 13px/1 var(--f-display);color:var(--g-moss);flex:none}
+body:not(.haskidbar) .pltext{font:400 15px/1.5 var(--f-body);color:var(--g-ink);margin:10px 0 0}
+body:not(.haskidbar) .plfoot{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:8px;font:400 11.5px/1 var(--f-body);color:rgba(27,36,48,.45)}
+body:not(.haskidbar) #grownupsPanel .rvcap{margin-top:22px}
+body:not(.haskidbar) #grownupsPanel .rvcap:first-child{margin-top:8px}
+body:not(.haskidbar) #pledgeSection .rweditrow input[type=number]{max-width:110px}
 </style>
 </body>
 </html>
