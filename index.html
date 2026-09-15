@@ -3130,8 +3130,9 @@
     <button class="panelback" onclick="goHome()">← Home</button>
     <h2>📚 Tutors</h2>
     <p class="small">Anyone who teaches one of your children. They see only the children you assign them, record up to 5 points once a day, and everything they record shows on your home screen with an undo.</p>
-    <button class="light" style="width:100%;margin-top:12px" onclick="createParentInvite('tutor')">🔗 Invite a tutor</button>
     <div id="tutorList" style="display:grid;gap:10px;margin-top:16px"></div>
+    <button class="light" style="width:100%;margin-top:14px" onclick="createParentInvite('tutor')">Add a tutor — send an invite code</button>
+    <div id="inviteBoxTutor" class="hidden"></div>
   </div>
 
   <div id="quickPanel" class="panel r-today hidden">
@@ -5873,7 +5874,7 @@ const TIP_CATS = [
   {key:"deen", label:"Deen"}
 ];
 
-const APP_VERSION = "v240";
+const APP_VERSION = "v241";
 const today = new Date().toISOString().slice(0,10);
 let app = {families:[],currentFamily:null,currentChild:null};
 let categories = [];
@@ -7330,42 +7331,46 @@ function renderTutorPanel(){
   if(!list) return;
   const f=currentFamily();
   const tutors=f ? f.children.filter(isTutorRole) : [];
+  const kids=f ? f.children.filter(isChildRole) : [];
   if(!tutors.length){
-    list.innerHTML='<p class="small">No tutors yet. Invite one above \u2014 they make their own account with the code, so you never hold their password.</p>';
+    list.innerHTML='<p class="small">No tutors yet. They make their own account with the code, so you never hold their password.</p>';
     return;
   }
-  const weekDates=getCurrentWeekDates();
+  /* v241 (design C1): initial tile, name, what they teach, last recorded;
+     the children as chips that toggle assignment on tap. */
   list.innerHTML = tutors.map(t=>{
-    const mine=assignedChildIds(t).map(id=>memberById(id)).filter(Boolean);
-    const recent=[];
-    (f.children.filter(isChildRole)||[]).forEach(c=>(c.activityLog||[]).forEach(e=>{
-      if(e.byUid===t.id && e.type==="award") recent.push({c, e});
-    }));
-    recent.sort((a,b)=>b.e.ts-a.e.ts);
-    const thisWeek=recent.filter(r=>tsToDateStr(r.e.ts)>=weekDates[0]).length;
-    return `<section class="card">
-      <div class="cardhead"><div>
-        <div class="icon">\ud83d\udcda</div>
-        <h2 style="margin:0">${escapeHtml(t.name)}</h2>
-        <p style="margin:2px 0 0">${escapeHtml(relationLabel(t))}${t.email?" \u00b7 "+escapeHtml(t.email):""}</p>
-      </div><div class="points">${thisWeek} this week</div></div>
-      <p class="small" style="margin:12px 0 6px"><strong>Teaches:</strong> ${mine.length
-        ? mine.map(c=>escapeHtml(c.name)).join(", ")
-        : "nobody yet \u2014 assign a child below"}</p>
-      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">
-        <button class="light" style="width:auto" onclick="assignTutorChildren('${t.id}')">\ud83d\udc65 Choose their children</button>
-        <button class="xbtn" style="width:auto" onclick="removeMember('${t.id}')">\u2715 Remove</button>
+    const mine=assignedChildIds(t);
+    let last=null;
+    kids.forEach(c=>(c.activityLog||[]).forEach(e=>{ if(e.byUid===t.id && e.type==="award" && (!last || e.ts>last.ts)) last={ts:e.ts, c}; }));
+    const lastTxt = last ? "Last recorded "+new Date(last.ts).toLocaleDateString(undefined,{weekday:"short", day:"numeric", month:"short"})+" \u00b7 "+escapeHtml(last.c.name) : "Nothing recorded yet";
+    return `<section class="tutcard">
+      <div class="memhead">
+        ${t.photo?`<img class="memtile" src="${t.photo}" alt="">`:`<span class="memtile">${escapeHtml((t.name||"?").slice(0,1).toUpperCase())}</span>`}
+        <div class="memmain">
+          <span class="memname">${escapeHtml(t.name)}</span>
+          <span class="memsub"><span class="rolepill">${escapeHtml(relationLabel(t)||"Tutor")}</span><span class="memseen">${lastTxt}</span></span>
+        </div>
       </div>
-      <p class="small" style="margin:14px 0 6px"><strong>Lately</strong></p>
-      <div style="display:grid;gap:7px">${recent.length
-        ? recent.slice(0,5).map(r=>`<div class="logrow"><div>
-            <div>${escapeHtml(r.e.label)}</div>
-            <div class="logmeta">${escapeHtml(r.c.name)} \u00b7 +${r.e.points} \u00b7 ${
-              new Date(r.e.ts).toLocaleDateString(undefined,{weekday:"short",day:"numeric",month:"short"})}</div>
-          </div></div>`).join("")
-        : '<p class="small">Nothing recorded yet.</p>'}</div>
+      <p class="rvcap" style="margin:14px 2px 8px">Children assigned</p>
+      <div class="assignchips">${kids.length ? kids.map(c=>{const on=mine.indexOf(c.id)>=0;
+        return `<button class="assignchip ${on?"on":""}" onclick="toggleTutorChild('${t.id}','${c.id}')">${on?"\u2713":"+"} ${escapeHtml(c.name)}</button>`;}).join("")
+        : '<p class="small">Add a child first.</p>'}</div>
+      <div class="memchips" style="margin-top:12px"><button class="memchip remove" onclick="removeMember('${t.id}')">Remove</button></div>
     </section>`;
   }).join("");
+}
+async function toggleTutorChild(tutorId, childId){
+  if(!requireParent()) return;
+  const tutor=memberById(tutorId); if(!tutor || !isTutorRole(tutor)) return;
+  const current=assignedChildIds(tutor);
+  const next = current.indexOf(childId)>=0 ? current.filter(id=>id!==childId) : current.concat([childId]);
+  try{
+    await window.fpc.saveMember(familyId, tutor.id, {
+      name:tutor.name, role:"tutor", age:tutor.age||"", photo:tutor.photo||null,
+      email:tutor.email||null, forChildren:next, prefs:tutor.prefs||{}
+    });
+    tutor.forChildren=next; renderTutorPanel();
+  }catch(e){ console.error(e); alert("That couldn't be saved."); }
 }
 /* A single confirmation on the thing that was tapped. Nothing loops. */
 function popThen(el){
@@ -8039,106 +8044,185 @@ async function familyGivePoints(childId){
 /* ---------- The wider family's own screen ---------- */
 function renderTutorView(me){
   const kids=childrenVisibleTo(me);
-  const mine=[];
-  kids.forEach(c=>(c.activityLog||[]).forEach(e=>{
-    if(e.byUid===me.id && e.type==="award") mine.push({child:c, e});
-  }));
-  mine.sort((a,b)=>b.e.ts-a.e.ts);
+  const todayDs=dateStr(new Date());
+  /* v241 (design C2): one screen. Per child, either the open form (note first,
+     1\u20135 as tiles, then Record) or the entry read back. The cap is a state: once
+     recorded the form is gone rather than disabled. */
   document.getElementById("familyViewBody").innerHTML = `
     <section class="kidhero h-tutor">
       <div class="kidherorow"><div>
-        <p class="kidhi">Asalamualaikum, ${escapeHtml(me.name)}! \u{1f44b}</p>
+        <p class="kidhi">Asalamualaikum, ${escapeHtml(me.name)}</p>
         <p class="kidsub">${escapeHtml(relationLabel(me))}</p>
       </div></div>
     </section>
     ${(typeof askingBoardHTML==="function") ? askingBoardHTML() : ""}
-    <section class="kidcard r-learn">
-      <h2>\u{1f4da} After the lesson</h2>
-      <p class="lede">Record how it went. Up to ${TUTOR_MAX_PER_AWARD} points, once a day each \u2014 their parents see everything you record.</p>
-      <div style="display:grid;gap:8px">${kids.length ? kids.map(c=>{
-        const done=tutorAwardedToday(me.id, c)>0;
-        return `<div class="overviewrow" style="cursor:default;flex-wrap:wrap">
-          <div class="memberhead"><div class="avatar-placeholder">\u{1f4d8}</div>
-            <div><strong>${escapeHtml(c.name)}</strong>
-              <div class="small">${done?"Today\u2019s lesson recorded":"Nothing recorded today"}</div></div>
-          </div>
-          <button class="confirm" style="width:auto" ${done?"disabled":""} onclick="tutorGivePoints('${c.id}')">${
-            done?"\u2713 Done":"\uff0b Record"}</button>
-        </div>`;}).join("")
-        : '<p class="small">\u{1f4cb} No children assigned to you yet. A parent chooses who you work with, under Family members on their own device.</p>'}</div>
-    </section>
-    ${kids.length ? `<section class="kidcard r-learn">
-      <h2>\u{1f4d6} Their programme</h2>
+    ${kids.length ? kids.map(c=>{
+      const todays=(c.activityLog||[]).filter(e=>e.type==="award" && e.byUid===me.id && e.points>0 && tsToDateStr(e.ts)===todayDs).sort((a,b)=>b.ts-a.ts)[0];
+      if(todays){
+        const at=new Date(todays.ts).toLocaleTimeString([], {hour:"numeric", minute:"2-digit"});
+        return `<section class="tutkid done">
+          <div class="tutkidhead"><span class="memtile kid">${escapeHtml((c.name||"?").slice(0,1).toUpperCase())}</span>
+            <div><strong>${escapeHtml(c.name)}</strong><span class="tutstatus ok">Today\u2019s entry recorded \u00b7 ${at}</span></div></div>
+          <p class="tutnote">${escapeHtml(todays.label)}</p>
+          <div class="tutrec"><span class="quickpill">+${todays.points}</span><span>Recorded \u00b7 their parent can undo this</span></div>
+        </section>`;
+      }
+      return `<section class="tutkid open" id="tut-${c.id}">
+        <div class="tutkidhead"><span class="memtile kid">${escapeHtml((c.name||"?").slice(0,1).toUpperCase())}</span>
+          <div><strong>${escapeHtml(c.name)}</strong><span class="tutstatus">No entry today</span></div></div>
+        <textarea class="tutfield" id="tutnote-${c.id}" placeholder="What did you cover, and what did they do well? ${escapeHtml(c.name)} and their parents both read this."></textarea>
+        <div class="tuttiles">${[1,2,3,4,5].map(n=>`<button onclick="tutPick('${c.id}',${n},this)">${n}</button>`).join("")}</div>
+        <button class="primary" style="width:100%;margin-top:12px" onclick="tutorRecordLesson('${c.id}')">Record today\u2019s lesson</button>
+      </section>`;
+    }).join("")
+    : '<p class="small">No children assigned to you yet. A parent chooses who you work with, under Tutors on their own device.</p>'}
+    ${kids.length ? `<section class="kidcard r-learn" style="margin-top:14px">
+      <h2>Their programme</h2>
       <p class="lede">Mark what they can do unaided. Nothing here awards points \u2014 it records what they know.</p>
       ${kids.map(c=>`<div style="margin-top:14px"><strong>${escapeHtml(c.name)}</strong>
         ${learnScreenHTML(c)}</div>`).join("")}
     </section>` : ""}
-    <section class="kidcard r-points">
-      <h2>\u{1f5d3}\ufe0f What you\u2019ve recorded</h2>
-      <div class="feed">${mine.length ? mine.slice(0,10).map(m=>`<div class="feeditem">
-          <div class="feedemoji">\u2b50</div>
-          <div class="feedmain"><div class="what">${escapeHtml(m.e.label)}</div>
-            <div class="who">${escapeHtml(m.child.name)} \u00b7 ${new Date(m.e.ts).toLocaleDateString([], {weekday:"short", day:"numeric", month:"short"})}</div></div>
-          <div class="feedpts">+${m.e.points}</div>
-        </div>`).join("") : '<p class="small">Nothing yet.</p>'}</div>
-    </section>
-    <p class="kidfooter">You can add points for your own lessons only. You can\u2019t take points away, see other children, or change anything else.</p>
+    <p class="kidfooter">You can record your own lessons only \u2014 up to ${TUTOR_MAX_PER_AWARD} points, once a day each. No balances, rewards or requests here; those stay with Mum and Dad.</p>
     <div style="text-align:center;margin:0 0 24px">
-      <button class="light" style="width:auto" onclick="signOutDevice()">\u{1f512} Sign out</button>
+      <button class="light" style="width:auto" onclick="signOutDevice()">Sign out</button>
     </div>`;
+}
+const __tutPts={};
+function tutPick(childId, n, btn){
+  __tutPts[childId]=n;
+  const host=document.getElementById("tut-"+childId);
+  if(host) host.querySelectorAll(".tuttiles button").forEach(b=>b.classList.toggle("on", b===btn));
+}
+async function tutorRecordLesson(childId){
+  const me=sessionMember();
+  if(!me || !isTutorRole(me)){ alert("Only an invited tutor can do that."); return; }
+  const child=memberById(childId);
+  if(!child || !isChildRole(child)) return;
+  if(assignedChildIds(me).indexOf(child.id)<0){ alert("You haven\u2019t been given access to that child."); return; }
+  if(tutorAwardedToday(me.id, child)>0){ alert("Today\u2019s lesson for "+child.name+" is already recorded."); render(); return; }
+  const pts=__tutPts[childId];
+  if(!pts){ alert("Pick 1 to "+TUTOR_MAX_PER_AWARD+" for the lesson."); return; }
+  const el=document.getElementById("tutnote-"+childId);
+  const why=el ? String(el.value||"").trim() : "";
+  const label=why || "Worked well in today\u2019s lesson";
+  try{
+    await window.fpc.addLedgerEntry(familyId, {
+      childId: child.id, points: pts, label, type: "award",
+      byUid: window.fpc.uid(), byName: me.name, byRole: relationLabel(me),
+      catKey: "tutor|"+me.id, actionName: label
+    });
+    delete __tutPts[childId];
+  }catch(e){
+    console.error("Tutor award refused:", e);
+    alert("That couldn\u2019t be sent. Try once more, then tell whoever set the app up.");
+  }
 }
 function renderFamilyView(me){
   if(isTutorRole(me)) return renderTutorView(me);
   const f=currentFamily();
   const kids=f ? f.children.filter(isChildRole) : [];
   const weekDates=getCurrentWeekDates();
-  const mine=(app.requests||[]).filter(r=>r.type==="offer" && r.sponsorId===me.id).slice(0,5);
-  const goal=activeGoal();
+  const mine=(app.requests||[]).filter(r=>r.type==="offer" && r.sponsorId===me.id).slice(0,3);
+  /* v241 (design C3): one screen, ten seconds. Per child: this week's points,
+     what is left to give, and four amounts that go dead when they would exceed
+     it. Then one offer. No history, no balances. */
   document.getElementById("familyViewBody").innerHTML = `
     <section class="kidhero h-family">
-      <div class="kidherorow">
-        <div>
-          <p class="kidhi">Asalamualaikum, ${escapeHtml(me.name)}! \u{1f44b}</p>
-          <p class="kidsub">${escapeHtml(relationLabel(me))} \u00b7 ${escapeHtml((f&&f.name)||"the family")}</p>
-        </div>
-      </div>
+      <div class="kidherorow"><div>
+        <p class="kidhi">Asalamualaikum, ${escapeHtml(me.name)}</p>
+        <p class="kidsub">${escapeHtml(relationLabel(me))} \u00b7 ${escapeHtml((f&&f.name)||"the family")}</p>
+      </div></div>
     </section>
-    <section class="kidcard r-points">
-      <h2>\u{1f465} The children this week</h2>
-      <p class="lede">What they\u2019ve earned since Monday.</p>
-      <div style="display:grid;gap:8px">${kids.length ? kids.map(c=>{
-        const left=familyAllowanceLeft(me.id, c);
-        return `<div class="overviewrow" style="cursor:default;flex-wrap:wrap">
-        <div class="memberhead">
-          ${c.photo?`<img class="avatar" src="${c.photo}" alt="">`:'<div class="avatar-placeholder">\ud83d\udc64</div>'}
-          <div><strong>${escapeHtml(c.name)}</strong>
-            <div class="small">${weeklyTotalFor(c, weekDates)} points this week</div></div>
+    <p class="rvcap">The children this week</p>
+    ${kids.length ? kids.map(c=>{
+      const left=familyAllowanceLeft(me.id, c);
+      return `<section class="gpkid" id="gp-${c.id}">
+        <div class="gpkidhead">
+          <div><strong>${escapeHtml(c.name)}</strong><span class="gpweek">${weeklyTotalFor(c, weekDates)} points this week</span></div>
+          <div class="gpleft ${left?"":"zero"}"><strong>${left}</strong><span>left to give</span></div>
         </div>
-        <div style="display:flex;align-items:center;gap:8px">
-          <span class="allowpill ${left?"":"spent"}">${left} of ${FAMILY_WEEKLY_ALLOWANCE} left</span>
-          <button class="confirm" style="width:auto" ${left?"":"disabled"} onclick="familyGivePoints('${c.id}')">\uff0b Give</button>
-        </div>
-      </div>`;}).join("") : '<p class="small">No children on the list yet.</p>'}</div>
-      <p class="small" style="margin:12px 0 0">You have ${FAMILY_WEEKLY_ALLOWANCE} points a week for each child. It fills up again every Monday \u2014 so they\u2019re worth spending on something you actually noticed.</p>
-    </section>
-    ${goal ? goalCardHTML(goal, true) : ""}
-    <section class="kidcard r-spend">
-      <h2>\u{1f381} Do something for them</h2>
-      <p class="lede">A parent sees it first, then the children do.</p>
-      <div style="display:grid;gap:8px;margin-top:10px">
-        <button class="primary" onclick="sendOffer('goal')">\u{1f3af} Offer a family goal</button>
-        <button class="light" onclick="sendOffer('gift')">\u{1f381} Give them something \u2014 no points needed</button>
+        <input class="gpnote" id="gpnote-${c.id}" maxlength="80" placeholder="A word for them (optional \u2014 they read it)">
+        <div class="gpamts">${[1,2,3,5].map(n=>`<button ${n>left?"disabled":""} onclick="familyGiveInline('${c.id}',${n})">+${n}</button>`).join("")}</div>
+      </section>`;}).join("")
+    : '<p class="small">No children on the list yet.</p>'}
+    <p class="small" style="margin:6px 2px 0">${FAMILY_WEEKLY_ALLOWANCE} a week for each child. It fills up again on Monday.</p>
+    <p class="rvcap">Offer something</p>
+    <section class="gpoffer">
+      <p class="lede" style="margin:0 0 10px">A reward or an outing. Nothing reaches them until their parent says yes.</p>
+      <div class="seg" id="gpOfferKind">
+        <button type="button" class="on" onclick="gpKind('gift',this)">An outing or a gift</button>
+        <button type="button" onclick="gpKind('goal',this)">A family goal</button>
       </div>
-      <div style="margin-top:14px">${mine.length ? mine.map(r=>`<div class="statusrow ${
+      <input id="gpOfferWhat" placeholder="e.g. a trip to the library" oninput="gpOfferReady()" style="margin-top:10px">
+      <input id="gpOfferTarget" type="number" min="50" step="50" placeholder="Points to reach together (e.g. 800)" class="hidden" oninput="gpOfferReady()" style="margin-top:8px">
+      <input id="gpOfferMsg" placeholder="A message for them (optional)" style="margin-top:8px">
+      <button class="primary gpoffercta" id="gpOfferBtn" disabled style="width:100%;margin-top:12px" onclick="sendOfferInline()">Send it to their parent</button>
+      ${mine.length ? `<div style="margin-top:12px">${mine.map(r=>`<div class="statusrow ${
           r.status==="pending"?"stat-pending":r.status==="approved"?"stat-approved":"stat-declined"}">
           <span><strong>${escapeHtml(r.itemName)}</strong></span>
-          <span class="small">${r.status==="pending"?"\u23f3 With a parent"
-            :r.status==="approved"?"\u{1f389} They know!":"Not this time"}</span></div>`).join("") : ""}</div>
+          <span class="small">${r.status==="pending"?"With a parent":r.status==="approved"?"They know!":"Not this time"}</span></div>`).join("")}</div>` : ""}
     </section>
-    <p class="kidfooter">You can\u2019t take points away, change rewards, or see anyone\u2019s private lists \u2014 that stays with Mum and Dad.</p>
+    <p class="kidfooter">You can\u2019t take points away, change rewards, or see anyone\u2019s balances or lists \u2014 that stays with Mum and Dad.</p>
     <div style="text-align:center;margin:0 0 24px">
-      <button class="light" style="width:auto" onclick="signOutDevice()">\u{1f512} Sign out</button>
+      <button class="light" style="width:auto" onclick="signOutDevice()">Sign out</button>
     </div>`;
+}
+let __gpKind="gift";
+function gpKind(k, btn){
+  __gpKind=k;
+  document.querySelectorAll("#gpOfferKind button").forEach(b=>b.classList.toggle("on", b===btn));
+  const t=document.getElementById("gpOfferTarget"); if(t) t.classList.toggle("hidden", k!=="goal");
+  gpOfferReady();
+}
+function gpOfferReady(){
+  const w=document.getElementById("gpOfferWhat"), t=document.getElementById("gpOfferTarget"), b=document.getElementById("gpOfferBtn");
+  if(!b) return;
+  const ok = w && w.value.trim() && (__gpKind!=="goal" || (t && parseInt(t.value,10)>=50));
+  b.disabled=!ok;
+}
+async function familyGiveInline(childId, pts){
+  const me=sessionMember();
+  if(!me || !isFamilyRole(me)){ alert("Only an invited family member can do that."); return; }
+  const child=memberById(childId);
+  if(!child || !isChildRole(child)) return;
+  const left=familyAllowanceLeft(me.id, child);
+  if(pts>left){ alert("That\u2019s more than you have left for "+child.name+" this week."); return; }
+  const el=document.getElementById("gpnote-"+childId);
+  const why=el ? String(el.value||"").trim() : "";
+  const label=why || "A little something from "+relationLabel(me);
+  try{
+    await window.fpc.addLedgerEntry(familyId, {
+      childId: child.id, points: pts, label, type: "award",
+      byUid: window.fpc.uid(), byName: me.name, byRole: relationLabel(me),
+      catKey: "family|"+me.id, actionName: label
+    });
+  }catch(e){
+    console.error("Family award refused:", e);
+    alert("That couldn\u2019t be sent. Try once more, then tell whoever set the app up.");
+  }
+}
+async function sendOfferInline(){
+  const me=sessionMember();
+  if(!me || !isFamilyRole(me)){ alert("Only invited family members can offer this."); return; }
+  const what=(document.getElementById("gpOfferWhat")||{}).value||"";
+  if(!what.trim()) return;
+  let points=0;
+  if(__gpKind==="goal"){
+    points=parseInt((document.getElementById("gpOfferTarget")||{}).value,10);
+    if(Number.isNaN(points) || points<50){ alert("Give it a target of at least 50 points."); return; }
+  }
+  const message=((document.getElementById("gpOfferMsg")||{}).value||"").trim();
+  try{
+    await window.fpc.createRequest(familyId, {
+      childId:"", childName:"", type:"offer", kind:__gpKind,
+      itemId:"", itemName:what.trim(), points: points||0,
+      sponsorId: me.id, sponsorName: me.name + " (" + relationLabel(me) + ")",
+      message, byDate:""
+    });
+  }catch(e){
+    console.error("Offer refused:", e);
+    alert("That couldn\u2019t be sent \u2014 check your connection and try again.");
+  }
 }
 
 /* ---------- Coaching nudges ----------
@@ -15284,6 +15368,14 @@ async function createParentInvite(role){
     const until = new Date(Date.now() + INVITE_TTL_MS);
     expEl.textContent = "Valid until " + until.toLocaleTimeString([], {hour:"2-digit", minute:"2-digit"}) + ".";
     box.classList.remove("hidden");
+    /* v241: a tutor's code is made from the Tutors screen, so show it there. */
+    const tb=document.getElementById("inviteBoxTutor");
+    if(inviteRole==="tutor" && tb){
+      tb.className="codecard";
+      tb.innerHTML=`<p class="codelab">Read this out to them. It works once, and lasts fifteen minutes.</p>
+        <p class="code">${codeEl.textContent}</p><p class="small codeexp">${expEl.textContent}</p>
+        <p class="small codeexp">They make their own account with their own email, then enter this code. You choose which children they work with once they are in.</p>`;
+    }
   }catch(e){
     console.error("Could not create an invite:", e);
     alert(authErrorMessage(e));
@@ -23032,6 +23124,45 @@ body:not(.haskidbar) .logamt{flex:none;font:600 14px/1 var(--f-mono)}
 body:not(.haskidbar) .logamt.plus{color:var(--g-moss)} body:not(.haskidbar) .logamt.minus{color:var(--g-warn)} body:not(.haskidbar) .logamt.zero{color:rgba(27,36,48,.35)}
 body:not(.haskidbar) .logrow2 .undo{flex:none;width:auto;min-height:32px;padding:0 6px;font:600 13px/1 var(--f-body)}
 #activityList{display:block!important}
+</style>
+
+<style id="nmRound2e">
+/* v241: C1 Tutors, C2 the tutor's app, C3 the grandparent's app */
+body:not(.haskidbar) .tutcard{background:#fff;border:1px solid rgba(27,36,48,.1);border-radius:16px;padding:14px}
+body:not(.haskidbar) .assignchips{display:flex;flex-wrap:wrap;gap:6px}
+body:not(.haskidbar) .assignchip{width:auto;min-height:36px;padding:0 12px;border-radius:12px!important;font:500 13px/1 var(--f-body);
+  background:none!important;border:1.5px dashed rgba(27,36,48,.25)!important;color:rgba(27,36,48,.6)!important}
+body:not(.haskidbar) .assignchip.on{background:var(--g-moss)!important;border:1.5px solid var(--g-moss)!important;color:#fff!important}
+body:not(.haskidbar) .kidhero.h-tutor,body:not(.haskidbar) .kidhero.h-family{background:var(--g-ink)!important;border-radius:22px;padding:18px;box-shadow:none;color:#fff;margin-bottom:12px}
+body:not(.haskidbar) .kidhero.h-tutor .kidhi,body:not(.haskidbar) .kidhero.h-family .kidhi{font:600 24px/1.15 var(--f-display);color:#fff;margin:0}
+body:not(.haskidbar) .kidhero.h-tutor .kidsub,body:not(.haskidbar) .kidhero.h-family .kidsub{color:rgba(255,255,255,.6);font:400 13px/1.4 var(--f-body);margin:4px 0 0}
+body:not(.haskidbar) .tutkid{background:#fff;border:1px solid rgba(27,36,48,.1);border-radius:16px;padding:14px;margin-bottom:10px}
+body:not(.haskidbar) .tutkid.open{border:1.5px solid var(--g-moss)}
+body:not(.haskidbar) .tutkidhead{display:flex;align-items:center;gap:12px;margin-bottom:10px}
+body:not(.haskidbar) .tutkidhead strong{display:block;font:600 16px/1.2 var(--f-body);color:var(--g-ink)}
+body:not(.haskidbar) .tutstatus{display:block;margin-top:3px;font:500 12px/1.3 var(--f-body);color:var(--g-warn)}
+body:not(.haskidbar) .tutstatus.ok{color:var(--g-moss)}
+body:not(.haskidbar) .tutfield{width:100%;min-height:58px;border:1.5px solid var(--g-moss);border-radius:14px;padding:10px 12px;font:400 15px/1.45 var(--f-body);color:var(--g-ink);resize:vertical;background:#fff}
+body:not(.haskidbar) .tuttiles{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-top:10px}
+body:not(.haskidbar) .tuttiles button{min-height:44px;border-radius:12px!important;background:#fff!important;border:1.5px solid rgba(27,36,48,.16)!important;color:var(--g-ink)!important;font:600 16px/1 var(--f-display);padding:0;width:100%}
+body:not(.haskidbar) .tuttiles button.on{border-color:var(--g-moss)!important;background:var(--g-moss-tint)!important;color:var(--g-moss)!important}
+body:not(.haskidbar) .tutnote{font:400 15px/1.5 var(--f-body);color:var(--g-ink);margin:0 0 10px}
+body:not(.haskidbar) .tutrec{display:flex;align-items:center;gap:10px;font:400 12.5px/1.3 var(--f-body);color:rgba(27,36,48,.55)}
+body:not(.haskidbar) .gpkid{background:#fff;border:1px solid rgba(27,36,48,.1);border-radius:16px;padding:14px;margin-bottom:10px}
+body:not(.haskidbar) .gpkidhead{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px}
+body:not(.haskidbar) .gpkidhead strong{display:block;font:600 16px/1.2 var(--f-body);color:var(--g-ink)}
+body:not(.haskidbar) .gpweek{display:block;margin-top:3px;font:400 12.5px/1.3 var(--f-body);color:rgba(27,36,48,.55)}
+body:not(.haskidbar) .gpleft{text-align:right}
+body:not(.haskidbar) .gpleft strong{display:block;font:600 24px/1 var(--f-display);color:var(--g-moss)}
+body:not(.haskidbar) .gpleft span{display:block;font:500 10.5px/1 var(--f-body);letter-spacing:.06em;text-transform:uppercase;color:rgba(27,36,48,.5);margin-top:3px}
+body:not(.haskidbar) .gpleft.zero strong,body:not(.haskidbar) .gpleft.zero span{color:rgba(27,36,48,.35)}
+body:not(.haskidbar) .gpnote{width:100%;min-height:42px;margin-bottom:10px}
+body:not(.haskidbar) .gpamts{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+body:not(.haskidbar) .gpamts button{min-height:46px;border-radius:12px!important;background:#fff!important;border:1.5px solid rgba(27,36,48,.16)!important;color:var(--g-ink)!important;font:600 16px/1 var(--f-display);padding:0;width:100%}
+body:not(.haskidbar) .gpamts button:disabled{opacity:.35;pointer-events:none}
+body:not(.haskidbar) .gpoffer{background:#fff;border:1px solid rgba(27,36,48,.1);border-radius:16px;padding:14px}
+body:not(.haskidbar) .gpoffer .seg{grid-template-columns:1fr 1fr}
+body:not(.haskidbar) .gpoffercta:disabled{background:rgba(27,36,48,.25)!important;border-color:transparent!important;color:#fff!important;opacity:1}
 </style>
 </body>
 </html>
