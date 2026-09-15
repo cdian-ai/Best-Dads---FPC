@@ -2939,6 +2939,7 @@
   <p class="menugroup">This app</p>
   <div class="menugrid">
     <button class="menutile" id="editModeBtn" data-k="C" data-note="What counts, and for how much" onclick="toggleEditMode()"><span>·</span>Edit categories</button>
+    <button class="menutile" id="btnSettings" data-k="S" data-note="Sound, Undo, numbers or words, the bank target" onclick="showSettingsPanel()"><span>·</span>Settings</button>
     <button class="menutile" id="btnRefreshLists" data-k="S" data-note="Bring in the recommended set" onclick="applyRecommendedLists()"><span>·</span>Update lists</button>
   </div>
   <p class="menugroup">Help</p>
@@ -3126,6 +3127,12 @@
     <div id="treeBody"></div>
   </div>
 
+  <div id="settingsPanel" class="panel r-plain hidden">
+    <button class="panelback" onclick="goHome()">← Home</button>
+    <h2>Settings</h2>
+    <div id="settingsBody" style="margin-top:12px"></div>
+  </div>
+
   <div id="tutorPanel" class="panel r-plain hidden">
     <button class="panelback" onclick="goHome()">← Home</button>
     <h2>📚 Tutors</h2>
@@ -3170,8 +3177,6 @@
     <h2>Rewards &amp; activities</h2>
     <p class="small">What they can ask for, what it costs, and how often. Time together is cheap on purpose; sweets are dear on purpose.</p>
     <div id="rewardsD5" style="margin-top:14px"></div>
-    <!-- The bank target stays reachable from here until Settings (B5) takes it. -->
-    <button class="rwbank" onclick="setVaultTarget()">Family bank target <strong id="rwBankTarget">5000</strong></button>
     <div id="parentGoal" class="hidden"></div>
     <div id="goalIdeas" class="hidden"></div>
     <div id="rewardsPanelBody"></div>
@@ -5878,7 +5883,7 @@ const TIP_CATS = [
   {key:"deen", label:"Deen"}
 ];
 
-const APP_VERSION = "v242";
+const APP_VERSION = "v243";
 const today = new Date().toISOString().slice(0,10);
 let app = {families:[],currentFamily:null,currentChild:null};
 let categories = [];
@@ -7738,8 +7743,8 @@ function renderOutsideFeed(){
               r.entry.byRole?" ("+escapeHtml(r.entry.byRole)+")":""} \u00b7 ${
               new Date(r.entry.ts).toLocaleDateString([], {weekday:"short", day:"numeric", month:"short"})}</div></div>
           <div class="feedpts">+${r.entry.points}</div>
-          <button class="light" style="width:auto;padding:6px 10px;font-size:12px"
-            onclick="undoActivityEntry('${r.child.id}','${r.entry.id}')">Undo</button>
+          ${(typeof undoAllowed!=="function" || undoAllowed(r.entry)) ? `<button class="light" style="width:auto;padding:6px 10px;font-size:12px"
+            onclick="undoActivityEntry('${r.child.id}','${r.entry.id}')">Undo</button>` : ""}
         </div>`).join("")}</div>
     </section>`;
 }
@@ -9270,7 +9275,7 @@ function prayerWallHTML(child, days, forChild){
 const KID_ONLY_SCREENS = ["kidSpendScreen","kidLearnScreen","kidPointsScreen",
                           "kidBankScreen","kidGiveScreen"];
 const SHARED_SCREENS   = ["rulesPanel","treePanel","deenPanel","playPanel"];
-const SCREENS = ["accountPanel","overviewPanel","activityPanel","requestsPanel","progressPanel","rewardsPanel","grownupsPanel","pledgesPanel","playPanel","notesPanel","pickPanel","quickPanel","reviewPanel","rulesPanel","tutorPanel","treePanel","deenPanel","tipsPanel","learnDeenPanel",
+const SCREENS = ["settingsPanel","accountPanel","overviewPanel","activityPanel","requestsPanel","progressPanel","rewardsPanel","grownupsPanel","pledgesPanel","playPanel","notesPanel","pickPanel","quickPanel","reviewPanel","rulesPanel","tutorPanel","treePanel","deenPanel","tipsPanel","learnDeenPanel",
                  "kidSpendScreen","kidLearnScreen","kidPointsScreen",
                  "kidBankScreen","kidGiveScreen"];
 let screenNow = null;
@@ -10843,7 +10848,8 @@ function renderActivityLog(){
       const note=(e.label||"").includes(" \u2014 ") ? (e.label||"").split(" \u2014 ").slice(1).join(" \u2014 ") : "";
       const what=note ? (e.label||"").split(" \u2014 ")[0] : (e.label||"");
       const amt = e.points>0 ? `<span class="logamt plus">+${e.points}</span>` : e.points<0 ? `<span class="logamt minus">\u2212${Math.abs(e.points)}</span>` : `<span class="logamt zero">\u2014</span>`;
-      const canUndo = (e.type==="award"||e.type==="purchase"||e.type==="refund") && !undone.has(c.id+"|"+(e.label||"")) && isParentSession();
+      const canUndo = (e.type==="award"||e.type==="purchase"||e.type==="refund") && !undone.has(c.id+"|"+(e.label||"")) && isParentSession()
+        && (typeof undoAllowed!=="function" || undoAllowed(e));
       return `<div class="logrow2">
         <span class="logkind ${cls}">${kind}</span>
         <span class="logmain"><span class="logwhat">${__logFilter==="all"?escapeHtml(c.name)+" \u00b7 ":""}${escapeHtml(what)}</span>
@@ -23584,6 +23590,191 @@ body:not(.haskidbar) .canlist li.cannot{color:rgba(27,36,48,.6)}
 })();
 </script>
 
+<!-- ===== addons/design-b4-b5.js ===== -->
+<script>
+/* v243 (design B4, B5): the family tree as tiles grouped by role, cosmetic by
+   design; and a Settings screen — sound, the Undo window, numbers or words,
+   the bank target, and leaving. */
+(function(){
+  const esc = s => (typeof escapeHtml==="function") ? escapeHtml(s) : String(s);
+  const S = () => { app.settings = app.settings || {}; return app.settings; };
+  const SESSION_START = Date.now();
+
+  /* ---------- Undo window ----------
+     Undo used to stay on every entry for ever. "A day" is the default; "off"
+     keeps Undo only for what was booked since the app was opened, so a
+     decision is final once it is left behind. */
+  window.undoAllowed = function(e){
+    if(!e) return false;
+    const w = S().undoWindow || "day";
+    const ts = Number(e.ts)||0;
+    if(w==="off") return ts >= SESSION_START;
+    return ts >= Date.now() - 24*3600*1000;
+  };
+
+  /* ---------- Numbers or words ----------
+     The age rule stays unless a parent decides for the whole family. */
+  const innerShowsNumbers = kidShowsNumbers;
+  kidShowsNumbers = window.kidShowsNumbers = function(child){
+    const m = S().numWords;
+    if(m==="numbers") return true;
+    if(m==="words") return false;
+    return innerShowsNumbers(child);
+  };
+
+  /* ---------- B4: Family tree ---------- */
+  const initial = n => esc(String(n||"?").trim().slice(0,1).toUpperCase());
+  let treeAdding = false, treePick = null;   // person tapped (wider family only)
+  function tile(m, rel, extra){
+    return `<button class="trperson ${extra&&extra.on?"on":""}" ${extra&&extra.tap?`onclick="${extra.tap}"`:'disabled'}>
+      <span class="trtile">${m.photo?`<img src="${m.photo}" alt="">`:initial(m.name)}</span>
+      <span class="trname">${esc(m.name)}</span>
+      <span class="trrel">${esc(rel)}</span>
+    </button>`;
+  }
+  function group(title, people){
+    if(!people.length) return "";
+    return `<section class="trgroup">
+      <div class="trhead"><span class="rvcap" style="margin:0">${title}</span><span class="rwrule"></span><span class="trcount">${people.length}</span></div>
+      <div class="trrow">${people.join("")}</div>
+    </section>`;
+  }
+  function addForm(){
+    return `<div class="trform rwedit">
+      <input id="trName" placeholder="Their name, as the children say it" maxlength="40">
+      <div class="rwchips" data-role="rel">${RELATIONS.map((r,i)=>`<button class="${i===0?"on":""}" data-v="${r.id}" onclick="nmRewardChip(this)">${esc(r.label)}</button>`).join("")}</div>
+      <div class="seg" id="trSide">${[["mum","Mum\u2019s side"],["dad","Dad\u2019s side"],["","Neither"]].map(([v,l],i)=>`<button class="${i===2?"on":""}" data-v="${v}" onclick="nmSegPick(this)">${l}</button>`).join("")}</div>
+      <input id="trAbout" placeholder="A line about them, for the children (optional)" maxlength="120">
+      <div class="rweditbtns"><button class="confirm" onclick="nmRelativeSave()">Add to the tree</button><button class="light" onclick="nmRelativeCancel()">Cancel</button></div>
+    </div>`;
+  }
+  renderTreePanel = window.renderTreePanel = function(){
+    const body=document.getElementById("treeBody"); if(!body) return;
+    const me=sessionMember(); const f=currentFamily();
+    if(!f){ body.innerHTML='<p class="small">No family loaded.</p>'; return; }
+    const kids=f.children.filter(isChildRole), parents=f.children.filter(isParentRole);
+    const forChild = me && isChildRole(me);
+    const tutors=f.children.filter(isTutorRole).filter(t=>!forChild || assignedChildIds(t).indexOf(me.id)>=0);
+    const wider=f.children.filter(c=>isFamilyRole(c) && !isTutorRole(c));
+    const parent = isParentSession();
+    const relOf = m => relationLabelOf(m);
+    const kidRel = c => forChild ? (c.id===me.id ? "You" : "Age "+esc(c.age||"\u2014")) : "Age "+esc(c.age||"\u2014");
+    const widerTile = m => tile(m, relOf(m), parent ? {tap:`nmTreePick('${m.id}')`, on:treePick===m.id} : null);
+    const picked = treePick && parent ? memberById(treePick) : null;
+    body.innerHTML = `<h2>${forChild?"\ud83c\udf33 My family":"Family tree"}</h2>
+      <p class="small">${forChild ? "Everyone who\u2019s part of your family." : "Who is who. Nothing here changes what anyone can do."}</p>
+      ${group(forChild?"Mum and Dad":"Parents", parents.map(p=>tile(p, relationLabel(p)||"Parent")))}
+      ${group(forChild?"Brothers and sisters":"Children", kids.map(c=>tile(c, kidRel(c))))}
+      ${group(forChild?"Grandparents, aunts and uncles":"Wider family", wider.map(widerTile))}
+      ${picked && !hasLogin(picked) ? `<div class="trpicked"><span>${esc(picked.name)}${picked.about?" \u2014 "+esc(picked.about):""}</span>
+          <button class="light danger" onclick="nmRelativeRemove('${picked.id}')">Take off the tree</button></div>` : ""}
+      ${group("Tutors", tutors.map(t=>{ const theirs=assignedChildIds(t).map(id=>memberById(id)).filter(Boolean);
+          return tile(t, theirs.length ? "Teaches "+theirs.map(c=>esc(c.name)).join(", ") : "Tutor"); }))}
+      ${parent ? (treeAdding ? addForm()
+          : `<button class="rwadd trees" onclick="nmRelativeStart()"><i>+</i>Add a grandparent, aunt or uncle</button>
+             <p class="rwfoot">Adding someone here doesn\u2019t create a login \u2014 it puts them on the tree for the children to see. To give a grandparent their own app, invite them from Family members.</p>`) : ""}
+      ${!parent && !forChild && !wider.length ? '<p class="rwfoot">A parent can add the wider family here.</p>' : ""}
+      ${forChild && !wider.length ? '<p class="rwfoot">Your grandparents, aunts and uncles will appear here once a parent adds them.</p>' : ""}`;
+    const n=body.querySelector("#trName"); if(n) setTimeout(()=>n.focus(),0);
+  };
+  window.nmTreePick = function(id){ treePick = treePick===id ? null : id; renderTreePanel(); };
+  window.nmRelativeStart = function(){ if(!requireParent()) return; treeAdding=true; treePick=null; renderTreePanel(); };
+  window.nmRelativeCancel = function(){ treeAdding=false; renderTreePanel(); };
+  window.nmSegPick = function(btn){ btn.parentElement.querySelectorAll("button").forEach(b=>b.classList.toggle("on", b===btn)); };
+  window.nmRelativeSave = async function(){
+    if(!requireParent()) return;
+    const name=(document.getElementById("trName").value||"").trim();
+    if(!name){ alert("Give them a name."); return; }
+    const relBtn=document.querySelector('.rwchips[data-role="rel"] button.on');
+    const rel=RELATIONS.find(r=>r.id===(relBtn?relBtn.dataset.v:"")) || RELATIONS[0];
+    const sideBtn=document.querySelector("#trSide button.on");
+    const side=(sideBtn && sideBtn.dataset.v) || null;
+    const about=(document.getElementById("trAbout").value||"").trim();
+    const id="rel_"+Math.abs(hashString(name+rel.id+Date.now())).toString(16);
+    try{
+      await window.fpc.saveMember(familyId, id, { name, role:"family", relation:rel.id, side, about, noLogin:true, age:rel.label, photo:null, email:null });
+      treeAdding=false; renderTreePanel();
+    }catch(e){ console.error("Couldn't add a relative:", e); alert("That couldn\u2019t be saved."); }
+  };
+  window.nmRelativeRemove = async function(id){
+    if(!requireParent()) return;
+    const m=memberById(id); if(!m) return;
+    if(!confirm("Take "+m.name+" off the family tree?")) return;
+    try{ await window.fpc.deleteMember(familyId, id); treePick=null; renderTreePanel(); }
+    catch(e){ console.error(e); alert("That couldn\u2019t be saved."); }
+  };
+  addRelative = window.addRelative = function(){ nmRelativeStart(); };
+
+  /* ---------- B5: Settings ---------- */
+  const toggle = (on, act) => `<button class="nmtog ${on?"on":""}" role="switch" aria-checked="${on}" onclick="${act}"><i></i></button>`;
+  let leaveState = null;
+  function renderSettings(){
+    const body=document.getElementById("settingsBody"); if(!body) return;
+    const s=S();
+    const undoDay = (s.undoWindow||"day")==="day";
+    const nw = s.numWords || "auto";
+    const target = s.vaultTarget || 5000;
+    const f=currentFamily();
+    body.innerHTML = `
+      <div class="stcard">
+        <div class="strow"><span class="stmain"><strong>Sounds and animations</strong><em>On this device only.</em></span>${toggle(soundOn(), "nmSetSound()")}</div>
+        <div class="strow"><span class="stmain"><strong>Keep Undo available for a day</strong><em>${undoDay?"Awards and spending can be undone for 24 hours.":"Off means a decision is final once you close the app."}</em></span>${toggle(undoDay, "nmSetUndo()")}</div>
+      </div>
+
+      <p class="rvcap">Numbers or words</p>
+      <p class="small">How a child\u2019s points read on their own screens.</p>
+      <div class="stpick">
+        ${[["numbers","Numbers","340 points","The same figure the price tags use."],["words","Words","\u201cA good handful\u201d","No arithmetic, just the picture."]].map(([v,t,ex,why])=>
+          `<button class="stopt ${nw===v?"on":""}" onclick="nmSetNumWords('${v}')"><strong>${t}</strong><span class="stex">${ex}</span><em>${why}</em></button>`).join("")}
+      </div>
+      <button class="stauto ${nw==="auto"?"on":""}" onclick="nmSetNumWords('auto')">${nw==="auto"?"\u2713 ":""}Decide by age \u2014 words under seven, numbers from seven</button>
+
+      <p class="rvcap">Family bank target</p>
+      <p class="small">One target for everyone. Nothing comes out of the bank until a child reaches it.</p>
+      <div class="ststep"><button onclick="nmBankStep(-500)" ${target<=500?"disabled":""}>\u2212500</button><strong>${target.toLocaleString()}</strong><button onclick="nmBankStep(500)">+500</button></div>
+
+      <p class="rvcap">Leaving</p>
+      <div class="stleave">
+        <p class="small" style="margin:0 0 10px">Leaving ${f?"\u201c"+esc(f.name)+"\u201d":"this family"} removes you from it and takes you back to the code screen. Your login stays \u2014 nothing else is touched.</p>
+        <button class="light danger" style="width:auto" onclick="leaveFamilyFlow()">Leave this family</button>
+        ${leaveState && leaveState.canDelete ? `<button class="light danger" style="width:auto;margin-left:8px" onclick="deleteFamilyFlow()">Delete it completely</button>
+          <p class="rwfoot">You created this family and nothing has happened in it yet, so it can be removed altogether.</p>` : ""}
+      </div>
+      <p class="rwfoot" style="text-align:center">Notice Me ${typeof APP_VERSION!=="undefined"?APP_VERSION:""}</p>`;
+  }
+  window.renderSettingsPanel = renderSettings;
+  window.showSettingsPanel = async function(){
+    openPanel("settingsPanel");
+    leaveState=null; renderSettings();
+    try{
+      const uid=window.fpc.uid && window.fpc.uid(); const f=currentFamily();
+      if(f && uid && f.ownerUid===uid && window.fpc.familyIsEmpty){
+        const st=await window.fpc.familyIsEmpty(familyId, uid);
+        leaveState={canDelete: st.others===0 && !st.hasHistory};
+        if(typeof screenNow!=="undefined" && screenNow==="settingsPanel") renderSettings();
+      }
+    }catch(e){ console.error("Couldn't check the family:", e); }
+  };
+  window.nmSetSound = function(){ setSoundOn(!soundOn()); renderSettings(); };
+  window.nmSetUndo = async function(){
+    if(!requireParent()) return;
+    S().undoWindow = (S().undoWindow||"day")==="day" ? "off" : "day";
+    renderSettings(); await saveApp(); if(typeof render==="function") render();
+  };
+  window.nmSetNumWords = async function(v){
+    if(!requireParent()) return;
+    if(v==="auto") delete S().numWords; else S().numWords=v;
+    renderSettings(); await saveApp(); if(typeof render==="function") render();
+  };
+  window.nmBankStep = async function(d){
+    if(!requireParent()) return;
+    const cur=S().vaultTarget||5000;
+    S().vaultTarget=Math.max(500, cur+d);
+    renderSettings(); await saveApp(); if(typeof render==="function") render();
+  };
+})();
+</script>
+
 <style id="nmRound2d">
 /* v240: D2 Review together, D4 Activity log */
 body:not(.haskidbar) .rvcap{font:600 10.5px/1 var(--f-body);letter-spacing:.09em;text-transform:uppercase;color:rgba(27,36,48,.55);margin:20px 2px 10px}
@@ -23707,7 +23898,7 @@ body:not(.haskidbar) .rwedit input:focus,body:not(.haskidbar) .rwedit textarea:f
 body:not(.haskidbar) .rwedit input[type=number]{max-width:84px;font-family:var(--f-mono)}
 body:not(.haskidbar) .rweditbtns{display:flex;gap:8px;flex-wrap:wrap}
 body:not(.haskidbar) .rweditbtns button{width:auto;min-height:40px;padding:0 14px}
-body:not(.haskidbar) .rweditbtns .danger{border-color:var(--g-undo)!important;color:var(--g-undo)!important;background:none!important}
+body:not(.haskidbar) .rweditbtns .danger,body:not(.haskidbar) .trpicked .danger,body:not(.haskidbar) .stleave .danger{border-color:var(--g-undo)!important;color:var(--g-undo)!important;background:none!important}
 body:not(.haskidbar) .rwfoot{font:400 12px/1.55 var(--f-body);color:rgba(27,36,48,.5);margin:12px 2px 0}
 body:not(.haskidbar) .rwbank{width:100%;margin-top:18px;min-height:44px;background:none!important;border:1px dashed rgba(27,36,48,.2)!important;border-radius:14px!important;color:rgba(27,36,48,.6)!important;font:500 13px/1 var(--f-body);display:flex;justify-content:space-between;align-items:center;padding:0 14px}
 body:not(.haskidbar) .rwbank strong{font:600 14px/1 var(--f-mono);color:var(--g-ink)}
@@ -23740,6 +23931,55 @@ body:not(.haskidbar) .plfoot{display:flex;align-items:center;justify-content:spa
 body:not(.haskidbar) #grownupsPanel .rvcap{margin-top:22px}
 body:not(.haskidbar) #grownupsPanel .rvcap:first-child{margin-top:8px}
 body:not(.haskidbar) #pledgeSection .rweditrow input[type=number]{max-width:110px}
+</style>
+<style id="nmRound2g">
+/* v243: B4 Family tree, B5 Settings */
+body:not(.haskidbar) .trgroup{margin-top:18px}
+body:not(.haskidbar) .trhead{display:flex;align-items:center;gap:9px;margin-bottom:10px}
+body:not(.haskidbar) .trcount{font:600 11px/1 var(--f-mono);color:rgba(27,36,48,.45)}
+.trrow{display:flex;flex-wrap:wrap;gap:10px 8px}
+.trperson{width:72px;padding:0;background:none!important;border:0!important;display:flex;flex-direction:column;align-items:center;gap:5px;border-radius:12px!important;text-align:center;min-height:44px}
+.trperson:disabled{opacity:1;cursor:default}
+.trperson.on .trtile{outline:2px solid var(--g-moss);outline-offset:2px}
+.trtile{width:56px;height:56px;border-radius:17px;background:var(--g-moss-tint);display:grid;place-items:center;font:600 20px/1 var(--f-display);color:var(--g-moss);overflow:hidden}
+.trtile img{width:100%;height:100%;object-fit:cover}
+.trname{font:600 12.5px/1.2 var(--f-body);color:var(--nm-ink,#1B2430);max-width:72px;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.trrel{font:400 10.5px/1.25 var(--f-body);color:rgba(27,36,48,.5);max-width:72px}
+.haskidbar .trtile{background:var(--c-warm);color:var(--c-mango-deep)}
+.haskidbar .trgroup{margin-top:18px}
+.haskidbar .trhead{display:flex;align-items:center;gap:9px;margin-bottom:10px}
+.haskidbar .trhead .rvcap{font:600 11px/1 var(--f-body);letter-spacing:.08em;text-transform:uppercase;color:rgba(43,58,74,.5)}
+.haskidbar .trhead .rwrule{flex:1;height:1px;background:rgba(43,58,74,.12)}
+.haskidbar .trcount{font:600 11px/1 var(--f-mono);color:rgba(43,58,74,.45)}
+.haskidbar .trrel{color:rgba(43,58,74,.55)}
+body:not(.haskidbar) .trpicked{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:12px;padding:12px 14px;background:#fff;border:1px solid rgba(27,36,48,.1);border-radius:14px;font:400 13px/1.4 var(--f-body);color:var(--g-ink)}
+body:not(.haskidbar) .trpicked .light{width:auto;min-height:36px;padding:0 12px;font-size:12.5px;flex:none}
+body:not(.haskidbar) .rwadd.trees{margin-top:18px;border:1px dashed rgba(27,36,48,.2)!important;border-radius:14px!important}
+body:not(.haskidbar) .trform{margin-top:18px;border:1px solid rgba(27,36,48,.1);border-radius:16px}
+body:not(.haskidbar) .trform .seg{grid-template-columns:1fr 1fr 1fr}
+body:not(.haskidbar) .stcard{background:#fff;border:1px solid rgba(27,36,48,.1);border-radius:16px;overflow:hidden}
+body:not(.haskidbar) .strow{display:flex;align-items:center;gap:12px;padding:14px 15px;border-top:1px solid rgba(27,36,48,.07)}
+body:not(.haskidbar) .strow:first-child{border-top:0}
+body:not(.haskidbar) .stmain{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
+body:not(.haskidbar) .stmain strong{font:600 14px/1.3 var(--f-body);color:var(--g-ink)}
+body:not(.haskidbar) .stmain em{font:400 12px/1.4 var(--f-body);color:rgba(27,36,48,.55);font-style:normal}
+body:not(.haskidbar) .nmtog{width:46px;min-height:28px;height:28px;padding:0;border-radius:99px!important;background:rgba(27,36,48,.18)!important;border:0!important;position:relative;flex:none;transition:background .18s}
+body:not(.haskidbar) .nmtog i{position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:#fff;transition:transform .18s}
+body:not(.haskidbar) .nmtog.on{background:var(--g-moss)!important}
+body:not(.haskidbar) .nmtog.on i{transform:translateX(18px)}
+body:not(.haskidbar) .stpick{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+body:not(.haskidbar) .stopt{display:flex;flex-direction:column;align-items:flex-start;gap:4px;padding:14px;text-align:left;background:#fff!important;border:1.5px solid rgba(27,36,48,.12)!important;border-radius:16px!important;min-height:44px}
+body:not(.haskidbar) .stopt.on{border-color:var(--g-moss)!important}
+body:not(.haskidbar) .stopt strong{font:600 14px/1.2 var(--f-body);color:var(--g-ink)}
+body:not(.haskidbar) .stopt .stex{font:600 20px/1.2 var(--f-display);color:var(--g-ink);margin:4px 0 2px}
+body:not(.haskidbar) .stopt em{font:400 11.5px/1.4 var(--f-body);color:rgba(27,36,48,.55);font-style:normal}
+body:not(.haskidbar) .stauto{width:100%;margin-top:8px;min-height:44px;background:none!important;border:1px dashed rgba(27,36,48,.2)!important;border-radius:14px!important;color:rgba(27,36,48,.6)!important;font:500 12.5px/1.3 var(--f-body);padding:0 14px}
+body:not(.haskidbar) .stauto.on{border-style:solid!important;border-color:var(--g-moss)!important;color:var(--g-moss)!important}
+body:not(.haskidbar) .ststep{display:flex;align-items:center;justify-content:space-between;gap:10px;background:#fff;border:1px solid rgba(27,36,48,.1);border-radius:16px;padding:10px 12px}
+body:not(.haskidbar) .ststep button{width:auto;min-height:44px;padding:0 16px;border-radius:12px!important;background:rgba(27,36,48,.06)!important;border:0!important;color:var(--g-ink)!important;font:600 14px/1 var(--f-mono)}
+body:not(.haskidbar) .ststep button:disabled{opacity:.35}
+body:not(.haskidbar) .ststep strong{font:600 24px/1 var(--f-display);color:var(--g-ink)}
+body:not(.haskidbar) .stleave{background:#fff;border:1px solid rgba(176,86,58,.3);border-radius:16px;padding:14px 15px}
 </style>
 </body>
 </html>
