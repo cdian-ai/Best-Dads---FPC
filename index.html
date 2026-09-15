@@ -6431,7 +6431,7 @@ const TIP_CATS = [
   {key:"deen", label:"Deen"}
 ];
 
-const APP_VERSION = "v252";
+const APP_VERSION = "v253";
 const today = new Date().toISOString().slice(0,10);
 let app = {families:[],currentFamily:null,currentChild:null};
 let categories = [];
@@ -24879,6 +24879,18 @@ body.haskidbar .paneltop{bottom:calc(84px + env(safe-area-inset-bottom))}
 .lbbody{padding:0 8px 8px;border-top:1px solid rgba(27,36,48,.08)}
 .lbbody .strandcard{box-shadow:none;border:0;margin:0}
 .haskidbar .lbrow{border-color:rgba(43,58,74,.12)} .haskidbar .lbname{color:var(--c-ink)}
+/* v253: THE GAP. In the parsed DOM #mainApp holds only the header (menu sheet
+   and panels); the parent's #cards, #familyView and #kidView are children of
+   <body>, after it. So the padding meant to push the page below the Menu pill
+   was on an empty box, and that box — 66px above, 88px below — sat as a blank
+   band above every screen: 154px on a child's tabs and on a parent viewing a
+   child, 94px on the parent's board. The box now takes no room and <body>
+   carries the clearance, so whichever view is in flow starts in the right
+   place. The board keeps its old 94px because the sky band and the champion
+   ring live in it. */
+#mainApp{padding:0!important;min-height:0!important}
+body.nocover{padding-top:calc(66px + env(safe-area-inset-top))}
+body.nocover.board{padding-top:calc(94px + env(safe-area-inset-top))}
 @keyframes ntnudge{0%,100%{box-shadow:none}40%{box-shadow:0 0 0 3px rgba(78,140,106,.35)}}
 body:not(.haskidbar) .rwcard{background:#fff;border:1px solid rgba(27,36,48,.1);border-radius:16px;overflow:hidden}
 body:not(.haskidbar) .rwrow,body:not(.haskidbar) .prrow,body:not(.haskidbar) .hrrow{display:flex;align-items:center;gap:12px;padding:13px 15px;border-top:1px solid rgba(27,36,48,.07);background:#fff}
