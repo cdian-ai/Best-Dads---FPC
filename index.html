@@ -2974,7 +2974,7 @@
   </div>
 
   <div id="accountPanel" class="panel r-plain hidden">
-    <button class="panelback" onclick="goHome()">← Home</button>
+    <button class="panelback" onclick="panelExit()">← Home</button>
     <div class="panelgrid">
       <!-- v217: the prayer-times section is gone, and with it the request for a
            location. It promised to "show the next prayer", but this app sends no
@@ -3040,9 +3040,10 @@
           <p class="small" id="addMemberError" style="color:#B0563A;margin:8px 0 0"></p>
         </div>
 
+        <p class="rvcap" style="margin-top:22px">Add someone</p>
         <div class="memfoot">
-          <button class="primary" id="revealAddBtn" onclick="openAddMember()">Add a child</button>
-          <button class="light" id="revealInviteBtn" onclick="toggleInviteSection()">Invite a grown-up</button>
+          <button class="addcard fill" id="revealAddBtn" onclick="openAddMember()"><span class="addico">🧒</span><strong>Add a child</strong><em>Their own login, made for you</em></button>
+          <button class="addcard tint" id="revealInviteBtn" onclick="toggleInviteSection()"><span class="addico">🔗</span><strong>Invite a grown-up</strong><em>A code for a parent, relative or tutor</em></button>
         </div>
 
         <!-- v239 (design B3): the role as three segments, the code on an ink
@@ -3092,7 +3093,7 @@
   </div>
 
   <div id="overviewPanel" class="panel r-points hidden">
-    <button class="panelback" onclick="goHome()">← Home</button>
+    <button class="panelback" onclick="panelExit()">← Home</button>
     <div id="fortnight"></div>
     <h2>📊 Family Overview</h2>
     <p class="small">A quick glance at everyone — tap a row to switch to them.</p>
@@ -3100,14 +3101,14 @@
   </div>
 
   <div id="progressPanel" class="panel r-learn hidden">
-    <button class="panelback" onclick="panelBack()">← Home</button>
+    <button class="panelback" onclick="panelExit()">← Home</button>
     <h2>📖 Learn</h2>
     <p class="small">What each child has practised and what they can do unaided. Every mark shows who made it.</p>
     <div id="progressBody" style="margin-top:10px"></div>
   </div>
 
   <div id="deenPanel" class="panel r-deen hidden">
-    <button class="panelback" onclick="goHome()">← Home</button>
+    <button class="panelback" onclick="panelExit()">← Home</button>
     <div class="spendtabs" style="max-width:460px">
       <button id="deenTabDuas" onclick="setDeenTab('duas')">🤲 Duas</button>
       <button id="deenTabRem" onclick="setDeenTab('reminders')">💡 Reminders</button>
@@ -3119,7 +3120,7 @@
 
   <!-- Being with them. 120 ideas that had no door until v176. -->
   <div id="tipsPanel" class="panel r-play hidden">
-    <button class="panelback" onclick="goHome()">← Home</button>
+    <button class="panelback" onclick="panelExit()">← Home</button>
     <h2>💛 Being with them</h2>
     <p class="small">Ideas for time together, talking, encouraging and calm moments.
       Nothing here is a task and nothing is tracked — take what is useful.</p>
@@ -3138,18 +3139,18 @@
   </div>
 
   <div id="treePanel" class="panel r-plain hidden">
-    <button class="panelback" onclick="goHome()">← Home</button>
+    <button class="panelback" onclick="panelExit()">← Home</button>
     <div id="treeBody"></div>
   </div>
 
   <div id="settingsPanel" class="panel r-plain hidden">
-    <button class="panelback" onclick="goHome()">← Home</button>
+    <button class="panelback" onclick="panelExit()">← Home</button>
     <h2>Settings</h2>
     <div id="settingsBody" style="margin-top:12px"></div>
   </div>
 
   <div id="tutorPanel" class="panel r-plain hidden">
-    <button class="panelback" onclick="goHome()">← Home</button>
+    <button class="panelback" onclick="panelExit()">← Home</button>
     <h2>📚 Tutors</h2>
     <p class="small">Anyone who teaches one of your children. They see only the children you assign them, record up to 5 points once a day, and everything they record shows on your home screen with an undo.</p>
     <div id="tutorList" style="display:grid;gap:10px;margin-top:16px"></div>
@@ -3158,7 +3159,7 @@
   </div>
 
   <div id="quickPanel" class="panel r-today hidden">
-    <button class="panelback" onclick="goHome()">← Home</button>
+    <button class="panelback" onclick="panelExit()">← Home</button>
     <h2>🔥 All at once</h2>
     <p class="small">For catching up on the whole family in one pass — usually at the end of the week. To award one child, open them from Give points instead.</p>
     <p class="small">A note is attached to the next thing you tap, then clears. It matters more than the number.</p>
@@ -3172,14 +3173,14 @@
   </div>
 
   <div id="reviewPanel" class="panel r-today hidden">
-    <button class="panelback" onclick="goHome()">← Home</button>
+    <button class="panelback" onclick="panelExit()">← Home</button>
     <h2>🗣️ Review together</h2>
     <p class="small">Sit down with them and go through the week. Everything is already decided — this is the talking part.</p>
     <div id="reviewBody" style="margin-top:12px"></div>
   </div>
 
   <div id="rulesPanel" class="panel r-plain hidden">
-    <button class="panelback" onclick="goHome()">← Home</button>
+    <button class="panelback" onclick="panelExit()">← Home</button>
     <div class="spendtabs" style="max-width:420px">
       <button id="rulesTabKids" onclick="setRulesTab('kids')">For children</button>
       <button id="rulesTabGrown" onclick="setRulesTab('grown')">For grown-ups</button>
@@ -3188,7 +3189,7 @@
   </div>
 
   <div id="rewardsPanel" class="panel r-plain hidden">
-    <button class="panelback" onclick="goHome()">← Home</button>
+    <button class="panelback" onclick="panelExit()">← Home</button>
     <h2>Rewards &amp; activities</h2>
     <p class="small">What they can ask for, what it costs, and how often. Time together is cheap on purpose; sweets are dear on purpose.</p>
     <div id="rewardsD5" style="margin-top:14px"></div>
@@ -3198,14 +3199,14 @@
   </div>
 
   <div id="grownupsPanel" class="panel r-plain hidden">
-    <button class="panelback" onclick="panelBack()">← Home</button>
+    <button class="panelback" onclick="panelExit()">← Home</button>
     <h2>Just the two of you</h2>
     <div id="grownupsExtra"></div>
     <div id="grownupsPanelBody"></div>
   </div>
 
   <div id="pledgesPanel" class="panel r-spend hidden">
-    <button class="panelback" onclick="panelBack()">← Home</button>
+    <button class="panelback" onclick="panelExit()">← Home</button>
     <h2>🤞 Pledges</h2>
     <p class="small">Something you offer each other for the week. No asking needed — it is already promised.</p>
     <div id="pledgeHost"></div>
@@ -3214,28 +3215,28 @@
   </div>
 
   <div id="notesPanel" class="panel r-today hidden">
-    <button class="panelback" onclick="panelBack()">← Home</button>
+    <button class="panelback" onclick="panelExit()">← Home</button>
     <h2>📌 I’m asking…</h2>
     <p class="small">One note per child, up to six things on it — mix what earns points with what doesn’t. They read it next time they open the app. Nothing is deducted if it doesn’t happen.</p>
     <div id="notesBody"></div>
   </div>
 
   <div id="playPanel" class="panel r-play hidden">
-    <button class="panelback" onclick="panelBack()">← Home</button>
+    <button class="panelback" onclick="panelExit()">← Home</button>
     <h2>🧩 Do together</h2>
     <p class="small">Places to go, things to make, games to play — side by side. Nothing here costs points.</p>
     <div id="playBody"></div>
   </div>
 
   <div id="pickPanel" class="panel hidden">
-    <button class="panelback" onclick="goHome()">← Home</button>
+    <button class="panelback" onclick="panelExit()">← Home</button>
     <h2 id="pickTitle">Who are you giving points to?</h2>
     <p class="small" id="pickLede"></p>
     <div id="pickList" style="display:grid;gap:9px;margin-top:14px"></div>
   </div>
 
   <div id="requestsPanel" class="panel r-today hidden">
-    <button class="panelback" onclick="goHome()">← Home</button>
+    <button class="panelback" onclick="panelExit()">← Home</button>
     <h2>🔔 They’re asking…</h2>
     <p class="small">When a child asks for a reward or an activity, it shows up here for you to approve.</p>
     <div id="requestsPanelList" style="display:grid;gap:8px;margin-top:10px"></div>
@@ -3245,7 +3246,7 @@
   </div>
 
   <div id="activityPanel" class="panel r-today hidden">
-    <button class="panelback" onclick="goHome()">← Home</button>
+    <button class="panelback" onclick="panelExit()">← Home</button>
     <div id="outsideFeed"></div>
     <div id="dailyReminder" class="hidden"></div>
     <h2>Activity log</h2>
@@ -3404,6 +3405,7 @@
   </div>
 
   <div id="kidLearnScreen" class="hidden">
+    <button class="kidback" onclick="showScreen(null)">← Home</button>
     <header class="kidtitle w-learn">
       <span class="kidtitleicon">📖</span>
       <span><span class="kidtitlename">Duɗal</span></span>
@@ -3437,6 +3439,7 @@
           screens of scroll became 104px, and it is conceptually true rather
           than merely tidier. -->
   <div id="kidPointsScreen" class="hidden">
+    <button class="kidback" onclick="showScreen(null)">← Home</button>
     <header class="kidtitle w-points">
       <span class="kidtitleicon">⭐</span>
       <span><span class="kidtitlename">My points</span>
@@ -5257,16 +5260,17 @@ const DEFAULT_REWARDS = [
      the price. A child scrolling this list found the same thing twice and
      learned that the prices are arbitrary.
 
-     A PRICE LADDER THAT SAID THE WRONG THING. Sweets sat above meals: a packet
-     of crisps cost 250 and a chocolate bar 300, while a whole chicken-and-chips
-     was 120 and a kebab 120. So the cheapest way to spend a week of noticing
-     was on confectionery, and the app was quietly teaching that sweets are the
-     valuable thing. They are now the cheapest items on the list, which is what
-     they are.
+     A PRICE LADDER THAT SAID THE WRONG THING. Sweets sat above meals, so the
+     cheapest way to spend a week of noticing was confectionery.
 
-     The ladder now runs: something that costs only attention (15-40), a small
-     sweet thing (40-70), a proper treat or a meal (90-160), time and outings
-     (200-750). Big saved-for items live in the bank, not here. */
+     v246 reverses the v164 answer to that. Making sweets the cheapest thing
+     on the list made them the thing a child reached for first, which is the
+     opposite of the point. The design's rule stands: time together is cheap on
+     purpose, sweets are dear on purpose. The ladder now runs: something that
+     costs only attention (15-40), doing something together (25-120), a proper
+     treat or a meal (60-250), sweets (200-300), outings (100-700). Big saved-for
+     items live in the bank, not here. Existing families get these prices
+     through More → Update lists. */
 
   // ---- Costs nothing but somebody's attention. The best value on the list,
   //      and priced so it is the first thing within reach.
@@ -5280,15 +5284,15 @@ const DEFAULT_REWARDS = [
   {name:"Pick the fruit for the week's shop", points:35, kind:"Choice", group:"choices"},
   {name:"Choose the family meal", points:40, kind:"Choice", group:"choices"},
 
-  // ---- Small sweet things. Cheapest of the food, deliberately.
-  {name:"A bag of crisps with lunch", points:40, kind:"Treat", group:"sweets"},
-  {name:"A lollipop or a handful of sweets", points:45, kind:"Treat", group:"sweets"},
-  {name:"A chocolate bar of your choice", points:50, kind:"Treat", group:"sweets"},
-  {name:"A fizzy drink", points:50, kind:"Treat", group:"sweets"},
-  {name:"A doughnut of your choosing", points:55, kind:"Treat", group:"sweets"},
-  {name:"A slushie or a milkshake", points:60, kind:"Treat", group:"sweets"},
-  {name:"Hot chocolate with marshmallows", points:60, kind:"Treat", group:"sweets"},
-  {name:"Ice cream after dinner", points:70, kind:"Treat", group:"sweets"},
+  // ---- Sweet things. Dear on purpose, and capped as a section.
+  {name:"A bag of crisps with lunch", points:200, kind:"Treat", group:"sweets"},
+  {name:"A lollipop or a handful of sweets", points:220, kind:"Treat", group:"sweets"},
+  {name:"A chocolate bar of your choice", points:250, kind:"Treat", group:"sweets"},
+  {name:"A fizzy drink", points:250, kind:"Treat", group:"sweets"},
+  {name:"A doughnut of your choosing", points:260, kind:"Treat", group:"sweets"},
+  {name:"A slushie or a milkshake", points:280, kind:"Treat", group:"sweets"},
+  {name:"Hot chocolate with marshmallows", points:220, kind:"Treat", group:"sweets"},
+  {name:"Ice cream after dinner", points:300, kind:"Treat", group:"sweets"},
 
   // ---- Doing something together. Costs a parent an evening, not money.
   {name:"Bake something together \u2014 cookies or cupcakes", points:70, kind:"Together", group:"together"},
@@ -5309,7 +5313,7 @@ const DEFAULT_REWARDS = [
   {name:"Extra 30 minutes of screen time", points:200, kind:"Screen", group:"screen"},
 
   // ---- Out of the house. The top of what a week or two can reach.
-  {name:"A trip to the park", points:80, kind:"Outing", group:"outings"},
+  {name:"A trip to the park", points:100, kind:"Outing", group:"outings"},
   {name:"Swimming with Mum or Dad", points:250, kind:"Outing", group:"outings"},
   {name:"Soft play or a trampoline park", points:450, kind:"Outing", group:"outings"},
   {name:"A day out of your choosing", points:700, kind:"Outing", group:"outings"},
@@ -5898,7 +5902,7 @@ const TIP_CATS = [
   {key:"deen", label:"Deen"}
 ];
 
-const APP_VERSION = "v245";
+const APP_VERSION = "v246";
 const today = new Date().toISOString().slice(0,10);
 let app = {families:[],currentFamily:null,currentChild:null};
 let categories = [];
@@ -11969,17 +11973,30 @@ function renderTipsPanel(){
     </section>` : "";
   /* The rest of the pool underneath, so a parent can see there IS a rest. One
      at a time is right for a dashboard and wrong for a library. */
-  const others = pool.map((x,i)=>({x,i})).filter(o=>o.x!==tip).slice(0,40).map(o=>{
+  /* v246: the rest of the pool, grouped by category under a hairline caption
+     when everything is showing, so a parent looking for a calm-moment idea
+     is not scanning forty mixed rows. */
+  const rest = pool.map((x,i)=>({x,i})).filter(o=>o.x!==tip);
+  const rowHTML = o => {
     const th=TIP_THEME[o.x.cat] || {glyph:"\ud83d\udca1", label:"Idea"};
     return `<button class="tiprow" onclick="jumpToTip(${o.i})">
         <span class="trglyph">${th.glyph}</span>
         <span class="trmain"><span class="trtitle">${escapeHtml(o.x.title)}</span>
           <span class="trsub">${escapeHtml(o.x.body)}</span></span>
       </button>`;
-  }).join("");
-  body.innerHTML = chips + nudge + featured
-    + `<p class="reachcap">\ud83d\udcab ${pool.length} idea${pool.length===1?"":"s"}${tipCat==="all"?"":" in this group"}</p>`
-    + `<div class="tiplist">${others}</div>`;
+  };
+  let others;
+  if(tipCat==="all"){
+    others = TIP_CATS.filter(c=>c.key!=="all").map(c=>{
+      const rows=rest.filter(o=>o.x.cat===c.key);
+      if(!rows.length) return "";
+      return `<div class="tipgroup"><div class="rwhead"><span class="rwcap">${escapeHtml(c.label)}</span><span class="rwrule"></span><span class="trcount">${rows.length}</span></div>
+        <div class="tiplist">${rows.map(rowHTML).join("")}</div></div>`;
+    }).join("");
+  }else{
+    others = `<p class="reachcap">\ud83d\udcab ${pool.length} idea${pool.length===1?"":"s"} in this group</p><div class="tiplist">${rest.map(rowHTML).join("")}</div>`;
+  }
+  body.innerHTML = chips + nudge + featured + others;
 }
 /* Index into the current pool, not the title: a title has apostrophes in it,
    and escaping one through two nested templates into an inline onclick is
@@ -15774,7 +15791,7 @@ window.FULFULDE_M1 = {
   /* ---------- the door ---------- */
   const CSS = `
   .ffwrap{position:fixed;inset:0;z-index:9000;background:#EEF0FA;display:flex;flex-direction:column}
-  .ffbar{display:flex;align-items:center;gap:10px;padding:10px 12px;
+  .ffbar{display:flex;align-items:center;gap:10px;padding:calc(10px + env(safe-area-inset-top)) 12px 10px;
     background:#fff;border-bottom:1px solid #e4e7f2;flex:0 0 auto}
   .ffbar b{font-size:15px;color:#243044;flex:1 1 auto;text-align:left}
   .ffbar button{border:0;border-radius:12px;padding:9px 14px;font:inherit;font-weight:700;
@@ -16113,7 +16130,7 @@ window.ONE_HUNDRED = {
 
   const CSS=`
   .ohwrap{position:fixed;inset:0;z-index:9000;background:#EEF0FA;display:flex;flex-direction:column}
-  .ohbar{display:flex;align-items:center;gap:10px;padding:10px 12px;background:#fff;
+  .ohbar{display:flex;align-items:center;gap:10px;padding:calc(10px + env(safe-area-inset-top)) 12px 10px;background:#fff;
     border-bottom:1px solid #e4e7f2;flex:0 0 auto}
   .ohbar b{font-size:15px;color:#243044;flex:1 1 auto;text-align:left}
   .ohbar button{border:0;border-radius:12px;padding:9px 14px;font:inherit;font-weight:700;
@@ -22057,7 +22074,8 @@ body.nm-editing #editModeNote{display:none}
 
     /* Adding someone belongs below the family, not among it. */
     var reveal = $("revealAddBtn");
-    if(reveal && !panel.querySelector(".nmaddwrap")){
+    /* v246: the two add cards carry their own caption and sit in one grid. */
+    if(reveal && !reveal.classList.contains("addcard") && !panel.querySelector(".nmaddwrap")){
       var wrap = document.createElement("div");
       wrap.className = "nmaddwrap";
       reveal.parentNode.insertBefore(wrap, reveal);
@@ -24048,6 +24066,85 @@ body:not(.haskidbar) .canlist li.cannot{color:rgba(27,36,48,.6)}
 })();
 </script>
 
+<!-- ===== addons/navigation-pass.js ===== -->
+<script>
+/* v246: one way out of every panel, and it goes back to where the panel was
+   opened from. A screen reached from More returns to More; one reached from
+   the child's menu returns to that menu; one reached from another screen
+   returns there; everything else goes home. The floating Close button does
+   the same thing as the back button, so the two never disagree. */
+(function(){
+  let menuClosed = {which:null, ts:0};
+  const innerCloseMenu = closeMenu;
+  closeMenu = window.closeMenu = function(){
+    const sheet=document.getElementById("menuSheet");
+    if(sheet && !sheet.classList.contains("hidden")) menuClosed={which:"menu", ts:Date.now()};
+    return innerCloseMenu.apply(this, arguments);
+  };
+  const innerCloseKid = closeKidMenu;
+  closeKidMenu = window.closeKidMenu = function(){
+    const sheet=document.getElementById("kidMenuSheet");
+    if(sheet && !sheet.classList.contains("hidden")) menuClosed={which:"kidmenu", ts:Date.now()};
+    return innerCloseKid.apply(this, arguments);
+  };
+  /* A tab-bar tap is a top-level move, never "from the menu", even when the
+     menu happened to be open at the time. */
+  let tabTap=0;
+  document.addEventListener("pointerdown", ev=>{ if(ev.target.closest && ev.target.closest("#parentTabBar,#kidTabBar")) tabTap=Date.now(); }, true);
+  const innerShow = showScreen;
+  showScreen = window.showScreen = function(id){
+    const before = screenNow;
+    innerShow.apply(this, arguments);
+    const viaTab = Date.now()-tabTap < 500;
+    if(viaTab){ returnTo = null; }
+    else if(id && id!==before && menuClosed.which && Date.now()-menuClosed.ts < 500){
+      returnTo = menuClosed.which;
+    }
+    menuClosed={which:null, ts:0};
+    try{ syncPanelBackLabels(); }catch(e){}
+    try{ syncTopButtons(); }catch(e){}
+  };
+  window.panelExit = function(){
+    const to = returnTo; returnTo = null;
+    if(to==="menu"){ showScreen(null); try{ toggleMenu(); }catch(e){} return; }
+    if(to==="kidmenu"){ showScreen(null); try{ toggleKidMenu(); }catch(e){} return; }
+    if(to && document.getElementById(to)){ showScreen(to); return; }
+    goHome();
+  };
+  panelBack = window.panelBack = function(){ panelExit(); };
+  syncPanelBackLabels = window.syncPanelBackLabels = function(){
+    const label = returnTo==="menu" ? "\u2190 More" : returnTo==="kidmenu" ? "\u2190 Menu"
+      : (returnTo && document.getElementById(returnTo)) ? "\u2190 Back" : "\u2190 Home";
+    document.querySelectorAll(".panel").forEach(p=>{
+      const b=p.querySelector(".panelback");
+      if(b && /panelExit|panelBack|goHome/.test(b.getAttribute("onclick")||"")) b.textContent = (screenNow===p.id) ? label : "\u2190 Home";
+    });
+  };
+  /* The floating button: inside a panel it is the same exit as the back
+     button. For a child on a panel it opens the menu, which now sits above
+     the panel rather than underneath it. */
+  openAnyMenu = window.openAnyMenu = function(){
+    if(screenNow && !kidViewOpen()){ panelExit(); return; }
+    if(isFamilySession()) return;
+    if(kidViewOpen()) toggleKidMenu(); else toggleMenu();
+  };
+  /* Top buttons: one rule. A panel that has scrolled shows "Top" bottom
+     right; the page shows it only when no panel is open. Both use the same
+     distance so they never disagree about what "far" is. */
+  window.syncTopButtons = function(){
+    const top=document.getElementById("panelTop"), fab=document.getElementById("homeFab");
+    const p=screenNow && document.getElementById(screenNow);
+    const onPanel = !!(p && p.classList.contains("panel"));
+    const menuOpen = ["menuSheet","kidMenuSheet"].some(id=>{ const el=document.getElementById(id); return el && !el.classList.contains("hidden"); });
+    if(top) top.classList.toggle("hidden", !(onPanel && !menuOpen && p.scrollTop > 400));
+    if(fab && onPanel) fab.classList.add("hidden");
+  };
+  const innerFab = renderFab;
+  renderFab = window.renderFab = function(){ innerFab.apply(this, arguments); try{ syncTopButtons(); }catch(e){} };
+  document.addEventListener("scroll", ()=>{ try{ syncTopButtons(); }catch(e){} }, {capture:true, passive:true});
+})();
+</script>
+
 <style id="nmRound2d">
 /* v240: D2 Review together, D4 Activity log */
 body:not(.haskidbar) .rvcap{font:600 10.5px/1 var(--f-body);letter-spacing:.09em;text-transform:uppercase;color:rgba(27,36,48,.55);margin:20px 2px 10px}
@@ -24383,6 +24480,35 @@ body:not(.haskidbar) .a4n{flex:none;width:34px;height:34px;border-radius:11px;bo
 body:not(.haskidbar) .a4point strong{display:block;font:600 15px/1.3 var(--f-body);color:var(--g-ink)}
 body:not(.haskidbar) .a4point span:not(.a4n){display:block;font:400 13.5px/1.5 var(--f-body);color:rgba(27,36,48,.65);margin-top:3px}
 body:not(.haskidbar) #onbStep1 .onbnav button{width:100%}
+</style>
+<style id="nmRound2j">
+/* v246: navigation pass — sideways drift, sheets over panels, reachable exits */
+html{overscroll-behavior-x:none}
+html,body{overflow-x:hidden;max-width:100vw}
+body{touch-action:pan-y pinch-zoom}
+#mainApp,#kidView,#familyView,.panel,.menupanel{overflow-x:clip}
+.momentglow,.confetti{pointer-events:none}
+/* a child's menu opens over whatever screen they are on, so the Menu button works everywhere */
+.menupanel.kidsheet{z-index:158}
+#menuScrim{z-index:157}
+/* nothing sits under the tab bar: every child sheet and panel keeps clear of it */
+.haskidbar .kidsheet{padding-bottom:calc(130px + env(safe-area-inset-bottom))}
+.haskidbar .panel{padding-bottom:calc(120px + env(safe-area-inset-bottom))}
+.haskidbar #kidLearnScreen>.kidback,.haskidbar #kidPointsScreen>.kidback{margin:6px 0 10px}
+/* Family members — add someone */
+body:not(.haskidbar) .memfoot{grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+body:not(.haskidbar) .addcard{display:flex;flex-direction:column;align-items:flex-start;gap:4px;padding:14px;border-radius:18px!important;text-align:left;min-height:110px;border:1.5px solid transparent!important}
+body:not(.haskidbar) .addcard.fill{background:var(--g-moss)!important;color:#fff!important}
+body:not(.haskidbar) .addcard.tint{background:var(--g-moss-tint)!important;color:var(--g-ink)!important;border-color:rgba(78,140,106,.35)!important}
+body:not(.haskidbar) .addcard .addico{font-size:24px;line-height:1;margin-bottom:4px}
+body:not(.haskidbar) .addcard strong{font:600 15px/1.2 var(--f-body)}
+body:not(.haskidbar) .addcard em{font:400 11.5px/1.35 var(--f-body);font-style:normal;opacity:.8}
+/* Being with them — grouped */
+body:not(.haskidbar) .tipgroup{margin-top:18px}
+body:not(.haskidbar) .tipgroup .rwhead{display:flex;align-items:center;gap:8px;margin-bottom:9px}
+body:not(.haskidbar) .tipgroup .rwcap{font:600 11px/1 var(--f-body);letter-spacing:.08em;text-transform:uppercase;color:rgba(27,36,48,.45);flex:none}
+body:not(.haskidbar) .tipgroup .rwrule{flex:1;height:1px;background:rgba(27,36,48,.1)}
+body:not(.haskidbar) .tipgroup .trcount{font:600 11px/1 var(--f-mono);color:rgba(27,36,48,.45)}
 </style>
 </body>
 </html>
