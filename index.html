@@ -1739,7 +1739,9 @@
      champion ring sit on it, the ring where the sun used to be - so that one
      screen only clears the status bar. Every other screen still needs the page
      pushed clear of both buttons. */
-  body.nocover #mainApp{padding-top:calc(78px + env(safe-area-inset-top))}
+  /* v249: 78px was the pill plus a hand's width of nothing. The pill is
+     44px tall at 14px from the top; 66px clears it with a normal gap. */
+  body.nocover #mainApp{padding-top:calc(66px + env(safe-area-inset-top))}
   body.nocover.board #mainApp{padding-top:calc(6px + env(safe-area-inset-top))}
   /* v215: the page could be dragged down past the fixed Menu pill, which made
      the band look like it was sliding under furniture. iOS bounces the document
@@ -2548,7 +2550,8 @@
 /* Navigation audit: every child-owned destination has a visible escape route.
    The control is deliberately quiet so it does not compete with the handoff's
    large title, but it remains a full touch target. */
-#kidView .kid-screen-back-slot{min-height:44px;margin:0 0 4px;}
+#kidView .kid-screen-back-slot{min-height:0;margin:0}
+#kidView .kid-screen-back-slot:not(:empty){margin:0 0 4px}
 #kidView .kidback-top{display:inline-flex;align-items:center;gap:6px;min-height:44px;width:auto;padding:0 12px;margin:0 0 8px;border:1px solid rgba(43,58,74,.10);border-radius:13px;background:rgba(43,58,74,.055);color:#2B3A4A;font:600 13px/1 'IBM Plex Sans',sans-serif;}
 #kidView .kidback-top:active{transform:scale(.98);}
 @media(max-width:430px){#kidView .kidback-top{font-size:13px;padding:0 11px;}}
@@ -3648,7 +3651,7 @@ body:has(#familyView:not(.hidden)) .panel .section-card{background:#fff!importan
   </div>
 
   <div id="kidLearnScreen" class="hidden">
-    <button class="kidback kidback-top" type="button" onclick="showScreen(null)">← Home</button>
+    <!-- v249: no "← Home" here; the Home tab underneath is the way out. -->
     <header class="kidtitle w-learn">
       <span class="kidtitleicon">📖</span>
       <span><span class="kidtitlename">Duɗal</span></span>
@@ -3682,7 +3685,7 @@ body:has(#familyView:not(.hidden)) .panel .section-card{background:#fff!importan
           screens of scroll became 104px, and it is conceptually true rather
           than merely tidier. -->
   <div id="kidPointsScreen" class="hidden">
-    <button class="kidback kidback-top" type="button" onclick="showScreen(null)">← Home</button>
+    <!-- v249: no "← Home" here; the Home tab underneath is the way out. -->
     <header class="kidtitle w-points">
       <span class="kidtitleicon">⭐</span>
       <span><span class="kidtitlename">My points</span>
@@ -6145,7 +6148,7 @@ const TIP_CATS = [
   {key:"deen", label:"Deen"}
 ];
 
-const APP_VERSION = "v248";
+const APP_VERSION = "v249";
 const today = new Date().toISOString().slice(0,10);
 let app = {families:[],currentFamily:null,currentChild:null};
 let categories = [];
@@ -12870,7 +12873,10 @@ function render(){
        open. The second close I added inside the panel in v169 was both
        redundant and sitting on top of the name. */
     mf.classList.toggle("hidden", gated || inPot || !(ready && (parentOn || kidOn)));
-    const onPanel = !!screenNow && !kidOn;
+    /* v249: a child on a panel (My family, House rules) gets Close as well. */
+    const scrEl = screenNow && document.getElementById(screenNow);
+    const kidOnPanel = kidOn && !!(scrEl && scrEl.classList.contains("panel"));
+    const onPanel = (!!screenNow && !kidOn) || kidOnPanel;
     mf.textContent = (open || onPanel) ? "\u2715 Close" : "\u2630 Menu";
     mf.classList.toggle("closing", open || onPanel);
   }
@@ -24370,6 +24376,9 @@ body:not(.haskidbar) .canlist li.cannot{color:rgba(27,36,48,.6)}
   };
   window.panelExit = function(){
     const to = returnTo; returnTo = null;
+    /* v249: a child's exit is always home. Bouncing them back into the menu
+       they opened the panel from looked like the panel had nowhere to go. */
+    if(kidViewOpen()){ goHome(); return; }
     if(to==="menu"){ showScreen(null); try{ toggleMenu(); }catch(e){} return; }
     if(to==="kidmenu"){ showScreen(null); try{ toggleKidMenu(); }catch(e){} return; }
     if(to && document.getElementById(to)){ showScreen(to); return; }
@@ -24388,7 +24397,9 @@ body:not(.haskidbar) .canlist li.cannot{color:rgba(27,36,48,.6)}
      button. For a child on a panel it opens the menu, which now sits above
      the panel rather than underneath it. */
   openAnyMenu = window.openAnyMenu = function(){
-    if(screenNow && !kidViewOpen()){ panelExit(); return; }
+    /* v249: on a panel the button is the way out for a child too. */
+    const onPanel = screenNow && (()=>{ const p=document.getElementById(screenNow); return !!(p && p.classList.contains("panel")); })();
+    if(screenNow && (!kidViewOpen() || onPanel)){ panelExit(); return; }
     if(isFamilySession()) return;
     if(kidViewOpen()) toggleKidMenu(); else toggleMenu();
   };
@@ -24520,6 +24531,11 @@ body:not(.haskidbar) .rwmove .rwchev:disabled{opacity:.35}
 body:not(.haskidbar) .rwedittxt{width:auto;padding:0 10px;display:inline-flex;align-items:center;gap:5px;font:600 12px/1 var(--f-body);border-radius:9px!important}
 body:not(.haskidbar) .rwedittxt svg{width:14px;height:14px}
 body:not(.haskidbar) .ntadd.nudge{animation:ntnudge .5s ease}
+/* v249: for a child the tab bar sits above every panel, so Home is always one
+   tap away; the panel leaves room for it at the bottom. */
+body.haskidbar #kidTabBar.tabbar{z-index:152!important}
+body.haskidbar .panel{padding-bottom:calc(96px + env(safe-area-inset-bottom))}
+body.haskidbar .paneltop{bottom:calc(84px + env(safe-area-inset-bottom))}
 @keyframes ntnudge{0%,100%{box-shadow:none}40%{box-shadow:0 0 0 3px rgba(78,140,106,.35)}}
 body:not(.haskidbar) .rwcard{background:#fff;border:1px solid rgba(27,36,48,.1);border-radius:16px;overflow:hidden}
 body:not(.haskidbar) .rwrow,body:not(.haskidbar) .prrow,body:not(.haskidbar) .hrrow{display:flex;align-items:center;gap:12px;padding:13px 15px;border-top:1px solid rgba(27,36,48,.07);background:#fff}
