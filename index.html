@@ -5883,7 +5883,7 @@ const TIP_CATS = [
   {key:"deen", label:"Deen"}
 ];
 
-const APP_VERSION = "v243";
+const APP_VERSION = "v244";
 const today = new Date().toISOString().slice(0,10);
 let app = {families:[],currentFamily:null,currentChild:null};
 let categories = [];
@@ -9489,12 +9489,15 @@ function reachListHTML(child){
      same thing when they talk about it. */
   const tile=(r,can,i)=>{
     const pct=Math.max(6, Math.min(100, Math.round((spendable/(r.points||1))*100)));
-    return `<article class="cattile k${i%6}${can?"":" outofreach"}">
-      <button class="cattilebtn rewardtile"${can?"":" disabled"}
+    /* v244 (design E4): a pending request swaps its cost for an Asked pill and
+       takes a mango border. The balance visibly does not move. */
+    const asked=(app.requests||[]).some(q=>q.status==="pending" && q.childId===child.id && q.itemId===r.id);
+    return `<article class="cattile k${i%6}${can?"":" outofreach"}${asked?" asked":""}">
+      <button class="cattilebtn rewardtile"${can&&!asked?"":" disabled"}
         onclick="popThen(this);kidBuy('${r.kind==="activity"?"game":"reward"}','${r.id}')">
         <span class="ticon">${iconFor(r, r.kind==="activity" ? "\ud83c\udfb2" : "\ud83c\udf81")}</span>
         <span class="tname">${escapeHtml(r.name)}</span>
-        ${can
+        ${asked ? `<span class="tpts askedpill">Asked</span>` : can
           ? `<span class="tpts earned">${nums ? r.points+" pts" : "Ready"}</span>`
           : `<span class="reachbar sm"><i style="width:${pct}%"></i></span>
              <span class="tgap">${nums ? "You have "+spendable+" of "+r.points : "Nearly there"}</span>`}
@@ -13263,9 +13266,9 @@ async function kidBuy(type, id){
     tone: isGame ? "" : "treat",
     title: isGame ? "Ask to do this?" : "Ask for this reward?",
     thing: item.name,
-    note: "Nothing is taken until Mum or Dad say yes.",
-    cost: price,
-    yes: isGame ? "Yes, ask!" : "Yes please!",
+    note: "Mum or Dad says yes or no \u2014 your points only go when they say yes.",
+    cost: price, sheet: true, of: spendable,
+    yes: isGame ? "Ask to do this" : "Ask for this",
     no: "Not now"
   });
   if(!ok) return;
@@ -23775,6 +23778,237 @@ body:not(.haskidbar) .canlist li.cannot{color:rgba(27,36,48,.6)}
 })();
 </script>
 
+<!-- ===== addons/design-e1-e5.js ===== -->
+<script>
+/* v244 (design E1–E5): the child's non-tracked corners. Deen, Do together and
+   Bedtime are one screen each and score nothing; the ask flow gets a sheet
+   and an Asked state; the child's menu becomes four corners and two switches.
+   One departure held on purpose: the Arabic is still not typed out here —
+   the app's own rule is that it comes from a copy the family trusts. */
+(function(){
+  const esc = s => (typeof escapeHtml==="function") ? escapeHtml(s) : String(s);
+  const isKid = () => { const m=sessionMember(); return !!(m && isChildRole(m)); };
+  let deenMode = "deen";        // 'deen' | 'bedtime' | 'stories'
+  let duaIndex = 0;
+
+  /* ---------- E1 · Deen, E3 · Bedtime ---------- */
+  function duaCard(d, label, action){
+    return `<section class="dncard">
+      <div class="dnhead"><span class="dncap">${label}</span>${action||""}</div>
+      <p class="dntitle">${esc(d.title)}</p>
+      <p class="dntranslit">${esc(d.translit||"")}</p>
+      <p class="dnen">\u201c${esc(d.meaning||"")}\u201d</p>
+      <p class="dnwhen">${esc(d.when||"")}</p>
+    </section>`;
+  }
+  function todayDuas(){
+    const pool = DUAS.filter(d=>!/sleep|bed|waking/i.test(d.when||""));
+    const day = Math.floor(Date.now()/86400000);
+    const start = pool.length ? day % pool.length : 0;
+    return [0,1,2].map(i=>pool[(start+i)%pool.length]).filter(Boolean);
+  }
+  function bedtimeDua(){ return DUAS.find(d=>/sleep|bed/i.test(d.when||"")) || DUAS[0]; }
+  function prayerRowE1(child){
+    if(!prayerBoardEnabled()) return "";
+    const row = prayerTodayHTML(child);
+    /* Times beneath the names, in mono, when the family has set a place. */
+    const times = PRAYERS.map(p=>{ const t=prayerTimeToday(p.tag); return t ? fmtTime(t) : ""; });
+    if(!times.some(Boolean)) return row;
+    return row.replace(/<\/div>\s*(?=<p class="prayernote"|<\/section>)/, `</div><div class="dntimes">${times.map(t=>`<span>${esc(t)}</span>`).join("")}</div>`);
+  }
+  function readBack(child){
+    const today = dateStr(new Date());
+    const lines=[];
+    const grid = prayerBoardEnabled() ? prayerGrid(child,1)[0] : null;
+    if(grid && grid.count>0) lines.push({e:"\ud83e\udd32", t: grid.complete ? "You prayed all five today." : "You prayed "+grid.count+" today. Nobody counts these \u2014 they are yours."});
+    (child.activityLog||[]).filter(e=>e.type==="award" && e.ts && dateStr(new Date(e.ts))===today)
+      .sort((a,b)=>b.ts-a.ts).slice(0,3).forEach(e=>{
+        const note=(e.label||"").includes(" \u2014 ") ? (e.label||"").split(" \u2014 ").slice(1).join(" \u2014 ") : (e.label||"");
+        lines.push({e:"\ud83d\udc9b", t:(e.by ? esc(e.by)+" wrote down that " : "Somebody noticed that ")+esc(note.charAt(0).toLowerCase()+note.slice(1))+"."});
+      });
+    return lines.slice(0,3);
+  }
+  const innerDeen = renderDeenPanel;
+  renderDeenPanel = window.renderDeenPanel = function(){
+    const me=sessionMember();
+    const tabs=document.querySelector("#deenPanel .spendtabs");
+    const kid=!!(me && isChildRole(me));
+    document.getElementById("deenPanel").classList.toggle("kidsimple", kid);
+    if(!kid || deenMode==="stories"){
+      const r=innerDeen.apply(this, arguments);
+      if(kid && deenMode==="stories" && storyOpen===null){
+        const body=document.getElementById("deenBody");
+        if(body) body.insertAdjacentHTML("afterbegin", `<button class="kidback" onclick="nmDeenMode('bedtime')">\u2190 Bedtime</button>`);
+      }
+      return r;
+    }
+    const body=document.getElementById("deenBody"); if(!body) return;
+    if(deenMode==="bedtime"){
+      const d=bedtimeDua();
+      const lines=readBack(me);
+      body.innerHTML = `<h2>\ud83c\udf19 Bedtime</h2>
+        <section class="dncard night">
+          <span class="dncap">Tonight\u2019s dua</span>
+          <p class="dntitle">${esc(d.title)}</p><p class="dntranslit">${esc(d.translit||"")}</p><p class="dnen">\u201c${esc(d.meaning||"")}\u201d</p>
+        </section>
+        <section class="dncard">
+          <span class="dncap">Your day, read back</span>
+          ${lines.length ? `<div class="dnlines">${lines.map(l=>`<div class="dnline"><span>${l.e}</span><p>${l.t}</p></div>`).join("")}</div>`
+            : `<p class="dnen" style="margin-top:10px">A quiet day. Those count too.</p>`}
+        </section>
+        <section class="dncard warm"><p class="dnwarm">Tomorrow will ask you for nothing you haven\u2019t already got. \ud83d\udc9b</p></section>
+        <button class="dnstory" onclick="nmDeenMode('stories')">A story before sleep \u2192</button>
+        <button class="dnenough" onclick="nmDeenMode('deen');showScreen(null)">That\u2019s enough for today</button>`;
+      return;
+    }
+    const duas=todayDuas(); const d=duas[duaIndex%duas.length] || DUAS[0];
+    const rem=pickOfDay(REMINDERS);
+    body.innerHTML = `<h2>\ud83d\udd4c Deen</h2>
+      ${prayerRowE1(me)}
+      ${duaCard(d, "Today\u2019s dua", `<button class="dnanother" onclick="nmNextDua()">Another \u2192</button>`)}
+      <section class="dncard warm"><span class="dncap">One thing to remember</span><p class="dnrem">${esc(rem.text)}</p><p class="dnsrc">${esc(rem.src||"")}</p></section>
+      <button class="dnstory" onclick="nmDeenMode('bedtime')">\ud83c\udf19 Bedtime \u2192</button>
+      <section class="dncard dashed"><p class="dnclose">Nobody scores this and nothing here earns points. It\u2019s yours.</p></section>`;
+  };
+  window.nmNextDua = function(){ duaIndex++; renderDeenPanel(); };
+  window.nmDeenMode = function(m){ deenMode=m; if(m==="stories"){ deenTab="stories"; storyOpen=null; } renderDeenPanel(); window.scrollTo({top:0}); };
+  window.showBedtime = function(){ if(!faithOn()){ alert("Duas and bedtime are switched off for this family."); return; } deenMode="bedtime"; showScreen("deenPanel"); renderDeenPanel(); };
+  const innerShowDeen = showDeenPanel;
+  showDeenPanel = window.showDeenPanel = function(){ deenMode="deen"; innerShowDeen.apply(this, arguments); };
+  /* A story's own back button returns to the tab view; for a child that is
+     the bedtime screen. */
+  if(typeof setDeenTab==="function"){
+    const innerTab=setDeenTab;
+    setDeenTab = window.setDeenTab = function(t){ if(isKid()){ deenMode = t==="stories" ? "stories" : "bedtime"; } innerTab.apply(this, arguments); };
+  }
+
+  /* ---------- E2 · Do together ---------- */
+  let togetherOpen=null;
+  function togetherRows(){
+    /* Three places to go and three things to make, rotating daily so the
+       list is never the same six for a month. */
+    const packs=(window.TOGETHER_PACKS||{});
+    const go=(packs.outings||[]), make=(packs.recipes||[]).filter(r=>r.who!=="parent" && r.kind!=="deen");
+    const day=Math.floor(Date.now()/86400000);
+    const pick=(arr,n)=>{ if(!arr.length) return []; const st=(day*3)%arr.length; return Array.from({length:Math.min(n,arr.length)},(_,i)=>arr[(st+i)%arr.length]); };
+    const a=pick(go,3), b=pick(make,3), out=[];
+    for(let i=0;i<3;i++){ if(a[i]) out.push(a[i]); if(b[i]) out.push(b[i]); }
+    return out;
+  }
+  const KIND_EMOJI={go:"\ud83c\udf33", cook:"\ud83e\udd63", deen:"\ud83e\udd32", learn:"\ud83d\udcd6"};
+  const innerShowPlay = showPlayPanel;
+  showPlayPanel = window.showPlayPanel = function(){
+    if(!isKid()) return innerShowPlay.apply(this, arguments);
+    togetherOpen=null;
+    showScreen("playPanel"); renderTogetherKid();
+  };
+  function renderTogetherKid(){
+    const body=document.getElementById("playBody"); if(!body) return;
+    const rows=togetherRows();
+    const puzzles=(window.DECKS && typeof window.openDecks==="function")
+      ? `<div class="tgrow"><button class="tgrowbtn" onclick="openDecks()"><span class="tgemoji">\ud83e\udde9</span><span class="tgmain"><strong>Puzzles with the family</strong><em>Riddles, odd-one-out, take-a-side</em></span><span class="tgchev">\u203a</span></button></div>` : "";
+    body.innerHTML = `<div class="tglist">${rows.map(r=>{
+        const open=togetherOpen===r.id;
+        const meta=(r.kind==="go"?"Outside":r.kind==="cook"?"Kitchen":"Together")+" \u00b7 about "+(r.mins||30)+" min";
+        const first=(r.steps&&r.steps[0]) ? r.steps[0].d : "";
+        return `<div class="tgrow ${open?"open":""}">
+          <button class="tgrowbtn" onclick="nmTogetherToggle('${r.id}')"><span class="tgemoji">${KIND_EMOJI[r.kind]||"\ud83e\udd1d"}</span>
+            <span class="tgmain"><strong>${esc(r.name)}</strong><em>${meta}</em></span><span class="tgchev">\u203a</span></button>
+          ${open?`<div class="tgbody"><p>${esc(r.blurb||"")}${first?" "+esc(first):""}</p>
+            <div class="tgbtns"><button class="tgask" onclick="nmTogetherAsk('${r.id}')">Ask to do this</button><button class="tglater" onclick="nmTogetherToggle(null)">Maybe later</button></div>
+            <button class="tgread" onclick="openTogether('${r.id}')">Read the whole thing \u2192</button></div>`:""}
+        </div>`;}).join("")}${puzzles}</div>`;
+  }
+  window.nmTogetherToggle = function(id){ togetherOpen = (togetherOpen===id) ? null : id; renderTogetherKid(); };
+  window.nmTogetherAsk = async function(id){
+    const me=sessionMember(); if(!me || !isChildRole(me)) return;
+    const packs=(window.TOGETHER_PACKS||{});
+    const r=(packs.outings||[]).concat(packs.recipes||[]).find(x=>x.id===id); if(!r) return;
+    if((app.requests||[]).some(q=>q.status==="pending" && q.childId===me.id && q.itemName===r.name)){
+      await kidSay({icon:"\u23f3", title:"Already asked", thing:r.name, note:"Mum or Dad will see it."}); return;
+    }
+    try{
+      await window.fpc.createRequest(familyId, { childId:me.id, childName:me.name, type:"game", itemId:"tg_"+r.id, itemName:r.name, kind:"Do together \u00b7 no points", points:0 });
+      togetherOpen=null; renderTogetherKid();
+      await kidSay({icon:"\ud83e\udd1d", tone:"cheer", title:"Asked!", thing:r.name, note:"Mum or Dad will see it. It doesn\u2019t cost anything."});
+    }catch(e){ console.error(e); await kidSay({icon:"\ud83d\udce1", tone:"treat", title:"That didn\u2019t send", note:"Check your connection and try again."}); }
+  };
+
+  /* ---------- E4 · the ask sheet ---------- */
+  const innerDialog = kidDialog;
+  kidDialog = window.kidDialog = function(o){
+    const p = innerDialog.apply(this, arguments);
+    const wrap=document.getElementById("kidModal");
+    if(wrap){
+      wrap.classList.toggle("sheet", !!o.sheet);
+      if(o.sheet && o.of!==undefined){
+        const cost=wrap.querySelector(".kmcost");
+        if(cost) cost.outerHTML = `<div class="kmcostrow"><span class="kmcostlab">It costs</span><span class="kmcostfig"><strong>${o.cost}</strong><em>of your ${o.of}</em></span></div>`;
+      }
+    }
+    return p;
+  };
+
+  /* ---------- E5 · the child's menu ---------- */
+  function keyCard(){
+    return `<div class="e5key" onclick="this.classList.toggle('open')">
+      <div class="e5keyhead"><span>\ud83d\udd11</span><strong>Ask Mum or Dad</strong></div>
+      <p>Forgotten your password, or something looks wrong? Nothing is lost and nothing is broken. Your points are all still there. A parent can sort it in about ten seconds.</p>
+    </div>`;
+  }
+  function childWords(child){ return !!(child && child.prefs && child.prefs.numWords==="words"); }
+  window.renderKidMenuE5 = function(){
+    const sheet=document.getElementById("kidMenuSheet"); if(!sheet) return;
+    const m=sessionMember(); if(!m) return;
+    const faith=faithOn();
+    const corners=[
+      faith ? {e:"\ud83d\udd4c", n:"Deen", note:"Prayers, a dua, one thing to remember", go:"closeKidMenu();showDeenPanel()"} : null,
+      {e:"\ud83e\udd1d", n:"Do together", note:"Nothing here costs points", go:"closeKidMenu();showPlayPanel()"},
+      faith ? {e:"\ud83c\udf19", n:"Bedtime", note:"Your day, read back", go:"closeKidMenu();showBedtime()"} : null,
+      {e:"\ud83c\udf81", n:"Ask for something", note:"Your points only go when they say yes", go:"kidMenuGo('kidSpendScreen')"}
+    ].filter(Boolean);
+    sheet.innerHTML = `<div class="menutop"><p class="e5hi">${esc(m.name)}\u2019s app</p><p class="e5sub">Your corners of it, and a few switches.</p></div>
+      <div class="e5corners">${corners.map(c=>`<button class="e5corner" onclick="${c.go}"><span class="e5emoji">${c.e}</span><strong>${c.n}</strong><em>${c.note}</em></button>`).join("")}</div>
+      <p class="menugroup">Go to</p>
+      <div class="e5links">
+        <button onclick="kidMenuGo(null)">\ud83c\udfe0 Home</button><button onclick="kidMenuGo('kidLearnScreen')">\ud83d\udcd6 Du\u0257al</button>
+        <button onclick="kidMenuGo('kidPointsScreen')">\u2b50 My points</button><button onclick="closeKidMenu();showTreePanel()">\ud83c\udf33 My family</button>
+        <button onclick="closeKidMenu();showRulesPanel()">\ud83d\udcdc House rules</button><button onclick="closeKidMenu();startTour(kidTourKey(sessionMember()))">\u2753 How this works</button>
+      </div>
+      <p class="menugroup">Switches</p>
+      <div class="e5switches">
+        <div class="e5switch"><span>\ud83d\udd0a</span><span class="e5swmain"><strong>Sounds</strong><em>Little noises when things happen</em></span><button class="nmtog kid ${soundOn()?"on":""}" role="switch" aria-checked="${soundOn()}" onclick="setSoundOn(!soundOn());renderKidMenuE5()"><i></i></button></div>
+        <div class="e5switch"><span>\ud83d\udd24</span><span class="e5swmain"><strong>Show points as words</strong><em>\u201cA good handful\u201d instead of 340</em></span><button class="nmtog kid ${childWords(m)?"on":""}" role="switch" aria-checked="${childWords(m)}" onclick="nmKidWords()"><i></i></button></div>
+      </div>
+      ${keyCard()}
+      <button class="e5out" onclick="signOutDevice()">Sign out</button>`;
+  };
+  window.nmKidWords = async function(){
+    const m=sessionMember(); if(!m) return;
+    const prefs=Object.assign({}, memberPrefs(m), {numWords: childWords(m) ? "numbers" : "words"});
+    m.prefs=prefs; renderKidMenuE5();
+    try{ await window.fpc.saveMemberPrefs(familyId, m.id, prefs); }catch(e){ console.error(e); }
+    if(typeof render==="function") render();
+  };
+  /* The child's own switch wins over the family setting; the age rule stays
+     the fallback. */
+  const innerNums = kidShowsNumbers;
+  kidShowsNumbers = window.kidShowsNumbers = function(child){
+    const p=child && child.prefs && child.prefs.numWords;
+    if(p==="words") return false;
+    if(p==="numbers") return true;
+    return innerNums(child);
+  };
+  const innerToggleMenu = toggleKidMenu;
+  toggleKidMenu = window.toggleKidMenu = function(){
+    const sheet=document.getElementById("kidMenuSheet");
+    const opening = sheet && sheet.classList.contains("hidden");
+    if(opening) try{ renderKidMenuE5(); }catch(e){ console.error("E5:", e); }
+    innerToggleMenu.apply(this, arguments);
+  };
+})();
+</script>
+
 <style id="nmRound2d">
 /* v240: D2 Review together, D4 Activity log */
 body:not(.haskidbar) .rvcap{font:600 10.5px/1 var(--f-body);letter-spacing:.09em;text-transform:uppercase;color:rgba(27,36,48,.55);margin:20px 2px 10px}
@@ -23980,6 +24214,102 @@ body:not(.haskidbar) .ststep button{width:auto;min-height:44px;padding:0 16px;bo
 body:not(.haskidbar) .ststep button:disabled{opacity:.35}
 body:not(.haskidbar) .ststep strong{font:600 24px/1 var(--f-display);color:var(--g-ink)}
 body:not(.haskidbar) .stleave{background:#fff;border:1px solid rgba(176,86,58,.3);border-radius:16px;padding:14px 15px}
+</style>
+<style id="nmRound2h">
+/* v244: E1 Deen, E2 Do together, E3 Bedtime, E4 ask sheet, E5 the child's menu */
+#deenPanel.kidsimple .spendtabs{display:none!important}
+.haskidbar .dncard{background:#fff;border:1px solid rgba(43,58,74,.12);border-radius:20px;padding:16px 18px;margin-top:12px}
+.haskidbar .dncard.warm{background:var(--c-warm);border-color:transparent}
+.haskidbar .dncard.night{background:var(--c-ink);border-color:transparent;color:#fff}
+.haskidbar .dncard.night .dntitle,.haskidbar .dncard.night .dnen{color:#fff}
+.haskidbar .dncard.night .dntranslit,.haskidbar .dncard.night .dncap{color:rgba(255,255,255,.65)}
+.haskidbar .dncard.dashed{background:none;border:1.5px dashed rgba(43,58,74,.25)}
+.haskidbar .dnhead{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.haskidbar .dncap{display:block;font:600 11px/1 var(--f-body);letter-spacing:.08em;text-transform:uppercase;color:rgba(43,58,74,.5)}
+.haskidbar .dnanother{width:auto;min-height:32px;padding:0 10px;background:none!important;border:0!important;color:var(--c-mango-deep)!important;font:600 13px/1 var(--f-body)}
+.haskidbar .dntitle{font:700 22px/1.3 var(--f-display);color:var(--c-ink);margin:10px 0 0}
+.haskidbar .dntranslit{font:400 13px/1.5 var(--f-mono);color:rgba(43,58,74,.6);margin:6px 0 0}
+.haskidbar .dnen{font:400 15px/1.55 var(--f-body);color:var(--c-ink);margin:10px 0 0}
+.haskidbar .dnwhen{font:500 12.5px/1.4 var(--f-body);color:var(--c-mango-deep);margin:8px 0 0}
+.haskidbar .dnrem{font:500 16px/1.5 var(--f-body);color:var(--c-ink);margin:10px 0 0}
+.haskidbar .dnsrc{font:400 12px/1.4 var(--f-body);color:rgba(43,58,74,.55);margin:6px 0 0}
+.haskidbar .dnclose{font:400 14px/1.5 var(--f-body);color:rgba(43,58,74,.6);margin:0;text-align:center}
+.haskidbar .dnwarm{font:500 16px/1.5 var(--f-body);color:var(--c-ink);margin:0}
+.haskidbar .dnlines{display:grid;gap:10px;margin-top:12px}
+.haskidbar .dnline{display:flex;gap:12px;align-items:flex-start}
+.haskidbar .dnline span{font-size:22px;line-height:1;flex:none}
+.haskidbar .dnline p{font:400 15px/1.5 var(--f-body);color:var(--c-ink);margin:0}
+.haskidbar .dnstory{width:100%;margin-top:12px;min-height:46px;background:#fff!important;border:1.5px solid rgba(43,58,74,.15)!important;border-radius:16px!important;color:var(--c-ink)!important;font:600 14px/1 var(--f-body)}
+.haskidbar .dnenough{width:100%;margin-top:10px;min-height:52px;background:var(--c-mango)!important;border:0!important;border-radius:18px!important;color:#fff!important;font:700 16px/1 var(--f-display)}
+.haskidbar .dntimes{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-top:2px}
+.haskidbar .dntimes span{display:block;text-align:center;font:400 9.5px/1 var(--f-mono);color:rgba(43,58,74,.5)}
+.haskidbar .tglist{display:grid;gap:10px;margin-top:14px}
+.haskidbar .tgrow{background:#fff;border:1.5px solid rgba(43,58,74,.12);border-radius:18px;overflow:hidden}
+.haskidbar .tgrow.open{border-color:var(--c-mango)}
+.haskidbar .tgrowbtn{width:100%;display:flex;align-items:center;gap:12px;padding:12px 14px;background:none!important;border:0!important;border-radius:0!important;text-align:left;min-height:56px}
+.haskidbar .tgemoji{width:40px;height:40px;border-radius:13px;background:var(--c-warm);display:grid;place-items:center;font-size:20px;flex:none}
+.haskidbar .tgmain{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.haskidbar .tgmain strong{font:700 15px/1.3 var(--f-body);color:var(--c-ink)}
+.haskidbar .tgmain em{font:400 12px/1.3 var(--f-body);color:rgba(43,58,74,.55);font-style:normal}
+.haskidbar .tgchev{font-size:22px;color:rgba(43,58,74,.4);transition:transform .2s;flex:none}
+.haskidbar .tgrow.open .tgchev{transform:rotate(90deg)}
+.haskidbar .tgbody{padding:0 14px 14px}
+.haskidbar .tgbody p{font:400 14.5px/1.55 var(--f-body);color:var(--c-ink);margin:0 0 12px}
+.haskidbar .tgbtns{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.haskidbar .tgask{min-height:46px;background:var(--c-mango)!important;border:0!important;border-radius:14px!important;color:#fff!important;font:700 14px/1 var(--f-body)}
+.haskidbar .tglater{min-height:46px;background:#fff!important;border:1.5px solid rgba(43,58,74,.15)!important;border-radius:14px!important;color:var(--c-ink)!important;font:600 14px/1 var(--f-body)}
+.haskidbar .tgread{width:auto;margin-top:8px;min-height:36px;padding:0;background:none!important;border:0!important;color:var(--c-mango-deep)!important;font:600 13px/1 var(--f-body)}
+/* E4 — the sheet */
+.kidmodal.sheet{align-items:flex-end;padding:0;background:rgba(43,58,74,.42)}
+.kidmodal.sheet .kmcard{max-width:none;border-radius:28px 28px 0 0;box-shadow:none;animation:nm-sheet .28s ease;padding-bottom:env(safe-area-inset-bottom)}
+@keyframes nm-sheet{from{transform:translateY(40px);opacity:0}to{transform:translateY(0);opacity:1}}
+.kidmodal.sheet .kmtop{background:none!important;color:var(--c-ink);text-align:left;padding:18px 20px 0;display:flex;align-items:center;gap:12px}
+.kidmodal.sheet .kmtop::before{content:"";position:absolute;top:8px;left:50%;width:40px;height:4px;margin-left:-20px;border-radius:2px;background:rgba(43,58,74,.18)}
+.kidmodal.sheet .kmcard{position:relative}
+.kidmodal.sheet .kmicon{font-size:32px;margin:0;width:52px;height:52px;border-radius:16px;background:var(--c-warm);display:grid;place-items:center}
+.kidmodal.sheet .kmtitle{font:600 13px/1 var(--f-body);color:rgba(43,58,74,.55)}
+.kidmodal.sheet .kmbody{text-align:left;padding:8px 20px 4px}
+.kidmodal.sheet .kmthing{font:700 20px/1.3 var(--f-display);color:var(--c-ink);margin:0 0 4px}
+.kidmodal.sheet .kmnote{font:400 14px/1.5 var(--f-body);color:rgba(43,58,74,.7);margin:12px 0 0}
+.kidmodal.sheet .kmcostrow{display:flex;align-items:baseline;justify-content:space-between;background:var(--c-paper);border-radius:16px;padding:12px 14px;margin-top:12px}
+.kidmodal.sheet .kmcostlab{font:600 12px/1 var(--f-body);letter-spacing:.06em;text-transform:uppercase;color:rgba(43,58,74,.55)}
+.kidmodal.sheet .kmcostfig strong{font:800 28px/1 var(--f-display);color:var(--c-ink)}
+.kidmodal.sheet .kmcostfig em{font:400 13px/1 var(--f-body);color:rgba(43,58,74,.55);font-style:normal;margin-left:6px}
+.kidmodal.sheet .kmyes{background:var(--c-mango)!important;color:#fff!important;border-radius:18px!important}
+.kidmodal.sheet .kmno{background:none!important;border:1.5px solid rgba(43,58,74,.15)!important;color:var(--c-ink)!important;border-radius:18px!important}
+.cattile.asked{outline:2px solid var(--c-mango);outline-offset:-2px}
+.cattile.asked .rewardtile:disabled{opacity:1}
+#kidView .tpts.askedpill{background:var(--c-next);color:var(--c-mango-deep);border-radius:99px;padding:6px 11px;font:700 12px/1 var(--f-body)}
+#kidView .tpts.askedpill::after{content:none}
+/* E5 */
+.kidsheet .menutop{display:block}
+.kidsheet .e5hi{font:700 22px/1.2 var(--f-display);color:var(--c-ink);margin:0}
+.kidsheet .e5sub{font:400 13px/1.4 var(--f-body);color:rgba(43,58,74,.6);margin:4px 0 0}
+.kidsheet .e5corners{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+.kidsheet .e5corner{display:flex;flex-direction:column;align-items:flex-start;gap:4px;padding:14px;background:#fff!important;border:1.5px solid rgba(43,58,74,.12)!important;border-radius:18px!important;text-align:left;min-height:44px}
+.kidsheet .e5emoji{font-size:26px;line-height:1;margin-bottom:4px}
+.kidsheet .e5corner strong{font:700 15px/1.2 var(--f-body);color:var(--c-ink)}
+.kidsheet .e5corner em{font:400 11.5px/1.35 var(--f-body);color:rgba(43,58,74,.55);font-style:normal}
+.kidsheet .e5links{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.kidsheet .e5links button{min-height:44px;padding:0 12px;background:rgba(43,58,74,.05)!important;border:0!important;border-radius:14px!important;color:var(--c-ink)!important;font:600 13.5px/1.2 var(--f-body);text-align:left}
+.kidsheet .e5switches{background:#fff;border:1.5px solid rgba(43,58,74,.12);border-radius:18px;overflow:hidden}
+.kidsheet .e5switch{display:flex;align-items:center;gap:12px;padding:12px 14px;border-top:1px solid rgba(43,58,74,.08)}
+.kidsheet .e5switch:first-child{border-top:0}
+.kidsheet .e5switch>span:first-child{font-size:22px;line-height:1}
+.kidsheet .e5swmain{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.kidsheet .e5swmain strong{font:700 14px/1.2 var(--f-body);color:var(--c-ink)}
+.kidsheet .e5swmain em{font:400 12px/1.3 var(--f-body);color:rgba(43,58,74,.55);font-style:normal}
+.kidsheet .nmtog{width:46px;min-height:28px;height:28px;padding:0;border-radius:99px!important;background:rgba(43,58,74,.18)!important;border:0!important;position:relative;flex:none}
+.kidsheet .nmtog i{position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:#fff;transition:transform .18s}
+.kidsheet .nmtog.on{background:var(--c-mango)!important}
+.kidsheet .nmtog.on i{transform:translateX(18px)}
+.kidsheet .e5key{margin-top:14px;padding:14px;border:1.5px dashed rgba(43,58,74,.25);border-radius:18px;background:rgba(43,58,74,.03);cursor:pointer}
+.kidsheet .e5key.open{background:#fff;border:1.5px solid var(--c-mango)}
+.kidsheet .e5keyhead{display:flex;align-items:center;gap:10px;font:700 15px/1.2 var(--f-body);color:var(--c-ink)}
+.kidsheet .e5keyhead span{font-size:20px}
+.kidsheet .e5key p{display:none;font:400 14px/1.5 var(--f-body);color:var(--c-ink);margin:10px 0 0}
+.kidsheet .e5key.open p{display:block}
+.kidsheet .e5out{width:100%;margin-top:14px;min-height:46px;background:none!important;border:1.5px solid rgba(43,58,74,.15)!important;border-radius:16px!important;color:var(--c-ink)!important;font:600 14px/1 var(--f-body)}
 </style>
 </body>
 </html>
