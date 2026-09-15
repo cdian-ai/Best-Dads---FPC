@@ -3166,7 +3166,7 @@ body:has(#familyView:not(.hidden)) .panel .section-card{background:#fff!importan
   <p class="menugroup">How they’re doing</p>
   <div class="menugrid">
     <button class="menutile" id="btnOverview" data-k="O" data-note="Everyone at a glance" onclick="showOverviewPanel()"><span>·</span>Overview</button>
-    <button class="menutile" id="btnProgress" data-k="D" data-note="What each child has practised and secured" onclick="showProgressPanel()"><span>·</span>Duɗal</button>
+    <button class="menutile" id="btnProgress" data-k="D" data-note="What each child has practised and secured" onclick="if(window.setLearnTab)setLearnTab('kids');showProgressPanel()"><span>·</span>Duɗal</button>
   </div>
   <p class="menugroup">What things cost</p>
   <div class="menugrid">
@@ -3185,7 +3185,7 @@ body:has(#familyView:not(.hidden)) .panel .section-card{background:#fff!importan
   <div class="menugrid">
     <button class="menutile" id="editModeBtn" data-k="C" data-note="What counts, and for how much" onclick="toggleEditMode()"><span>·</span>Edit categories</button>
     <button class="menutile" id="btnSettings" data-k="S" data-note="Sound, Undo, numbers or words, the bank target" onclick="showSettingsPanel()"><span>·</span>Settings</button>
-    <button class="menutile" id="btnRefreshLists" data-k="S" data-note="Bring in the recommended set" onclick="applyRecommendedLists()"><span>·</span>Update lists</button>
+    <button class="menutile" id="btnRefreshLists" data-k="Y" data-note="Bring in the recommended set" onclick="applyRecommendedLists()"><span>·</span>Update lists</button>
   </div>
   <p class="menugroup">Help</p>
   <div class="menupills">
@@ -6587,7 +6587,7 @@ const TIP_CATS = [
   {key:"deen", label:"Deen"}
 ];
 
-const APP_VERSION = "v255";
+const APP_VERSION = "v256";
 const today = new Date().toISOString().slice(0,10);
 let app = {families:[],currentFamily:null,currentChild:null};
 let categories = [];
@@ -7928,7 +7928,10 @@ function learnScreenHTML(child){
                has to look different from finishing the first. */
             const p=strandProgress(child, subject, st);
             const m=(p.total && p.complete) ? "done" : (p.secure||p.covered) ? "open" : "locked";
-            return `<i class="medal ${m}">${m==="done"?"\u2713":m==="open"?"\u00b7":""}</i>`;
+            /* v256: the "started" state was a middle dot, which read as a stray
+               mark. It is a fill now: how far through the strand they are. */
+            const pc=p.total ? Math.round((p.secure+p.covered)/p.total*100) : 0;
+            return `<i class="medal ${m}" ${m==="open"?`style="--pc:${pc}%"`:""}>${m==="done"?"\u2713":""}</i>`;
           }).join("")}</span>` : ""}
         <span class="tilechev" aria-hidden="true">\u203a</span>
       </button>`;
@@ -13839,12 +13842,18 @@ function renderParentAdminView(parent){
       <section class="nm-parent-section">
         <div class="nm-parent-label">Learning, this week</div>
         <div class="nm-parent-learning">
-          ${kids.slice(0,3).map(c=>{
-            const w=weeklyTotalFor(c,weekDates);
-            const notices=Object.keys(c.pointsByDate||{}).filter(ds=>weekDates.includes(ds)).length;
-            return `<button class="nm-learning-row" onclick="showProgressPanel()">
+          ${kids.map(c=>{
+            /* v256: was kids.slice(0,3) - the mockup had three rows, so a fourth
+               child fell off the board - and the line repeated the points
+               figure from the card above. It is about learning now: what was
+               marked this week, and where they are. */
+            const weekStart=weekDates.length ? new Date(weekDates[0]+"T00:00:00").getTime() : 0;
+            const marked=Object.values(c.progress||{}).filter(q=>(q.securedTs&&q.securedTs>=weekStart)||(q.coveredTs&&q.coveredTs>=weekStart)).length;
+            const stage=(typeof defaultYearFor==="function") ? defaultYearFor(c) : "";
+            const stageName=stage==="ks3"?"Key stage 3":stage==="ks4"?"GCSE":stage?("Year "+stage.slice(1)):"";
+            return `<button class="nm-learning-row" onclick="selectChild('${c.id}');if(window.setLearnTab)setLearnTab('kids');showProgressPanel()">
               <span class="nm-learning-avatar">${c.photo?`<img src="${c.photo}" alt="">`:(escapeHtml((c.name||"?").charAt(0).toUpperCase()))}</span>
-              <span class="nm-learning-main"><b>${escapeHtml(c.name)}</b><small>${w ? w+" points noticed" : "No points recorded yet"} · ${notices} active day${notices===1?"":"s"}</small></span>
+              <span class="nm-learning-main"><b>${escapeHtml(c.name)}</b><small>${marked ? marked+" thing"+(marked===1?"":"s")+" marked this week" : "Nothing marked this week"}${stageName?" · "+stageName:""}</small></span>
               <span class="nm-learning-chevron">›</span>
             </button>`;
           }).join("") || '<div class="nm-parent-empty">Learning progress will appear here once a child is added.</div>'}
@@ -23703,6 +23712,11 @@ body:not(.haskidbar) .undo,body:not(.haskidbar) button.undo,body:not(.haskidbar)
 #kidView .medal{height:30px;border-radius:10px;display:grid;place-items:center;font-style:normal;
   font:600 14px/1 var(--f-body);background:rgba(43,58,74,.05);border:1.5px dashed rgba(43,58,74,.16);color:rgba(43,58,74,.4)}
 #kidView .medal.done{background:rgba(43,58,74,.06);border:1.5px solid rgba(43,58,74,.3);color:var(--c-ink)}
+#kidView .medal.open{border-style:solid;border-color:rgba(43,58,74,.22);background:linear-gradient(90deg,rgba(43,58,74,.16) var(--pc,0%),rgba(43,58,74,.04) var(--pc,0%))}
+#kidView #subjcell-quran .medal.open{background:linear-gradient(90deg,var(--k-quran-t) var(--pc,0%),rgba(43,58,74,.04) var(--pc,0%));border-color:var(--k-quran)}
+#kidView #subjcell-maths .medal.open{background:linear-gradient(90deg,var(--k-maths-t) var(--pc,0%),rgba(43,58,74,.04) var(--pc,0%));border-color:var(--k-maths)}
+#kidView #subjcell-english .medal.open{background:linear-gradient(90deg,var(--k-english-t) var(--pc,0%),rgba(43,58,74,.04) var(--pc,0%));border-color:var(--k-english)}
+#kidView #subjcell-science .medal.open{background:linear-gradient(90deg,var(--k-science-t) var(--pc,0%),rgba(43,58,74,.04) var(--pc,0%));border-color:var(--k-science)}
 #kidView #subjcell-quran .medal.done{background:var(--k-quran-t);border-color:var(--k-quran);color:var(--k-quran)}
 #kidView #subjcell-maths .medal.done{background:var(--k-maths-t);border-color:var(--k-maths);color:var(--k-maths)}
 #kidView #subjcell-english .medal.done{background:var(--k-english-t);border-color:var(--k-english);color:var(--k-english)}
