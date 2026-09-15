@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&family=Noto+Naskh+Arabic:wght@500;700&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
 
 <title>Notice Me — the good things, and say so</title>
 <link rel="icon" type="image/png" sizes="32x32" href="assets/icon/favicon-32.png"><link rel="icon" type="image/png" sizes="16x16" href="assets/icon/favicon-16.png">
@@ -2544,233 +2544,6 @@
 #modulesSlot .card h2{margin:0 0 4px;font-size:17.5px}
 #modulesSlot .modrow{padding:14px 0}
 </style>
-<style id="nm-navigation-audit-pass">
-/* Navigation audit: every child-owned destination has a visible escape route.
-   The control is deliberately quiet so it does not compete with the handoff's
-   large title, but it remains a full touch target. */
-#kidView .kid-screen-back-slot{min-height:44px;margin:0 0 4px;}
-#kidView .kidback-top{display:inline-flex;align-items:center;gap:6px;min-height:44px;width:auto;padding:0 12px;margin:0 0 8px;border:1px solid rgba(43,58,74,.10);border-radius:13px;background:rgba(43,58,74,.055);color:#2B3A4A;font:600 13px/1 'IBM Plex Sans',sans-serif;}
-#kidView .kidback-top:active{transform:scale(.98);}
-@media(max-width:430px){#kidView .kidback-top{font-size:13px;padding:0 11px;}}
-</style>
-<style id="nm-mobile-design-pass">
-/* Notice Me — mobile design handoff implementation pass.
-   This layer intentionally moves the existing single-file app toward the
-   supplied mobile design without replacing its data, routing or Firebase logic. */
-:root{
-  --nm-design-child-paper:#FFF6EC;
-  --nm-design-child-ink:#2B3A4A;
-  --nm-design-child-card:#FFFFFF;
-  --nm-design-warm:#F2E9DC;
-  --nm-design-gold:#F7B45C;
-  --nm-design-moss:#4E8C6A;
-  --nm-design-mango:#E8821E;
-  --nm-design-grown-paper:#F7F9FA;
-  --nm-design-grown-ink:#1B2430;
-  --nm-design-line:rgba(27,36,48,.10);
-}
-html,body{background:#e8e5e0!important}
-body{font-family:'IBM Plex Sans',system-ui,sans-serif;color:var(--nm-design-grown-ink)}
-button,input,select,textarea{font-family:'IBM Plex Sans',system-ui,sans-serif}
-#mainApp{width:100%;max-width:430px;margin:0 auto;padding:0 0 88px;box-sizing:border-box;background:var(--nm-design-grown-paper)}
-#mainApp.wrap{padding-left:0;padding-right:0}
-#mainApp>header{margin:0!important;padding:0 20px 0!important;background:transparent!important;border-radius:0!important;box-shadow:none!important}
-#familyCover,#coverEmpty{display:none!important}
-#accountBar{background:transparent!important;border:0!important;box-shadow:none!important;padding:0!important;margin:0!important}
-#accountBar>.memberhead,#accountBar>.accountbuttons{display:none!important}
-#pageBg{background:#e8e5e0!important}
-
-/* Grown-up register */
-body:has(#familyView:not(.hidden)){background:#e8e5e0!important}
-body:has(#familyView:not(.hidden)) #mainApp{background:var(--nm-design-grown-paper)}
-body:has(#familyView:not(.hidden)) .card,
-body:has(#familyView:not(.hidden)) .reward,
-body:has(#familyView:not(.hidden)) .panel,
-body:has(#familyView:not(.hidden)) .section-card{box-shadow:none!important;border:1px solid var(--nm-design-line)!important;border-radius:18px!important;background:#fff}
-body:has(#familyView:not(.hidden)) h1,body:has(#familyView:not(.hidden)) h2,body:has(#familyView:not(.hidden)) h3{font-family:'Bricolage Grotesque',sans-serif;letter-spacing:-.012em;color:var(--nm-design-grown-ink)}
-body:has(#familyView:not(.hidden)) .tabbar{box-shadow:0 -1px 0 var(--nm-design-line)!important;background:#fff!important;border-top:1px solid var(--nm-design-line)!important}
-body:has(#familyView:not(.hidden)) .tabbar button{font-size:10px!important;min-height:50px!important;color:rgba(27,36,48,.45)!important;border-radius:12px!important}
-body:has(#familyView:not(.hidden)) .tabbar button.on{background:rgba(78,140,106,.09)!important;color:var(--nm-design-moss)!important}
-body:has(#familyView:not(.hidden)) input,body:has(#familyView:not(.hidden)) select,body:has(#familyView:not(.hidden)) textarea{border:1px solid rgba(27,36,48,.18)!important;border-radius:15px!important;background:#fff!important;min-height:52px;box-sizing:border-box}
-body:has(#familyView:not(.hidden)) button.primary{background:var(--nm-design-moss)!important;border-radius:16px!important;min-height:54px!important;font-size:15.5px!important}
-
-/* Child register: warm paper, larger display type, flat cards. */
-body:has(#kidView:not(.hidden)){background:#e8e5e0!important}
-body:has(#kidView:not(.hidden)) #mainApp{background:var(--nm-design-child-paper)}
-body:has(#kidView:not(.hidden)) #kidView{background:var(--nm-design-child-paper);color:var(--nm-design-child-ink)}
-body:has(#kidView:not(.hidden)) .kidhero{background:transparent!important;border:0!important;box-shadow:none!important;border-radius:0!important;padding:12px 20px 0!important}
-body:has(#kidView:not(.hidden)) .kidhero .bubble,
-body:has(#kidView:not(.hidden)) .herostats,
-body:has(#kidView:not(.hidden)) .herotalk,
-body:has(#kidView:not(.hidden)) .kidstats{display:none!important}
-body:has(#kidView:not(.hidden)) .kidherorow{align-items:center!important}
-body:has(#kidView:not(.hidden)) .kidhi{font:800 29px/1.1 'Bricolage Grotesque',sans-serif!important;color:var(--nm-design-child-ink)!important;letter-spacing:-.015em!important;margin:2px 0 0!important}
-body:has(#kidView:not(.hidden)) .kidsub{font:400 12.5px/1.5 'IBM Plex Sans',sans-serif!important;color:rgba(43,58,74,.55)!important}
-body:has(#kidView:not(.hidden)) #kidAvatar{width:46px!important;height:46px!important;border-radius:15px!important;background:var(--nm-design-warm)!important;padding:0!important;box-shadow:none!important}
-body:has(#kidView:not(.hidden)) #kidAvatar img,
-body:has(#kidView:not(.hidden)) #kidAvatar .avatar-placeholder-lg{width:46px!important;height:46px!important;border-radius:15px!important;border:0!important}
-body:has(#kidView:not(.hidden)) .reachcap{font:600 10.5px/1.2 'IBM Plex Sans',sans-serif!important;text-transform:uppercase!important;letter-spacing:.09em!important;color:rgba(43,58,74,.45)!important}
-body:has(#kidView:not(.hidden)) .card,
-body:has(#kidView:not(.hidden)) .reward,
-body:has(#kidView:not(.hidden)) .kidtitle,
-body:has(#kidView:not(.hidden)) .fulrow,
-body:has(#kidView:not(.hidden)) .rewardtile{box-shadow:none!important}
-body:has(#kidView:not(.hidden)) .tabbar{box-shadow:0 -1px 0 rgba(43,58,74,.10)!important;border-top:1px solid rgba(43,58,74,.10)!important;background:#fff!important;padding:6px 8px calc(6px + env(safe-area-inset-bottom))!important}
-body:has(#kidView:not(.hidden)) .tabbar button{min-height:50px!important;border-radius:12px!important;font:600 9.5px/1.15 'IBM Plex Sans',sans-serif!important;color:rgba(43,58,74,.45)!important}
-body:has(#kidView:not(.hidden)) .tabbar button .tabemoji{font-size:19px!important}
-body:has(#kidView:not(.hidden)) .tabbar button.on{background:transparent!important;color:var(--nm-design-mango)!important}
-
-/* New home cards are deliberately close to the handoff: dark points card,
-   warm carry-on card, generous radii, no card shadows. */
-.nm-mobile-home-intro{display:flex;flex-direction:column;gap:14px;padding:0 20px;margin-top:2px}
-.nm-mobile-points,.nm-mobile-carry{width:100%;text-align:left;border:0;cursor:pointer;box-sizing:border-box}
-.nm-mobile-points{background:var(--nm-design-child-ink);color:#fff;border-radius:22px;padding:17px 19px;display:flex;align-items:center;gap:14px}
-.nm-mobile-points-copy{flex:1;min-width:0;display:flex;flex-direction:column}
-.nm-mobile-eyebrow{font:600 10.5px/1.2 'IBM Plex Sans',sans-serif;text-transform:uppercase;letter-spacing:.09em;color:rgba(255,255,255,.55)}
-.nm-mobile-points strong{font:800 38px/1.05 'Bricolage Grotesque',sans-serif;color:var(--nm-design-gold);margin-top:3px}
-.nm-mobile-points-meta{font:400 11.5px/1.3 'IBM Plex Sans',sans-serif;color:rgba(255,255,255,.6);margin-top:2px}
-.nm-mobile-pot{display:flex;flex-direction:column;align-items:flex-end;gap:3px;font-size:26px}
-.nm-mobile-pot small{font:500 10.5px 'IBM Plex Sans',sans-serif;color:rgba(255,255,255,.5)}
-.nm-mobile-carry{background:var(--nm-design-warm);border:1.5px solid rgba(232,130,30,.30);border-radius:22px;padding:16px 18px;animation:nm-glow 3.4s ease-in-out infinite}
-.nm-mobile-carry .nm-mobile-eyebrow{color:#B06A1A}
-.nm-mobile-carry-row{display:flex;align-items:center;gap:13px;margin-top:7px}
-.nm-mobile-course-icon{width:46px;height:46px;border-radius:15px;background:#fff;display:grid;place-items:center;font-size:23px;flex:none}
-.nm-mobile-carry-row span:nth-child(2){flex:1;min-width:0;display:flex;flex-direction:column}
-.nm-mobile-carry-row strong{font:800 19px/1.15 'Bricolage Grotesque',sans-serif;color:var(--nm-design-child-ink)}
-.nm-mobile-carry-row small{font:400 12px/1.35 'IBM Plex Sans',sans-serif;color:rgba(43,58,74,.60);margin-top:3px}
-.nm-mobile-carry-row>b{width:44px;height:44px;border-radius:14px;background:var(--nm-design-mango);display:grid;place-items:center;color:#fff;font-size:24px}
-
-/* The handoff puts learning in compact cards and keeps the home screen airy. */
-body:has(#kidView:not(.hidden)) #kidHomeScreen .homecap#capSpend,
-body:has(#kidView:not(.hidden)) #kidHomeScreen #kidQuickBuy{display:none!important}
-body:has(#kidView:not(.hidden)) #kidHomeScreen #championToggleRow{margin:0 20px}
-body:has(#kidView:not(.hidden)) #kidHomeScreen #prayerToday{margin:0 20px}
-body:has(#kidView:not(.hidden)) #kidHomeScreen #kidNoteHost{margin:0 20px}
-body:has(#kidView:not(.hidden)) #kidHomeScreen #kidMoneyTip{margin:0 20px}
-
-/* Child inner screens */
-body:has(#kidView:not(.hidden)) #kidSpendScreen,
-body:has(#kidView:not(.hidden)) #kidLearnScreen,
-body:has(#kidView:not(.hidden)) #kidPointsScreen{padding:10px 20px 8px!important}
-body:has(#kidView:not(.hidden)) .kidtitle{background:transparent!important;border:0!important;padding:0!important;box-shadow:none!important}
-body:has(#kidView:not(.hidden)) .kidtitlename{font:800 24px/1.15 'Bricolage Grotesque',sans-serif!important;color:var(--nm-design-child-ink)!important}
-body:has(#kidView:not(.hidden)) .kidtitlesub{font-size:12.5px!important;color:rgba(43,58,74,.55)!important}
-body:has(#kidView:not(.hidden)) .fulrow{border:1px solid rgba(43,58,74,.10)!important;border-radius:18px!important;padding:14px 15px!important;background:#fff!important;min-height:56px!important}
-body:has(#kidView:not(.hidden)) .fulrow .fulname{font:600 14.5px/1.35 'IBM Plex Sans',sans-serif!important}
-body:has(#kidView:not(.hidden)) .rewardtile{border:1px solid rgba(43,58,74,.10)!important;border-radius:19px!important;background:#fff!important}
-body:has(#kidView:not(.hidden)) #kidPointsScreen .card,
-body:has(#kidView:not(.hidden)) #kidSpendScreen .card{border:1px solid rgba(43,58,74,.10)!important;border-radius:20px!important}
-
-/* Auth screens adopt the grown-up register from the handoff. */
-#authGate{background:#e8e5e0!important}
-#authGate .gatecard{width:min(390px,calc(100vw - 32px))!important;border-radius:28px!important;background:#F7F9FA!important;box-shadow:none!important;border:1px solid rgba(27,36,48,.10)!important;padding:24px!important;box-sizing:border-box}
-#authGate .gatecard input{min-height:52px!important;border-radius:15px!important;border:1px solid rgba(27,36,48,.18)!important}
-#authGate .gatecard .primary{min-height:54px!important;border-radius:16px!important;background:#4E8C6A!important}
-
-@media(min-width:700px){
-  #mainApp{min-height:100vh;box-shadow:0 0 0 1px rgba(27,36,48,.04)}
-}
-@media(prefers-reduced-motion:reduce){.nm-mobile-carry{animation:none!important}}
-
-/* ================================================================
-   NOTICE ME — ZIP FIDELITY PASS 02
-   Individual screens deliberately follow the supplied mobile handoff:
-   child = warm paper / large type / emoji; grown-up = slate / moss / drawn,
-   compact surfaces. This pass is intentionally screen-specific rather than
-   applying one generic card style to everything.
-   ================================================================ */
-
-/* Parent home — handoff Round 1 */
-.nm-parent-home{padding:14px 20px 8px;display:flex;flex-direction:column;gap:14px;animation:nm-rise .3s ease}
-.nm-parent-header{display:flex;align-items:flex-start;justify-content:space-between}
-.nm-parent-date{font:400 12px/1.3 'IBM Plex Sans',sans-serif;color:rgba(27,36,48,.5)}
-.nm-parent-header h1{margin:2px 0 0;font:600 23px/1.2 'Bricolage Grotesque',sans-serif;color:#1B2430;letter-spacing:-.01em}
-.nm-parent-menu{width:38px;height:38px;border-radius:11px;border:1px solid rgba(27,36,48,.15);background:transparent;color:#1B2430;font-size:17px;display:grid;place-items:center;padding:0}
-.nm-parent-jobs{background:#fff;border:1px solid rgba(27,36,48,.10);border-radius:16px;overflow:hidden}
-.nm-parent-job{width:100%;border:0;border-top:1px solid rgba(27,36,48,.08);background:#fff;padding:14px 16px;display:flex;align-items:center;gap:12px;text-align:left;color:#1B2430;cursor:pointer}
-.nm-parent-job:first-child{border-top:0}
-.nm-parent-job.nm-job-asking{background:rgba(78,140,106,.07)}
-.nm-job-icon{width:30px;height:30px;border-radius:9px;background:#4E8C6A;color:#fff;display:grid;place-items:center;font:500 15px 'IBM Plex Sans',sans-serif;flex:none}
-.nm-job-plus{background:rgba(27,36,48,.07);color:#1B2430;font-size:20px}
-.nm-parent-job>span:nth-child(2){flex:1;min-width:0;display:flex;flex-direction:column}
-.nm-parent-job b{font:600 14px/1.25 'IBM Plex Sans',sans-serif}
-.nm-parent-job small{font:400 12px/1.35 'IBM Plex Sans',sans-serif;color:rgba(27,36,48,.55);margin-top:2px}
-.nm-parent-job i{font:400 20px 'IBM Plex Sans',sans-serif;color:rgba(27,36,48,.35);font-style:normal}
-.nm-parent-section{margin-top:1px}
-.nm-parent-label{font:600 11px/1.2 'IBM Plex Sans',sans-serif;color:rgba(27,36,48,.45);text-transform:uppercase;letter-spacing:.08em;margin-bottom:9px}
-.nm-parent-kids,.nm-parent-learning{display:flex;flex-direction:column;gap:9px}
-.nm-parent-kids .kidrow{margin:0!important;background:#fff!important;border:1px solid rgba(27,36,48,.10)!important;border-radius:16px!important;padding:13px 15px!important;box-shadow:none!important}
-.nm-parent-kids .kidrow .kidname{font:600 14.5px 'IBM Plex Sans',sans-serif!important;color:#1B2430!important}
-.nm-parent-kids .kidrow .kweek{margin-top:5px!important}
-.nm-parent-kids .kidrow .kidchips{margin-top:5px!important}
-.nm-learning-row{width:100%;background:#fff;border:1px solid rgba(27,36,48,.10);border-radius:16px;padding:13px 15px;display:flex;align-items:center;gap:12px;text-align:left;cursor:pointer}
-.nm-learning-avatar{width:40px;height:40px;border-radius:12px;background:#E8F2EC;color:#4E8C6A;display:grid;place-items:center;font:600 15px 'Bricolage Grotesque',sans-serif;overflow:hidden;flex:none}
-.nm-learning-avatar img{width:100%;height:100%;object-fit:cover}
-.nm-learning-main{flex:1;min-width:0;display:flex;flex-direction:column}
-.nm-learning-main b{font:600 14.5px 'IBM Plex Sans',sans-serif;color:#1B2430}
-.nm-learning-main small{font:400 12px/1.35 'IBM Plex Sans',sans-serif;color:rgba(27,36,48,.55);margin-top:2px}
-.nm-learning-chevron{font:400 20px 'IBM Plex Sans',sans-serif;color:rgba(27,36,48,.35)}
-.nm-parent-empty{background:#fff;border:1px solid rgba(27,36,48,.10);border-radius:16px;padding:15px;color:rgba(27,36,48,.55);font:400 12.5px/1.5 'IBM Plex Sans',sans-serif}
-
-/* Child home — exact proportions from the handoff */
-body:has(#kidView:not(.hidden)) #kidHomeScreen{padding-bottom:4px}
-body:has(#kidView:not(.hidden)) .kidhero{padding:14px 22px 0!important}
-body:has(#kidView:not(.hidden)) .kidherorow{display:block!important}
-body:has(#kidView:not(.hidden)) #kidAvatar{display:none!important}
-body:has(#kidView:not(.hidden)) .kidhi{font:400 13px 'IBM Plex Sans',sans-serif!important;color:rgba(43,58,74,.55)!important;margin:0!important;letter-spacing:0!important}
-body:has(#kidView:not(.hidden)) .kidsub{font:800 30px/1.1 'Bricolage Grotesque',sans-serif!important;color:#2B3A4A!important;margin:2px 0 0!important;letter-spacing:-.01em!important}
-body:has(#kidView:not(.hidden)) #nmMobileHomeIntro{gap:16px;padding:0 22px;margin-top:14px}
-body:has(#kidView:not(.hidden)) .nm-mobile-points{border-radius:22px;padding:18px 20px;gap:16px}
-body:has(#kidView:not(.hidden)) .nm-mobile-points strong{font-size:40px}
-body:has(#kidView:not(.hidden)) .nm-mobile-pot{width:66px;height:66px;border-radius:20px;background:rgba(247,180,92,.16);justify-content:center;align-items:center;font-size:30px}
-body:has(#kidView:not(.hidden)) .nm-mobile-pot small{display:none}
-body:has(#kidView:not(.hidden)) .nm-mobile-carry{border-radius:20px;padding:16px 18px}
-body:has(#kidView:not(.hidden)) #capToday{margin:16px 22px 8px!important}
-body:has(#kidView:not(.hidden)) #prayerToday{margin:0 22px!important;background:#fff;border:1px solid rgba(43,58,74,.10);border-radius:20px;padding:16px 18px;box-sizing:border-box}
-body:has(#kidView:not(.hidden)) #prayerToday .prayerrow{gap:8px!important}
-body:has(#kidView:not(.hidden)) #kidNoteHost{margin:0 22px!important}
-body:has(#kidView:not(.hidden)) #kidMoneyTip{margin:0 22px!important}
-
-/* Child My points — pots and ledger use the handoff's 22px / 20px surfaces */
-body:has(#kidView:not(.hidden)) #kidPointsScreen{padding:10px 20px 8px!important}
-body:has(#kidView:not(.hidden)) #kidPointsScreen .titlerule{display:none!important}
-body:has(#kidView:not(.hidden)) #kidPointsScreen .pots{display:flex;flex-direction:column;gap:12px;margin-top:18px}
-body:has(#kidView:not(.hidden)) #kidPointsScreen .pot{border-radius:22px!important;padding:17px 19px!important}
-body:has(#kidView:not(.hidden)) #kidPointsScreen .c-panel{border-radius:20px!important;background:#fff!important;border:1px solid rgba(43,58,74,.10)!important}
-
-/* Child Spend — price list should look like the handoff, not the legacy tile grid */
-body:has(#kidView:not(.hidden)) #kidSpendScreen{padding:10px 20px 8px!important}
-body:has(#kidView:not(.hidden)) #kidSpendScreen .kidtitle{margin-bottom:0!important}
-body:has(#kidView:not(.hidden)) #kidSpendScreen .fulrow,
-body:has(#kidView:not(.hidden)) #kidSpendScreen .rewardtile{border-radius:19px!important;padding:15px 17px!important;background:#fff!important;border:1px solid rgba(43,58,74,.10)!important}
-body:has(#kidView:not(.hidden)) #kidSpendScreen .reachcap{margin-top:20px!important;margin-bottom:11px!important}
-
-/* All grown-up panels: remove the old desktop dashboard feel and match the
-   handoff's compact 390px sheets. */
-body:has(#familyView:not(.hidden)) .panel{width:100%!important;max-width:390px!important;margin:0 auto!important;border-radius:20px!important;background:#F7F9FA!important;box-shadow:none!important}
-body:has(#familyView:not(.hidden)) .panel .panelbody,
-body:has(#familyView:not(.hidden)) .panel>div{box-sizing:border-box}
-body:has(#familyView:not(.hidden)) .panelback{font:500 13px 'IBM Plex Sans',sans-serif!important;color:rgba(27,36,48,.55)!important}
-body:has(#familyView:not(.hidden)) .panel h1,
-body:has(#familyView:not(.hidden)) .panel h2{font-family:'Bricolage Grotesque',sans-serif!important;color:#1B2430!important}
-body:has(#familyView:not(.hidden)) .panel .card,
-body:has(#familyView:not(.hidden)) .panel .reward,
-body:has(#familyView:not(.hidden)) .panel .section-card{background:#fff!important;border:1px solid rgba(27,36,48,.10)!important;border-radius:16px!important;box-shadow:none!important}
-.askswitch{display:flex!important;gap:0!important;padding:4px!important;background:rgba(27,36,48,.06)!important;border-radius:13px!important;margin:10px 0 14px!important}
-.askswitch button{flex:1!important;min-height:38px!important;border:0!important;border-radius:10px!important;background:transparent!important;color:rgba(27,36,48,.55)!important;font:500 12.5px 'IBM Plex Sans',sans-serif!important}
-.askswitch button.on{background:#fff!important;color:#1B2430!important;box-shadow:0 1px 3px rgba(27,36,48,.08)!important;font-weight:600!important}
-
-@media(max-width:430px){
-  #mainApp{max-width:430px!important}
-}
-
-</style>
-<style id="nm-story-art-pass">
-/* Bedtime stories: every story has a relevant scene image. The wrapper keeps
-   the illustration full-bleed in the tile and comfortably rounded in the reader. */
-.storytile-art{display:block;flex:none;width:100%;} .storytile-art .storyart{display:block;width:100%;height:108px;object-fit:cover;border-radius:16px 16px 0 0;}
-.storyread-art .storyart{display:block;width:100%;max-height:250px;height:auto;object-fit:cover;border-radius:20px;margin-bottom:16px;}
-</style>
 </head>
 <body>
 <div id="pageBg" aria-hidden="true"></div>
@@ -2780,75 +2553,65 @@ body:has(#familyView:not(.hidden)) .panel .section-card{background:#fff!importan
     <p class="sub">Notice the good things, and keep track of the learning.</p>
     <p class="sub" style="margin-top:6px">Prayers, kindness, manners, homework and effort — you award the points, they choose what to spend them on. With a Qur&rsquo;an and school progress tracker built in, so you can see what they can actually do.</p>
 
-    <!-- v245 (design A1): fields, then "Forgot password?" left and "Create an
-         account" right; the children's route sits below the adult's, not behind
-         it, and the key card is the one emoji on the grown-up side because a
-         child reads this screen too. -->
-    <div id="signInForm" style="text-align:left;display:grid;gap:10px;margin-top:16px">
+    <div id="signInForm" style="text-align:left;display:grid;gap:8px;margin-top:16px">
       <input id="authEmail" type="email" placeholder="Email" autocomplete="username">
       <input id="authPassword" type="password" placeholder="Password" autocomplete="current-password">
       <button class="primary" onclick="submitAuthLogin()">Sign in</button>
-      <p class="small" id="authError" style="color:#a63e3e;margin:0"></p>
-      <p class="small" id="authResetMsg" style="color:var(--good);margin:0"></p>
-      <div class="a1links"><a href="#" class="plain" onclick="submitForgotPassword();return false;">Forgot password?</a><a href="#" onclick="switchToSignUp();return false;">Create an account</a></div>
-      <div class="a1note"><strong>Children:</strong> sign in with the email and password a parent gave you when they added you. It looks like <em>yourname.ab12@…</em></div>
-      <div id="askParentPanel" class="a1key" onclick="this.classList.toggle('open')">
-        <div class="a1keyhead"><span>🔑</span><strong>Ask Mum or Dad</strong></div>
-        <div class="a1keybody">
-          <p>Nothing is lost and nothing is broken. Your points are all still there. A parent can give you a new password in about ten seconds.</p>
-          <p><strong>Show them this bit 👇</strong> Open Notice Me → <strong>More</strong> → <strong>Family members</strong> → tap <strong>Send a new password</strong> under your name. Then check your own email for the link.</p>
-        </div>
+      <p class="small" id="authError" style="color:#a63e3e"></p>
+      <p class="small" id="authResetMsg" style="color:var(--good)"></p>
+      <div id="askParentPanel" class="hidden" style="background:#f5f3ff;border:1px solid #cfc7f7;border-radius:16px;padding:14px;margin:4px 0;text-align:left">
+        <p style="margin:0 0 6px;font-weight:800;font-size:15px">🔑 Ask Mum or Dad</p>
+        <p class="small" style="margin:0 0 10px">Nothing is lost and nothing is broken. Your points are all still there. A parent can give you a new password in about ten seconds.</p>
+        <p class="small" style="margin:0 0 4px;font-weight:800">Show them this bit 👇</p>
+        <p class="small" style="margin:0">Open Notice Me → <strong>☰ Menu</strong> → <strong>👨‍👩‍👧 Family members</strong> → tap <strong>✉️</strong> next to their name. Then check your own email for the link.</p>
       </div>
+      <p class="small"><a href="#" onclick="submitForgotPassword();return false;">Forgot password?</a></p>
+      <p class="small" style="background:#f7f7ff;border:1px solid #e1e3f4;border-radius:12px;padding:9px 11px;margin:2px 0">
+        <strong>Children:</strong> sign in with the email and password a parent gave you when they added you. It looks like <em>yourname.ab12@…</em>
+      </p>
+      <p class="small">Starting a brand new family? <a href="#" onclick="switchToSignUp();return false;">Create an account</a></p>
     </div>
 
-    <!-- v245 (design A2, A3): choose first, with the CTA relabelled to the
-         choice so the button never lies about what is next; then only the
-         fields that choice needs, the code first in join mode. -->
-    <div id="signUpForm" class="hidden" style="text-align:left;display:grid;gap:10px;margin-top:16px">
+    <div id="signUpForm" class="hidden" style="text-align:left;display:grid;gap:8px;margin-top:16px">
       <div id="signupChoose" style="display:grid;gap:10px">
         <p class="small" style="margin:0">Which of these are you doing?</p>
-        <button type="button" class="choosecard" id="chooseNew" onclick="pickSignupMode('new')">
-          <span class="chooseicon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg></span>
+        <button type="button" class="choosecard" onclick="setSignupMode('new')">
+          <span class="chooseicon">🏠</span>
           <span><strong>Start a new family</strong>
             <span>Nobody has invited you. You&rsquo;ll be its first parent, and everyone else joins afterwards.</span></span>
         </button>
-        <button type="button" class="choosecard" id="chooseJoin" onclick="pickSignupMode('join')">
-          <span class="chooseicon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-1 1"/><path d="M14 11a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l1-1"/></svg></span>
+        <button type="button" class="choosecard" onclick="setSignupMode('join')">
+          <span class="chooseicon">🔗</span>
           <span><strong>I have an invitation code</strong>
             <span>Someone in the family sent you eight characters. Parents, grandparents, uncles, aunties and tutors all join this way.</span></span>
         </button>
-        <button class="primary" id="signupChooseCta" disabled onclick="setSignupMode(window.__signupPick)">Choose one above</button>
       </div>
-      <div id="signupFields" class="hidden" style="display:grid;gap:10px">
-      <button type="button" class="light" style="width:auto;justify-self:start;min-height:40px" onclick="setSignupMode(null)">← Back</button>
-      <div id="signupCodeBox" class="hidden">
-        <input id="signupCode" type="text" class="codefield" placeholder="ABCD1234" maxlength="9" autocapitalize="characters" autocomplete="one-time-code">
-        <p class="small" style="margin:6px 0 0">Eight characters, from whoever invited you.</p>
+      <div id="signupFields" class="hidden" style="display:grid;gap:8px">
+      <button type="button" class="light" style="width:auto;justify-self:start" onclick="setSignupMode(null)">← Back</button>
+      <p class="small" id="signupModeNote" style="margin:0">This creates a new family and makes you its first parent. Everyone else — the other parent, each child, grandparents, tutors — gets their own login afterwards.</p>
+      <div class="signupwhat">
+        <p><strong>What you get</strong></p>
+        <p>⭐ <strong>Points for what they do.</strong> Prayers, kindness, manners, helping, homework, keeping going when something is hard. You decide what counts and what it is worth.</p>
+        <p>🎁 <strong>Rewards they choose.</strong> They ask, you decide. Time together is cheap on purpose; sweets are rare on purpose.</p>
+        <p>🕌 <strong>A prayer board.</strong> Each of the five prayers recorded separately, so you can see which one keeps slipping.</p>
+        <p>📖 <strong>Homework and learning tracked.</strong> Qur&rsquo;an from Qaida to hifz, plus maths, English and science by school year — practised, and secure once they can do it unaided.</p>
+        <p>👥 <strong>Everyone who helps.</strong> Both parents, grandparents with a small weekly allowance, and tutors who record how a lesson went.</p>
       </div>
-      <p class="small" id="signupModeNote" style="margin:0"></p>
       <input id="signupFamilyName" type="text" placeholder="Family name (e.g. The Ahmeds)">
-      <input id="signupName" type="text" placeholder="Your name">
+      <input id="signupName" type="text" placeholder="Your name (e.g. Sarah)">
       <input id="signupEmail" type="email" placeholder="Email" autocomplete="username">
       <input id="signupPassword" type="password" placeholder="Password" autocomplete="new-password">
       <div id="signupRoleBox">
-        <div class="seg" style="grid-template-columns:1fr 1fr">
-          <button type="button" id="roleMumBtn" class="light" onclick="selectSignupRole('Mum')">Mum</button>
-          <button type="button" id="roleDadBtn" class="light" onclick="selectSignupRole('Dad')">Dad</button>
+        <p class="small" style="margin:0 0 6px">You are...</p>
+        <div style="display:flex;gap:8px">
+          <button type="button" id="roleMumBtn" class="light" style="width:auto;flex:1" onclick="selectSignupRole('Mum')">Mum</button>
+          <button type="button" id="roleDadBtn" class="light" style="width:auto;flex:1" onclick="selectSignupRole('Dad')">Dad</button>
         </div>
       </div>
-      <div class="a3what">
-        <p class="rvcap" style="margin:0 0 8px">What you get</p>
-        <ul class="canlist">
-          <li class="can"><i>✓</i>Points for what they actually do — kindness, prayers, manners, effort</li>
-          <li class="can"><i>✓</i>Rewards they choose themselves, priced by you</li>
-          <li class="can"><i>✓</i>A prayer board, kept separately, never scored</li>
-          <li class="can"><i>✓</i>Homework and learning tracked, with who marked it</li>
-        </ul>
+      <button class="primary" onclick="submitSignUp()">Create account</button>
+      <p class="small" id="signupError" style="color:#a63e3e"></p>
       </div>
-      <button class="primary" id="signupSubmit" onclick="submitSignUp()">Create account</button>
-      <p class="small" id="signupError" style="color:#a63e3e;margin:0"></p>
-      </div>
-      <p class="small" style="margin:4px 0 0">Already have an account? <a href="#" onclick="switchToSignIn();return false;">Sign in</a></p>
+      <p class="small">Already have an account? <a href="#" onclick="switchToSignIn();return false;">Sign in</a></p>
     </div>
   </div>
 </div>
@@ -2883,18 +2646,13 @@ body:has(#familyView:not(.hidden)) .panel .section-card{background:#fff!importan
     <div style="text-align:center"><div class="lockup" role="img" aria-label="Notice Me"><svg class="nmlockup" xmlns="http://www.w3.org/2000/svg" viewBox="-50 -921 4339 1241" role="img" aria-label="Notice Me"><path fill="#1B2430" d="M40 0V-660H257L492 -213H494V-660H654V0H450L202 -462H200V0Z M944.0 14Q868.0 14 809.0 -16.5Q750.0 -47 717.0 -108.5Q684.0 -170 684.0 -263Q684.0 -360 718.5 -421.5Q753.0 -483 812.5 -512.5Q872.0 -542 947.0 -542Q1025.0 -542 1083.5 -511.5Q1142.0 -481 1174.5 -419.5Q1207.0 -358 1207.0 -264Q1207.0 -167 1172.5 -105.5Q1138.0 -44 1078.5 -15.0Q1019.0 14 944.0 14ZM948.0 -105Q979.0 -105 1000.0 -122.5Q1021.0 -140 1032.0 -174.0Q1043.0 -208 1043.0 -255Q1043.0 -307 1031.0 -342.5Q1019.0 -378 996.5 -397.0Q974.0 -416 942.0 -416Q912.0 -416 891.0 -398.5Q870.0 -381 859.0 -347.0Q848.0 -313 848.0 -265Q848.0 -189 874.5 -147.0Q901.0 -105 948.0 -105Z M1438.0 12Q1345.0 12 1299.5 -35.5Q1254.0 -83 1254.0 -183V-402H1196.0V-504H1199.0Q1261.0 -512 1287.0 -545.5Q1313.0 -579 1319.0 -647V-649H1414.0V-528H1535.0V-398H1414.0V-198Q1414.0 -160 1432.5 -144.0Q1451.0 -128 1478.0 -128Q1492.0 -128 1507.0 -132.0Q1522.0 -136 1535.0 -143V-2Q1504.0 7 1480.0 9.5Q1456.0 12 1438.0 12Z M1563.0 0V-528H1725.0V0Z M2018.0 14Q1947.0 14 1896.0 -7.5Q1845.0 -29 1813.0 -67.0Q1781.0 -105 1766.0 -154.0Q1751.0 -203 1751.0 -258Q1751.0 -314 1766.0 -364.5Q1781.0 -415 1812.5 -455.5Q1844.0 -496 1894.5 -519.0Q1945.0 -542 2016.0 -542Q2100.0 -542 2151.5 -510.5Q2203.0 -479 2223.5 -429.0Q2244.0 -379 2235.0 -321L2095.0 -310Q2097.0 -346 2087.5 -369.5Q2078.0 -393 2059.0 -404.5Q2040.0 -416 2013.0 -416Q1989.0 -416 1970.5 -407.0Q1952.0 -398 1939.5 -379.5Q1927.0 -361 1920.5 -333.0Q1914.0 -305 1914.0 -266Q1914.0 -216 1925.5 -180.0Q1937.0 -144 1960.5 -125.0Q1984.0 -106 2020.0 -106Q2057.0 -106 2076.0 -124.0Q2095.0 -142 2101.0 -169.5Q2107.0 -197 2103.0 -224L2252.0 -217Q2258.0 -173 2248.0 -131.5Q2238.0 -90 2209.5 -57.0Q2181.0 -24 2133.5 -5.0Q2086.0 14 2018.0 14Z M2523.0 14Q2448.0 14 2397.5 -7.5Q2347.0 -29 2316.0 -66.5Q2285.0 -104 2271.5 -152.0Q2258.0 -200 2258.0 -253Q2258.0 -310 2272.5 -362.0Q2287.0 -414 2317.5 -454.5Q2348.0 -495 2396.5 -518.5Q2445.0 -542 2513.0 -542Q2581.0 -542 2629.5 -518.5Q2678.0 -495 2707.0 -453.0Q2736.0 -411 2744.5 -356.0Q2753.0 -301 2742.0 -237L2359.0 -231V-319L2618.0 -324L2597.0 -273Q2603.0 -319 2595.5 -350.5Q2588.0 -382 2568.0 -398.5Q2548.0 -415 2513.0 -415Q2476.0 -415 2454.0 -396.0Q2432.0 -377 2423.0 -342.5Q2414.0 -308 2414.0 -261Q2414.0 -180 2441.0 -143.0Q2468.0 -106 2524.0 -106Q2548.0 -106 2564.0 -112.0Q2580.0 -118 2590.0 -129.5Q2600.0 -141 2604.0 -157.5Q2608.0 -174 2607.0 -195L2755.0 -187Q2758.0 -154 2748.5 -119.0Q2739.0 -84 2713.0 -54.0Q2687.0 -24 2640.5 -5.0Q2594.0 14 2523.0 14Z M2952.0 0V-660H3195.0L3330.0 -191H3332.0L3464.0 -660H3694.0V0H3544.0V-497H3542.0L3393.0 0H3251.0L3104.0 -497H3102.0V0Z M3989.0 14Q3914.0 14 3863.5 -7.5Q3813.0 -29 3782.0 -66.5Q3751.0 -104 3737.5 -152.0Q3724.0 -200 3724.0 -253Q3724.0 -310 3738.5 -362.0Q3753.0 -414 3783.5 -454.5Q3814.0 -495 3862.5 -518.5Q3911.0 -542 3979.0 -542Q4047.0 -542 4095.5 -518.5Q4144.0 -495 4173.0 -453.0Q4202.0 -411 4210.5 -356.0Q4219.0 -301 4208.0 -237L3825.0 -231V-319L4084.0 -324L4063.0 -273Q4069.0 -319 4061.5 -350.5Q4054.0 -382 4034.0 -398.5Q4014.0 -415 3979.0 -415Q3942.0 -415 3920.0 -396.0Q3898.0 -377 3889.0 -342.5Q3880.0 -308 3880.0 -261Q3880.0 -180 3907.0 -143.0Q3934.0 -106 3990.0 -106Q4014.0 -106 4030.0 -112.0Q4046.0 -118 4056.0 -129.5Q4066.0 -141 4070.0 -157.5Q4074.0 -174 4073.0 -195L4221.0 -187Q4224.0 -154 4214.5 -119.0Q4205.0 -84 4179.0 -54.0Q4153.0 -24 4106.5 -5.0Q4060.0 14 3989.0 14Z"/><circle cx="1644.0" cy="-772.2" r="99.0" fill="#E8821E"/></svg></div></div>
     <div class="onbdots" id="onbDots"></div>
 
-    <!-- v245 (design A4): numerals in outlined tiles, three things, and the
-         skip offered rather than buried. -->
     <div class="onbstep" id="onbStep1">
-      <h1>Welcome, <span id="onbName">there</span></h1>
-      <p class="lede">Your family is set up. Three things worth knowing before you start.</p>
-      <div class="a4point"><span class="a4n">1</span><div><strong>Only you can give points.</strong><span>Grandparents and tutors have small caps. Children never award themselves anything.</span></div></div>
-      <div class="a4point"><span class="a4n">2</span><div><strong>Say what it was for, out loud.</strong><span>“That was kind of you — three points.” The words do more than the number.</span></div></div>
-      <div class="a4point"><span class="a4n">3</span><div><strong>Nothing is taken without you.</strong><span>They ask, you answer. No is a fine answer, and every decision has an Undo.</span></div></div>
-      <div class="onbnav" style="flex-direction:column">
-        <button class="primary" onclick="onbGo(3)">Add your first child</button>
-        <button class="light" onclick="finishOnboarding()">I’ll do that later</button>
-      </div>
+      <h1>Welcome, <span id="onbName">there</span> 👋</h1>
+      <p class="lede">Your family is set up. Three things worth knowing before you start — it takes a minute.</p>
+      <div class="onbpoint"><span class="em">⭐</span><div><strong>You notice, you award</strong><span>Only Mum and Dad accounts can give points. Children can see what they've earned, but never award any — to themselves or each other.</span></div></div>
+      <div class="onbpoint"><span class="em">🎁</span><div><strong>They ask, you decide</strong><span>Children choose a reward or an activity and it comes to you as a request. Points are only spent when you approve it.</span></div></div>
+      <div class="onbpoint"><span class="em">📈</span><div><strong>You'll see the pattern</strong><span>Each child gets a trend line that runs green while points are coming in, and fades when things go quiet. It’s the quiet weeks it’s there to show you.</span></div></div>
+      <div class="onbnav"><button class="primary" onclick="onbGo(3)">Next</button></div>
     </div>
 
     <div class="onbstep hidden" id="onbStep2">
@@ -3033,7 +2791,7 @@ body:has(#familyView:not(.hidden)) .panel .section-card{background:#fff!importan
     <button class="menutile t-spend"  onclick="kidMenuGo('kidSpendScreen')"><span>🎁</span>Spend my points</button>
     <button class="menutile t-learn"  onclick="kidMenuGo('kidLearnScreen')"><span>📖</span>Duɗal</button>
     <button class="menutile t-points" onclick="kidMenuGo('kidPointsScreen')"><span>⭐</span>My points</button>
-    <button class="menutile t-deen" id="btnKidDeen" onclick="closeKidMenu();showDeenPanel()"><span>🌙</span>Duas &amp; bedtime</button>
+    <button class="menutile t-deen" id="btnKidDeen" onclick="closeKidMenu();showDeenPanel()"><span>🤲</span>Duas &amp; bedtime</button>
     <button class="menutile t-play"   onclick="closeKidMenu();showPlayPanel()"><span>🧩</span>Do together</button>
   </div>
 
@@ -3066,7 +2824,7 @@ body:has(#familyView:not(.hidden)) .panel .section-card{background:#fff!importan
 
 <div id="catPage" class="catpage hidden">
   <div class="catpage-inner">
-    <button class="catback" aria-label="Back to categories" onclick="closeCatModal()">← Back to categories</button>
+    <button class="catback" onclick="closeCatModal()">← Back to categories</button>
     <div class="catpage-head">
       <span class="ticon" id="catSheetIcon"></span>
       <div style="flex:1;min-width:0">
@@ -3085,7 +2843,7 @@ body:has(#familyView:not(.hidden)) .panel .section-card{background:#fff!importan
 
 <div id="childStatsPage" class="catpage hidden">
   <div class="catpage-inner">
-    <button class="catback" aria-label="Back to overview" onclick="closeChildStats()">← Back to overview</button>
+    <button class="catback" onclick="closeChildStats()">← Back to overview</button>
     <div id="childStatsBody"></div>
   </div>
 </div>
@@ -3552,21 +3310,6 @@ body:has(#familyView:not(.hidden)) .panel .section-card{background:#fff!importan
       <strong id="kidBalance" class="hidden">0</strong>
     </section>
 
-    <section id="nmMobileHomeIntro" aria-label="Points and learning" class="nm-mobile-home-intro">
-      <button id="nmMobilePointsCard" class="nm-mobile-points" type="button" onclick="showScreen('kidPointsScreen')">
-        <span class="nm-mobile-points-copy">
-          <span class="nm-mobile-eyebrow">Points to spend</span>
-          <strong id="nmMobilePointsValue">0</strong>
-          <span id="nmMobilePointsMeta">0 today · points you can use</span>
-        </span>
-        <span class="nm-mobile-pot">🫙<small>pots</small></span>
-      </button>
-      <button id="nmMobileCarryCard" class="nm-mobile-carry" type="button" onclick="goCarryOn()">
-        <span class="nm-mobile-eyebrow">Carry on where you stopped</span>
-        <span class="nm-mobile-carry-row"><span class="nm-mobile-course-icon">🔢</span><span><strong>Keep learning</strong><small>Continue your last lesson</small></span><b>›</b></span>
-      </button>
-    </section>
-
     <!-- Prayers sit against the greeting card, above everything else on the
          screen. They are not a task somebody set and they are not a balance:
          they are the first thing the day is measured by, so they come before
@@ -3613,11 +3356,11 @@ body:has(#familyView:not(.hidden)) .panel .section-card{background:#fff!importan
   </div>
 
   <div id="kidSpendScreen" class="hidden">
-    <!-- Always-visible escape route. The label changes depending on where the child entered from. --> Arriving
+    <!-- Only present when Rewards was opened from the To spend pot. Arriving
          from the tab bar this is a place of its own; arriving from the pot it
          is what is inside the pot you just tapped, and a pot you opened needs
          a way back to the shelf you opened it from. -->
-    <div id="kidSpendBack" class="kid-screen-back-slot"></div>
+    <div id="kidSpendBack"></div>
     <header class="kidtitle w-spend">
       <span class="kidtitleicon">🎁</span>
       <span><span class="kidtitlename">My rewards</span>
@@ -3646,7 +3389,6 @@ body:has(#familyView:not(.hidden)) .panel .section-card{background:#fff!importan
   </div>
 
   <div id="kidLearnScreen" class="hidden">
-    <button class="kidback kidback-top" type="button" onclick="showScreen(null)">← Home</button>
     <header class="kidtitle w-learn">
       <span class="kidtitleicon">📖</span>
       <span><span class="kidtitlename">Duɗal</span></span>
@@ -3680,7 +3422,6 @@ body:has(#familyView:not(.hidden)) .panel .section-card{background:#fff!importan
           screens of scroll became 104px, and it is conceptually true rather
           than merely tidier. -->
   <div id="kidPointsScreen" class="hidden">
-    <button class="kidback kidback-top" type="button" onclick="showScreen(null)">← Home</button>
     <header class="kidtitle w-points">
       <span class="kidtitleicon">⭐</span>
       <span><span class="kidtitlename">My points</span>
@@ -3726,9 +3467,9 @@ body:has(#familyView:not(.hidden)) .panel .section-card{background:#fff!importan
        picture, total, lesson, deposit control, lock explanation - are one per
        block here, in that order, with room to breathe. -->
   <div id="kidBankScreen" class="hidden">
-    <button class="kidback kidback-top" onclick="showScreen('kidPointsScreen')">← My points</button>
+    <button class="kidback" onclick="showScreen('kidPointsScreen')">← My points</button>
     <header class="kidtitle w-points">
-      <span class="kidtitleicon">🫙</span>
+      <span class="kidtitleicon">🏦</span>
       <span><span class="kidtitlename">My bank</span>
         <span class="kidtitlesub">Points you decided to keep</span></span>
     </header>
@@ -3738,7 +3479,7 @@ body:has(#familyView:not(.hidden)) .panel .section-card{background:#fff!importan
   </div>
 
   <div id="kidGiveScreen" class="hidden">
-    <button class="kidback kidback-top" onclick="showScreen('kidPointsScreen')">← My points</button>
+    <button class="kidback" onclick="showScreen('kidPointsScreen')">← My points</button>
     <header class="kidtitle w-points">
       <span class="kidtitleicon">🤲</span>
       <span><span class="kidtitlename">Our giving pot</span>
@@ -3765,7 +3506,7 @@ body:has(#familyView:not(.hidden)) .panel .section-card{background:#fff!importan
 
   <nav id="kidTabBar" class="tabbar hidden">
     <button id="kidTabHome" onclick="showScreen(null)"><span class="tabemoji">🏠</span>Home</button>
-    <button id="kidTabSpend" onclick="openSpend('tab')"><span class="tabemoji">🎁</span>Spend</button>
+    <button id="kidTabSpend" onclick="openSpend('tab')"><span class="tabemoji">🎁</span>Rewards</button>
     <button id="kidTabLearn" onclick="showScreen('kidLearnScreen')"><span class="tabemoji">📖</span>Duɗal</button>
     <button id="kidTabPoints" onclick="showScreen('kidPointsScreen')"><span class="tabemoji">⭐</span>My points</button>
   </nav>
@@ -5086,10 +4827,10 @@ const REMINDERS = [
   { theme:"t4", tag:"Gentleness", glyph:"🕊️", text:"Allah is gentle, and loves gentleness in all things.", src:"Meaning of a hadith \u2014 Muslim" },
   { theme:"t1", tag:"Keeping going", glyph:"🌱", text:"Deeds that are small and constant are more loved than large ones done rarely.", src:"Meaning of a hadith \u2014 Bukhari & Muslim" },
   { theme:"t4", tag:"Others", glyph:"🤝", text:"None of you truly believes until he loves for his brother what he loves for himself.", src:"Meaning of a hadith \u2014 Bukhari & Muslim" },
-  { theme:"t3", tag:"Self-control", glyph:"🧠", text:"The strong one is the one who controls himself when he is angry.", src:"Meaning of a hadith \u2014 Bukhari & Muslim" },
+  { theme:"t3", tag:"Self-control", glyph:"🧘", text:"The strong one is the one who controls himself when he is angry.", src:"Meaning of a hadith \u2014 Bukhari & Muslim" },
   { theme:"t4", tag:"Kindness", glyph:"😊", text:"Smiling in your brother's face is charity.", src:"Meaning of a hadith \u2014 Tirmidhi" },
   { theme:"t3", tag:"Remembering", glyph:"✨", text:"Be mindful of Allah, and you will find Him before you.", src:"Meaning of a hadith \u2014 Tirmidhi" },
-  { theme:"t3", tag:"The heart", glyph:"❤️", text:"Allah does not look at your appearance or your wealth, but at your hearts and your deeds.", src:"Meaning of a hadith \u2014 Muslim" },
+  { theme:"t3", tag:"The heart", glyph:"🖤", text:"Allah does not look at your appearance or your wealth, but at your hearts and your deeds.", src:"Meaning of a hadith \u2014 Muslim" },
   { theme:"t2", tag:"Thankfulness", glyph:"🙌", text:"Whoever does not thank people has not thanked Allah.", src:"Meaning of a hadith \u2014 Abu Dawud & Tirmidhi" },
   { theme:"t6", tag:"Words", glyph:"🤫", text:"Speak good, or stay quiet.", src:"Meaning of a hadith \u2014 Bukhari & Muslim" },
   { theme:"t1", tag:"Keeping going", glyph:"🌱", text:"The most beloved deeds to Allah are the most consistent ones, even if small.", src:"Meaning of a hadith \u2014 Bukhari" },
@@ -5104,11 +4845,11 @@ const REMINDERS = [
 const STORY_ART = {
   sea: "<svg viewBox=\"0 0 400 220\" class=\"storyart\" role=\"img\" aria-label=\"A dark sea under a night sky\"> <defs><linearGradient id=\"sk1\" x1=\"0\" y1=\"0\" x2=\"0\" y2=\"1\"><stop offset=\"0\" stop-color=\"#1b2a5e\"/><stop offset=\"1\" stop-color=\"#3f5aa6\"/></linearGradient> <linearGradient id=\"se1\" x1=\"0\" y1=\"0\" x2=\"0\" y2=\"1\"><stop offset=\"0\" stop-color=\"#12507a\"/><stop offset=\"1\" stop-color=\"#062f4d\"/></linearGradient></defs> <rect width=\"400\" height=\"220\" fill=\"url(#sk1)\"/> <circle cx=\"322\" cy=\"46\" r=\"20\" fill=\"#ffe9a8\"/><circle cx=\"314\" cy=\"42\" r=\"18\" fill=\"#3f5aa6\" opacity=\".92\"/> <g fill=\"#fff\" opacity=\".85\"><circle cx=\"60\" cy=\"34\" r=\"1.8\"/><circle cx=\"112\" cy=\"60\" r=\"1.4\"/><circle cx=\"168\" cy=\"28\" r=\"2\"/><circle cx=\"228\" cy=\"66\" r=\"1.5\"/><circle cx=\"264\" cy=\"30\" r=\"1.7\"/><circle cx=\"40\" cy=\"82\" r=\"1.3\"/><circle cx=\"150\" cy=\"88\" r=\"1.2\"/></g> <path d=\"M0 138 Q60 122 120 138 T240 138 T360 138 T480 138 V220 H0 Z\" fill=\"url(#se1)\"/> <path d=\"M0 158 Q70 144 140 158 T280 158 T420 158 V220 H0 Z\" fill=\"#0a3f63\" opacity=\".75\"/> <path d=\"M118 176 q28 -16 56 0 q-28 10 -56 0 Z\" fill=\"#0e5f86\"/> <path d=\"M174 176 q22 -6 34 6 q-18 6 -34 -6 Z\" fill=\"#0e5f86\"/> <path d=\"M96 172 q10 -12 22 -6\" stroke=\"#8fd3f0\" stroke-width=\"2.5\" fill=\"none\" stroke-linecap=\"round\" opacity=\".7\"/> </svg>",
   birds: "<svg viewBox=\"0 0 400 220\" class=\"storyart\" role=\"img\" aria-label=\"Birds flying over green hills at dawn\"> <defs><linearGradient id=\"sk2\" x1=\"0\" y1=\"0\" x2=\"0\" y2=\"1\"><stop offset=\"0\" stop-color=\"#ffd9a0\"/><stop offset=\"1\" stop-color=\"#ffb8b0\"/></linearGradient></defs> <rect width=\"400\" height=\"220\" fill=\"url(#sk2)\"/> <circle cx=\"200\" cy=\"150\" r=\"52\" fill=\"#fff0c4\" opacity=\".85\"/> <path d=\"M0 150 Q70 108 150 148 T300 140 T400 158 V220 H0 Z\" fill=\"#6f9f6a\"/> <path d=\"M0 176 Q90 146 190 178 T400 174 V220 H0 Z\" fill=\"#4e7d51\"/> <g stroke=\"#5a3f2e\" stroke-width=\"3\" fill=\"none\" stroke-linecap=\"round\"> <path d=\"M70 56 q12 -12 24 0 q12 -12 24 0\"/><path d=\"M150 34 q10 -10 20 0 q10 -10 20 0\"/> <path d=\"M232 62 q11 -11 22 0 q11 -11 22 0\"/><path d=\"M300 30 q9 -9 18 0 q9 -9 18 0\"/> <path d=\"M118 92 q8 -8 16 0 q8 -8 16 0\"/></g> </svg>",
-  well: "<svg viewBox=\"0 0 400 220\" class=\"storyart\" role=\"img\" aria-label=\"A stone well beside a dusty desert road\"> <defs><linearGradient id=\"sk3\" x1=\"0\" y1=\"0\" x2=\"0\" y2=\"1\"><stop offset=\"0\" stop-color=\"#bfe3f5\"/><stop offset=\"1\" stop-color=\"#f6e2b8\"/></linearGradient></defs> <rect width=\"400\" height=\"220\" fill=\"url(#sk3)\"/> <circle cx=\"330\" cy=\"48\" r=\"26\" fill=\"#ffe07a\" opacity=\".9\"/> <path d=\"M0 152 Q100 138 200 152 T400 148 V220 H0 Z\" fill=\"#e2c48c\"/> <path d=\"M0 176 Q120 164 240 180 T400 174 V220 H0 Z\" fill=\"#cfae74\"/> <g><rect x=\"150\" y=\"150\" width=\"96\" height=\"14\" rx=\"5\" fill=\"#9a8360\"/> <rect x=\"158\" y=\"162\" width=\"80\" height=\"42\" rx=\"6\" fill=\"#b39a72\"/> <rect x=\"158\" y=\"162\" width=\"80\" height=\"42\" rx=\"6\" fill=\"none\" stroke=\"#8b7554\" stroke-width=\"2\"/> <path d=\"M170 162 v42 M186 162 v42 M202 162 v42 M218 162 v42\" stroke=\"#8b7554\" stroke-width=\"1.5\" opacity=\".6\"/> <path d=\"M162 150 v-34 h72 v34\" fill=\"none\" stroke=\"#7d6647\" stroke-width=\"4\" stroke-linecap=\"round\"/> <path d=\"M198 116 v22\" stroke=\"#7d6647\" stroke-width=\"2.5\"/><rect x=\"190\" y=\"136\" width=\"16\" height=\"12\" rx=\"3\" fill=\"#7d6647\"/></g> <path d=\"M56 208 q40 -14 88 -6\" stroke=\"#bb9a63\" stroke-width=\"6\" fill=\"none\" stroke-linecap=\"round\" opacity=\".6\"/>  <g fill="#8a6b4e"><path d="M275 180 q0 -17 16 -22 q18 -6 28 8 q9 13 -3 25 q-9 9 -28 6 q-13 -2 -13 -17z"/><path d="M307 163 q8 -13 17 -8 l-4 12z"/><path d="M322 177 q8 1 13 7" stroke="#5d4635" stroke-width="2.5" fill="none" stroke-linecap="round"/><path d="M284 195 l-4 12 M307 195 l3 12" stroke="#6b523d" stroke-width="3" stroke-linecap="round"/></g></svg>",
+  well: "<svg viewBox=\"0 0 400 220\" class=\"storyart\" role=\"img\" aria-label=\"A stone well beside a dusty desert road\"> <defs><linearGradient id=\"sk3\" x1=\"0\" y1=\"0\" x2=\"0\" y2=\"1\"><stop offset=\"0\" stop-color=\"#bfe3f5\"/><stop offset=\"1\" stop-color=\"#f6e2b8\"/></linearGradient></defs> <rect width=\"400\" height=\"220\" fill=\"url(#sk3)\"/> <circle cx=\"330\" cy=\"48\" r=\"26\" fill=\"#ffe07a\" opacity=\".9\"/> <path d=\"M0 152 Q100 138 200 152 T400 148 V220 H0 Z\" fill=\"#e2c48c\"/> <path d=\"M0 176 Q120 164 240 180 T400 174 V220 H0 Z\" fill=\"#cfae74\"/> <g><rect x=\"150\" y=\"150\" width=\"96\" height=\"14\" rx=\"5\" fill=\"#9a8360\"/> <rect x=\"158\" y=\"162\" width=\"80\" height=\"42\" rx=\"6\" fill=\"#b39a72\"/> <rect x=\"158\" y=\"162\" width=\"80\" height=\"42\" rx=\"6\" fill=\"none\" stroke=\"#8b7554\" stroke-width=\"2\"/> <path d=\"M170 162 v42 M186 162 v42 M202 162 v42 M218 162 v42\" stroke=\"#8b7554\" stroke-width=\"1.5\" opacity=\".6\"/> <path d=\"M162 150 v-34 h72 v34\" fill=\"none\" stroke=\"#7d6647\" stroke-width=\"4\" stroke-linecap=\"round\"/> <path d=\"M198 116 v22\" stroke=\"#7d6647\" stroke-width=\"2.5\"/><rect x=\"190\" y=\"136\" width=\"16\" height=\"12\" rx=\"3\" fill=\"#7d6647\"/></g> <path d=\"M56 208 q40 -14 88 -6\" stroke=\"#bb9a63\" stroke-width=\"6\" fill=\"none\" stroke-linecap=\"round\" opacity=\".6\"/> </svg>",
   cave: "<svg viewBox=\"0 0 400 220\" class=\"storyart\" role=\"img\" aria-label=\"The dark mouth of a cave in a hillside\"> <defs><linearGradient id=\"sk4\" x1=\"0\" y1=\"0\" x2=\"0\" y2=\"1\"><stop offset=\"0\" stop-color=\"#2a2f5e\"/><stop offset=\"1\" stop-color=\"#6b5a8e\"/></linearGradient> <radialGradient id=\"mouth\"><stop offset=\"0\" stop-color=\"#050510\"/><stop offset=\"1\" stop-color=\"#1b1630\"/></radialGradient></defs> <rect width=\"400\" height=\"220\" fill=\"url(#sk4)\"/> <g fill=\"#fff\" opacity=\".8\"><circle cx=\"48\" cy=\"30\" r=\"1.7\"/><circle cx=\"96\" cy=\"52\" r=\"1.3\"/><circle cx=\"330\" cy=\"36\" r=\"2\"/><circle cx=\"288\" cy=\"66\" r=\"1.4\"/><circle cx=\"360\" cy=\"72\" r=\"1.5\"/></g> <path d=\"M0 200 L70 96 L130 148 L196 62 L268 150 L330 104 L400 196 V220 H0 Z\" fill=\"#4a4066\"/> <path d=\"M0 214 L84 132 L152 180 L226 118 L300 182 L400 128 V220 H0 Z\" fill=\"#332c4d\"/> <path d=\"M152 220 q0 -74 48 -74 q48 0 48 74 Z\" fill=\"url(#mouth)\"/> <path d=\"M152 220 q0 -74 48 -74 q48 0 48 74\" fill=\"none\" stroke=\"#221d38\" stroke-width=\"3\"/> <circle cx=\"200\" cy=\"196\" r=\"3\" fill=\"#ffd97a\" opacity=\".55\"/> </svg>",
   ants: "<svg viewBox=\"0 0 400 220\" class=\"storyart\" role=\"img\" aria-label=\"A wide valley floor with a line of ants\"> <defs><linearGradient id=\"sk5\" x1=\"0\" y1=\"0\" x2=\"0\" y2=\"1\"><stop offset=\"0\" stop-color=\"#cfe8ff\"/><stop offset=\"1\" stop-color=\"#f3e6c6\"/></linearGradient></defs> <rect width=\"400\" height=\"220\" fill=\"url(#sk5)\"/> <path d=\"M0 120 L60 74 L120 118 L180 66 L250 120 L320 84 L400 124 V220 H0 Z\" fill=\"#c2b48c\"/> <path d=\"M0 150 Q100 132 200 152 T400 146 V220 H0 Z\" fill=\"#e0cf9f\"/> <path d=\"M0 186 Q120 172 250 190 T400 184 V220 H0 Z\" fill=\"#cbb87f\"/> <g fill=\"#4a382a\"> <g transform=\"translate(90,196)\"><ellipse cx=\"0\" cy=\"0\" rx=\"5\" ry=\"3.4\"/><circle cx=\"-6.5\" cy=\"-1\" r=\"2.4\"/><circle cx=\"6\" cy=\"0\" r=\"3\"/><path d=\"M-2 3 l-3 4 M2 3 l3 4 M0 3 l0 5\" stroke=\"#4a382a\" stroke-width=\"1.1\"/></g> <g transform=\"translate(134,190)\"><ellipse cx=\"0\" cy=\"0\" rx=\"5\" ry=\"3.4\"/><circle cx=\"-6.5\" cy=\"-1\" r=\"2.4\"/><circle cx=\"6\" cy=\"0\" r=\"3\"/><path d=\"M-2 3 l-3 4 M2 3 l3 4\" stroke=\"#4a382a\" stroke-width=\"1.1\"/></g> <g transform=\"translate(182,198)\"><ellipse cx=\"0\" cy=\"0\" rx=\"5\" ry=\"3.4\"/><circle cx=\"-6.5\" cy=\"-1\" r=\"2.4\"/><circle cx=\"6\" cy=\"0\" r=\"3\"/><path d=\"M-2 3 l-3 4 M2 3 l3 4\" stroke=\"#4a382a\" stroke-width=\"1.1\"/></g> <g transform=\"translate(230,192)\"><ellipse cx=\"0\" cy=\"0\" rx=\"5\" ry=\"3.4\"/><circle cx=\"-6.5\" cy=\"-1\" r=\"2.4\"/><circle cx=\"6\" cy=\"0\" r=\"3\"/><path d=\"M-2 3 l-3 4 M2 3 l3 4\" stroke=\"#4a382a\" stroke-width=\"1.1\"/></g> <g transform=\"translate(276,200)\"><ellipse cx=\"0\" cy=\"0\" rx=\"5\" ry=\"3.4\"/><circle cx=\"-6.5\" cy=\"-1\" r=\"2.4\"/><circle cx=\"6\" cy=\"0\" r=\"3\"/><path d=\"M-2 3 l-3 4 M2 3 l3 4\" stroke=\"#4a382a\" stroke-width=\"1.1\"/></g> </g> </svg>",
   palm: "<svg viewBox=\"0 0 400 220\" class=\"storyart\" role=\"img\" aria-label=\"A date palm beside a stream\"> <defs><linearGradient id=\"sk6\" x1=\"0\" y1=\"0\" x2=\"0\" y2=\"1\"><stop offset=\"0\" stop-color=\"#ffe3b0\"/><stop offset=\"1\" stop-color=\"#f9c98d\"/></linearGradient></defs> <rect width=\"400\" height=\"220\" fill=\"url(#sk6)\"/> <circle cx=\"86\" cy=\"54\" r=\"24\" fill=\"#fff2c9\" opacity=\".9\"/> <path d=\"M0 164 Q100 150 200 166 T400 158 V220 H0 Z\" fill=\"#dcc08a\"/> <path d=\"M236 200 q-6 -74 4 -104\" stroke=\"#7a5730\" stroke-width=\"11\" fill=\"none\" stroke-linecap=\"round\"/> <g stroke=\"#3f7a48\" stroke-width=\"7\" fill=\"none\" stroke-linecap=\"round\"> <path d=\"M240 96 q-40 -18 -62 -2\"/><path d=\"M240 96 q40 -20 64 -4\"/> <path d=\"M240 94 q-30 -36 -54 -42\"/><path d=\"M240 94 q32 -36 56 -40\"/> <path d=\"M240 92 q-6 -42 2 -54\"/></g> <g fill=\"#c2622c\"><circle cx=\"230\" cy=\"106\" r=\"4\"/><circle cx=\"242\" cy=\"112\" r=\"4\"/><circle cx=\"250\" cy=\"104\" r=\"3.6\"/><circle cx=\"236\" cy=\"118\" r=\"3.4\"/></g> <path d=\"M0 194 Q90 180 180 196 T400 190 V206 Q300 214 200 204 T0 210 Z\" fill=\"#61b6d6\" opacity=\".85\"/> <path d=\"M40 198 q30 -6 60 2\" stroke=\"#fff\" stroke-width=\"2\" fill=\"none\" opacity=\".5\"/> </svg>",
-  sky: "<svg viewBox=\"0 0 400 220\" class=\"storyart\" role=\"img\" aria-label=\"Elephants approaching a distant city under a bright sky\"><defs><linearGradient id=\"sk7\" x1=\"0\" y1=\"0\" x2=\"0\" y2=\"1\"><stop offset=\"0\" stop-color=\"#8fc7ee\"/><stop offset=\"1\" stop-color=\"#e8f3fb\"/></linearGradient></defs><rect width=\"400\" height=\"220\" fill=\"url(#sk7)\"/><circle cx=\"315\" cy=\"54\" r=\"25\" fill=\"#ffe6a3\"/><path d=\"M0 151 Q90 125 180 151 T400 148 V220 H0 Z\" fill=\"#a9b879\"/><path d=\"M0 178 Q110 151 220 180 T400 174 V220 H0 Z\" fill=\"#7d995f\"/><g fill=\"#6b6255\"><path d=\"M78 175 q0 -31 24 -31 q18 0 22 22 l8 0 q5 0 5 8 l-8 3 q-2 25 -18 25 h-20 q-13 0 -13 -27z\"/><path d=\"M205 167 q0 -34 26 -34 q20 0 24 25 l9 0 q5 0 5 8 l-9 3 q-2 26 -20 26 h-21 q-14 0 -14 -28z\"/></g><g stroke=\"#514a42\" stroke-width=\"3\" fill=\"none\" stroke-linecap=\"round\"><path d=\"M92 168 v32 M112 168 v32 M219 160 v38 M242 160 v38\"/><path d=\"M124 166 q16 3 19 15\"/><path d=\"M257 158 q16 4 18 16\"/></g><g fill=\"#fff\" opacity=\".9\"><path d=\"M315 105 q10 -10 20 0 q10 -10 20 0\"/><path d=\"M345 84 q8 -8 16 0 q8 -8 16 0\"/></g></svg>",
+  sky: "<svg viewBox=\"0 0 400 220\" class=\"storyart\" role=\"img\" aria-label=\"A flock of small birds high in a bright sky\"> <defs><linearGradient id=\"sk7\" x1=\"0\" y1=\"0\" x2=\"0\" y2=\"1\"><stop offset=\"0\" stop-color=\"#8fc7ee\"/><stop offset=\"1\" stop-color=\"#e8f3fb\"/></linearGradient></defs> <rect width=\"400\" height=\"220\" fill=\"url(#sk7)\"/> <ellipse cx=\"90\" cy=\"70\" rx=\"54\" ry=\"20\" fill=\"#fff\" opacity=\".75\"/> <ellipse cx=\"126\" cy=\"62\" rx=\"38\" ry=\"16\" fill=\"#fff\" opacity=\".7\"/> <ellipse cx=\"300\" cy=\"110\" rx=\"46\" ry=\"17\" fill=\"#fff\" opacity=\".6\"/> <g stroke=\"#2f3b57\" stroke-width=\"2.6\" fill=\"none\" stroke-linecap=\"round\"> <path d=\"M60 132 q9 -9 18 0 q9 -9 18 0\"/><path d=\"M118 152 q7 -7 14 0 q7 -7 14 0\"/> <path d=\"M176 122 q9 -9 18 0 q9 -9 18 0\"/><path d=\"M238 148 q8 -8 16 0 q8 -8 16 0\"/> <path d=\"M296 130 q7 -7 14 0 q7 -7 14 0\"/><path d=\"M150 96 q6 -6 12 0 q6 -6 12 0\"/> <path d=\"M212 172 q6 -6 12 0 q6 -6 12 0\"/><path d=\"M84 176 q6 -6 12 0 q6 -6 12 0\"/></g> <path d=\"M0 206 Q120 194 260 208 T400 200 V220 H0 Z\" fill=\"#d8c69a\"/> </svg>",
   path: "<svg viewBox=\"0 0 400 220\" class=\"storyart\" role=\"img\" aria-label=\"A thorny branch lying across a quiet road\"> <defs><linearGradient id=\"sk8\" x1=\"0\" y1=\"0\" x2=\"0\" y2=\"1\"><stop offset=\"0\" stop-color=\"#d9ecc9\"/><stop offset=\"1\" stop-color=\"#f4ecd2\"/></linearGradient></defs> <rect width=\"400\" height=\"220\" fill=\"url(#sk8)\"/> <path d=\"M0 128 Q100 116 200 130 T400 124 V220 H0 Z\" fill=\"#a8b980\"/> <path d=\"M160 220 Q186 160 200 130 Q214 160 244 220 Z\" fill=\"#e5d6ae\"/> <path d=\"M168 220 Q192 162 200 136\" stroke=\"#cbb98d\" stroke-width=\"2\" fill=\"none\"/> <g stroke=\"#6b4a2a\" stroke-width=\"5\" fill=\"none\" stroke-linecap=\"round\"> <path d=\"M132 186 q42 -14 90 -2 q30 8 54 2\"/></g> <g stroke=\"#6b4a2a\" stroke-width=\"2.4\" stroke-linecap=\"round\"> <path d=\"M156 184 l-6 -9\"/><path d=\"M180 180 l-4 -10\"/><path d=\"M204 182 l2 -10\"/><path d=\"M228 186 l6 -9\"/> <path d=\"M168 188 l-4 9\"/><path d=\"M216 188 l5 9\"/></g> <g fill=\"#7fa05a\"><ellipse cx=\"70\" cy=\"176\" rx=\"16\" ry=\"7\"/><ellipse cx=\"320\" cy=\"164\" rx=\"20\" ry=\"8\"/></g> </svg>",
   parted: "<svg viewBox=\"0 0 400 220\" class=\"storyart\" role=\"img\" aria-label=\"Two great walls of water with dry ground between them\"> <defs><linearGradient id=\"sk9\" x1=\"0\" y1=\"0\" x2=\"0\" y2=\"1\"><stop offset=\"0\" stop-color=\"#2b3f74\"/><stop offset=\"1\" stop-color=\"#7a8fc4\"/></linearGradient> <linearGradient id=\"wall\" x1=\"0\" y1=\"0\" x2=\"0\" y2=\"1\"><stop offset=\"0\" stop-color=\"#59b6d9\"/><stop offset=\"1\" stop-color=\"#0d4f74\"/></linearGradient></defs> <rect width=\"400\" height=\"220\" fill=\"url(#sk9)\"/> <circle cx=\"200\" cy=\"48\" r=\"30\" fill=\"#ffeeb8\" opacity=\".55\"/> <path d=\"M0 220 V96 q40 -22 76 -6 q30 14 44 42 q18 36 22 88 Z\" fill=\"url(#wall)\"/> <path d=\"M400 220 V96 q-40 -22 -76 -6 q-30 14 -44 42 q-18 36 -22 88 Z\" fill=\"url(#wall)\"/> <path d=\"M0 220 V120 q34 -12 62 4 q26 16 36 44 q10 28 12 52 Z\" fill=\"#0b3f60\" opacity=\".55\"/> <path d=\"M400 220 V120 q-34 -12 -62 4 q-26 16 -36 44 q-10 28 -12 52 Z\" fill=\"#0b3f60\" opacity=\".55\"/> <path d=\"M142 220 q26 -70 58 -84 q32 14 58 84 Z\" fill=\"#e0cda2\"/> <path d=\"M164 220 q22 -56 36 -70\" stroke=\"#c9b489\" stroke-width=\"2\" fill=\"none\"/> <g fill=\"#bfe6f5\" opacity=\".7\"><circle cx=\"96\" cy=\"128\" r=\"3\"/><circle cx=\"308\" cy=\"140\" r=\"3\"/><circle cx=\"72\" cy=\"168\" r=\"2.4\"/><circle cx=\"330\" cy=\"176\" r=\"2.4\"/></g> </svg>",
   hills: "<svg viewBox=\"0 0 400 220\" class=\"storyart\" role=\"img\" aria-label=\"Green hills under an evening sky\"> <defs><linearGradient id=\"sk10\" x1=\"0\" y1=\"0\" x2=\"0\" y2=\"1\"><stop offset=\"0\" stop-color=\"#f7c9a0\"/><stop offset=\"1\" stop-color=\"#fdeacb\"/></linearGradient></defs> <rect width=\"400\" height=\"220\" fill=\"url(#sk10)\"/> <circle cx=\"300\" cy=\"88\" r=\"30\" fill=\"#ffdf9a\"/> <path d=\"M0 140 Q70 96 140 138 T280 132 T400 150 V220 H0 Z\" fill=\"#7ba36d\"/> <path d=\"M0 172 Q100 140 200 174 T400 168 V220 H0 Z\" fill=\"#5b8455\"/> <path d=\"M0 200 Q120 184 250 202 T400 196 V220 H0 Z\" fill=\"#42663f\"/> <g stroke=\"#4a3a2a\" stroke-width=\"2.2\" fill=\"none\" stroke-linecap=\"round\" opacity=\".8\"> <path d=\"M84 62 q8 -8 16 0 q8 -8 16 0\"/><path d=\"M150 44 q7 -7 14 0 q7 -7 14 0\"/></g> </svg>",
@@ -6142,7 +5883,7 @@ const TIP_CATS = [
   {key:"deen", label:"Deen"}
 ];
 
-const APP_VERSION = "v245";
+const APP_VERSION = "v244";
 const today = new Date().toISOString().slice(0,10);
 let app = {families:[],currentFamily:null,currentChild:null};
 let categories = [];
@@ -6802,19 +6543,7 @@ async function loadApp(){
   showGate("bootGate");
   setSyncStatus("☁️ Connecting…");
   try{
-    // Do not let a Firestore request hang forever when the GitHub Pages build
-    // has loaded but Firebase cannot complete its network request. Without this
-    // timeout the footer stays on “Connecting…” indefinitely.
-    familyId = await Promise.race([
-      window.fpc.familyIdFor(uid),
-      new Promise((_, reject) => setTimeout(() => {
-        const e = new Error(navigator.onLine
-          ? "Firebase did not respond within 12 seconds. Check the Firebase project/network setup."
-          : "The device is offline.");
-        e.code = navigator.onLine ? "firebase/network-timeout" : "offline";
-        reject(e);
-      }, 12000))
-    ]);
+    familyId = await window.fpc.familyIdFor(uid);
   }catch(e){
     // permission-denied here almost always means the security rules haven't
     // been deployed yet, so the account can't even read its own family pointer.
@@ -6825,9 +6554,7 @@ async function loadApp(){
            can run neither is a note to the developer that escaped into the
            interface. */
         ? "We can't open your family yet. If the app has only just been set up, the setup isn't finished."
-        : (e && e.code === "firebase/network-timeout"
-        ? "The app loaded, but Firebase did not respond. The GitHub Pages file is running; the database connection needs checking."
-        : "We couldn't get online. Check your connection and try again."),
+        : "We couldn't get online. Check your connection and try again.",
       e);
     return;
   }
@@ -11394,7 +11121,7 @@ function renderDeenPanel(){
   body.innerHTML = `<h2>\ud83c\udf19 Bedtime stories</h2>
     <p class="small">Ten of them, four to six minutes each. Tap one to open it \u2014 there is a picture to look at while it is read, and something to talk about at the end.</p>
     ${STORIES.map((st,i)=>`<button class="storytile" onclick="openStory(${i})">
-        <span class="storytile-art">${STORY_ART[st.art]||""}</span>
+        ${STORY_ART[st.art]||""}
         <span class="stbody">
           <h3>${escapeHtml(st.title)}</h3>
           <p class="stmeta">${st.minutes} min \u00b7 ${escapeHtml(st.src)}</p>
@@ -11588,7 +11315,7 @@ function storyReaderHTML(i){
   if(!st) return "";
   return `<button class="light" style="width:auto;margin-bottom:14px" onclick="closeStory()">\u2190 All stories</button>
     <div class="storyread">
-      <div class="storyread-art">${STORY_ART[st.art]||""}</div>
+      ${STORY_ART[st.art]||""}
       <h2>${escapeHtml(st.title)}</h2>
       <p class="stsrc">${escapeHtml(st.src)} \u00b7 about ${st.minutes} minutes</p>
       ${st.paras.map((p,n)=>`<p class="para${n===0?" lead":""}">${escapeHtml(p)}</p>`).join("")}
@@ -12133,14 +11860,10 @@ async function submitSignUpJoin(){
   errEl.textContent="";
   if(!name||!email||!password){ errEl.textContent="Please fill in every field."; return; }
   if(password.length<6){ errEl.textContent="Password should be at least 6 characters."; return; }
-  const codeEl=document.getElementById("signupCode");
-  const code=codeEl ? normaliseInviteCode(codeEl.value) : "";
-  if(codeEl && code.length!==8){ errEl.textContent="A code is eight characters. There\u2019s no letter I or O, and no 0 or 1."; return; }
   try{
     await window.fpc.createAccountOnly(email, password);
     window.__pendingJoinName = name;
-    window.__pendingJoinCode = code;
-    await loadApp();     // no family yet; the code screen fills itself in and submits
+    await loadApp();     // no family yet, so this lands on the code screen
   }catch(e){
     console.error("Sign-up failed:", e);
     errEl.textContent = (e && e.code==="auth/email-already-in-use")
@@ -13308,49 +13031,67 @@ function renderParentAdminView(parent){
   else if(kids.length) line = "Who has done something good today?";
   else line = "Add a child to get started";
   cards.innerHTML = `
-    <div class="nm-parent-home">
-      <header class="nm-parent-header">
-        <div>
-          <div class="nm-parent-date">${new Date().toLocaleDateString(undefined,{weekday:"long",day:"numeric",month:"long"})}</div>
-          <h1>${f && f.name ? escapeHtml(f.name) : "Your family"}</h1>
-        </div>
-        <button class="nm-parent-menu" onclick="toggleMenu()" aria-label="More">☰</button>
-      </header>
-
-      <section class="nm-parent-jobs">
-        <button class="nm-parent-job nm-job-asking" onclick="showAskingPanel('them')">
-          <span class="nm-job-icon">◷</span>
-          <span><b>${pend.length ? pend.length + " waiting on you" : "Nothing waiting on you"}</b><small>${pend.length ? "They asked you · tap to answer" : "They asked you · all clear"}</small></span>
-          <i>›</i>
-        </button>
-        <button class="nm-parent-job" onclick="showPicker('give')">
-          <span class="nm-job-icon nm-job-plus">+</span>
-          <span><b>Give points</b><small>${weekTotal ? weekTotal + " points noticed this week" : "Notice something good today"}</small></span>
-          <i>›</i>
-        </button>
+    <div style="grid-column:1/-1">
+      <section class="skyband">
+        ${skyArt}
+        <span class="skytext"><span class="skyplate">
+          <span class="skygreet">${greet}</span>
+          ${f && f.name ? `<span class="skyfam">${escapeHtml(f.name)}</span>` : ""}
+          <span class="skyline">${line}</span>
+        </span></span>
       </section>
-
-      <section class="nm-parent-section">
-        <div class="nm-parent-label">This week</div>
-        <div class="nm-parent-kids">
-          ${kids.length ? kids.map(kidRow).join("") : '<div class="nm-parent-empty">Add a child under Family members.</div>'}
-        </div>
-      </section>
-
-      <section class="nm-parent-section">
-        <div class="nm-parent-label">Learning, this week</div>
-        <div class="nm-parent-learning">
-          ${kids.slice(0,3).map(c=>{
-            const w=weeklyTotalFor(c,weekDates);
-            const notices=Object.keys(c.pointsByDate||{}).filter(ds=>weekDates.includes(ds)).length;
-            return `<button class="nm-learning-row" onclick="showProgressPanel()">
-              <span class="nm-learning-avatar">${c.photo?`<img src="${c.photo}" alt="">`:(escapeHtml((c.name||"?").charAt(0).toUpperCase()))}</span>
-              <span class="nm-learning-main"><b>${escapeHtml(c.name)}</b><small>${w ? w+" points noticed" : "No points recorded yet"} · ${notices} active day${notices===1?"":"s"}</small></span>
-              <span class="nm-learning-chevron">›</span>
-            </button>`;
-          }).join("") || '<div class="nm-parent-empty">Learning progress will appear here once a child is added.</div>'}
-        </div>
-      </section>
+      ${attentionHTML()}
+      <div class="board">${kids.length
+        ? kids.map(kidRow).join("")
+        : '<p class="small" style="padding:12px 0">No children yet \u2014 add one under Family members.</p>'}</div>
+      <!-- v210: "5 of 7 days you noticed" came out of this screen. It is the
+           parent's own consistency scored back at them, and on a quiet week it
+           is the first thing they read. The band says what happened; nobody
+           asked for a mark out of seven. -->
+      ${(()=>{
+        /* What a parent has put on the children's lists, counted the way the
+           asking board counts it: the open note per child, items not ticked.
+           The helper arrives with a later script, so nothing is claimed if it
+           is not there yet - a wrong number here is worse than none. */
+        let mine=null;
+        try{
+          /* allNotes() is what the asking board reads. openNoteFor is a const
+             inside that script's own closure, so it cannot be called from here
+             - the open note per child is picked the same way it picks it:
+             due today or earlier, most recent first. */
+          if(typeof allNotes==="function"){
+            const all=allNotes()||[];
+            const stamp=(typeof dateStr==="function") ? dateStr(new Date()) : today;
+            mine=kids.reduce((n,c)=>{
+              const nt=all.filter(x=>x.childId===c.id && x.due<=stamp)
+                          .sort((a,b)=>b.ts-a.ts)[0];
+              return n + ((nt&&nt.items)||[]).filter(i=>!i.done).length;
+            },0);
+          }
+        }catch(e){ mine=null; }
+        const theirs=pend.length;
+        return `<section class="askcard">
+          <p class="askhead">Asking</p>
+          <button class="askrow${theirs?" wait":""}" onclick="showAskingPanel('them')">
+            <span class="askmid"><b>They asked you</b>
+              <small>${theirs?"A no is fine \u2014 it is the waiting that stops them asking":"Nothing waiting"}</small></span>
+            <span class="askn">${theirs?theirs+" waiting":"0"}</span>
+            <svg class="askchev" width="17" height="17" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"
+              aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>
+          </button>
+          <button class="askrow" onclick="showAskingPanel('you')">
+            <span class="askmid"><b>You asked them</b>
+              <small>${mine===null?"On their lists":(mine?"Still to do":"Nothing on their lists")}</small></span>
+            ${mine===null?"":`<span class="askn">${mine}</span>`}
+            <svg class="askchev" width="17" height="17" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"
+              aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>
+          </button>
+        </section>`;
+      })()}
+      <p class="homegroup">Something to think about</p>
+      <div class="dashthought" data-nudge="tap" data-nudge-key="thought">${thoughtDeckHTML()}</div>
     </div>`;
   // The deck's markup is rebuilt with the dashboard, so its handlers go back on
   // straight after. Cheap: three listeners and a few dots.
@@ -15027,7 +14768,7 @@ function renderKidView(child){
     const top=Math.max(...fam.children.map(c=>weeklyTotalFor(c, weekDates)));
     if(week===top) subline = "\ud83c\udfc6 You\u2019re this week\u2019s champion! "+subline;
   }
-  document.getElementById("kidSubline").textContent = child.name + " 👋";
+  document.getElementById("kidSubline").textContent = subline;
   document.getElementById("kidBalance").textContent = child.balance||0;
   const spendable=availableFor(child);
   /* Name the nearest thing they can actually have. The number means little at
@@ -15046,10 +14787,6 @@ function renderKidView(child){
   }
   document.getElementById("kidToday").textContent = todayPts;
   document.getElementById("kidWeek").textContent = week;
-  const nmPts=document.getElementById("nmMobilePointsValue");
-  if(nmPts) nmPts.textContent = spendable;
-  const nmMeta=document.getElementById("nmMobilePointsMeta");
-  if(nmMeta) nmMeta.textContent = (todayPts ? "+"+todayPts+" today · " : "") + (child.balance||0) + " total points";
   document.getElementById("kidStreak").textContent = streakFor(child);
   /* A child should not open their own app and be told by a chart that they
      are red and slipping. This is a parent's diagnostic \u2014 a prompt to go and
@@ -15106,8 +14843,8 @@ function renderKidView(child){
   /* The back button exists only on the pot version of this screen. */
   const sback=document.getElementById("kidSpendBack");
   if(sback) sback.innerHTML = (spendVia==="points")
-    ? `<button class="kidback kidback-top" onclick="showScreen('kidPointsScreen')">\u2190 My points</button>`
-    : `<button class="kidback kidback-top" onclick="showScreen(null)">\u2190 Home</button>`;
+    ? `<button class="kidback" onclick="showScreen('kidPointsScreen')">\u2190 My points</button>`
+    : "";
   const pw=document.getElementById("prayerWall");
   if(pw) pw.innerHTML = prayerWallHTML(child, 7, true);
 
@@ -15457,11 +15194,11 @@ function isChildLikeLogin(email){
 }
 function showAskParent(){
   const el=document.getElementById("askParentPanel");
-  if(el) el.classList.add("open");
+  if(el) el.classList.remove("hidden");
 }
 function hideAskParent(){
   const el=document.getElementById("askParentPanel");
-  if(el) el.classList.remove("open");
+  if(el) el.classList.add("hidden");
 }
 async function submitAuthLogin(){
   const email=document.getElementById("authEmail").value.trim();
@@ -15534,17 +15271,8 @@ function switchToSignIn(){
 }
 function selectSignupRole(role){
   window.__selectedSignupRole=role;
-  document.getElementById("roleMumBtn").classList.toggle("on", role==="Mum");
-  document.getElementById("roleDadBtn").classList.toggle("on", role==="Dad");
-}
-/* v245 (design A2): a card is selected before the button advances, and the
-   button is relabelled to the choice. */
-function pickSignupMode(mode){
-  window.__signupPick=mode;
-  document.getElementById("chooseNew").classList.toggle("on", mode==="new");
-  document.getElementById("chooseJoin").classList.toggle("on", mode==="join");
-  const cta=document.getElementById("signupChooseCta");
-  cta.disabled=false; cta.textContent = mode==="join" ? "Enter my code" : "Start a new family";
+  document.getElementById("roleMumBtn").classList.toggle("selected", role==="Mum");
+  document.getElementById("roleDadBtn").classList.toggle("selected", role==="Dad");
 }
 /* An invited grandparent or tutor used to be stuck: the only sign-up path
    created a brand new family, so they never reached the screen that takes a
@@ -15566,13 +15294,10 @@ function setSignupMode(mode){
   set("signupFields", true);
   set("signupFamilyName", !join);
   set("signupRoleBox", !join);
-  set("signupCodeBox", join);
-  const sub=document.getElementById("signupSubmit"); if(sub) sub.textContent = join ? "Join with this code" : "Create the family";
   const note=document.getElementById("signupModeNote");
   if(note) note.textContent = join
-    ? "For a parent, grandparent, uncle, aunty or tutor who has been given an invitation code. The code decides what you can see and do."
+    ? "For a grandparent, uncle, aunty or tutor who has been given an invitation code. Make your account here, then type the code on the next screen \u2014 it decides what you can see and do."
     : "This creates a new family and makes you its first parent. Everyone else gets their own login afterwards.";
-  if(join){ const c=document.getElementById("signupCode"); if(c) setTimeout(()=>c.focus(),0); }
   const err=document.getElementById("signupError"); if(err) err.textContent="";
 }
 async function submitSignUp(){
@@ -15697,14 +15422,6 @@ async function copyInviteCode(){
 function prefillJoinName(){
   const el=document.getElementById("joinPersonName");
   if(el && window.__pendingJoinName && !el.value) el.value=window.__pendingJoinName;
-  /* v245 (design A3): the code was typed on the sign-up screen, so this
-     screen submits it rather than asking again. A bad code lands back here
-     with the error shown. */
-  const c=document.getElementById("joinCodeInput");
-  if(c && window.__pendingJoinCode && !c.value){
-    c.value=window.__pendingJoinCode; window.__pendingJoinCode=null;
-    setTimeout(()=>{ try{ submitJoinCode(); }catch(e){} }, 0);
-  }
 }
 async function submitJoinCode(){
   const errEl=document.getElementById("joinError");
@@ -24593,40 +24310,6 @@ body:not(.haskidbar) .stleave{background:#fff;border:1px solid rgba(176,86,58,.3
 .kidsheet .e5key p{display:none;font:400 14px/1.5 var(--f-body);color:var(--c-ink);margin:10px 0 0}
 .kidsheet .e5key.open p{display:block}
 .kidsheet .e5out{width:100%;margin-top:14px;min-height:46px;background:none!important;border:1.5px solid rgba(43,58,74,.15)!important;border-radius:16px!important;color:var(--c-ink)!important;font:600 14px/1 var(--f-body)}
-</style>
-<style id="nmRound2i">
-/* v245: A1 sign in, A2–A3 create an account, A4 first-run welcome */
-body:not(.haskidbar) .a1links{display:flex;justify-content:space-between;align-items:center;font:500 13.5px/1 var(--f-body);margin-top:2px}
-body:not(.haskidbar) .a1links a,body:not(.haskidbar) .gatecard p.small a{text-decoration:none}
-body:not(.haskidbar) .a1links a.plain{color:rgba(27,36,48,.55);font-weight:500}
-body:not(.haskidbar) .a1note{background:#fff;border:1px solid rgba(27,36,48,.12);border-radius:16px;padding:12px 14px;font:400 13px/1.5 var(--f-body);color:rgba(27,36,48,.72);margin-top:6px}
-body:not(.haskidbar) .a1key{padding:12px 14px;border:1.5px dashed rgba(27,36,48,.25);border-radius:16px;background:rgba(27,36,48,.03)!important;cursor:pointer}
-body:not(.haskidbar) .a1key.open{background:#fff!important;border:1.5px solid var(--g-moss)}
-body:not(.haskidbar) .a1keyhead{display:flex;align-items:center;gap:10px;font:600 14px/1.2 var(--f-body);color:var(--g-ink)}
-body:not(.haskidbar) .a1keyhead span{font-size:18px}
-body:not(.haskidbar) .a1keybody{display:none;margin-top:10px}
-body:not(.haskidbar) .a1key.open .a1keybody{display:block}
-body:not(.haskidbar) .a1keybody p{font:400 13px/1.5 var(--f-body);color:rgba(27,36,48,.72);margin:0 0 8px}
-body:not(.haskidbar) .choosecard{width:100%;padding:14px;gap:12px;border-radius:18px!important;border:1.5px solid rgba(27,36,48,.16)!important;background:#fff!important;text-align:left;min-height:44px}
-body:not(.haskidbar) .choosecard.on{border-color:var(--g-moss)!important;background:rgba(78,140,106,.05)!important}
-body:not(.haskidbar) .choosecard .chooseicon{width:40px;height:40px;border-radius:13px;background:rgba(27,36,48,.06);display:grid;place-items:center;color:rgba(27,36,48,.55);flex:none;font-size:0}
-body:not(.haskidbar) .choosecard.on .chooseicon{background:var(--g-moss-tint);color:var(--g-moss)}
-body:not(.haskidbar) .choosecard strong{display:block;font:600 15px/1.25 var(--f-body);color:var(--g-ink)}
-body:not(.haskidbar) .choosecard span span{display:block;font:400 12.5px/1.45 var(--f-body);color:rgba(27,36,48,.6);margin-top:3px}
-body:not(.haskidbar) #signupChooseCta:disabled{background:rgba(27,36,48,.25)!important;border-color:transparent!important;color:#fff!important;opacity:1}
-body:not(.haskidbar) .gatecard input.codefield{min-height:56px;text-align:center;font:600 24px/1 var(--f-mono);letter-spacing:.2em;text-transform:uppercase;padding:0 12px}
-body:not(.haskidbar) .a3what{background:#fff;border:1px solid rgba(27,36,48,.12);border-radius:16px;padding:12px 14px}
-body:not(.haskidbar) .a3what .canlist{margin:0;padding:0;list-style:none;display:grid;gap:8px}
-body:not(.haskidbar) .a3what .canlist li{display:flex;gap:10px;align-items:flex-start;font:400 13px/1.45 var(--f-body);color:var(--g-ink)}
-body:not(.haskidbar) .a3what .canlist li i{flex:none;width:20px;height:20px;border-radius:6px;display:grid;place-items:center;font:600 11px/1 var(--f-body);font-style:normal;background:var(--g-moss-tint);color:var(--g-moss)}
-body:not(.haskidbar) .gatecard .seg button.light{background:none!important;border:0!important;min-height:38px}
-body:not(.haskidbar) .gatecard .seg button.light.on{background:#fff!important;color:var(--g-ink)!important;box-shadow:0 1px 2px rgba(27,36,48,.08)}
-body:not(.haskidbar) .onbcard{border-radius:22px!important}
-body:not(.haskidbar) .a4point{display:flex;gap:14px;align-items:flex-start;margin-bottom:14px}
-body:not(.haskidbar) .a4n{flex:none;width:34px;height:34px;border-radius:11px;border:1.5px solid rgba(27,36,48,.18);display:grid;place-items:center;font:600 15px/1 var(--f-display);color:var(--g-ink)}
-body:not(.haskidbar) .a4point strong{display:block;font:600 15px/1.3 var(--f-body);color:var(--g-ink)}
-body:not(.haskidbar) .a4point span:not(.a4n){display:block;font:400 13.5px/1.5 var(--f-body);color:rgba(27,36,48,.65);margin-top:3px}
-body:not(.haskidbar) #onbStep1 .onbnav button{width:100%}
 </style>
 </body>
 </html>
