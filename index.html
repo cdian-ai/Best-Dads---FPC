@@ -2553,65 +2553,75 @@
     <p class="sub">Notice the good things, and keep track of the learning.</p>
     <p class="sub" style="margin-top:6px">Prayers, kindness, manners, homework and effort — you award the points, they choose what to spend them on. With a Qur&rsquo;an and school progress tracker built in, so you can see what they can actually do.</p>
 
-    <div id="signInForm" style="text-align:left;display:grid;gap:8px;margin-top:16px">
+    <!-- v245 (design A1): fields, then "Forgot password?" left and "Create an
+         account" right; the children's route sits below the adult's, not behind
+         it, and the key card is the one emoji on the grown-up side because a
+         child reads this screen too. -->
+    <div id="signInForm" style="text-align:left;display:grid;gap:10px;margin-top:16px">
       <input id="authEmail" type="email" placeholder="Email" autocomplete="username">
       <input id="authPassword" type="password" placeholder="Password" autocomplete="current-password">
       <button class="primary" onclick="submitAuthLogin()">Sign in</button>
-      <p class="small" id="authError" style="color:#a63e3e"></p>
-      <p class="small" id="authResetMsg" style="color:var(--good)"></p>
-      <div id="askParentPanel" class="hidden" style="background:#f5f3ff;border:1px solid #cfc7f7;border-radius:16px;padding:14px;margin:4px 0;text-align:left">
-        <p style="margin:0 0 6px;font-weight:800;font-size:15px">🔑 Ask Mum or Dad</p>
-        <p class="small" style="margin:0 0 10px">Nothing is lost and nothing is broken. Your points are all still there. A parent can give you a new password in about ten seconds.</p>
-        <p class="small" style="margin:0 0 4px;font-weight:800">Show them this bit 👇</p>
-        <p class="small" style="margin:0">Open Notice Me → <strong>☰ Menu</strong> → <strong>👨‍👩‍👧 Family members</strong> → tap <strong>✉️</strong> next to their name. Then check your own email for the link.</p>
+      <p class="small" id="authError" style="color:#a63e3e;margin:0"></p>
+      <p class="small" id="authResetMsg" style="color:var(--good);margin:0"></p>
+      <div class="a1links"><a href="#" class="plain" onclick="submitForgotPassword();return false;">Forgot password?</a><a href="#" onclick="switchToSignUp();return false;">Create an account</a></div>
+      <div class="a1note"><strong>Children:</strong> sign in with the email and password a parent gave you when they added you. It looks like <em>yourname.ab12@…</em></div>
+      <div id="askParentPanel" class="a1key" onclick="this.classList.toggle('open')">
+        <div class="a1keyhead"><span>🔑</span><strong>Ask Mum or Dad</strong></div>
+        <div class="a1keybody">
+          <p>Nothing is lost and nothing is broken. Your points are all still there. A parent can give you a new password in about ten seconds.</p>
+          <p><strong>Show them this bit 👇</strong> Open Notice Me → <strong>More</strong> → <strong>Family members</strong> → tap <strong>Send a new password</strong> under your name. Then check your own email for the link.</p>
+        </div>
       </div>
-      <p class="small"><a href="#" onclick="submitForgotPassword();return false;">Forgot password?</a></p>
-      <p class="small" style="background:#f7f7ff;border:1px solid #e1e3f4;border-radius:12px;padding:9px 11px;margin:2px 0">
-        <strong>Children:</strong> sign in with the email and password a parent gave you when they added you. It looks like <em>yourname.ab12@…</em>
-      </p>
-      <p class="small">Starting a brand new family? <a href="#" onclick="switchToSignUp();return false;">Create an account</a></p>
     </div>
 
-    <div id="signUpForm" class="hidden" style="text-align:left;display:grid;gap:8px;margin-top:16px">
+    <!-- v245 (design A2, A3): choose first, with the CTA relabelled to the
+         choice so the button never lies about what is next; then only the
+         fields that choice needs, the code first in join mode. -->
+    <div id="signUpForm" class="hidden" style="text-align:left;display:grid;gap:10px;margin-top:16px">
       <div id="signupChoose" style="display:grid;gap:10px">
         <p class="small" style="margin:0">Which of these are you doing?</p>
-        <button type="button" class="choosecard" onclick="setSignupMode('new')">
-          <span class="chooseicon">🏠</span>
+        <button type="button" class="choosecard" id="chooseNew" onclick="pickSignupMode('new')">
+          <span class="chooseicon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg></span>
           <span><strong>Start a new family</strong>
             <span>Nobody has invited you. You&rsquo;ll be its first parent, and everyone else joins afterwards.</span></span>
         </button>
-        <button type="button" class="choosecard" onclick="setSignupMode('join')">
-          <span class="chooseicon">🔗</span>
+        <button type="button" class="choosecard" id="chooseJoin" onclick="pickSignupMode('join')">
+          <span class="chooseicon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-1 1"/><path d="M14 11a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l1-1"/></svg></span>
           <span><strong>I have an invitation code</strong>
             <span>Someone in the family sent you eight characters. Parents, grandparents, uncles, aunties and tutors all join this way.</span></span>
         </button>
+        <button class="primary" id="signupChooseCta" disabled onclick="setSignupMode(window.__signupPick)">Choose one above</button>
       </div>
-      <div id="signupFields" class="hidden" style="display:grid;gap:8px">
-      <button type="button" class="light" style="width:auto;justify-self:start" onclick="setSignupMode(null)">← Back</button>
-      <p class="small" id="signupModeNote" style="margin:0">This creates a new family and makes you its first parent. Everyone else — the other parent, each child, grandparents, tutors — gets their own login afterwards.</p>
-      <div class="signupwhat">
-        <p><strong>What you get</strong></p>
-        <p>⭐ <strong>Points for what they do.</strong> Prayers, kindness, manners, helping, homework, keeping going when something is hard. You decide what counts and what it is worth.</p>
-        <p>🎁 <strong>Rewards they choose.</strong> They ask, you decide. Time together is cheap on purpose; sweets are rare on purpose.</p>
-        <p>🕌 <strong>A prayer board.</strong> Each of the five prayers recorded separately, so you can see which one keeps slipping.</p>
-        <p>📖 <strong>Homework and learning tracked.</strong> Qur&rsquo;an from Qaida to hifz, plus maths, English and science by school year — practised, and secure once they can do it unaided.</p>
-        <p>👥 <strong>Everyone who helps.</strong> Both parents, grandparents with a small weekly allowance, and tutors who record how a lesson went.</p>
+      <div id="signupFields" class="hidden" style="display:grid;gap:10px">
+      <button type="button" class="light" style="width:auto;justify-self:start;min-height:40px" onclick="setSignupMode(null)">← Back</button>
+      <div id="signupCodeBox" class="hidden">
+        <input id="signupCode" type="text" class="codefield" placeholder="ABCD1234" maxlength="9" autocapitalize="characters" autocomplete="one-time-code">
+        <p class="small" style="margin:6px 0 0">Eight characters, from whoever invited you.</p>
       </div>
+      <p class="small" id="signupModeNote" style="margin:0"></p>
       <input id="signupFamilyName" type="text" placeholder="Family name (e.g. The Ahmeds)">
-      <input id="signupName" type="text" placeholder="Your name (e.g. Sarah)">
+      <input id="signupName" type="text" placeholder="Your name">
       <input id="signupEmail" type="email" placeholder="Email" autocomplete="username">
       <input id="signupPassword" type="password" placeholder="Password" autocomplete="new-password">
       <div id="signupRoleBox">
-        <p class="small" style="margin:0 0 6px">You are...</p>
-        <div style="display:flex;gap:8px">
-          <button type="button" id="roleMumBtn" class="light" style="width:auto;flex:1" onclick="selectSignupRole('Mum')">Mum</button>
-          <button type="button" id="roleDadBtn" class="light" style="width:auto;flex:1" onclick="selectSignupRole('Dad')">Dad</button>
+        <div class="seg" style="grid-template-columns:1fr 1fr">
+          <button type="button" id="roleMumBtn" class="light" onclick="selectSignupRole('Mum')">Mum</button>
+          <button type="button" id="roleDadBtn" class="light" onclick="selectSignupRole('Dad')">Dad</button>
         </div>
       </div>
-      <button class="primary" onclick="submitSignUp()">Create account</button>
-      <p class="small" id="signupError" style="color:#a63e3e"></p>
+      <div class="a3what">
+        <p class="rvcap" style="margin:0 0 8px">What you get</p>
+        <ul class="canlist">
+          <li class="can"><i>✓</i>Points for what they actually do — kindness, prayers, manners, effort</li>
+          <li class="can"><i>✓</i>Rewards they choose themselves, priced by you</li>
+          <li class="can"><i>✓</i>A prayer board, kept separately, never scored</li>
+          <li class="can"><i>✓</i>Homework and learning tracked, with who marked it</li>
+        </ul>
       </div>
-      <p class="small">Already have an account? <a href="#" onclick="switchToSignIn();return false;">Sign in</a></p>
+      <button class="primary" id="signupSubmit" onclick="submitSignUp()">Create account</button>
+      <p class="small" id="signupError" style="color:#a63e3e;margin:0"></p>
+      </div>
+      <p class="small" style="margin:4px 0 0">Already have an account? <a href="#" onclick="switchToSignIn();return false;">Sign in</a></p>
     </div>
   </div>
 </div>
@@ -2646,13 +2656,18 @@
     <div style="text-align:center"><div class="lockup" role="img" aria-label="Notice Me"><svg class="nmlockup" xmlns="http://www.w3.org/2000/svg" viewBox="-50 -921 4339 1241" role="img" aria-label="Notice Me"><path fill="#1B2430" d="M40 0V-660H257L492 -213H494V-660H654V0H450L202 -462H200V0Z M944.0 14Q868.0 14 809.0 -16.5Q750.0 -47 717.0 -108.5Q684.0 -170 684.0 -263Q684.0 -360 718.5 -421.5Q753.0 -483 812.5 -512.5Q872.0 -542 947.0 -542Q1025.0 -542 1083.5 -511.5Q1142.0 -481 1174.5 -419.5Q1207.0 -358 1207.0 -264Q1207.0 -167 1172.5 -105.5Q1138.0 -44 1078.5 -15.0Q1019.0 14 944.0 14ZM948.0 -105Q979.0 -105 1000.0 -122.5Q1021.0 -140 1032.0 -174.0Q1043.0 -208 1043.0 -255Q1043.0 -307 1031.0 -342.5Q1019.0 -378 996.5 -397.0Q974.0 -416 942.0 -416Q912.0 -416 891.0 -398.5Q870.0 -381 859.0 -347.0Q848.0 -313 848.0 -265Q848.0 -189 874.5 -147.0Q901.0 -105 948.0 -105Z M1438.0 12Q1345.0 12 1299.5 -35.5Q1254.0 -83 1254.0 -183V-402H1196.0V-504H1199.0Q1261.0 -512 1287.0 -545.5Q1313.0 -579 1319.0 -647V-649H1414.0V-528H1535.0V-398H1414.0V-198Q1414.0 -160 1432.5 -144.0Q1451.0 -128 1478.0 -128Q1492.0 -128 1507.0 -132.0Q1522.0 -136 1535.0 -143V-2Q1504.0 7 1480.0 9.5Q1456.0 12 1438.0 12Z M1563.0 0V-528H1725.0V0Z M2018.0 14Q1947.0 14 1896.0 -7.5Q1845.0 -29 1813.0 -67.0Q1781.0 -105 1766.0 -154.0Q1751.0 -203 1751.0 -258Q1751.0 -314 1766.0 -364.5Q1781.0 -415 1812.5 -455.5Q1844.0 -496 1894.5 -519.0Q1945.0 -542 2016.0 -542Q2100.0 -542 2151.5 -510.5Q2203.0 -479 2223.5 -429.0Q2244.0 -379 2235.0 -321L2095.0 -310Q2097.0 -346 2087.5 -369.5Q2078.0 -393 2059.0 -404.5Q2040.0 -416 2013.0 -416Q1989.0 -416 1970.5 -407.0Q1952.0 -398 1939.5 -379.5Q1927.0 -361 1920.5 -333.0Q1914.0 -305 1914.0 -266Q1914.0 -216 1925.5 -180.0Q1937.0 -144 1960.5 -125.0Q1984.0 -106 2020.0 -106Q2057.0 -106 2076.0 -124.0Q2095.0 -142 2101.0 -169.5Q2107.0 -197 2103.0 -224L2252.0 -217Q2258.0 -173 2248.0 -131.5Q2238.0 -90 2209.5 -57.0Q2181.0 -24 2133.5 -5.0Q2086.0 14 2018.0 14Z M2523.0 14Q2448.0 14 2397.5 -7.5Q2347.0 -29 2316.0 -66.5Q2285.0 -104 2271.5 -152.0Q2258.0 -200 2258.0 -253Q2258.0 -310 2272.5 -362.0Q2287.0 -414 2317.5 -454.5Q2348.0 -495 2396.5 -518.5Q2445.0 -542 2513.0 -542Q2581.0 -542 2629.5 -518.5Q2678.0 -495 2707.0 -453.0Q2736.0 -411 2744.5 -356.0Q2753.0 -301 2742.0 -237L2359.0 -231V-319L2618.0 -324L2597.0 -273Q2603.0 -319 2595.5 -350.5Q2588.0 -382 2568.0 -398.5Q2548.0 -415 2513.0 -415Q2476.0 -415 2454.0 -396.0Q2432.0 -377 2423.0 -342.5Q2414.0 -308 2414.0 -261Q2414.0 -180 2441.0 -143.0Q2468.0 -106 2524.0 -106Q2548.0 -106 2564.0 -112.0Q2580.0 -118 2590.0 -129.5Q2600.0 -141 2604.0 -157.5Q2608.0 -174 2607.0 -195L2755.0 -187Q2758.0 -154 2748.5 -119.0Q2739.0 -84 2713.0 -54.0Q2687.0 -24 2640.5 -5.0Q2594.0 14 2523.0 14Z M2952.0 0V-660H3195.0L3330.0 -191H3332.0L3464.0 -660H3694.0V0H3544.0V-497H3542.0L3393.0 0H3251.0L3104.0 -497H3102.0V0Z M3989.0 14Q3914.0 14 3863.5 -7.5Q3813.0 -29 3782.0 -66.5Q3751.0 -104 3737.5 -152.0Q3724.0 -200 3724.0 -253Q3724.0 -310 3738.5 -362.0Q3753.0 -414 3783.5 -454.5Q3814.0 -495 3862.5 -518.5Q3911.0 -542 3979.0 -542Q4047.0 -542 4095.5 -518.5Q4144.0 -495 4173.0 -453.0Q4202.0 -411 4210.5 -356.0Q4219.0 -301 4208.0 -237L3825.0 -231V-319L4084.0 -324L4063.0 -273Q4069.0 -319 4061.5 -350.5Q4054.0 -382 4034.0 -398.5Q4014.0 -415 3979.0 -415Q3942.0 -415 3920.0 -396.0Q3898.0 -377 3889.0 -342.5Q3880.0 -308 3880.0 -261Q3880.0 -180 3907.0 -143.0Q3934.0 -106 3990.0 -106Q4014.0 -106 4030.0 -112.0Q4046.0 -118 4056.0 -129.5Q4066.0 -141 4070.0 -157.5Q4074.0 -174 4073.0 -195L4221.0 -187Q4224.0 -154 4214.5 -119.0Q4205.0 -84 4179.0 -54.0Q4153.0 -24 4106.5 -5.0Q4060.0 14 3989.0 14Z"/><circle cx="1644.0" cy="-772.2" r="99.0" fill="#E8821E"/></svg></div></div>
     <div class="onbdots" id="onbDots"></div>
 
+    <!-- v245 (design A4): numerals in outlined tiles, three things, and the
+         skip offered rather than buried. -->
     <div class="onbstep" id="onbStep1">
-      <h1>Welcome, <span id="onbName">there</span> 👋</h1>
-      <p class="lede">Your family is set up. Three things worth knowing before you start — it takes a minute.</p>
-      <div class="onbpoint"><span class="em">⭐</span><div><strong>You notice, you award</strong><span>Only Mum and Dad accounts can give points. Children can see what they've earned, but never award any — to themselves or each other.</span></div></div>
-      <div class="onbpoint"><span class="em">🎁</span><div><strong>They ask, you decide</strong><span>Children choose a reward or an activity and it comes to you as a request. Points are only spent when you approve it.</span></div></div>
-      <div class="onbpoint"><span class="em">📈</span><div><strong>You'll see the pattern</strong><span>Each child gets a trend line that runs green while points are coming in, and fades when things go quiet. It’s the quiet weeks it’s there to show you.</span></div></div>
-      <div class="onbnav"><button class="primary" onclick="onbGo(3)">Next</button></div>
+      <h1>Welcome, <span id="onbName">there</span></h1>
+      <p class="lede">Your family is set up. Three things worth knowing before you start.</p>
+      <div class="a4point"><span class="a4n">1</span><div><strong>Only you can give points.</strong><span>Grandparents and tutors have small caps. Children never award themselves anything.</span></div></div>
+      <div class="a4point"><span class="a4n">2</span><div><strong>Say what it was for, out loud.</strong><span>“That was kind of you — three points.” The words do more than the number.</span></div></div>
+      <div class="a4point"><span class="a4n">3</span><div><strong>Nothing is taken without you.</strong><span>They ask, you answer. No is a fine answer, and every decision has an Undo.</span></div></div>
+      <div class="onbnav" style="flex-direction:column">
+        <button class="primary" onclick="onbGo(3)">Add your first child</button>
+        <button class="light" onclick="finishOnboarding()">I’ll do that later</button>
+      </div>
     </div>
 
     <div class="onbstep hidden" id="onbStep2">
@@ -5883,7 +5898,7 @@ const TIP_CATS = [
   {key:"deen", label:"Deen"}
 ];
 
-const APP_VERSION = "v244";
+const APP_VERSION = "v245";
 const today = new Date().toISOString().slice(0,10);
 let app = {families:[],currentFamily:null,currentChild:null};
 let categories = [];
@@ -11860,10 +11875,14 @@ async function submitSignUpJoin(){
   errEl.textContent="";
   if(!name||!email||!password){ errEl.textContent="Please fill in every field."; return; }
   if(password.length<6){ errEl.textContent="Password should be at least 6 characters."; return; }
+  const codeEl=document.getElementById("signupCode");
+  const code=codeEl ? normaliseInviteCode(codeEl.value) : "";
+  if(codeEl && code.length!==8){ errEl.textContent="A code is eight characters. There\u2019s no letter I or O, and no 0 or 1."; return; }
   try{
     await window.fpc.createAccountOnly(email, password);
     window.__pendingJoinName = name;
-    await loadApp();     // no family yet, so this lands on the code screen
+    window.__pendingJoinCode = code;
+    await loadApp();     // no family yet; the code screen fills itself in and submits
   }catch(e){
     console.error("Sign-up failed:", e);
     errEl.textContent = (e && e.code==="auth/email-already-in-use")
@@ -15194,11 +15213,11 @@ function isChildLikeLogin(email){
 }
 function showAskParent(){
   const el=document.getElementById("askParentPanel");
-  if(el) el.classList.remove("hidden");
+  if(el) el.classList.add("open");
 }
 function hideAskParent(){
   const el=document.getElementById("askParentPanel");
-  if(el) el.classList.add("hidden");
+  if(el) el.classList.remove("open");
 }
 async function submitAuthLogin(){
   const email=document.getElementById("authEmail").value.trim();
@@ -15271,8 +15290,17 @@ function switchToSignIn(){
 }
 function selectSignupRole(role){
   window.__selectedSignupRole=role;
-  document.getElementById("roleMumBtn").classList.toggle("selected", role==="Mum");
-  document.getElementById("roleDadBtn").classList.toggle("selected", role==="Dad");
+  document.getElementById("roleMumBtn").classList.toggle("on", role==="Mum");
+  document.getElementById("roleDadBtn").classList.toggle("on", role==="Dad");
+}
+/* v245 (design A2): a card is selected before the button advances, and the
+   button is relabelled to the choice. */
+function pickSignupMode(mode){
+  window.__signupPick=mode;
+  document.getElementById("chooseNew").classList.toggle("on", mode==="new");
+  document.getElementById("chooseJoin").classList.toggle("on", mode==="join");
+  const cta=document.getElementById("signupChooseCta");
+  cta.disabled=false; cta.textContent = mode==="join" ? "Enter my code" : "Start a new family";
 }
 /* An invited grandparent or tutor used to be stuck: the only sign-up path
    created a brand new family, so they never reached the screen that takes a
@@ -15294,10 +15322,13 @@ function setSignupMode(mode){
   set("signupFields", true);
   set("signupFamilyName", !join);
   set("signupRoleBox", !join);
+  set("signupCodeBox", join);
+  const sub=document.getElementById("signupSubmit"); if(sub) sub.textContent = join ? "Join with this code" : "Create the family";
   const note=document.getElementById("signupModeNote");
   if(note) note.textContent = join
-    ? "For a grandparent, uncle, aunty or tutor who has been given an invitation code. Make your account here, then type the code on the next screen \u2014 it decides what you can see and do."
+    ? "For a parent, grandparent, uncle, aunty or tutor who has been given an invitation code. The code decides what you can see and do."
     : "This creates a new family and makes you its first parent. Everyone else gets their own login afterwards.";
+  if(join){ const c=document.getElementById("signupCode"); if(c) setTimeout(()=>c.focus(),0); }
   const err=document.getElementById("signupError"); if(err) err.textContent="";
 }
 async function submitSignUp(){
@@ -15422,6 +15453,14 @@ async function copyInviteCode(){
 function prefillJoinName(){
   const el=document.getElementById("joinPersonName");
   if(el && window.__pendingJoinName && !el.value) el.value=window.__pendingJoinName;
+  /* v245 (design A3): the code was typed on the sign-up screen, so this
+     screen submits it rather than asking again. A bad code lands back here
+     with the error shown. */
+  const c=document.getElementById("joinCodeInput");
+  if(c && window.__pendingJoinCode && !c.value){
+    c.value=window.__pendingJoinCode; window.__pendingJoinCode=null;
+    setTimeout(()=>{ try{ submitJoinCode(); }catch(e){} }, 0);
+  }
 }
 async function submitJoinCode(){
   const errEl=document.getElementById("joinError");
@@ -24310,6 +24349,40 @@ body:not(.haskidbar) .stleave{background:#fff;border:1px solid rgba(176,86,58,.3
 .kidsheet .e5key p{display:none;font:400 14px/1.5 var(--f-body);color:var(--c-ink);margin:10px 0 0}
 .kidsheet .e5key.open p{display:block}
 .kidsheet .e5out{width:100%;margin-top:14px;min-height:46px;background:none!important;border:1.5px solid rgba(43,58,74,.15)!important;border-radius:16px!important;color:var(--c-ink)!important;font:600 14px/1 var(--f-body)}
+</style>
+<style id="nmRound2i">
+/* v245: A1 sign in, A2–A3 create an account, A4 first-run welcome */
+body:not(.haskidbar) .a1links{display:flex;justify-content:space-between;align-items:center;font:500 13.5px/1 var(--f-body);margin-top:2px}
+body:not(.haskidbar) .a1links a,body:not(.haskidbar) .gatecard p.small a{text-decoration:none}
+body:not(.haskidbar) .a1links a.plain{color:rgba(27,36,48,.55);font-weight:500}
+body:not(.haskidbar) .a1note{background:#fff;border:1px solid rgba(27,36,48,.12);border-radius:16px;padding:12px 14px;font:400 13px/1.5 var(--f-body);color:rgba(27,36,48,.72);margin-top:6px}
+body:not(.haskidbar) .a1key{padding:12px 14px;border:1.5px dashed rgba(27,36,48,.25);border-radius:16px;background:rgba(27,36,48,.03)!important;cursor:pointer}
+body:not(.haskidbar) .a1key.open{background:#fff!important;border:1.5px solid var(--g-moss)}
+body:not(.haskidbar) .a1keyhead{display:flex;align-items:center;gap:10px;font:600 14px/1.2 var(--f-body);color:var(--g-ink)}
+body:not(.haskidbar) .a1keyhead span{font-size:18px}
+body:not(.haskidbar) .a1keybody{display:none;margin-top:10px}
+body:not(.haskidbar) .a1key.open .a1keybody{display:block}
+body:not(.haskidbar) .a1keybody p{font:400 13px/1.5 var(--f-body);color:rgba(27,36,48,.72);margin:0 0 8px}
+body:not(.haskidbar) .choosecard{width:100%;padding:14px;gap:12px;border-radius:18px!important;border:1.5px solid rgba(27,36,48,.16)!important;background:#fff!important;text-align:left;min-height:44px}
+body:not(.haskidbar) .choosecard.on{border-color:var(--g-moss)!important;background:rgba(78,140,106,.05)!important}
+body:not(.haskidbar) .choosecard .chooseicon{width:40px;height:40px;border-radius:13px;background:rgba(27,36,48,.06);display:grid;place-items:center;color:rgba(27,36,48,.55);flex:none;font-size:0}
+body:not(.haskidbar) .choosecard.on .chooseicon{background:var(--g-moss-tint);color:var(--g-moss)}
+body:not(.haskidbar) .choosecard strong{display:block;font:600 15px/1.25 var(--f-body);color:var(--g-ink)}
+body:not(.haskidbar) .choosecard span span{display:block;font:400 12.5px/1.45 var(--f-body);color:rgba(27,36,48,.6);margin-top:3px}
+body:not(.haskidbar) #signupChooseCta:disabled{background:rgba(27,36,48,.25)!important;border-color:transparent!important;color:#fff!important;opacity:1}
+body:not(.haskidbar) .gatecard input.codefield{min-height:56px;text-align:center;font:600 24px/1 var(--f-mono);letter-spacing:.2em;text-transform:uppercase;padding:0 12px}
+body:not(.haskidbar) .a3what{background:#fff;border:1px solid rgba(27,36,48,.12);border-radius:16px;padding:12px 14px}
+body:not(.haskidbar) .a3what .canlist{margin:0;padding:0;list-style:none;display:grid;gap:8px}
+body:not(.haskidbar) .a3what .canlist li{display:flex;gap:10px;align-items:flex-start;font:400 13px/1.45 var(--f-body);color:var(--g-ink)}
+body:not(.haskidbar) .a3what .canlist li i{flex:none;width:20px;height:20px;border-radius:6px;display:grid;place-items:center;font:600 11px/1 var(--f-body);font-style:normal;background:var(--g-moss-tint);color:var(--g-moss)}
+body:not(.haskidbar) .gatecard .seg button.light{background:none!important;border:0!important;min-height:38px}
+body:not(.haskidbar) .gatecard .seg button.light.on{background:#fff!important;color:var(--g-ink)!important;box-shadow:0 1px 2px rgba(27,36,48,.08)}
+body:not(.haskidbar) .onbcard{border-radius:22px!important}
+body:not(.haskidbar) .a4point{display:flex;gap:14px;align-items:flex-start;margin-bottom:14px}
+body:not(.haskidbar) .a4n{flex:none;width:34px;height:34px;border-radius:11px;border:1.5px solid rgba(27,36,48,.18);display:grid;place-items:center;font:600 15px/1 var(--f-display);color:var(--g-ink)}
+body:not(.haskidbar) .a4point strong{display:block;font:600 15px/1.3 var(--f-body);color:var(--g-ink)}
+body:not(.haskidbar) .a4point span:not(.a4n){display:block;font:400 13.5px/1.5 var(--f-body);color:rgba(27,36,48,.65);margin-top:3px}
+body:not(.haskidbar) #onbStep1 .onbnav button{width:100%}
 </style>
 </body>
 </html>
