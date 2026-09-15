@@ -3223,8 +3223,8 @@
     <button class="panelback" onclick="goHome()">← Home</button>
     <div id="outsideFeed"></div>
     <div id="dailyReminder" class="hidden"></div>
-    <h2>📋 Points history</h2>
-    <p class="small">The last actions logged for <span id="activityChildName">—</span>. Tap Undo to reverse a mistake.</p>
+    <h2>Activity log</h2>
+    <p class="small">Everything awarded, spent, refunded, banked or declined for <span id="activityChildName">everyone</span>, newest first. Undo writes a correcting entry rather than erasing anything.</p>
     <div id="activityList" style="display:grid;gap:8px;margin-top:10px"></div>
   </div>
 </header>
@@ -5873,7 +5873,7 @@ const TIP_CATS = [
   {key:"deen", label:"Deen"}
 ];
 
-const APP_VERSION = "v239";
+const APP_VERSION = "v240";
 const today = new Date().toISOString().slice(0,10);
 let app = {families:[],currentFamily:null,currentChild:null};
 let categories = [];
@@ -7493,38 +7493,51 @@ function renderReviewPanel(){
   const who=(currentChild() && isChildRole(currentChild())) ? currentChild() : kids[0];
   const weekDates=getCurrentWeekDates();
   const from=weekDates[0];
-  const mine=(who.activityLog||[]).filter(e=>e.type==="award" && tsToDateStr(e.ts)>=from);
-  const byDay={};
-  mine.forEach(e=>{ const d=tsToDateStr(e.ts); (byDay[d]=byDay[d]||[]).push(e); });
-  const days=Object.keys(byDay).sort().reverse();
+  const log=(who.activityLog||[]);
+  const mine=log.filter(e=>e.type==="award" && tsToDateStr(e.ts)>=from).sort((a,b)=>(a.ts||0)-(b.ts||0));
+  /* v240 (design D2): four blocks, all read-aloud sized, and nothing on the
+     screen is a control. The week is a script, not a form. */
+  const dayName=ds=>new Date(ds+"T12:00:00").toLocaleDateString(undefined,{weekday:"long"});
+  const noticed = mine.length
+    ? mine.map(e=>`<div class="rvcard"><p class="rvline">${escapeHtml(e.label)}</p>
+        <p class="rvsub">${escapeHtml(e.by||e.byName||"")}${e.by||e.byName?" \u00b7 ":""}${dayName(tsToDateStr(e.ts))} \u00b7 +${e.points}</p></div>`).join("")
+    : "";
+  /* the days with nothing written down, said plainly */
+  const seenDays=new Set(mine.map(e=>tsToDateStr(e.ts)));
+  const quiet=weekDates.filter(ds=>ds<=dateStr(new Date()) && !seenDays.has(ds));
+  const quietCard = quiet.length
+    ? `<div class="rvcard quiet"><p class="rvline">${mine.length?"Nothing else was written down this week.":"Nothing was written down this week."}</p>
+        <p class="rvsub">${quiet.length===1 ? "One quiet day \u00b7 "+dayName(quiet[0]) : quiet.length+" quiet days \u00b7 "+dayName(quiet[0])+" to "+dayName(quiet[quiet.length-1])}</p></div>`
+    : "";
+  /* prayers: five rows of seven, moss for logged */
+  const grid=prayerGrid(who, 7);
+  const dayInit=grid.map(g=>new Date(g.ds+"T12:00:00").toLocaleDateString(undefined,{weekday:"narrow"}));
+  const prayers=`<div class="rvprayers">
+      <div class="rvprow head"><span></span>${dayInit.map(d=>`<i>${d}</i>`).join("")}</div>
+      ${PRAYERS.map((p,pi)=>`<div class="rvprow"><span>${p.label}</span>${grid.map(g=>`<b class="${g.done[pi]?"on":""}"></b>`).join("")}</div>`).join("")}
+      <p class="rvfoot">Five records a day, kept separately. No score, and nothing here earns points.</p></div>`;
+  /* spent and saved */
+  const spentWeek=log.filter(e=>e.type==="purchase" && tsToDateStr(e.ts)>=from).reduce((a,e)=>a+Math.abs(e.points||0),0);
+  const money=`<div class="rvfigs">
+      <div><strong>${availableFor(who)}</strong><span>To spend</span></div>
+      <div><strong>${vaultAvailable(who)}</strong><span>In the bank</span></div>
+      <div><strong>${spentWeek}</strong><span>Spent this week</span></div></div>`;
+  /* one thing to say */
   const band=bandForChild(who);
-  /* Four full-width name rows used to take most of the screen before the week
-     you came to read. Same header as the awarding screen: back, name, face. */
+  const top = mine.slice().sort((a,b)=>(b.points||0)-(a.points||0))[0];
+  let say, why;
+  if(!mine.length){ say="Ask about the week before you say anything else."; why="Nothing was written down, which says more about the week than about "+escapeHtml(who.name)+"."; }
+  else if(quiet.length>=3){ say="Ask what happened after "+dayName(quiet[0])+" before you say anything else."; why="The week went quiet for "+quiet.length+" days. The notes stop there."; }
+  else { say="Mention \u201c"+escapeHtml(top.label)+"\u201d."; why="The biggest thing anyone noticed this week"+(top.by||top.byName?", from "+escapeHtml(top.by||top.byName):"")+". Say why it mattered, not the number."; }
+  const one=`<div class="rvsay"><p class="rvsaycap">One thing to say</p><p class="rvsayline">${say}</p><p class="rvsaywhy">${why}</p></div>`;
+
   body.innerHTML =
     whoHeaderHTML(who, kids, {back:"goHome()", sub:"This week"})
-  + `<div class="revstats">
-       <div><strong>${weeklyTotalFor(who, weekDates)}</strong><span>Points</span></div>
-       <div><strong>${mine.length}</strong><span>Noticed</span></div>
-       <div><strong>${who.balance||0}</strong><span>Saved up</span></div>
-     </div>
-     <span class="moodpill ${band.cls}" style="display:inline-block;margin:0 0 18px">${band.label}</span>
-     ${days.length ? days.map(d=>{
-        const dd=new Date(d+"T12:00:00");
-        return `<p class="revday">${
-          dd.toLocaleDateString(undefined,{weekday:"long", day:"numeric", month:"short"})}</p>
-          <div class="revlist">${byDay[d].map(e=>`<div class="revrow">
-            <span class="revwhat">${escapeHtml(e.label)}</span>
-            <span class="revpts">${e.points>=0?"+":""}${e.points}<em>${escapeHtml(e.by||"")}</em></span>
-          </div>`).join("")}</div>`;
-      }).join("")
-      : `<p class="revempty">Nothing recorded this week yet. Sit down together anyway \u2014
-          the asking is the point, not the list.</p>`}
-     <section class="revask">
-       <h3>\u{1f64b} Anything I missed?</h3>
-       <p>Ask them now. This is the moment for it \u2014 not when you\u2019re awarding.
-          If they\u2019re right, add it while you\u2019re sitting together.</p>
-       <button class="primary" onclick="showQuickPanel()">\ud83d\udd25 Award them all at once</button>
-     </section>`;
+  + `<p class="rvcap">What people noticed</p>${noticed}${quietCard}
+     <p class="rvcap">Prayers this week</p>${prayers}
+     <p class="rvcap">Spent and saved</p>${money}
+     ${one}
+     <p class="rvafter">Remembered something while you were talking? <a href="#" onclick="event.preventDefault();showQuickPanel()">Add it under All at once</a> \u2014 not here.</p>`;
 }
 
 /* ---------- House rules ---------- */
@@ -10691,29 +10704,68 @@ function childStatsHTML(c){
 }
 
 /* ---------- Activity log ---------- */
+let __logFilter="all";
+function setLogFilter(id){ __logFilter=id||"all"; renderActivityLog(); }
 function renderActivityLog(){
   const list=document.getElementById("activityList");
-  const child=currentChild();
-  document.getElementById("activityChildName").textContent = child ? child.name : "—";
-  list.innerHTML="";
-  if(!child){ list.innerHTML='<p class="small">Select a family member first.</p>'; return; }
-  // Progress marks, pledges and other bookkeeping ride the same ledger but are
-  // not point movements. Showing them here as "+0 pts" with an Undo button that
-  // does nothing visible was confusing.
+  if(!list) return;
+  const f=currentFamily();
+  const kids=f ? f.children.filter(isChildRole) : [];
+  const nameEl=document.getElementById("activityChildName");
+  if(nameEl) nameEl.textContent = __logFilter==="all" ? "everyone" : ((memberById(__logFilter)||{}).name||"\u2014");
+  if(!kids.length){ list.innerHTML='<p class="small">Add a child first.</p>'; return; }
+  /* v240 (design D4): filter chips, day groups, a kind pill on every row, and
+     Undo where it is still allowed. Refunds and declines are in the log
+     because a log that only shows awards is not a log. */
   const MOVEMENTS=["award","adjust","purchase","refund","vault"];
-  const entries=(child.activityLog||[]).filter(e=>MOVEMENTS.includes(e.type)).slice(0,10);
-  if(entries.length===0){ list.innerHTML='<p class="small">No activity logged yet today.</p>'; return; }
-  entries.forEach(entry=>{
-    const row=document.createElement("div"); row.className="logrow";
-    const time=new Date(entry.ts).toLocaleTimeString([], {hour:"2-digit",minute:"2-digit"});
-    const sign = entry.points>=0 ? "+" : "";
-    row.innerHTML=`<div><div>${escapeHtml(entry.label||"")}</div><div class="logmeta">${sign}${entry.points} pts · ${time}</div></div>`;
-    const btn=document.createElement("button");
-    btn.className="light"; btn.textContent="Undo";
-    btn.onclick=()=>undoActivityEntry(child.id, entry.id);
-    row.appendChild(btn);
-    list.appendChild(row);
+  const rows=[];
+  kids.forEach(c=>{
+    if(__logFilter!=="all" && c.id!==__logFilter) return;
+    (c.activityLog||[]).forEach(e=>{ if(MOVEMENTS.includes(e.type)) rows.push({c,e}); });
   });
+  /* declined requests live in the requests list, not the ledger */
+  (app.requests||[]).forEach(r=>{
+    if(r.status!=="declined" || r.type==="prayer") return;
+    if(__logFilter!=="all" && r.childId!==__logFilter) return;
+    const c=kids.find(k=>k.id===r.childId); if(!c) return;
+    rows.push({c, e:{id:"req-"+r.id, ts:(r.handledTs&&r.handledTs.toMillis?r.handledTs.toMillis():r.handledTs)||r.ts||0, type:"declined", label:r.itemName||"Request", points:0, by:r.handledBy||""}});
+  });
+  rows.sort((a,b)=>(b.e.ts||0)-(a.e.ts||0));
+  const chips=`<div class="logchips"><button class="${__logFilter==="all"?"on":""}" onclick="setLogFilter('all')">Everyone</button>${
+    kids.map(c=>`<button class="${__logFilter===c.id?"on":""}" onclick="setLogFilter('${c.id}')">${escapeHtml(c.name)}</button>`).join("")}</div>`;
+  if(!rows.length){ list.innerHTML=chips+'<p class="small">Nothing in the log yet.</p>'; return; }
+  const kindOf=e=>{
+    if(e.type==="award") return ["Award","k-award"];
+    if(e.type==="purchase") return ["Spent","k-spent"];
+    if(e.type==="refund") return ["Refund","k-award"];
+    if(e.type==="vault") return [e.points<0?"Banked":"From the bank","k-bank"];
+    if(e.type==="declined") return ["Declined","k-neutral"];
+    if(e.type==="adjust") return [/^Undone/.test(e.label||"")?"Undone":"Adjusted","k-neutral"];
+    return [e.type,"k-neutral"];
+  };
+  const byDay={};
+  rows.slice(0,120).forEach(r=>{ const ds=tsToDateStr(r.e.ts); (byDay[ds]=byDay[ds]||[]).push(r); });
+  const undone=new Set(rows.filter(r=>r.e.type==="adjust" && /^Undone: /.test(r.e.label||"")).map(r=>r.c.id+"|"+(r.e.label||"").replace(/^Undone: /,"")));
+  list.innerHTML = chips + Object.keys(byDay).sort().reverse().map(ds=>{
+    const d=new Date(ds+"T12:00:00");
+    const head = ds===dateStr(new Date()) ? "Today" : d.toLocaleDateString(undefined,{weekday:"long", day:"numeric", month:"short"});
+    return `<p class="logday">${head}</p>` + byDay[ds].map(({c,e})=>{
+      const [kind,cls]=kindOf(e);
+      const time=e.ts ? new Date(e.ts).toLocaleTimeString([], {hour:"2-digit",minute:"2-digit"}) : "";
+      const note=(e.label||"").includes(" \u2014 ") ? (e.label||"").split(" \u2014 ").slice(1).join(" \u2014 ") : "";
+      const what=note ? (e.label||"").split(" \u2014 ")[0] : (e.label||"");
+      const amt = e.points>0 ? `<span class="logamt plus">+${e.points}</span>` : e.points<0 ? `<span class="logamt minus">\u2212${Math.abs(e.points)}</span>` : `<span class="logamt zero">\u2014</span>`;
+      const canUndo = (e.type==="award"||e.type==="purchase"||e.type==="refund") && !undone.has(c.id+"|"+(e.label||"")) && isParentSession();
+      return `<div class="logrow2">
+        <span class="logkind ${cls}">${kind}</span>
+        <span class="logmain"><span class="logwhat">${__logFilter==="all"?escapeHtml(c.name)+" \u00b7 ":""}${escapeHtml(what)}</span>
+          ${note?`<em>\u201c${escapeHtml(note)}\u201d</em>`:""}
+          <span class="logby">${escapeHtml(e.by||e.byName||"")}${(e.by||e.byName)&&time?" \u00b7 ":""}${time}</span></span>
+        ${amt}
+        ${canUndo?`<button class="undo" onclick="undoActivityEntry('${c.id}','${e.id}')">Undo</button>`:""}
+      </div>`;
+    }).join("");
+  }).join("");
 }
 async function undoActivityEntry(childId, entryId){
   if(!requireParent()) return;
@@ -22936,6 +22988,50 @@ body:not(.haskidbar) .canlist li i{flex:none;width:26px;height:26px;border-radiu
 body:not(.haskidbar) .canlist li.can i{background:var(--g-moss-tint);color:var(--g-moss)}
 body:not(.haskidbar) .canlist li.cannot i{background:rgba(27,36,48,.06);color:rgba(27,36,48,.45)}
 body:not(.haskidbar) .canlist li.cannot{color:rgba(27,36,48,.6)}
+</style>
+
+<style id="nmRound2d">
+/* v240: D2 Review together, D4 Activity log */
+body:not(.haskidbar) .rvcap{font:600 10.5px/1 var(--f-body);letter-spacing:.09em;text-transform:uppercase;color:rgba(27,36,48,.55);margin:20px 2px 10px}
+body:not(.haskidbar) .rvcard{background:#fff;border:1px solid rgba(27,36,48,.1);border-radius:16px;padding:14px 16px;margin-bottom:8px}
+body:not(.haskidbar) .rvcard.quiet{border-style:dashed;background:none}
+body:not(.haskidbar) .rvline{font:500 17px/1.4 var(--f-body);color:var(--g-ink);margin:0}
+body:not(.haskidbar) .rvsub{font:400 13px/1.4 var(--f-body);color:rgba(27,36,48,.55);margin:6px 0 0}
+body:not(.haskidbar) .rvprayers{background:#fff;border:1px solid rgba(27,36,48,.1);border-radius:16px;padding:14px 16px}
+body:not(.haskidbar) .rvprow{display:grid;grid-template-columns:64px repeat(7,1fr);gap:6px;align-items:center;margin-bottom:6px}
+body:not(.haskidbar) .rvprow span{font:500 13px/1 var(--f-body);color:var(--g-ink)}
+body:not(.haskidbar) .rvprow.head i{font:600 11px/1 var(--f-mono);color:rgba(27,36,48,.5);text-align:center;font-style:normal}
+body:not(.haskidbar) .rvprow b{display:block;height:22px;border-radius:6px;background:rgba(27,36,48,.09)}
+body:not(.haskidbar) .rvprow b.on{background:var(--g-moss)}
+body:not(.haskidbar) .rvfoot{font:400 12.5px/1.5 var(--f-body);color:rgba(27,36,48,.55);margin:10px 0 0}
+body:not(.haskidbar) .rvfigs{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+body:not(.haskidbar) .rvfigs div{background:#fff;border:1px solid rgba(27,36,48,.1);border-radius:16px;padding:14px 10px;text-align:center}
+body:not(.haskidbar) .rvfigs strong{display:block;font:600 26px/1.1 var(--f-display);color:var(--g-ink)}
+body:not(.haskidbar) .rvfigs span{display:block;margin-top:4px;font:500 11.5px/1.2 var(--f-body);color:rgba(27,36,48,.55)}
+body:not(.haskidbar) .rvsay{background:var(--g-ink);border-radius:18px;padding:18px 18px 16px;margin-top:20px}
+body:not(.haskidbar) .rvsaycap{font:600 10.5px/1 var(--f-body);letter-spacing:.09em;text-transform:uppercase;color:rgba(255,255,255,.55);margin:0 0 10px}
+body:not(.haskidbar) .rvsayline{font:600 17px/1.4 var(--f-display);color:#fff;margin:0}
+body:not(.haskidbar) .rvsaywhy{font:400 13.5px/1.5 var(--f-body);color:rgba(255,255,255,.7);margin:8px 0 0}
+body:not(.haskidbar) .rvafter{font:400 12.5px/1.5 var(--f-body);color:rgba(27,36,48,.55);margin:18px 2px 0}
+body:not(.haskidbar) .rvafter a{color:var(--g-moss);font-weight:600}
+body:not(.haskidbar) .logchips{display:flex;flex-wrap:wrap;gap:6px;margin:4px 0 6px}
+body:not(.haskidbar) .logchips button{width:auto;min-height:36px;padding:0 12px;border-radius:12px!important;background:rgba(27,36,48,.06)!important;border:1.5px solid transparent!important;color:rgba(27,36,48,.7)!important;font:500 13px/1 var(--f-body)}
+body:not(.haskidbar) .logchips button.on{background:#fff!important;border-color:var(--g-moss)!important;color:var(--g-moss)!important}
+body:not(.haskidbar) .logday{font:600 10.5px/1 var(--f-body);letter-spacing:.09em;text-transform:uppercase;color:rgba(27,36,48,.55);margin:16px 2px 4px}
+body:not(.haskidbar) .logrow2{display:flex;align-items:center;gap:10px;background:#fff;border:1px solid rgba(27,36,48,.1);border-radius:14px;padding:11px 12px}
+body:not(.haskidbar) .logkind{flex:none;border-radius:99px;padding:4px 8px;font:600 10.5px/1 var(--f-body);letter-spacing:.03em}
+body:not(.haskidbar) .logkind.k-award{background:var(--g-moss-tint);color:var(--g-moss)}
+body:not(.haskidbar) .logkind.k-spent{background:#F5E9D6;color:var(--g-warn)}
+body:not(.haskidbar) .logkind.k-bank{background:var(--c-teal-bg);color:var(--c-teal)}
+body:not(.haskidbar) .logkind.k-neutral{background:rgba(27,36,48,.06);color:rgba(27,36,48,.6)}
+body:not(.haskidbar) .logmain{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+body:not(.haskidbar) .logwhat{font:500 13.5px/1.3 var(--f-body);color:var(--g-ink)}
+body:not(.haskidbar) .logmain em{font:400 12.5px/1.4 var(--f-body);color:rgba(27,36,48,.65);font-style:normal}
+body:not(.haskidbar) .logby{font:400 11.5px/1.3 var(--f-body);color:rgba(27,36,48,.45)}
+body:not(.haskidbar) .logamt{flex:none;font:600 14px/1 var(--f-mono)}
+body:not(.haskidbar) .logamt.plus{color:var(--g-moss)} body:not(.haskidbar) .logamt.minus{color:var(--g-warn)} body:not(.haskidbar) .logamt.zero{color:rgba(27,36,48,.35)}
+body:not(.haskidbar) .logrow2 .undo{flex:none;width:auto;min-height:32px;padding:0 6px;font:600 13px/1 var(--f-body)}
+#activityList{display:block!important}
 </style>
 </body>
 </html>
