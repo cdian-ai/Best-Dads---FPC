@@ -2985,56 +2985,70 @@
           <p class="small" id="justAddedNote" style="margin:6px 0 0;font-weight:600"></p>
         </div>
 
-        <div class="catedit hidden" id="addMemberBox" style="margin-top:14px">
-          <p class="small" style="margin:0 0 8px"><strong>Add someone new</strong></p>
-          <p class="small" style="margin:0 0 10px">This creates a login for a <strong>child</strong> — someone who earns points. Every other grown-up joins by invitation instead, so they set their own password and you never hold it.</p>
-          <input id="newChildName" placeholder="Name (e.g. Emma, Grandma)" oninput="suggestRecoveryForName()">
-          <input id="newChildAge" placeholder="Age or role — optional (e.g. 7, or Grandma)" style="margin-top:8px">
+        <!-- v239 (design B2): photo slot, name, the year as six tiles, then the
+             login card. The fields keep their ids; addChild() is unchanged. -->
+        <div class="catedit hidden addchild" id="addMemberBox" style="margin-top:14px">
+          <h3 class="acttitle">Add a child</h3>
+          <div class="photoslot">
+            <button type="button" class="photoslotbtn" id="newMemberPreview" onclick="document.getElementById('newMemberPhotoInput').click()"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/></svg></button>
+            <div><strong>Photo</strong><p class="small" style="margin:2px 0 0">Optional. Initials work fine.</p></div>
+            <input type="file" id="newMemberPhotoInput" accept="image/*" class="hidden" onchange="handleNewMemberPhoto(this.files[0])">
+          </div>
+          <label class="fieldlab" for="newChildName">Name</label>
+          <input id="newChildName" placeholder="e.g. Ibrahim" oninput="suggestRecoveryForName()">
+          <label class="fieldlab">School year</label>
+          <div class="yeartiles" id="yearTiles">
+            <button type="button" onclick="pickYearTile(this,'Year 1')">Y1</button>
+            <button type="button" onclick="pickYearTile(this,'Year 2')">Y2</button>
+            <button type="button" onclick="pickYearTile(this,'Year 3')">Y3</button>
+            <button type="button" onclick="pickYearTile(this,'Year 4')">Y4</button>
+            <button type="button" onclick="pickYearTile(this,'Year 5')">Y5</button>
+            <button type="button" onclick="pickYearTile(this,'Year 6')">Y6</button>
+          </div>
+          <input id="newChildAge" placeholder="Or type an age, or something else — optional" style="margin-top:8px" oninput="pickYearTile(null,null)">
           <div style="display:flex;gap:8px;margin-top:8px" class="hidden">
             <button type="button" id="newRoleChild" class="light selected" style="width:auto;flex:1" onclick="selectNewMemberRole('child')">Child</button>
             <button type="button" id="newRoleParent" class="light" style="width:auto;flex:1" onclick="selectNewMemberRole('parent')">Parent</button>
           </div>
-          <input id="newChildPassword" type="text" placeholder="Password for their login (6+ characters)" style="margin-top:8px">
-          <input id="newChildRecovery" type="email" placeholder="Email for their login (required)" style="margin-top:8px" oninput="recoveryTouched=true">
-          <p class="small" id="recoveryHint" style="margin:6px 0 0">This is filled in for you as a variation of your own address, so their password resets land in your inbox. Change it if they have an address of their own.</p>
-          <p class="small" style="margin:6px 0 0">Check the details above, then press Add. Their login is created straight away and shown to you.</p>
-          <div class="memberhead" style="margin-top:8px">
-            <div id="newMemberPreview"><div class="avatar-placeholder">📷</div></div>
-            <button type="button" class="photobtn" onclick="document.getElementById('newMemberPhotoInput').click()">Add photo (optional)</button>
-            <input type="file" id="newMemberPhotoInput" accept="image/*" class="hidden" onchange="handleNewMemberPhoto(this.files[0])">
+          <div class="logincard">
+            <p class="loginlab">Their login</p>
+            <label class="fieldlab" for="newChildRecovery">Email</label>
+            <input id="newChildRecovery" type="email" class="mono" placeholder="Email for their login (required)" oninput="recoveryTouched=true">
+            <p class="small" id="recoveryHint" style="margin:6px 0 10px">This is filled in for you as a variation of your own address, so their password resets land in your inbox. Change it if they have an address of their own.</p>
+            <label class="fieldlab" for="newChildPassword">Password — read this out to them</label>
+            <input id="newChildPassword" type="text" class="mono pass" placeholder="6+ characters">
+            <p class="small moss" style="margin:10px 0 0">There’s no code to enter and nothing to approve — that’s the whole process.</p>
           </div>
-          <button class="confirm" style="margin-top:8px;width:100%" id="addMemberBtn" onclick="addChild()">Add</button>
+          <button class="confirm" style="margin-top:12px;width:100%" id="addMemberBtn" onclick="addChild()">Add</button>
           <button class="light" style="margin-top:6px;width:100%" onclick="cancelAddMember()">Cancel</button>
-          <p class="small" id="addMemberError" style="color:#a63e3e;margin:8px 0 0"></p>
+          <p class="small" id="addMemberError" style="color:#B0563A;margin:8px 0 0"></p>
         </div>
 
-        <button class="primary" id="revealAddBtn" style="margin-top:14px;width:100%" onclick="openAddMember()">＋ Add someone new</button>
-        <div style="display:grid;gap:6px;margin-top:10px">
-          <p class="small" style="margin:0">Invite someone to this family:</p>
-          <!-- v216: the code lands above the two tiles. Below them it was under
-               a paragraph of explanation and off the bottom of the screen, so
-               tapping invite looked like it had done nothing. -->
-        <div id="inviteBox" class="hidden" style="margin:4px 0 2px;background:#eef0ff;border:1px solid #c9cdf5;border-radius:16px;padding:14px;text-align:center">
-          <p class="small" style="margin:0 0 6px">Read this out to them. It works once, and lasts fifteen minutes.</p>
-          <p id="inviteCode" style="margin:0;font-size:30px;font-weight:800;letter-spacing:.12em;color:#3e46ad"></p>
-          <button class="light" id="copyInviteBtn" style="width:auto;margin:10px auto 0;padding:8px 16px"
-            onclick="copyInviteCode()">\u29c9 Copy code</button>
-          <p class="small" id="inviteExpiry" style="margin:6px 0 0"></p>
-          <p class="small" style="margin:8px 0 0">They download the app, create their own account with their own email, then enter this code.</p>
+        <div class="memfoot">
+          <button class="primary" id="revealAddBtn" onclick="openAddMember()">Add a child</button>
+          <button class="light" id="revealInviteBtn" onclick="toggleInviteSection()">Invite a grown-up</button>
         </div>
-          <!-- v215: two square tiles side by side. As full-width stacked buttons
-               the longer label wrapped and the pair read as a list of settings
-               rather than a choice between two people. -->
-          <div class="invitetiles">
-            <button class="invtile" id="inviteParentBtn" onclick="createParentInvite('parent')">
-              <span class="ig">🔗</span><b>Another parent</b>
-              <small>Points, requests, the lot</small></button>
-            <button class="invtile" id="inviteFamilyBtn" onclick="createParentInvite('family')">
-              <span class="ig">👪</span><b>Grandparent, uncle or aunty</b>
-              <small>Up to 10 points a week</small></button>
+
+        <!-- v239 (design B3): the role as three segments, the code on an ink
+             card, and a can/cannot list that changes with the role. -->
+        <div id="inviteSection" class="hidden invitesec">
+          <h3 class="acttitle">Invite a grown-up</h3>
+          <div class="seg" id="inviteSeg">
+            <button type="button" class="on" onclick="pickInviteRole(this,'grand')">Grandparent</button>
+            <button type="button" onclick="pickInviteRole(this,'uncle')">Uncle or auntie</button>
+            <button type="button" onclick="pickInviteRole(this,'parent')">Another parent</button>
           </div>
-          <p class="small" style="margin:0">A grandparent, uncle or aunty can see the children’s names and weekly points, give each child up to 10 points a week, and offer them a shared goal or a gift. They can’t take points away, change rewards, or see your own list.</p>
-          <p class="small" style="margin:0">Tutors have their own tab — 📚 Tutors in the menu.</p>
+          <div id="inviteBox" class="hidden codecard">
+            <p class="codelab">Read this out to them. It works once, and lasts fifteen minutes.</p>
+            <p id="inviteCode" class="code"></p>
+            <button class="light codecopy" id="copyInviteBtn" onclick="copyInviteCode()">⧉ Copy code</button>
+            <p class="small codeexp" id="inviteExpiry"></p>
+          </div>
+          <button class="primary" id="inviteMakeBtn" style="width:100%;margin-top:10px" onclick="createParentInvite(__inviteRole==='parent'?'parent':'family')">Make a code</button>
+          <button class="hidden" id="inviteParentBtn"></button><button class="hidden" id="inviteFamilyBtn"></button>
+          <ul class="canlist" id="inviteCan"></ul>
+          <p class="small" style="margin:10px 0 0">They download the app, create their own account with their own email, then enter this code.</p>
+          <p class="small" style="margin:4px 0 0">Tutors have their own screen — 📚 Tutors in the menu — with different caps and different visibility.</p>
         </div>
 
         <input type="file" id="avatarFileInput" accept="image/*" class="hidden" onchange="handleAvatarUpload(this.files[0])">
@@ -5859,7 +5873,7 @@ const TIP_CATS = [
   {key:"deen", label:"Deen"}
 ];
 
-const APP_VERSION = "v238";
+const APP_VERSION = "v239";
 const today = new Date().toISOString().slice(0,10);
 let app = {families:[],currentFamily:null,currentChild:null};
 let categories = [];
@@ -10277,6 +10291,33 @@ function setAddMemberState(state){
     if(mail) mail.textContent = "";
   }
 }
+
+/* v239: B2 year tiles, B3 role segments and the can/cannot list */
+function pickYearTile(btn, val){
+  document.querySelectorAll("#yearTiles button").forEach(b=>b.classList.toggle("on", b===btn));
+  if(btn){ const a=document.getElementById("newChildAge"); if(a) a.value=val; }
+}
+let __inviteRole="grand";
+const INVITE_CAN={
+  grand:  [[1,"See the children\u2019s names and this week\u2019s points"],[1,"Give each child up to 10 points a week"],[1,"Offer a reward or an outing \u2014 you approve it first"],[0,"Spend points or approve requests"],[0,"Mark Du\u0257al progress or see the log"]],
+  uncle:  [[1,"See the children\u2019s names and this week\u2019s points"],[1,"Give each child up to 10 points a week"],[1,"Offer a reward or an outing \u2014 you approve it first"],[0,"Spend points or approve requests"],[0,"Mark Du\u0257al progress or see the log"]],
+  parent: [[1,"Everything you can do \u2014 award, approve, edit the lists"],[1,"Add children and invite other grown-ups"],[1,"See every note and the whole log"],[0,"Only send this to someone you would hand your own phone to"]]
+};
+function renderInviteCan(){
+  const ul=document.getElementById("inviteCan"); if(!ul) return;
+  ul.innerHTML=(INVITE_CAN[__inviteRole]||[]).map(([ok,t])=>`<li class="${ok?"can":"cannot"}"><i>${ok?"\u2713":"\u2715"}</i>${t}</li>`).join("");
+}
+function pickInviteRole(btn, role){
+  __inviteRole=role;
+  document.querySelectorAll("#inviteSeg button").forEach(b=>b.classList.toggle("on", b===btn));
+  const box=document.getElementById("inviteBox"); if(box) box.classList.add("hidden");
+  renderInviteCan();
+}
+function toggleInviteSection(){
+  const sec=document.getElementById("inviteSection"); if(!sec) return;
+  sec.classList.toggle("hidden");
+  if(!sec.classList.contains("hidden")){ renderInviteCan(); sec.scrollIntoView({behavior:"smooth",block:"start"}); }
+}
 function resetAddMemberPanel(){ setAddMemberState("idle"); }
 function openAddMember(){
   if(!requireParent()) return;
@@ -10287,7 +10328,9 @@ function openAddMember(){
   if(recEl) recEl.value = "";
   pendingNewMemberPhoto = null;
   const preview = document.getElementById("newMemberPreview");
-  if(preview) preview.innerHTML = '<div class="avatar-placeholder">\ud83d\udcf7</div>';
+  if(preview && preview.classList.contains("photoslotbtn")) preview.innerHTML = '<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/></svg>';
+  else if(preview) preview.innerHTML = '<div class="avatar-placeholder">\ud83d\udcf7</div>';
+  pickYearTile(null,null);
   selectNewMemberRole("child");
   const rec=document.getElementById("newChildRecovery");
   if(rec) rec.value="";
@@ -10495,25 +10538,36 @@ function renderAccounts(){
   const reveal=document.getElementById("revealAddBtn");
   if(reveal) reveal.classList.toggle("hidden", !isParentSession());
   if(!isParentSession()) return;
+  /* v239 (design B1): an initial tile, the name, a role pill and last seen;
+     the selected member takes a moss border and a Selected pill; the actions
+     are a wrapping row of chips, Remove bordered rather than filled. Every
+     handler is the one that was here before. */
   if(f) f.children.forEach(ch=>{
-    const row=document.createElement("div"); row.className="childrow"+(ch.id===currentChildId()?" selected":"");
-    const left=document.createElement("div"); left.className="memberhead";
-    left.innerHTML = (ch.photo
-        ? `<img class="avatar tappable" src="${ch.photo}" onclick="event.stopPropagation();openMemberPhoto('${ch.id}')">`
-        : `<div class="avatar-placeholder tappable" onclick="event.stopPropagation();openMemberPhoto('${ch.id}')">👤</div>`)
-      + `<div><span>${escapeHtml(ch.name)}${ch.age?" · "+escapeHtml(ch.age):""}</span>`
-      + `<div class="small">${isParentRole(ch)?"Parent":isTutorRole(ch)?("Tutor \u00b7 "+(assignedChildIds(ch).length||"no")+" child"+(assignedChildIds(ch).length===1?"":"ren")):isFamilyRole(ch)?"Family":"Child"}${ch.email?" · "+escapeHtml(ch.email):""}</div></div>`;
-    row.appendChild(left);
-    const btns=document.createElement("div"); btns.style.display="flex"; btns.style.gap="6px"; btns.style.flexWrap="wrap";
+    const sel = ch.id===currentChildId();
+    const role = isParentRole(ch) ? "Parent" : isTutorRole(ch) ? "Tutor" : isFamilyRole(ch) ? "Family" : "Child";
+    const seen = (ch.lastSeen||ch.lastActive) ? ("Last seen "+(typeof timeAgo==="function" ? timeAgo(ch.lastSeen||ch.lastActive) : "")) : "";
+    const row=document.createElement("div"); row.className="childrow memcard"+(sel?" selected":"");
+    const kidTone = isChildRole(ch) ? " kid" : "";
+    row.innerHTML = `<div class="memhead">
+        ${ch.photo
+          ? `<img class="memtile tappable" src="${ch.photo}" alt="" onclick="event.stopPropagation();openMemberPhoto('${ch.id}')">`
+          : `<span class="memtile tappable${kidTone}" onclick="event.stopPropagation();openMemberPhoto('${ch.id}')">${escapeHtml((ch.name||"?").slice(0,1).toUpperCase())}</span>`}
+        <div class="memmain">
+          <span class="memname">${escapeHtml(ch.name)}${ch.age?` <em>\u00b7 ${escapeHtml(ch.age)}</em>`:""}</span>
+          <span class="memsub"><span class="rolepill">${role}${isTutorRole(ch)?" \u00b7 "+(assignedChildIds(ch).length||"no")+" child"+(assignedChildIds(ch).length===1?"":"ren"):""}</span>${seen?`<span class="memseen">${seen}</span>`:""}</span>
+        </div>
+        ${sel ? `<span class="selpill">Selected</span>` : ""}
+      </div>`;
+    const btns=document.createElement("div"); btns.className="memchips";
     const mk=(cls,txt,title,fn)=>{const b=document.createElement("button");b.className=cls;b.textContent=txt;b.title=title;b.onclick=fn;return b;};
-    btns.appendChild(mk("photobtn","✎","Edit name or caption",()=>editChildDetails(ch.id)));
-    btns.appendChild(mk("photobtn","📷","Add or change photo",()=>triggerAvatarUpload(ch.id)));
-    if(ch.email) btns.appendChild(mk("photobtn","🔑","Show their sign-in details",()=>showMemberLogin(ch.id)));
-    if(canResetByEmail(ch)) btns.appendChild(mk("photobtn","✉️","Send them a password reset",()=>sendMemberReset(ch.id)));
-    btns.appendChild(mk("photobtn",isParentRole(ch)?"↓ Child":"↑ Parent","Change what they're allowed to do",()=>changeMemberRole(ch.id)));
-    if(ch.id!==sessionMemberId) btns.appendChild(mk("xbtn","✕","Remove from the family",()=>removeMember(ch.id)));
-    if(isChildRole(ch)) btns.appendChild(mk("light", ch.id===currentChildId()?"Selected":"Open", "Open their card", ()=>selectChild(ch.id)));
-    if(isTutorRole(ch)) btns.appendChild(mk("light", "\ud83d\udcda Their children", "Choose which children this tutor works with", ()=>assignTutorChildren(ch.id)));
+    if(isChildRole(ch) && !sel) btns.appendChild(mk("memchip go","Switch to","Open their card",()=>selectChild(ch.id)));
+    btns.appendChild(mk("memchip","Edit","Edit name or caption",()=>editChildDetails(ch.id)));
+    btns.appendChild(mk("memchip","\ud83d\udcf7 Photo","Add or change photo",()=>triggerAvatarUpload(ch.id)));
+    if(ch.email) btns.appendChild(mk("memchip","\ud83d\udd11 Sign-in details","Show their sign-in details",()=>showMemberLogin(ch.id)));
+    if(canResetByEmail(ch)) btns.appendChild(mk("memchip","\u2709\ufe0f Send a new password","Send them a password reset",()=>sendMemberReset(ch.id)));
+    btns.appendChild(mk("memchip",isParentRole(ch)?"Make a child":"Make a parent","Change what they're allowed to do",()=>changeMemberRole(ch.id)));
+    if(isTutorRole(ch)) btns.appendChild(mk("memchip", "\ud83d\udcda Their children", "Choose which children this tutor works with", ()=>assignTutorChildren(ch.id)));
+    if(ch.id!==sessionMemberId) btns.appendChild(mk("memchip remove","Remove","Remove from the family",()=>removeMember(ch.id)));
     row.appendChild(btns);
     list.appendChild(row);
   });
@@ -15168,9 +15222,10 @@ async function createParentInvite(role){
   const expEl=document.getElementById("inviteExpiry");
   /* v215: this always grabbed the parent button, so inviting a grandparent put
      "Making a code …" on the wrong tile and then relabelled it. */
-  const btn=document.getElementById(inviteRole==="parent" ? "inviteParentBtn" : "inviteFamilyBtn");
+  /* v239: one Make-a-code button under the role segments. */
+  const btn=document.getElementById("inviteMakeBtn") || document.getElementById(inviteRole==="parent" ? "inviteParentBtn" : "inviteFamilyBtn");
   const btnHTML=btn ? btn.innerHTML : "";
-  if(btn){ btn.disabled=true; btn.innerHTML='<span class="ig">\u23f3</span><b>Making a code…</b>'; }
+  if(btn){ btn.disabled=true; btn.innerHTML='Making a code\u2026'; }
   try{
     const code=await withTimeout(window.fpc.createInvite(familyId, makeInviteCode(), INVITE_TTL_MS, inviteRole), 20000, "Creating the code");
     codeEl.textContent = code.slice(0,4) + "-" + code.slice(4);
@@ -22823,6 +22878,64 @@ body:not(.haskidbar) .ntslot{display:block;width:100%;text-align:left;margin:8px
   border:1.5px dashed rgba(27,36,48,.18)!important;border-radius:14px!important;color:rgba(27,36,48,.35)!important;font:400 13.5px/1 var(--f-body)}
 body:not(.haskidbar) .ntslot::before{top:11px}
 body:not(.haskidbar) .ntslot:has(+ .ntempty){margin-bottom:8px}
+</style>
+<style id="nmRound2c">
+/* v239: B1 Family members, B2 Add a child, B3 Invite a grown-up */
+body:not(.haskidbar) .memcard{display:flex;flex-direction:column;gap:10px;background:#fff;border:1px solid rgba(27,36,48,.1);
+  border-radius:16px;padding:13px 14px;margin:0 0 10px;outline:0!important}
+body:not(.haskidbar) .memcard.selected{border:1.5px solid var(--g-moss)!important}
+body:not(.haskidbar) .memhead{display:flex;align-items:center;gap:12px}
+body:not(.haskidbar) .memtile{flex:none;width:40px;height:40px;border-radius:12px;background:rgba(27,36,48,.07);color:rgba(27,36,48,.7);
+  display:grid;place-items:center;font:600 15px/1 var(--f-display);object-fit:cover}
+body:not(.haskidbar) .memtile.kid{background:var(--g-moss-tint);color:var(--g-moss)}
+body:not(.haskidbar) .memmain{flex:1;min-width:0;display:flex;flex-direction:column;gap:4px}
+body:not(.haskidbar) .memname{font:600 15px/1.2 var(--f-body);color:var(--g-ink)}
+body:not(.haskidbar) .memname em{font-style:normal;font-weight:400;color:rgba(27,36,48,.5)}
+body:not(.haskidbar) .memsub{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+body:not(.haskidbar) .rolepill{background:rgba(27,36,48,.06);color:rgba(27,36,48,.7);border-radius:99px;padding:3px 8px;font:600 10.5px/1 var(--f-body);letter-spacing:.04em}
+body:not(.haskidbar) .memseen{font:400 11.5px/1 var(--f-body);color:rgba(27,36,48,.5)}
+body:not(.haskidbar) .selpill{flex:none;background:var(--g-moss);color:#fff;border-radius:99px;padding:4px 9px;font:600 10.5px/1 var(--f-body)}
+body:not(.haskidbar) .memchips{display:flex;flex-wrap:wrap;gap:6px}
+body:not(.haskidbar) .memchip{width:auto;min-height:34px;padding:0 11px;border-radius:11px!important;background:rgba(27,36,48,.06)!important;
+  border:1.5px solid transparent!important;color:rgba(27,36,48,.75)!important;font:500 12.5px/1 var(--f-body)}
+body:not(.haskidbar) .memchip.go{background:var(--g-moss-tint)!important;color:var(--g-moss)!important}
+body:not(.haskidbar) .memchip.remove{background:#fff!important;border-color:var(--g-undo)!important;color:var(--g-undo)!important}
+body:not(.haskidbar) .memfoot{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px}
+body:not(.haskidbar) .memfoot button{width:100%;min-height:50px;font-size:14.5px}
+body:not(.haskidbar) .acttitle{font:600 18px/1.2 var(--f-display);margin:0 0 12px;color:var(--g-ink)}
+body:not(.haskidbar) .catedit.addchild,body:not(.haskidbar) .invitesec{background:#fff;border:1px solid rgba(27,36,48,.1);border-radius:16px;padding:16px;margin-top:14px}
+body:not(.haskidbar) .photoslot{display:flex;align-items:center;gap:14px;margin-bottom:14px}
+body:not(.haskidbar) .photoslotbtn{width:64px;height:64px;border-radius:19px!important;border:1.5px dashed rgba(27,36,48,.25)!important;background:none!important;
+  color:rgba(27,36,48,.5)!important;display:grid;place-items:center;padding:0;overflow:hidden;min-height:0}
+body:not(.haskidbar) .photoslotbtn img{width:100%;height:100%;object-fit:cover}
+body:not(.haskidbar) .fieldlab{display:block;font:600 10.5px/1 var(--f-body);letter-spacing:.09em;text-transform:uppercase;color:rgba(27,36,48,.55);margin:12px 0 6px}
+body:not(.haskidbar) .yeartiles{display:grid;grid-template-columns:repeat(6,1fr);gap:6px}
+body:not(.haskidbar) .yeartiles button{min-height:46px;border-radius:12px!important;background:#fff!important;border:1.5px solid rgba(27,36,48,.16)!important;
+  color:var(--g-ink)!important;font:600 14px/1 var(--f-display);padding:0;width:100%}
+body:not(.haskidbar) .yeartiles button.on{border-color:var(--g-moss)!important;background:var(--g-moss-tint)!important;color:var(--g-moss)!important}
+body:not(.haskidbar) .logincard{margin-top:14px;background:var(--g-paper);border:1px solid rgba(27,36,48,.1);border-radius:14px;padding:12px 14px 14px}
+body:not(.haskidbar) .loginlab{font:600 10.5px/1 var(--f-body);letter-spacing:.09em;text-transform:uppercase;color:rgba(27,36,48,.55);margin:0}
+body:not(.haskidbar) input.mono{font:500 13.5px/1.3 var(--f-mono)}
+body:not(.haskidbar) input.mono.pass{font:600 17px/1.3 var(--f-mono);letter-spacing:.1em}
+body:not(.haskidbar) .small.moss{color:var(--g-moss)!important;font-weight:600}
+body:not(.haskidbar) #justAdded{background:#fff!important;border:1.5px solid var(--g-moss)!important;border-radius:16px!important}
+body:not(.haskidbar) #justAdded>div{font-family:var(--f-mono)!important;border-color:rgba(27,36,48,.1)!important}
+body:not(.haskidbar) #justAddedPass{font-size:17px;letter-spacing:.1em}
+body:not(.haskidbar) .seg{display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px;background:rgba(27,36,48,.06);border-radius:13px;padding:4px}
+body:not(.haskidbar) .seg button{min-height:38px;border-radius:10px!important;background:none!important;border:0!important;color:rgba(27,36,48,.65)!important;
+  font:500 12.5px/1.15 var(--f-body);padding:0 4px;width:100%}
+body:not(.haskidbar) .seg button.on{background:#fff!important;color:var(--g-ink)!important;box-shadow:0 1px 2px rgba(27,36,48,.08)}
+body:not(.haskidbar) .codecard{background:var(--g-ink)!important;border:0!important;border-radius:16px!important;padding:16px!important;text-align:center;margin-top:12px}
+body:not(.haskidbar) .codecard .codelab{color:rgba(255,255,255,.65)!important;font:400 12.5px/1.45 var(--f-body);margin:0 0 8px}
+body:not(.haskidbar) .codecard .code{font:600 32px/1.1 var(--f-mono)!important;letter-spacing:.16em!important;color:#fff!important;margin:0}
+body:not(.haskidbar) .codecard .codecopy{margin:12px auto 0;width:auto;padding:0 16px;min-height:38px;background:rgba(255,255,255,.12)!important;border:0!important;color:#fff!important}
+body:not(.haskidbar) .codecard .codeexp{color:rgba(255,255,255,.55)!important;margin:8px 0 0}
+body:not(.haskidbar) .canlist{list-style:none;margin:14px 0 0;padding:0;display:flex;flex-direction:column;gap:8px}
+body:not(.haskidbar) .canlist li{display:flex;align-items:center;gap:10px;font:400 13.5px/1.4 var(--f-body);color:var(--g-ink)}
+body:not(.haskidbar) .canlist li i{flex:none;width:26px;height:26px;border-radius:8px;display:grid;place-items:center;font-style:normal;font-weight:600;font-size:13px}
+body:not(.haskidbar) .canlist li.can i{background:var(--g-moss-tint);color:var(--g-moss)}
+body:not(.haskidbar) .canlist li.cannot i{background:rgba(27,36,48,.06);color:rgba(27,36,48,.45)}
+body:not(.haskidbar) .canlist li.cannot{color:rgba(27,36,48,.6)}
 </style>
 </body>
 </html>
