@@ -3250,6 +3250,11 @@ body:has(#familyView:not(.hidden)) .panel .section-card{background:#fff!importan
             <button type="button" onclick="pickYearTile(this,'Year 4')">Y4</button>
             <button type="button" onclick="pickYearTile(this,'Year 5')">Y5</button>
             <button type="button" onclick="pickYearTile(this,'Year 6')">Y6</button>
+            <button type="button" onclick="pickYearTile(this,'Year 7')">Y7</button>
+            <button type="button" onclick="pickYearTile(this,'Year 8')">Y8</button>
+            <button type="button" onclick="pickYearTile(this,'Year 9')">Y9</button>
+            <button type="button" onclick="pickYearTile(this,'Year 10')">Y10</button>
+            <button type="button" onclick="pickYearTile(this,'Year 11')">Y11</button>
           </div>
           <input id="newChildAge" placeholder="Or type an age, or something else — optional" style="margin-top:8px" oninput="pickYearTile(null,null)">
           <div style="display:flex;gap:8px;margin-top:8px" class="hidden">
@@ -4726,7 +4731,92 @@ const CURRICULUM = [
           ["Use semi-colons, colons and dashes to mark independent clauses","Grammar and punctuation"],
           ["Use bullet points and colons to punctuate lists","Grammar and punctuation"],
           ["Recognise and use formal and informal vocabulary and structures","Grammar and punctuation"]
-        ]}
+        ]},
+      /* v250: secondary. Key stage 3 is the DfE programme of study; GCSE is the
+         DfE subject content for English Language and English Literature. */
+      {"id":"ks3","name":"Key stage 3","year":7,
+       "blurb":"English in Years 7, 8 and 9 — reading, writing, grammar and speaking. Key stage 3 is one programme of study, not three years, so this is the whole stage.",
+       "milestone":"Finished key stage 3 English",
+       "objectives":[
+        ["Read a wide range of fiction and non-fiction, including whole books, short stories, poems and plays", "Reading"],
+        ["Read English literature pre-1914 and contemporary, including two Shakespeare plays", "Reading"],
+        ["Read seminal world literature and a wide range of non-fiction", "Reading"],
+        ["Choose and read books independently for challenge, interest and enjoyment", "Reading"],
+        ["Re-read books encountered earlier to increase familiarity and to give a basis for comparison", "Reading"],
+        ["Learn new vocabulary, relating it explicitly to known vocabulary and understanding it with the help of context and dictionaries", "Reading"],
+        ["Make inferences and refer to evidence in the text", "Reading"],
+        ["Know the purpose, audience and context of a piece of writing and how these shape its meaning", "Reading"],
+        ["Check understanding to make sure that what has been read makes sense", "Reading"],
+        ["Know how language, including figurative language, vocabulary choice, grammar and text structure present meaning", "Reading"],
+        ["Recognise a range of poetic conventions and understand how they are used", "Reading"],
+        ["Study setting, plot and characterisation, and the effects of these", "Reading"],
+        ["Understand how the work of dramatists is communicated effectively through performance", "Reading"],
+        ["Make critical comparisons across texts", "Reading"],
+        ["Study a range of authors, including at least two authors in depth each year", "Reading"],
+        ["Write well-structured formal expository and narrative essays", "Writing"],
+        ["Write stories, scripts, poetry and other imaginative writing", "Writing"],
+        ["Write notes and polished scripts for talks and presentations", "Writing"],
+        ["Write a range of other narrative and non-narrative texts, including arguments and personal and formal letters", "Writing"],
+        ["Summarise and organise material, supporting ideas and arguments with factual detail", "Writing"],
+        ["Apply a growing knowledge of vocabulary, grammar and text structure to writing, and select the appropriate form", "Writing"],
+        ["Draw on knowledge of literary and rhetorical devices from reading to enhance the impact of writing", "Writing"],
+        ["Consider how writing reflects the audiences and purposes for which it was intended", "Writing"],
+        ["Amend the vocabulary, grammar and structure of writing to improve its coherence and overall effectiveness", "Writing"],
+        ["Pay attention to accurate grammar, punctuation and spelling", "Writing"],
+        ["Extend and apply the grammatical knowledge set out in key stage 2 to analyse more challenging texts", "Grammar and vocabulary"],
+        ["Study the effectiveness and impact of the grammatical features of the texts read", "Grammar and vocabulary"],
+        ["Draw on new vocabulary and grammatical constructions from reading and use these consciously in writing and speech", "Grammar and vocabulary"],
+        ["Know and understand the differences between spoken and written language, including formal and informal registers and Standard English", "Grammar and vocabulary"],
+        ["Use Standard English confidently in own writing and speech", "Grammar and vocabulary"],
+        ["Discuss reading, writing and spoken language with precise and confident use of linguistic and literary terminology", "Grammar and vocabulary"],
+        ["Use Standard English confidently in a range of formal and informal contexts, including classroom discussion", "Spoken English"],
+        ["Give short speeches and presentations, expressing own ideas and keeping to the point", "Spoken English"],
+        ["Participate in formal debates and structured discussions, summarising and building on what has been said", "Spoken English"],
+        ["Improvise, rehearse and perform play scripts and poetry to generate language and discuss meaning", "Spoken English"],
+        ["Use intonation, tone, volume and action so that meaning is clear in performance", "Spoken English"]
+       ]},
+      {"id":"ks4","name":"GCSE","year":10,
+       "blurb":"The national subject content for GCSE English Language and GCSE English Literature — the statements every exam board must cover. Most families sit both.",
+       "milestone":"Finished GCSE English",
+       "objectives":[
+        ["Read and understand a range of high-quality, challenging texts from the 19th, 20th and 21st centuries", "Language: reading"],
+        ["Read literature, literary non-fiction and other written texts such as essays, reviews and journalism", "Language: reading"],
+        ["Identify and interpret explicit and implicit information and ideas", "Language: reading"],
+        ["Select and synthesise evidence from different texts", "Language: reading"],
+        ["Explain, comment on and analyse how writers use language and structure to achieve effects", "Language: reading"],
+        ["Use relevant subject terminology to support analysis of language and structure", "Language: reading"],
+        ["Compare writers' ideas and perspectives, and how these are conveyed, across two or more texts", "Language: reading"],
+        ["Evaluate texts critically and support this with appropriate textual references", "Language: reading"],
+        ["Read unseen texts and respond to them under timed conditions", "Language: reading"],
+        ["Write for impact: communicate clearly, effectively and imaginatively, adapting tone, style and register", "Language: writing"],
+        ["Write for different forms, purposes and audiences, including narrative, descriptive, argument and persuasion", "Language: writing"],
+        ["Organise information and ideas, using structural and grammatical features to support coherence and cohesion", "Language: writing"],
+        ["Use a range of vocabulary and sentence structures for clarity, purpose and effect", "Language: writing"],
+        ["Use accurate spelling and punctuation", "Language: writing"],
+        ["Plan, draft and proofread writing, checking it against the task", "Language: writing"],
+        ["Present information and ideas, selecting and organising them to suit the audience", "Spoken language"],
+        ["Respond to questions and to feedback on a presentation", "Spoken language"],
+        ["Use spoken Standard English effectively in a formal presentation", "Spoken language"],
+        ["Study a whole Shakespeare play", "Literature: Shakespeare"],
+        ["Explore how Shakespeare presents character, theme and setting, with reference to the whole play", "Literature: Shakespeare"],
+        ["Relate the play to its historical and dramatic context", "Literature: Shakespeare"],
+        ["Study a whole 19th-century novel", "Literature: 19th-century novel"],
+        ["Explore how the writer presents character, theme and setting across the novel", "Literature: 19th-century novel"],
+        ["Relate the novel to the context in which it was written", "Literature: 19th-century novel"],
+        ["Study a whole modern (post-1914) novel or play from the British Isles", "Literature: modern text"],
+        ["Explore how the writer presents ideas, character and setting, and what the text says about its time", "Literature: modern text"],
+        ["Study a cluster of poetry, including representative Romantic poetry, since 1789", "Literature: poetry"],
+        ["Compare two poems in the cluster: ideas, form, language and effect", "Literature: poetry"],
+        ["Learn key quotations from the poems well enough to use them without the text", "Literature: poetry"],
+        ["Read, understand and respond to an unseen poem", "Literature: unseen poetry"],
+        ["Compare two unseen poems, commenting on the poets' methods", "Literature: unseen poetry"],
+        ["Maintain a critical style and develop an informed personal response to a text", "Literature: skills"],
+        ["Use textual references, including quotations, to support and illustrate interpretations", "Literature: skills"],
+        ["Analyse the language, form and structure used by a writer to create meanings and effects", "Literature: skills"],
+        ["Show understanding of the relationship between a text and the context in which it was written", "Literature: skills"],
+        ["Write with accurate spelling, punctuation and grammar in essay responses", "Literature: skills"],
+        ["Write a closed-book essay: plan, quote from memory, and keep to time", "Literature: skills"]
+       ]}
     ]},
   { subject:"science", icon:"\u{1f52c}", name:"Science", byYear:true, framework:"en-2014",
     strands:[
@@ -5007,6 +5097,100 @@ const CURRICULUM = [
         ["Our Sun as a star, other stars in our galaxy, and other galaxies","Physics"],
         ["The seasons, the Earth's tilt and day length","Physics"],
         ["The light year as a unit of astronomical distance","Physics"]
+       ]},
+      /* v250: the DfE subject content for GCSE combined science. */
+      {"id":"ks4","name":"GCSE","year":10,
+       "blurb":"The national subject content for GCSE combined science — biology, chemistry and physics, the statements every exam board must cover. Higher-tier only content is marked.",
+       "milestone":"Finished GCSE science",
+       "objectives":[
+        ["Understand how scientific methods and theories develop over time", "Working scientifically", "F"],
+        ["Use models, including representational, spatial, descriptive and mathematical, to solve problems", "Working scientifically", "F"],
+        ["Evaluate risks, both in practical science and in wider society", "Working scientifically", "F"],
+        ["Plan experiments to make observations, test hypotheses or explore phenomena", "Working scientifically", "F"],
+        ["Apply sampling techniques to ensure that data is representative", "Working scientifically", "F"],
+        ["Carry out experiments appropriately, having regard to accuracy, precision, repeatability and safety", "Working scientifically", "F"],
+        ["Present observations and data using tables, charts and graphs", "Working scientifically", "F"],
+        ["Translate data from one form to another, including using scatter diagrams and lines of best fit", "Working scientifically", "F"],
+        ["Interpret observations and data, making inferences and drawing conclusions", "Working scientifically", "F"],
+        ["Evaluate data in terms of accuracy, precision, repeatability and reproducibility, and identify anomalies", "Working scientifically", "F"],
+        ["Use SI units, prefixes, significant figures and standard form", "Working scientifically", "F"],
+        ["Recognise the importance of peer review and of communicating results to a range of audiences", "Working scientifically", "F"],
+        ["Complete the required practicals and recall the method and the reason for each step", "Working scientifically", "F"],
+        ["Cell structure: eukaryotes and prokaryotes, animal and plant cells, and the role of sub-cellular structures", "Biology", "F"],
+        ["Microscopy: magnification, resolution, and calculating real size from an image", "Biology", "F"],
+        ["Cell division by mitosis, and the cell cycle", "Biology", "F"],
+        ["Stem cells in animals and plants, and their uses", "Biology", "F"],
+        ["Transport across membranes: diffusion, osmosis and active transport", "Biology", "F"],
+        ["Cell specialisation, tissues, organs and organ systems", "Biology", "F"],
+        ["The digestive system, enzymes as catalysts, and the effect of temperature and pH on enzymes", "Biology", "F"],
+        ["The heart, blood vessels and blood, and coronary heart disease", "Biology", "F"],
+        ["Gas exchange in the lungs", "Biology", "F"],
+        ["Plant tissues, organs and systems, including transpiration and translocation", "Biology", "F"],
+        ["Communicable disease: pathogens, how they spread, and how the body defends itself", "Biology", "F"],
+        ["Vaccination, antibiotics and the discovery and development of drugs", "Biology", "F"],
+        ["Non-communicable disease, risk factors and cancer", "Biology", "F"],
+        ["Photosynthesis: the equation, limiting factors and the use of glucose", "Biology", "F"],
+        ["Aerobic and anaerobic respiration, and the response to exercise", "Biology", "F"],
+        ["Homeostasis and the nervous system: stimulus, receptor, coordinator, effector, response", "Biology", "F"],
+        ["Hormones and the endocrine system, including control of blood glucose and diabetes", "Biology", "F"],
+        ["Hormones in human reproduction, contraception and the menstrual cycle", "Biology", "F"],
+        ["Negative feedback in hormonal control", "Biology", "H"],
+        ["Sexual and asexual reproduction, meiosis, and the structure of DNA", "Biology", "F"],
+        ["Genetic inheritance: alleles, dominant and recessive, Punnett squares and inherited disorders", "Biology", "F"],
+        ["Variation, natural selection and evolution, and the evidence for it", "Biology", "F"],
+        ["Selective breeding and genetic engineering", "Biology", "F"],
+        ["Classification of living organisms, including the three-domain system", "Biology", "F"],
+        ["Ecosystems: communities, abiotic and biotic factors, adaptations and competition", "Biology", "F"],
+        ["Feeding relationships, food chains and the carbon and water cycles", "Biology", "F"],
+        ["Biodiversity, waste management, land use, deforestation and global warming", "Biology", "F"],
+        ["Atoms, elements, compounds and mixtures, and separating mixtures", "Chemistry", "F"],
+        ["The development of the model of the atom, atomic structure and isotopes", "Chemistry", "F"],
+        ["Electronic structure and the development of the periodic table", "Chemistry", "F"],
+        ["Metals and non-metals, and the properties of Group 0, Group 1 and Group 7", "Chemistry", "F"],
+        ["Ionic bonding and the properties of ionic compounds", "Chemistry", "F"],
+        ["Covalent bonding, small molecules, polymers and giant covalent structures", "Chemistry", "F"],
+        ["Metallic bonding, alloys, and the structure and uses of graphene and fullerenes", "Chemistry", "F"],
+        ["States of matter and the particle model", "Chemistry", "F"],
+        ["Conservation of mass, balanced equations and relative formula mass", "Chemistry", "F"],
+        ["Moles, and using moles to balance equations", "Chemistry", "H"],
+        ["Concentration of solutions in g/dm³ and mol/dm³", "Chemistry", "F"],
+        ["The reactivity series, extraction of metals and oxidation and reduction", "Chemistry", "F"],
+        ["Reactions of acids with metals, bases and carbonates, and making salts", "Chemistry", "F"],
+        ["The pH scale, strong and weak acids, and neutralisation", "Chemistry", "F"],
+        ["Electrolysis of molten ionic compounds and of aqueous solutions", "Chemistry", "F"],
+        ["Exothermic and endothermic reactions, reaction profiles and bond energies", "Chemistry", "F"],
+        ["Rate of reaction: collision theory, factors affecting rate, and catalysts", "Chemistry", "F"],
+        ["Reversible reactions and dynamic equilibrium", "Chemistry", "F"],
+        ["The effect of changing conditions on equilibrium (Le Chatelier)", "Chemistry", "H"],
+        ["Crude oil, hydrocarbons, fractional distillation and cracking", "Chemistry", "F"],
+        ["Pure substances, formulations and chromatography", "Chemistry", "F"],
+        ["Identifying common gases: hydrogen, oxygen, carbon dioxide and chlorine", "Chemistry", "F"],
+        ["The evolution of the atmosphere, greenhouse gases and climate change", "Chemistry", "F"],
+        ["Atmospheric pollutants and their effects", "Chemistry", "F"],
+        ["Earth's resources, potable water, waste water treatment and life-cycle assessment", "Chemistry", "F"],
+        ["Energy stores and transfers, and the principle of conservation of energy", "Physics", "F"],
+        ["Kinetic energy, gravitational potential energy and elastic potential energy calculations", "Physics", "F"],
+        ["Power, efficiency and reducing unwanted energy transfers", "Physics", "F"],
+        ["National and global energy resources, renewable and non-renewable", "Physics", "F"],
+        ["Electric circuits: current, potential difference, resistance and their relationships", "Physics", "F"],
+        ["Series and parallel circuits, and the I-V characteristics of components", "Physics", "F"],
+        ["Domestic electricity: alternating current, mains wiring, power and the National Grid", "Physics", "F"],
+        ["Static charge and electric fields", "Physics", "F"],
+        ["Density, changes of state, internal energy, specific heat capacity and specific latent heat", "Physics", "F"],
+        ["Particle motion in gases and gas pressure", "Physics", "F"],
+        ["Atomic structure, isotopes and the development of the atomic model", "Physics", "F"],
+        ["Radioactive decay, alpha, beta and gamma radiation, and nuclear equations", "Physics", "F"],
+        ["Half-life, contamination and irradiation", "Physics", "F"],
+        ["Scalars and vectors, contact and non-contact forces, and resultant forces", "Physics", "F"],
+        ["Work done, forces and elasticity (Hooke's law)", "Physics", "F"],
+        ["Speed, velocity, acceleration, and distance-time and velocity-time graphs", "Physics", "F"],
+        ["Newton's three laws of motion, and inertia", "Physics", "F"],
+        ["Stopping distance, reaction time and braking", "Physics", "F"],
+        ["Momentum and its conservation", "Physics", "H"],
+        ["Transverse and longitudinal waves, and the wave equation", "Physics", "F"],
+        ["The electromagnetic spectrum, its uses and its dangers", "Physics", "F"],
+        ["Magnetism, magnetic fields and electromagnets", "Physics", "F"],
+        ["The motor effect and Fleming's left-hand rule", "Physics", "H"]
        ]}
     ]}
 ];
@@ -5336,8 +5520,14 @@ function allStrands(){
 const YEAR_BY_AGE = {5:"y1",6:"y2",7:"y3",8:"y4",9:"y5",10:"y6",
   11:"ks3",12:"ks3",13:"ks3",14:"ks4",15:"ks4",16:"ks4"};
 let learnYear = {};
+const STAGE_BY_YEAR = {1:"y1",2:"y2",3:"y3",4:"y4",5:"y5",6:"y6",7:"ks3",8:"ks3",9:"ks3",10:"ks4",11:"ks4"};
 function defaultYearFor(child){
-  const n=parseInt((child && child.age) || "", 10);
+  const raw=String((child && child.age) || "").trim();
+  /* v250: the add-child tiles write "Year 7", not an age, and parseInt of
+     that is NaN — so every child added by tile was shown Year 1. */
+  const ym=raw.match(/^y(?:ear)?\s*(\d{1,2})$/i);
+  if(ym && STAGE_BY_YEAR[+ym[1]]) return STAGE_BY_YEAR[+ym[1]];
+  const n=parseInt(raw, 10);
   return (!Number.isNaN(n) && YEAR_BY_AGE[n]) || "y1";
 }
 /* The stages a child may move between. Primary stays locked to the child's own
@@ -6148,7 +6338,7 @@ const TIP_CATS = [
   {key:"deen", label:"Deen"}
 ];
 
-const APP_VERSION = "v249";
+const APP_VERSION = "v250";
 const today = new Date().toISOString().slice(0,10);
 let app = {families:[],currentFamily:null,currentChild:null};
 let categories = [];
