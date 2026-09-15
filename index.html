@@ -4104,6 +4104,8 @@ body:has(#familyView:not(.hidden)) .panel .section-card{background:#fff!importan
        view preference lives here. update, not set, so nothing else is touched
        and the role field stays exactly as it was. */
     async saveMemberPrefs(fid, id, prefs){ await updateDoc(memberRef(fid, id), { prefs }); },
+    /* v251: change some fields and leave the rest. */
+    async updateMember(fid, id, fields){ await updateDoc(memberRef(fid, id), fields); },
     async deleteMember(fid, id){ await deleteDoc(memberRef(fid, id)); },
     /* Leaving clears your own two rows and nothing else. Deleting the family is
        offered only while it is still empty, so there is no history to destroy. */
@@ -6338,7 +6340,7 @@ const TIP_CATS = [
   {key:"deen", label:"Deen"}
 ];
 
-const APP_VERSION = "v250";
+const APP_VERSION = "v251";
 const today = new Date().toISOString().slice(0,10);
 let app = {families:[],currentFamily:null,currentChild:null};
 let categories = [];
@@ -6572,9 +6574,9 @@ async function handleAvatarUpload(file){
   if(id!==sessionMemberId && !requireParent()) return;
   try{
     const photo = await resizeImageFile(file);
-    await window.fpc.saveMember(familyId, id, {
-      name: member.name, role: member.role, age: member.age||"", photo, email: member.email||null
-    });
+    /* v251: was a setDoc of five fields, which threw away prefs, tutor
+       assignments, boards and everything else on the row. */
+    await window.fpc.updateMember(familyId, id, { photo });
   }catch(e){
     console.error(e);
     alert("Sorry, that photo couldn't be used or saved. Please try another.");
@@ -6852,6 +6854,7 @@ function projectApp(raw){
         id: m.id, name: m.name, age: m.age || "", role: m.role, photo: m.photo || null,
         email: m.email || null,
         prefs: m.prefs || {},
+        boards: m.boards || {}, tiers: m.tiers || {},
         progress,
         forChildren: Array.isArray(m.forChildren) ? m.forChildren : [],
         relation: m.relation || null, side: m.side || null,
@@ -7240,48 +7243,82 @@ async function assignTutorChildren(tutorId){
    The practical reason: if progress were keyed to a board, a child changing
    school would lose the lot — which is the commonest reason a family would need
    this at all. */
+/* v251: one table per subject. The codes are the specification numbers a
+   school quotes; a parent can check them against a timetable or a letter home.
+   English is not tiered, so it carries none. */
 const EXAM_BOARDS = {
- "aqa": {
-  "name": "AQA",
-  "code": "8300",
-  "papers": "Three papers: one non-calculator, two calculator",
-  "tiers": "Foundation and Higher"
- },
- "edexcel": {
-  "name": "Edexcel (Pearson)",
-  "code": "1MA1",
-  "papers": "Three papers: one non-calculator, two calculator",
-  "tiers": "Foundation and Higher"
- },
- "ocr": {
-  "name": "OCR",
-  "code": "J560",
-  "papers": "Three papers: one non-calculator, two calculator",
-  "tiers": "Foundation and Higher"
- },
- "eduqas": {
-  "name": "WJEC Eduqas",
-  "code": "C300",
-  "papers": "Two papers: one non-calculator, one calculator",
-  "tiers": "Foundation and Higher"
- }
+  maths: {
+    aqa:     {name:"AQA",               code:"8300", papers:"Three papers: one non-calculator, two calculator"},
+    edexcel: {name:"Edexcel (Pearson)", code:"1MA1", papers:"Three papers: one non-calculator, two calculator"},
+    ocr:     {name:"OCR",               code:"J560", papers:"Three papers: one non-calculator, two calculator"}
+  },
+  english: {
+    aqa:     {name:"AQA",               code:"8700 / 8702", papers:"Language: two papers. Literature: two papers"},
+    edexcel: {name:"Edexcel (Pearson)", code:"1EN0 / 1ET0", papers:"Language: two papers. Literature: two papers"},
+    ocr:     {name:"OCR",               code:"J351 / J352", papers:"Language: two papers. Literature: two papers"}
+  },
+  science: {
+    aqa:     {name:"AQA (Trilogy)",     code:"8464", papers:"Six papers: two each for biology, chemistry and physics"},
+    edexcel: {name:"Edexcel (Pearson)", code:"1SC0", papers:"Six papers: two each for biology, chemistry and physics"},
+    ocr:     {name:"OCR (Gateway A)",   code:"J250", papers:"Six papers: two each for biology, chemistry and physics"}
+  }
 };
+const TIERED_SUBJECTS = {maths:true, science:true, english:false};
 /* Which board and tier each child sits, per subject. Set by a parent, and it
    changes the labels and the paper description — never the progress. */
 function boardFor(child, subject){
   const k=(child&&child.boards&&child.boards[subject])||null;
-  return (k && EXAM_BOARDS[k]) ? Object.assign({key:k},EXAM_BOARDS[k]) : null;
+  const table=EXAM_BOARDS[subject]||{};
+  return (k && table[k]) ? Object.assign({key:k},table[k]) : null;
 }
 function tierFor(child, subject){
+  if(!TIERED_SUBJECTS[subject]) return "H";   // untiered: everything shows
   return (child&&child.tiers&&child.tiers[subject]) || "F";
 }
+/* v251: the note is the setting. A parent taps the board and the tier here,
+   on the page where it matters; everyone else reads it. Only the labels and
+   the paper description change — never the marks, which are keyed to the
+   shared statements, so a child changing school keeps the lot. */
 function boardNote(child, subject){
   const b=boardFor(child, subject);
-  if(!b) return `<p class="boardnote none">No exam board set yet.
-     The content below is the national subject content every board must cover.</p>`;
+  const tiered=!!TIERED_SUBJECTS[subject];
   const t=tierFor(child,subject);
-  return `<p class="boardnote"><b>${b.name}</b> \u00b7 ${b.code}
-     \u00b7 ${t==="H"?"Higher tier":"Foundation tier"}<span>${b.papers}</span></p>`;
+  const canEdit = typeof isParentSession==="function" && isParentSession();
+  if(!canEdit){
+    if(!b) return `<p class="boardnote none">No exam board set yet.
+       The content below is the national subject content every board must cover.</p>`;
+    return `<p class="boardnote"><b>${b.name}</b> \u00b7 ${b.code}${
+       tiered?` \u00b7 ${t==="H"?"Higher tier":"Foundation tier"}`:""}<span>${b.papers}</span></p>`;
+  }
+  const table=EXAM_BOARDS[subject]||{};
+  const boardBtns=Object.keys(table).map(k=>
+    `<button type="button" class="${b&&b.key===k?"on":""}" onclick="setChildBoard('${child.id}','${subject}','${k}')">${table[k].name}</button>`).join("");
+  const tierBtns=tiered?`<div class="bdrow"><span class="bdlab">Tier</span><div class="bdpills">
+      <button type="button" class="${t!=="H"?"on":""}" onclick="setChildTier('${child.id}','${subject}','F')">Foundation</button>
+      <button type="button" class="${t==="H"?"on":""}" onclick="setChildTier('${child.id}','${subject}','H')">Higher</button></div></div>`:"";
+  return `<div class="boardcard">
+    <div class="bdrow"><span class="bdlab">Exam board</span><div class="bdpills">${boardBtns}</div></div>
+    ${tierBtns}
+    <p class="bdnote">${b?`<b>${b.name}</b> \u00b7 ${b.code} \u00b7 ${b.papers}.`:"Not set yet \u2014 the school will have told them."}${
+      tiered?(t==="H"?" Higher-only statements are shown.":" Higher-only statements are hidden until you switch to Higher."):""}
+      Progress is kept whichever you pick.</p>
+  </div>`;
+}
+async function setChildBoard(childId, subject, key){
+  if(!requireParent()) return;
+  const c=memberById(childId); if(!c) return;
+  const boards=Object.assign({}, c.boards||{}, {[subject]:key});
+  c.boards=boards; render();
+  try{ await window.fpc.updateMember(familyId, childId, {boards}); }catch(e){ console.error(e); alert("That didn't save. Check your connection and try again."); }
+  try{ if(!document.getElementById("progressPanel").classList.contains("hidden")) renderProgressPanel(); }catch(e){}
+}
+async function setChildTier(childId, subject, tier){
+  if(!requireParent()) return;
+  const c=memberById(childId); if(!c) return;
+  const tiers=Object.assign({}, c.tiers||{}, {[subject]:tier});
+  c.tiers=tiers; render();
+  try{ await window.fpc.updateMember(familyId, childId, {tiers}); }catch(e){ console.error(e); alert("That didn't save. Check your connection and try again."); }
+  try{ if(!document.getElementById("progressPanel").classList.contains("hidden")) renderProgressPanel(); }catch(e){}
 }
 /* ================= the secondary view =================
    At primary a parent marks what their child covered, so a list of twenty
@@ -24726,6 +24763,16 @@ body:not(.haskidbar) .ntadd.nudge{animation:ntnudge .5s ease}
 body.haskidbar #kidTabBar.tabbar{z-index:152!important}
 body.haskidbar .panel{padding-bottom:calc(96px + env(safe-area-inset-bottom))}
 body.haskidbar .paneltop{bottom:calc(84px + env(safe-area-inset-bottom))}
+/* v251: exam board and tier, set on the GCSE ladder */
+.boardcard{margin:8px 0 12px;padding:12px 13px;border-radius:14px;background:#fff;border:1px solid rgba(27,36,48,.12)}
+.bdrow{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:8px}
+.bdlab{flex:none;font:600 10.5px/1 var(--f-body,inherit);letter-spacing:.08em;text-transform:uppercase;color:rgba(27,36,48,.55);min-width:74px}
+.bdpills{display:flex;flex-wrap:wrap;gap:6px}
+.bdpills button{width:auto;min-height:34px;padding:0 12px;border-radius:11px!important;font:600 12.5px/1 var(--f-body,inherit);
+  background:rgba(27,36,48,.05)!important;border:1.5px solid transparent!important;color:rgba(27,36,48,.75)!important}
+.bdpills button.on{background:#fff!important;border-color:var(--g-moss,#2E7D5B)!important;color:var(--g-moss,#2E7D5B)!important}
+.bdnote{margin:2px 0 0;font-size:12.5px;line-height:1.5;color:rgba(27,36,48,.65)}
+.bdnote b{color:var(--g-ink,#1B2430)}
 @keyframes ntnudge{0%,100%{box-shadow:none}40%{box-shadow:0 0 0 3px rgba(78,140,106,.35)}}
 body:not(.haskidbar) .rwcard{background:#fff;border:1px solid rgba(27,36,48,.1);border-radius:16px;overflow:hidden}
 body:not(.haskidbar) .rwrow,body:not(.haskidbar) .prrow,body:not(.haskidbar) .hrrow{display:flex;align-items:center;gap:12px;padding:13px 15px;border-top:1px solid rgba(27,36,48,.07);background:#fff}
