@@ -3347,6 +3347,7 @@ body:has(#familyView:not(.hidden)) .panel .section-card{background:#fff!importan
     <div class="spendtabs" style="max-width:460px">
       <button id="deenTabDuas" onclick="setDeenTab('duas')">🤲 Duas</button>
       <button id="deenTabRem" onclick="setDeenTab('reminders')">💡 Reminders</button>
+      <button id="deenTabHadith" onclick="setDeenTab('hadith')">📜 Hadith</button>
       <button id="deenTabStories" onclick="setDeenTab('stories')">🌙 Bedtime</button>
       <button id="deenTabPrayers" onclick="setDeenTab('prayers')">🕌 Prayers</button>
     </div>
@@ -5293,6 +5294,83 @@ const DUAS = [
     meaning:"O Allah, open for me the doors of Your mercy." }
 ];
 
+/* ---------- Hadith: Bukhari and Muslim ----------
+   v254. Thirty-two narrations, all from Sahih al-Bukhari or Sahih Muslim, most
+   from both. The wording is the meaning in plain English, not a word-for-word
+   translation, so the app never puts an exact sentence in the Prophet's mouth;
+   the reference is the hadith number as it appears in the standard numbering
+   (Fath al-Bari for Bukhari, Abd al-Baqi for Muslim - the numbers sunnah.com
+   uses), so a family can look the original up in a copy they trust. "forme" is
+   the child's line: what it asks of a seven-year-old, in their words. One a
+   week, not one a day - a hadith is for living with, not scrolling past. */
+const HADITH = [
+  {"id": "h01", "theme": "t3", "tag": "Intentions", "glyph": "🎯", "text": "Actions are judged by their intentions, and each person will have what they intended.", "narrator": "Umar ibn al-Khattab", "bukhari": 1, "muslim": 1907, "forme": "Before you do something, ask yourself why you are doing it."},
+  {"id": "h02", "theme": "t4", "tag": "Others", "glyph": "🤝", "text": "None of you truly believes until he wants for his brother what he wants for himself.", "narrator": "Anas ibn Malik", "bukhari": 13, "muslim": 45, "forme": "If you'd want it for yourself, want it for the person next to you too."},
+  {"id": "h03", "theme": "t3", "tag": "Self-control", "glyph": "🧠", "text": "The strong one is not the one who wins a wrestling match. The strong one is the one who holds himself back when he is angry.", "narrator": "Abu Hurayrah", "bukhari": 6114, "muslim": 2609, "forme": "Being strong means staying calm, not getting your way."},
+  {"id": "h04", "theme": "t6", "tag": "Words", "glyph": "🤫", "text": "Whoever believes in Allah and the Last Day should speak good or stay silent; should be generous to his neighbour; and should be generous to his guest.", "narrator": "Abu Hurayrah", "bukhari": 6018, "muslim": 47, "forme": "If it isn't kind or useful, it can stay unsaid."},
+  {"id": "h05", "theme": "t1", "tag": "Faith", "glyph": "🕌", "text": "Islam is built on five things: bearing witness that there is no god but Allah and that Muhammad is His Messenger, establishing the prayer, giving zakat, the hajj, and fasting Ramadan.", "narrator": "Ibn Umar", "bukhari": 8, "muslim": 16, "forme": "Five pillars hold the whole house up."},
+  {"id": "h06", "theme": "t5", "tag": "Cleanliness", "glyph": "🧼", "text": "Cleanliness is half of faith.", "narrator": "Abu Malik al-Ash'ari", "bukhari": null, "muslim": 223, "forme": "Washing properly is part of being a Muslim, not a chore before it."},
+  {"id": "h07", "theme": "t4", "tag": "Others", "glyph": "🛡️", "text": "A Muslim is someone the other Muslims are safe from — safe from his tongue and safe from his hand.", "narrator": "Abdullah ibn Amr", "bukhari": 10, "muslim": 40, "forme": "Nobody should have to worry about what you'll say or do to them."},
+  {"id": "h08", "theme": "t4", "tag": "Family", "glyph": "👪", "text": "A man asked: who most deserves my good company? The Prophet said: your mother. Then who? Your mother. Then who? Your mother. Then who? Then your father.", "narrator": "Abu Hurayrah", "bukhari": 5971, "muslim": 2548, "forme": "Your mum comes first three times over — and then your dad."},
+  {"id": "h09", "theme": "t4", "tag": "Mercy", "glyph": "💛", "text": "The believers, in how they love, show mercy and care for one another, are like one body: when one part hurts, the whole body stays awake with fever.", "narrator": "An-Nu'man ibn Bashir", "bukhari": 6011, "muslim": 2586, "forme": "When someone in the family is hurting, everyone feels it. That's how it should be."},
+  {"id": "h10", "theme": "t4", "tag": "Gentleness", "glyph": "🕊️", "text": "Gentleness is never in anything without making it beautiful, and it is never taken out of anything without making it ugly.", "narrator": "Aishah", "bukhari": null, "muslim": 2594, "forme": "The gentle way is nearly always the better way."},
+  {"id": "h11", "theme": "t4", "tag": "Mercy", "glyph": "💛", "text": "Whoever does not show mercy will not be shown mercy.", "narrator": "Jarir ibn Abdullah", "bukhari": 5997, "muslim": 2318, "forme": "Be kind to others, and kindness comes back to you."},
+  {"id": "h12", "theme": "t3", "tag": "Self-control", "glyph": "😤", "text": "A man asked the Prophet for advice. He said: do not get angry. The man asked again and again, and each time he said: do not get angry.", "narrator": "Abu Hurayrah", "bukhari": 6116, "muslim": null, "forme": "The advice was so important he gave it three times."},
+  {"id": "h13", "theme": "t2", "tag": "Time", "glyph": "⏳", "text": "There are two blessings that many people waste: good health, and free time.", "narrator": "Ibn Abbas", "bukhari": 6412, "muslim": null, "forme": "Being well and having a free afternoon are gifts. Use them."},
+  {"id": "h14", "theme": "t1", "tag": "Qur'an", "glyph": "📖", "text": "The best of you are those who learn the Qur'an and teach it.", "narrator": "Uthman ibn Affan", "bukhari": 5027, "muslim": null, "forme": "Learning Qur'an is good. Helping someone else learn it is better."},
+  {"id": "h15", "theme": "t4", "tag": "Kindness", "glyph": "😊", "text": "Every act of kindness is charity.", "narrator": "Jabir ibn Abdullah", "bukhari": 6021, "muslim": null, "forme": "You don't need money to give charity. A kind act counts."},
+  {"id": "h16", "theme": "t6", "tag": "Honesty", "glyph": "💬", "text": "Truthfulness leads to goodness, and goodness leads to Paradise. Lying leads to wrongdoing, and wrongdoing leads to the Fire.", "narrator": "Abdullah ibn Mas'ud", "bukhari": 6094, "muslim": 2607, "forme": "One true word leads to the next. So does one lie."},
+  {"id": "h17", "theme": "t5", "tag": "Manners", "glyph": "🍽️", "text": "The Prophet taught a boy at the table: say Bismillah, eat with your right hand, and eat from what is nearest to you.", "narrator": "Umar ibn Abi Salamah", "bukhari": 5376, "muslim": 2022, "forme": "Three small things at every meal."},
+  {"id": "h18", "theme": "t4", "tag": "Kindness", "glyph": "🧡", "text": "I and the one who looks after an orphan will be together in Paradise like this — and he held up two fingers side by side.", "narrator": "Sahl ibn Sa'd", "bukhari": 5304, "muslim": null, "forme": "Looking after a child with no parents is one of the best things a person can do."},
+  {"id": "h19", "theme": "t2", "tag": "Learning", "glyph": "🎓", "text": "Whoever sets out on a path seeking knowledge, Allah makes easy for him a path to Paradise.", "narrator": "Abu Hurayrah", "bukhari": null, "muslim": 2699, "forme": "Every time you sit down to learn, you're on that path."},
+  {"id": "h20", "theme": "t3", "tag": "The heart", "glyph": "❤️", "text": "Allah does not look at your bodies or your appearances. He looks at your hearts and your deeds.", "narrator": "Abu Hurayrah", "bukhari": null, "muslim": 2564, "forme": "What's inside you matters more than what's on the outside."},
+  {"id": "h21", "theme": "t5", "tag": "Modesty", "glyph": "🌸", "text": "Modesty is part of faith.", "narrator": "Ibn Umar", "bukhari": 24, "muslim": 36, "forme": "Being modest — in how you dress, speak and act — is part of being a believer."},
+  {"id": "h22", "theme": "t4", "tag": "Generosity", "glyph": "🎁", "text": "Charity does not reduce wealth. Allah only increases in honour a person who forgives. And nobody humbles himself for Allah without Allah raising him.", "narrator": "Abu Hurayrah", "bukhari": null, "muslim": 2588, "forme": "Giving, forgiving and staying humble never leave you worse off."},
+  {"id": "h23", "theme": "t4", "tag": "Others", "glyph": "🤝", "text": "Do not envy one another, do not hate one another, do not turn your backs on one another. Be servants of Allah, brothers.", "narrator": "Anas ibn Malik", "bukhari": 6066, "muslim": 2559, "forme": "Brothers and sisters look out for each other. Start at home."},
+  {"id": "h24", "theme": "t4", "tag": "Gentleness", "glyph": "🌱", "text": "Make things easy and do not make them hard. Give people good news and do not drive them away.", "narrator": "Anas ibn Malik", "bukhari": 69, "muslim": 1734, "forme": "Be the person who makes things easier, not harder."},
+  {"id": "h25", "theme": "t4", "tag": "Generosity", "glyph": "🖐️", "text": "The upper hand is better than the lower hand. The upper hand is the one that gives; the lower hand is the one that asks.", "narrator": "Ibn Umar", "bukhari": 1429, "muslim": 1033, "forme": "It's better to be the one giving than the one taking."},
+  {"id": "h26", "theme": "t5", "tag": "Manners", "glyph": "👋", "text": "A man asked which part of Islam is best. The Prophet said: to feed people, and to give the greeting of salaam to those you know and those you don't know.", "narrator": "Abdullah ibn Amr", "bukhari": 12, "muslim": 39, "forme": "Say salaam to everyone, not just your friends."},
+  {"id": "h27", "theme": "t2", "tag": "This world", "glyph": "🎒", "text": "Be in this world as if you were a stranger, or a traveller passing through.", "narrator": "Ibn Umar", "bukhari": 6416, "muslim": null, "forme": "Don't get too attached. You're on a journey."},
+  {"id": "h28", "theme": "t1", "tag": "Faith", "glyph": "🌟", "text": "Among the seven whom Allah will shade on the day there is no shade but His: a young person who grew up in worship of Allah.", "narrator": "Abu Hurayrah", "bukhari": 660, "muslim": 1031, "forme": "Growing up close to Allah is something He notices and rewards."},
+  {"id": "h29", "theme": "t1", "tag": "Faith", "glyph": "🧭", "text": "A man said: tell me something about Islam that I will never need to ask anyone else about. The Prophet said: say I believe in Allah — and then stay steady on it.", "narrator": "Sufyan ibn Abdullah", "bukhari": null, "muslim": 38, "forme": "Believe, then keep going. That's the whole of it."},
+  {"id": "h30", "theme": "t4", "tag": "Others", "glyph": "🫶", "text": "A Muslim has five rights over another Muslim: returning the greeting, visiting the sick, following the funeral, accepting an invitation, and answering the one who sneezes.", "narrator": "Abu Hurayrah", "bukhari": 1240, "muslim": 2162, "forme": "Five small ways to look after each other."},
+  {"id": "h31", "theme": "t1", "tag": "Keeping going", "glyph": "🌱", "text": "The deeds most loved by Allah are the ones done most regularly, even if they are small.", "narrator": "Aishah", "bukhari": 6465, "muslim": 783, "forme": "A little every day beats a lot once."},
+  {"id": "h32", "theme": "t2", "tag": "Prayer", "glyph": "🕐", "text": "The Prophet was asked which deed is most beloved to Allah. He said: prayer at its proper time. Then: being good to your parents. Then: striving in the way of Allah.", "narrator": "Abdullah ibn Mas'ud", "bukhari": 527, "muslim": 85, "forme": "Praying on time comes first — even before other good things."}
+];
+function hadithOfWeek(){
+  const wk=Math.floor((Date.now()+3*86400000)/(7*86400000));   // Monday-to-Monday
+  return HADITH[Math.abs(wk) % HADITH.length];
+}
+function hadithRef(h){
+  const parts=[];
+  if(h.bukhari) parts.push("Bukhari "+h.bukhari);
+  if(h.muslim) parts.push("Muslim "+h.muslim);
+  return parts.join(" \u00b7 ");
+}
+function hadithCardHTML(h, pinned, forKid){
+  return `<section class="rcard ${h.theme||"t1"}${pinned?" pinned":""} hadithcard">
+      ${pinned?'<span class="rpin">This week</span>':""}
+      <span class="rglyph" aria-hidden="true">${h.glyph||"\ud83d\udcdc"}</span>
+      <span class="rtag">${escapeHtml(h.tag||"Hadith")}</span>
+      <p class="rlead">${escapeHtml(h.text)}</p>
+      ${forKid && h.forme ? `<p class="hforme">${escapeHtml(h.forme)}</p>` : ""}
+      <p class="rsrc">Narrated by ${escapeHtml(h.narrator)} \u00b7 ${hadithRef(h)}</p>
+    </section>`;
+}
+let hadithFilter="all";
+function setHadithFilter(t){ hadithFilter=t; renderDeenPanel(); }
+function hadithTabHTML(forKid){
+  const week=hadithOfWeek();
+  const tags=[]; HADITH.forEach(h=>{ if(tags.indexOf(h.tag)<0) tags.push(h.tag); });
+  const shown=HADITH.filter(h=>hadithFilter==="all"||h.tag===hadithFilter);
+  return `<h2>\ud83d\udcdc Hadith</h2>
+    <p class="small">From Sahih al-Bukhari and Sahih Muslim. One for the week to live with, and the rest to look through.</p>
+    ${hadithCardHTML(week, true, forKid)}
+    <div class="duachips"><button class="${hadithFilter==="all"?"on":""}" onclick="setHadithFilter('all')">All</button>${
+      tags.map(t=>`<button class="${hadithFilter===t?"on":""}" onclick="setHadithFilter(${JSON.stringify(t)})">${escapeHtml(t)}</button>`).join("")}</div>
+    ${shown.filter(h=>h.id!==week.id).map(h=>hadithCardHTML(h, false, forKid)).join("")}
+    <p class="small" style="margin-top:16px">These give the meaning of each narration, not a word-for-word translation. The number is where to find it in the collection, so you can read the original in a copy your family trusts.</p>`;
+}
 /* Short, well-known teachings. Phrased as meanings rather than as exact
    quotations, with where they come from, so nothing is put in the Prophet's
    mouth word for word by an app. */
@@ -6431,7 +6509,7 @@ const TIP_CATS = [
   {key:"deen", label:"Deen"}
 ];
 
-const APP_VERSION = "v253";
+const APP_VERSION = "v254";
 const today = new Date().toISOString().slice(0,10);
 let app = {families:[],currentFamily:null,currentChild:null};
 let categories = [];
@@ -9554,6 +9632,8 @@ const MODULES = {
     note:"Qaida, Nazra and Hifz, tracked like any other subject." },
   duas:     { group:"faith", name:"Duas",
     note:"A dua for the time of day, and a collection to look through." },
+  hadith:   { group:"faith", name:"Hadith",
+    note:"Thirty-two sayings from Bukhari and Muslim, a new one each week. Read, never scored." },
   fulfulde: { group:"courses", name:"Janngu Fulfulde",
     note:"Learning to read Pular \u2014 fifty-five stops with sound." },
   ohmaths:  { group:"courses", name:"One Hundred: Maths",
@@ -9575,7 +9655,7 @@ const MODULES = {
    believes it. Everything faith-related now asks faithOn() \u2014 one function, so
    there is one place to be wrong rather than twelve. */
 function faithOn(){
-  return moduleOn("quran") || moduleOn("duas") || moduleOn("prayers");
+  return moduleOn("quran") || moduleOn("duas") || moduleOn("prayers") || moduleOn("hadith");
 }
 /* The starter lists are mixed: nine of the ten categories are about manners,
    tidying and honesty, and one is about salah. Rather than keep two copies of
@@ -11672,11 +11752,17 @@ function showDeenPanel(){
 function renderDeenPanel(){
   const body=document.getElementById("deenBody");
   if(!body) return;
-  ["duas","reminders","stories","prayers"].forEach(t=>{
+  ["duas","reminders","hadith","stories","prayers"].forEach(t=>{
     const b=document.getElementById(t==="duas"?"deenTabDuas":t==="reminders"?"deenTabRem"
-      :t==="stories"?"deenTabStories":"deenTabPrayers");
+      :t==="hadith"?"deenTabHadith":t==="stories"?"deenTabStories":"deenTabPrayers");
     if(b) b.classList.toggle("on", deenTab===t);
   });
+  const ht=document.getElementById("deenTabHadith"); if(ht) ht.classList.toggle("hidden", !moduleOn("hadith"));
+  if(deenTab==="hadith"){
+    body.innerHTML = moduleOn("hadith") ? hadithTabHTML(false)
+      : '<p class="small">Hadith is switched off for this family. Turn it on under What this family uses.</p>';
+    return;
+  }
   /* The prayer board came off My points in v155. A record of salah is not a
      points balance, and it should not be reached by tapping a star labelled
      with a number. It belongs with the duas and the reminders. */
@@ -24510,11 +24596,19 @@ body:not(.haskidbar) .canlist li.cannot{color:rgba(27,36,48,.6)}
         <button class="dnenough" onclick="nmDeenMode('deen');showScreen(null)">That\u2019s enough for today</button>`;
       return;
     }
+    if(deenMode==="hadith"){
+      body.innerHTML = `<button class="kidback" onclick="nmDeenMode('deen')">\u2190 Deen</button>` + hadithTabHTML(true);
+      return;
+    }
     const duas=todayDuas(); const d=duas[duaIndex%duas.length] || DUAS[0];
     const rem=pickOfDay(REMINDERS);
+    const hw = moduleOn("hadith") ? hadithOfWeek() : null;
     body.innerHTML = `<h2>\ud83d\udd4c Deen</h2>
       ${prayerRowE1(me)}
       ${duaCard(d, "Today\u2019s dua", `<button class="dnanother" onclick="nmNextDua()">Another \u2192</button>`)}
+      ${hw ? `<section class="dncard"><div class="dnhead"><span class="dncap">This week\u2019s hadith</span><button class="dnanother" onclick="nmDeenMode('hadith')">All of them \u2192</button></div>
+        <p class="dnrem">${esc(hw.text)}</p>${hw.forme?`<p class="dnen" style="margin-top:8px">${esc(hw.forme)}</p>`:""}
+        <p class="dnsrc">Narrated by ${esc(hw.narrator)} \u00b7 ${hadithRef(hw)}</p></section>` : ""}
       <section class="dncard warm"><span class="dncap">One thing to remember</span><p class="dnrem">${esc(rem.text)}</p><p class="dnsrc">${esc(rem.src||"")}</p></section>
       <button class="dnstory" onclick="nmDeenMode('bedtime')">\ud83c\udf19 Bedtime \u2192</button>
       <section class="dncard dashed"><p class="dnclose">Nobody scores this and nothing here earns points. It\u2019s yours.</p></section>`;
@@ -24891,6 +24985,10 @@ body.haskidbar .paneltop{bottom:calc(84px + env(safe-area-inset-bottom))}
 #mainApp{padding:0!important;min-height:0!important}
 body.nocover{padding-top:calc(66px + env(safe-area-inset-top))}
 body.nocover.board{padding-top:calc(94px + env(safe-area-inset-top))}
+/* v254: hadith */
+.hforme{margin:8px 0 0;font-size:13.5px;line-height:1.45;font-weight:600;opacity:.85}
+.hadithcard .rlead{font-size:15.5px;line-height:1.5}
+#deenTabHadith.hidden{display:none!important}
 @keyframes ntnudge{0%,100%{box-shadow:none}40%{box-shadow:0 0 0 3px rgba(78,140,106,.35)}}
 body:not(.haskidbar) .rwcard{background:#fff;border:1px solid rgba(27,36,48,.1);border-radius:16px;overflow:hidden}
 body:not(.haskidbar) .rwrow,body:not(.haskidbar) .prrow,body:not(.haskidbar) .hrrow{display:flex;align-items:center;gap:12px;padding:13px 15px;border-top:1px solid rgba(27,36,48,.07);background:#fff}
