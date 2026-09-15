@@ -3614,10 +3614,11 @@ body:has(#familyView:not(.hidden)) .panel .section-card{background:#fff!importan
   </div>
 
   <div id="kidSpendScreen" class="hidden">
-    <!-- Always-visible escape route. The label changes depending on where the child entered from. --> Arriving
-         from the tab bar this is a place of its own; arriving from the pot it
-         is what is inside the pot you just tapped, and a pot you opened needs
-         a way back to the shelf you opened it from. -->
+    <!-- v248: a way back only when there is somewhere to go back to. Arriving
+         from the tab bar this is a place of its own and the tab bar is the way
+         out; arriving from a pot it is what is inside the pot you just tapped,
+         and a pot you opened needs a way back to the shelf you opened it from.
+         (v247 closed this comment one line early, so its text was on the page.) -->
     <div id="kidSpendBack" class="kid-screen-back-slot"></div>
     <header class="kidtitle w-spend">
       <span class="kidtitleicon">🎁</span>
@@ -6144,7 +6145,7 @@ const TIP_CATS = [
   {key:"deen", label:"Deen"}
 ];
 
-const APP_VERSION = "v247";
+const APP_VERSION = "v248";
 const today = new Date().toISOString().slice(0,10);
 let app = {families:[],currentFamily:null,currentChild:null};
 let categories = [];
@@ -6876,17 +6877,22 @@ async function saveApp(){
     goals: app.goals || [],
     announcements: app.announcements || []
   };
+  /* v248: only the documents that actually changed are written. Every save
+     used to push all eight from this device's copy, so a parent editing a
+     reward on one phone wrote their (older) settings over the toggles the
+     other parent had just changed on theirs — and the switch appeared to
+     have flipped itself back. Compared against the last payload the
+     listener delivered, which is what the other device wrote. */
+  const last = (typeof rawData!=="undefined" && rawData && rawData.config) ? rawData.config : {};
+  const changed = Object.keys(pending).filter(name=>{
+    const prev = last[name];
+    if(prev == null) return true;
+    try{ return JSON.stringify(pending[name]) !== JSON.stringify(JSON.parse(prev)); }
+    catch(e){ return true; }
+  });
+  if(!changed.length){ setSyncStatus("☁️ Synced across devices"); return; }
   try{
-    await Promise.all([
-      window.fpc.saveConfig(familyId, "categories", pending.categories),
-      window.fpc.saveConfig(familyId, "rewards", pending.rewards),
-      window.fpc.saveConfig(familyId, "games", pending.games),
-      window.fpc.saveConfig(familyId, "settings", pending.settings),
-      window.fpc.saveConfig(familyId, "parentCategories", pending.parentCategories),
-      window.fpc.saveConfig(familyId, "parentRewards", pending.parentRewards),
-      window.fpc.saveConfig(familyId, "goals", pending.goals),
-      window.fpc.saveConfig(familyId, "announcements", pending.announcements)
-    ]);
+    await Promise.all(changed.map(name => window.fpc.saveConfig(familyId, name, pending[name])));
     setSyncStatus("☁️ Synced across devices");
   }catch(e){
     console.error("Save failed:", e);
@@ -7333,8 +7339,16 @@ function registerLearnExtra(entry){
   window.LEARN_EXTRAS.sort((a,b)=>(a.order||50)-(b.order||50));
 }
 function learnExtrasHTML(child){
+  /* v248: every door declares the module it belongs to, and a door whose
+     module is switched off in "What this family uses" is not drawn. Until now
+     the modules screen gated the faith tiles and the Qur'an ladder while the
+     four course doors ignored it — a parent switched a course off and the
+     child still had it on the Du\u0257al shelf. */
   const parts=(window.LEARN_EXTRAS||[]).map(x=>{
-    try{ return x.html(child) || ""; }catch(e){ console.error("Learn extra failed:", e); return ""; }
+    try{
+      if(x.module && typeof moduleOn==="function" && !moduleOn(x.module)) return "";
+      return x.html(child) || "";
+    }catch(e){ console.error("Learn extra failed:", e); return ""; }
   }).filter(Boolean);
   if(!parts.length) return "";
   return `<p class="learneyebrow">Ready to open</p>` + parts.join("");
@@ -13315,7 +13329,8 @@ function renderParentAdminView(parent){
           <div class="nm-parent-date">${new Date().toLocaleDateString(undefined,{weekday:"long",day:"numeric",month:"long"})}</div>
           <h1>${f && f.name ? escapeHtml(f.name) : "Your family"}</h1>
         </div>
-        <button class="nm-parent-menu" onclick="toggleMenu()" aria-label="More">☰</button>
+        <!-- v248: the ☰ that sat here opened the same sheet as the Menu pill
+             top-left, so the home screen had two menu buttons. -->
       </header>
 
       <section class="nm-parent-jobs">
@@ -15104,11 +15119,12 @@ function renderKidView(child){
   }
   const sbal=document.getElementById("kidSpendBalance");
   if(sbal) sbal.innerHTML = spendBalanceHTML(child);
-  /* The back button exists only on the pot version of this screen. */
+  /* v248: the back button exists only on the pot version of this screen.
+     From the tab bar, "\u2190 Home" duplicated the Home tab underneath it. */
   const sback=document.getElementById("kidSpendBack");
   if(sback) sback.innerHTML = (spendVia==="points")
     ? `<button class="kidback kidback-top" onclick="showScreen('kidPointsScreen')">\u2190 My points</button>`
-    : `<button class="kidback kidback-top" onclick="showScreen(null)">\u2190 Home</button>`;
+    : "";
   const pw=document.getElementById("prayerWall");
   if(pw) pw.innerHTML = prayerWallHTML(child, 7, true);
 
@@ -16109,7 +16125,7 @@ window.FULFULDE_M1 = {
   };
 
   if(typeof registerLearnExtra==='function'){
-    registerLearnExtra({ order:10, html(c){
+    registerLearnExtra({ order:10, module:"fulfulde", html(c){
       const done=coveredIds().size, total=Object.keys(OBJ).length;
       return `<button type="button" class="docard ff" onclick="openFulfulde()">
         <span class="doglyph" aria-hidden="true">${window.NM_MARK?NM_MARK("fulfulde"):""}</span>
@@ -16416,7 +16432,11 @@ window.ONE_HUNDRED = {
 
   if(typeof registerLearnExtra==='function'){
     registerLearnExtra({ order:11, html(c){
-      return Object.keys(P).map(key=>{
+      return Object.keys(P).filter(key=>{
+        /* v248: each of the two courses is its own switch on the modules screen. */
+        const mod = key==="maths" ? "ohmaths" : "ohenglish";
+        return typeof moduleOn!=="function" || moduleOn(mod);
+      }).map(key=>{
         const total=Object.keys(OBJ[key]).length, done=covered(key).size;
         return `<button type="button" class="docard ${key==="maths"?"ohm":"ohe"}" onclick="openOneHundred('${key}')">
           <span class="doglyph" aria-hidden="true">${window.NM_MARK?NM_MARK(key):""}</span>
@@ -16515,7 +16535,7 @@ window.ONE_HUNDRED = {
   if(typeof registerLearnExtra==='function'){
     /* order 9: above the Fulfulde road, because the Qur'an comes first in this
        house and the shelf should say so without anyone having to explain it. */
-    registerLearnExtra({ order:9, html(c){
+    registerLearnExtra({ order:9, module:"quran", html(c){
       const done=doneCount();
       return `<button type="button" class="docard alw" onclick="openAlluwal()">
         <span class="doglyph" aria-hidden="true">${window.NM_MARK?NM_MARK("alluwal"):""}</span>
@@ -17007,7 +17027,7 @@ function done(){
   if(back) back.onclick=()=>{ if(DECK.length){ menu(); } else close(); };
 
   if(typeof registerLearnExtra==="function"){
-    registerLearnExtra({ order:20, html(c){
+    registerLearnExtra({ order:20, module:"decks", html(c){
       /* No count. "3 of 18 played" turned a shelf of games into a list with
          fifteen things outstanding on it. */
       return `<button type="button" class="docard play" onclick="openDecks()">
@@ -18333,7 +18353,8 @@ window.GROWNUP_DECKS = [
     h += `<p class="shelfgroup">Ready-made</p>`;
     h += quranHTML();
 
-    if(window.FULFULDE_M1 && typeof window.openFulfulde === "function"){
+    if(window.FULFULDE_M1 && typeof window.openFulfulde === "function"
+       && (typeof moduleOn!=="function" || moduleOn("fulfulde"))){
       const pack = window.FULFULDE_M1;
       const secs = (typeof window.fulfuldeSections === "function")
         ? window.fulfuldeSections(m) : [];
@@ -20623,6 +20644,16 @@ window.GROWNUP_DECKS = [
     renderNotesPanel();
   };
   window.ntMode = m => { mode=m; renderNotesPanel(); };
+  /* v248: an empty slot takes you to the add box underneath. It used to look
+     for the free-text field, which only exists in "Not on the list" mode —
+     so in the default mode the tap found nothing and did nothing. */
+  window.ntSlotTap = function(){
+    const box=document.querySelector(".ntadd");
+    if(box) box.scrollIntoView({behavior:"smooth", block:"start"});
+    const free=document.getElementById("ntFree");
+    if(free) setTimeout(()=>free.focus(), 350);
+    else if(box){ box.classList.remove("nudge"); void box.offsetWidth; box.classList.add("nudge"); }
+  };
 
   /* Anything already on the note comes off the list you are choosing from.
      Asking for Fajr twice on the same note is never what anyone meant, and the
@@ -21074,7 +21105,7 @@ window.GROWNUP_DECKS = [
         ${nt && nt.items.length ? nt.items.map(it=>itemRow(nt, it, true, true)).join("") : ""}
         ${/* v238 (design D3): the note is six numbered slots, empty ones dashed. */
           Array.from({length: Math.max(0, MAX_ITEMS - ((nt && nt.items) ? nt.items.length : 0))}, ()=>
-            `<button class="ntslot" onclick="var e=document.getElementById('ntFree'); if(e){e.focus(); e.scrollIntoView({behavior:'smooth',block:'center'});}">Empty \u2014 tap to add something</button>`).join("")}
+            `<button class="ntslot" onclick="ntSlotTap()">Empty \u2014 tap to add something</button>`).join("")}
         ${!(nt && nt.items.length) ? `<p class="ntempty">Nothing on it yet. Whatever you add, ${esc(child.name)} sees
               next time they open the app.</p>` : ""}
         <p class="ntlive ${nt && nt.items.length ? "on" : ""}">${
@@ -23485,8 +23516,8 @@ body:not(.haskidbar) .canlist li.cannot{color:rgba(27,36,48,.6)}
       <span class="rwmain"><strong>${esc(item.name)}</strong><em class="${dim?"out":""}">${dim?"Section cap reached \u2014 nothing until it comes round":limitLabel(item)}</em></span>
       <span class="rwcost">${item.points}</span>
       <span class="rwacts">
-        <button class="rwbtn" title="Edit" onclick="nmRewardEdit('${sec.id}','${item.id}')">${PENCIL}</button>
-        <button class="rwbtn grip" title="Drag to reorder" onpointerdown="nmRewardDragStart(event)">${GRIP}</button>
+        <button class="rwbtn rwedittxt" aria-label="Edit ${esc(item.name)}" onclick="nmRewardEdit('${sec.id}','${item.id}')">${PENCIL}<span>Edit</span></button>
+        <button class="rwbtn grip" aria-label="Hold and drag to reorder" title="Hold and drag to reorder" onpointerdown="nmRewardDragStart(event)">${GRIP}</button>
       </span>
     </div>`;
   }
@@ -23518,9 +23549,17 @@ body:not(.haskidbar) .canlist li.cannot{color:rgba(27,36,48,.6)}
     return `<section class="rwsec" data-sec="${sec.id}">
       <div class="rwhead">
         <span class="rwcap">${esc(sec.name)}</span><span class="rwrule"></span>
-        <button class="rwchev" ${idx===0?"disabled":""} title="Move section up" onclick="nmSectionMove('${sec.id}',-1)">${UP}</button>
-        <button class="rwchev" ${idx===count-1?"disabled":""} title="Move section down" onclick="nmSectionMove('${sec.id}',1)">${DOWN}</button>
-        ${canCap?`<button class="rwpill ${cs.out?"out":""}" onclick="nmCapToggle('${sec.id}')">${cs.label}</button>`:""}
+      </div>
+      <!-- v248: the controls were three unlabelled buttons crammed onto the
+           heading line and the cap fell off the right edge of the screen.
+           They sit on their own line now, each saying what it does. -->
+      <div class="rwtools">
+        ${canCap?`<button class="rwpill rwcapbtn ${cs.out?"out":""}" aria-expanded="${capOpen===sec.id}" onclick="nmCapToggle('${sec.id}')">
+            <small>Section limit</small><b>${cs.label} <span class="rwcapchev">\u203a</span></b></button>`:""}
+        <span class="rwmove">
+          <button class="rwchev" ${idx===0?"disabled":""} aria-label="Move section up" onclick="nmSectionMove('${sec.id}',-1)">${UP}<span>Up</span></button>
+          <button class="rwchev" ${idx===count-1?"disabled":""} aria-label="Move section down" onclick="nmSectionMove('${sec.id}',1)">${DOWN}<span>Down</span></button>
+        </span>
       </div>
       ${capOpen===sec.id?`<div class="rwchips caps">${CAP_CHOICES.map(([c,l])=>`<button class="${sameCap(c,capFor(sec.id))?"on":""}" onclick='nmCapSet("${sec.id}",${JSON.stringify(c)})'>${l}</button>`).join("")}</div>`:""}
       <div class="rwcard">
@@ -24462,6 +24501,26 @@ body:not(.haskidbar) .rwchev{width:28px;min-height:24px;height:24px;padding:0;bo
 body:not(.haskidbar) .rwchev:disabled{opacity:.3}
 body:not(.haskidbar) .rwpill{width:auto;min-height:24px;height:24px;padding:0 9px;border-radius:7px!important;background:rgba(27,36,48,.06)!important;border:0!important;color:rgba(27,36,48,.55)!important;font:600 10.5px/1 var(--f-body);flex:none}
 body:not(.haskidbar) .rwpill.out{background:rgba(176,86,58,.12)!important;color:var(--g-undo)!important}
+/* v248: section tools on their own line, labelled, and never clipped. */
+body:not(.haskidbar) .rwsec{min-width:0}
+body:not(.haskidbar) .rwtools{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:-2px 0 10px}
+body:not(.haskidbar) .rwcapbtn{height:auto;min-height:40px;padding:6px 12px;display:flex;flex-direction:column;align-items:flex-start;gap:3px;text-align:left;
+  background:#fff!important;border:1.5px solid rgba(27,36,48,.16)!important;color:var(--g-ink)!important;border-radius:12px!important}
+body:not(.haskidbar) .rwcapbtn small{font:600 9.5px/1 var(--f-body);letter-spacing:.09em;text-transform:uppercase;color:rgba(27,36,48,.5)}
+body:not(.haskidbar) .rwcapbtn b{font:600 13px/1 var(--f-body);display:flex;align-items:center;gap:4px}
+body:not(.haskidbar) .rwcapbtn .rwcapchev{display:inline-block;transition:transform .15s;color:rgba(27,36,48,.45)}
+body:not(.haskidbar) .rwcapbtn[aria-expanded="true"] .rwcapchev{transform:rotate(90deg)}
+body:not(.haskidbar) .rwcapbtn.out{border-color:rgba(176,86,58,.35)!important;background:rgba(176,86,58,.08)!important}
+body:not(.haskidbar) .rwcapbtn.out b{color:var(--g-undo)}
+body:not(.haskidbar) .rwmove{margin-left:auto;display:flex;gap:6px}
+body:not(.haskidbar) .rwmove .rwchev{width:auto;min-height:40px;height:40px;padding:0 11px;border-radius:12px!important;display:inline-flex;align-items:center;gap:5px;
+  font:600 12.5px/1 var(--f-body);background:#fff!important;border:1.5px solid rgba(27,36,48,.16)!important;color:var(--g-ink)!important}
+body:not(.haskidbar) .rwmove .rwchev svg{width:14px;height:14px}
+body:not(.haskidbar) .rwmove .rwchev:disabled{opacity:.35}
+body:not(.haskidbar) .rwedittxt{width:auto;padding:0 10px;display:inline-flex;align-items:center;gap:5px;font:600 12px/1 var(--f-body);border-radius:9px!important}
+body:not(.haskidbar) .rwedittxt svg{width:14px;height:14px}
+body:not(.haskidbar) .ntadd.nudge{animation:ntnudge .5s ease}
+@keyframes ntnudge{0%,100%{box-shadow:none}40%{box-shadow:0 0 0 3px rgba(78,140,106,.35)}}
 body:not(.haskidbar) .rwcard{background:#fff;border:1px solid rgba(27,36,48,.1);border-radius:16px;overflow:hidden}
 body:not(.haskidbar) .rwrow,body:not(.haskidbar) .prrow,body:not(.haskidbar) .hrrow{display:flex;align-items:center;gap:12px;padding:13px 15px;border-top:1px solid rgba(27,36,48,.07);background:#fff}
 body:not(.haskidbar) .rwrow:first-child,body:not(.haskidbar) .prrow:first-child,body:not(.haskidbar) .hrrow:first-child{border-top:0}
